@@ -1,41 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFF3E0"
+    android:background="#FFFFFF"
     tools:context=".FirstFragment">
 
     <!-- 1. CABEÇALHO (20% da tela) -->
-    <!-- Laranja escuro industrial -->
+    <!-- Verde escuro do colóquio -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center"
-        android:background="#E65100"
+        android:background="#1B5E20"
         android:elevation="4dp">
 
-        <TextView
-            android:id="@+id/tvAppName"
+        <ImageView
+            android:id="@+id/imageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-black"
-            android:letterSpacing="0.1"
-            android:shadowColor="#BF360C"
-            android:shadowDx="2"
-            android:shadowDy="2"
-            android:shadowRadius="4"
-            android:text="@string/nome_evento"
-            android:textAlignment="center"
-            android:textColor="#FFFFFF"
-            android:textSize="32sp"
-            android:textStyle="bold" />
+            android:layout_weight="1"
+            android:src="@drawable/logocoloquio" />
     </LinearLayout>
 
     <!-- 2. CONTEÚDO PRINCIPAL (60% da tela) -->
-    <!-- Laranja vibrante para destaque -->
+    <!-- Verde lima vibrante -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -43,7 +35,7 @@
         android:gravity="center"
         android:orientation="vertical"
         android:padding="20dp"
-        android:background="#FF9800">
+        android:background="#9ACD32">
 
         <!-- Texto Chamativo com cor escura para contraste -->
         <TextView
@@ -53,7 +45,7 @@
             android:layout_marginBottom="40dp"
             android:fontFamily="sans-serif-medium"
             android:textAlignment="center"
-            android:textColor="#2E1B00"
+            android:textColor="#1B5E20"
             android:textSize="24sp"
             android:textStyle="bold" />
 
@@ -62,7 +54,7 @@
             android:id="@+id/lerQRCodeButton"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:backgroundTint="#5D4037"
+            android:backgroundTint="#1B5E20"
             android:elevation="10dp"
             android:fontFamily="sans-serif-black"
             android:padding="15dp"
@@ -70,6 +62,17 @@
             android:text="@string/txtJogarQuiz"
             android:textColor="#FFFFFF"
             android:textSize="18sp" />
+
+        <com.journeyapps.barcodescanner.DecoratedBarcodeView
+            android:id="@+id/barcodeView"
+            android:layout_width="300dp"
+            android:layout_height="400dp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textoLidoTextView"
+            app:zxing_preview_scaling_strategy="centerCrop"
+            app:zxing_use_texture_view="false" />
 
     </LinearLayout>
 
@@ -80,17 +83,17 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center"
-        android:background="#E65100"
+        android:background="#1B5E20"
         android:orientation="horizontal">
 
         <!-- Logos dos Patrocinadores com filtro branco para harmonia -->
         <ImageView
-            android:layout_width="50dp"
+            android:layout_width="185dp"
             android:layout_height="50dp"
-            android:src="@drawable/ic_launcher_foreground"
             android:layout_margin="10dp"
+            android:alpha="0.9"
             android:contentDescription="Logo 1"
-            android:alpha="0.9"/>
+            android:src="@drawable/logoifsc" />
 
         <ImageView
             android:layout_width="50dp"
