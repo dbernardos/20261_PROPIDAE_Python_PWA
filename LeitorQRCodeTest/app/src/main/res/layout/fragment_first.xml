@@ -38,41 +38,49 @@
         android:background="#9ACD32">
 
         <!-- Texto Chamativo com cor escura para contraste -->
-        <TextView
-            android:id="@+id/textoLidoTextView"
-            android:layout_width="221dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="40dp"
-            android:fontFamily="sans-serif-medium"
-            android:textAlignment="center"
-            android:textColor="#1B5E20"
-            android:textSize="24sp"
-            android:textStyle="bold" />
 
         <!-- Botão com contraste forte -->
-        <Button
-            android:id="@+id/lerQRCodeButton"
-            android:layout_width="250dp"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#1B5E20"
-            android:elevation="10dp"
-            android:fontFamily="sans-serif-black"
-            android:padding="15dp"
-            android:stateListAnimator="@null"
-            android:text="@string/txtJogarQuiz"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp" />
 
-        <com.journeyapps.barcodescanner.DecoratedBarcodeView
-            android:id="@+id/barcodeView"
-            android:layout_width="300dp"
-            android:layout_height="400dp"
-            android:layout_marginTop="32dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textoLidoTextView"
-            app:zxing_preview_scaling_strategy="centerCrop"
-            app:zxing_use_texture_view="false" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/lerQRCodeButton"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#1B5E20"
+                android:elevation="10dp"
+                android:fontFamily="sans-serif-black"
+                android:padding="15dp"
+                android:stateListAnimator="@null"
+                android:text="@string/txtJogarQuiz"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/textoLidoTextView"
+                android:layout_width="221dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="40dp"
+                android:fontFamily="sans-serif-medium"
+                android:textAlignment="center"
+                android:textColor="#1B5E20"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <com.journeyapps.barcodescanner.DecoratedBarcodeView
+                android:id="@+id/barcodeView"
+                android:layout_width="300dp"
+                android:layout_height="400dp"
+                android:layout_marginTop="32dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textoLidoTextView"
+                app:zxing_preview_scaling_strategy="centerCrop"
+                app:zxing_use_texture_view="false" />
+        </LinearLayout>
 
     </LinearLayout>
 
