@@ -24,7 +24,7 @@
 
         <div class="mb-3">
           <input type="submit" value="🏃‍♂️‍➡️ Entrar" class="btn btn-primary" />
-          <a href="{% url 'urlcadastrarUsuario' %}" class="btn btn-success">➕ Cadastrar</a>
+          {% comment %} <a href="{% url 'urlcadastrarUsuario' %}" class="btn btn-success">➕ Cadastrar</a> {% endcomment %}
         </div>
       </form>
       {% if messages %}
