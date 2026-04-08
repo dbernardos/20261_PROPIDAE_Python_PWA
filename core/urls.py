@@ -6,6 +6,8 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name="urlindex"), 
+    path('entrar', views.entrar, name="urlentrar"),
+    path('sair', views.sair, name="urlsair"),
 ]
 
 
