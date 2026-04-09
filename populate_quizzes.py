@@ -1,5 +1,7 @@
+# Exportar variável de ambiente: $env:DJANGO_SETTINGS_MODULE="SEA.settings"
 # Execute: python manage.py shell < populate_quizzes.py
 # ou: python populate_quizzes.py
+
 import os
 import django
 

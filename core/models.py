@@ -6,6 +6,7 @@ class Participante(models.Model):
     """Model para armazenar os participantes pelo crachá"""
     cracha = models.CharField(max_length=200, unique=True, verbose_name="Número do Crachá")
     nome = models.CharField(max_length=200, blank=True, null=True)
+    empresa = models.CharField(max_length=200, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     data_cadastro = models.DateTimeField(auto_now_add=True)
     ultimo_acesso = models.DateTimeField(auto_now=True)
@@ -31,7 +32,7 @@ class Participante(models.Model):
 class Quiz(models.Model):
     """Model para os desafios/quiz"""
     titulo = models.CharField(max_length=200)
-    subtítulo = models.CharField(max_length=300, blank=True, null=True)
+    subtitulo = models.CharField(max_length=300, blank=True, null=True)
     descricao = models.TextField(help_text="Descrição do desafio")
     numero = models.PositiveIntegerField(unique=True, help_text="Número do desafio")
     icone = models.CharField(max_length=50, default="bi-trophy", help_text="Classe do Bootstrap Icon")
@@ -67,7 +68,7 @@ class RespostaQuiz(models.Model):
     participante = models.ForeignKey(Participante, on_delete=models.CASCADE, related_name='respostas')
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='respostas')
     
-    valor_resposta = models.DecimalField(max_digits=10, decimal_places=2)
+    valor_resposta = models.DecimalField(null=True, blank=True, max_digits=10, decimal_places=2)
     data_resposta = models.DateTimeField(auto_now_add=True)
     ultima_atualizacao = models.DateTimeField(auto_now=True)
     

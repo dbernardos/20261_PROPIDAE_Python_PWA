@@ -9,7 +9,7 @@
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="{% url 'quiz:boas_vindas' participante.cracha %}" class="text-decoration-none">
+                <a href="{% url 'boas_vindas' participante.cracha %}" class="text-decoration-none">
                     <i class="bi bi-house me-1"></i>Início
                 </a>
             </li>
@@ -95,7 +95,7 @@
                         </div>
                         
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="{% url 'quiz:reset_quiz' participante.cracha quiz.numero %}" 
+                            <a href="{% url 'reset_quiz' participante.cracha quiz.numero %}" 
                                class="btn btn-outline-secondary"
                                onclick="return confirm('Deseja reiniciar este desafio?')">
                                 <i class="bi bi-arrow-counterclockwise me-2"></i>Reiniciar
@@ -126,7 +126,7 @@
             
             <!-- Botão Voltar -->
             <div class="text-center mt-4">
-                <a href="{% url 'quiz:boas_vindas' participante.cracha %}" class="btn btn-outline-secondary">
+                <a href="{% url 'boas_vindas' participante.cracha %}" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left me-2"></i>Voltar para Página Inicial
                 </a>
             </div>
