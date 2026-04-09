@@ -1,6 +1,12 @@
 # Execute: python manage.py shell < populate_quizzes.py
+# ou: python populate_quizzes.py
+import os
+import django
 
-from quiz.models import Quiz
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'SEA.settings')
+django.setup()
+
+from core.models import Quiz
 
 # Limpa quizzes existentes
 Quiz.objects.all().delete()

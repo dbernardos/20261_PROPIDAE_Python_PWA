@@ -4,7 +4,7 @@ import uuid
 
 class Participante(models.Model):
     """Model para armazenar os participantes pelo crachá"""
-    cracha = models.CharField(max_length=50, unique=True, verbose_name="Número do Crachá")
+    cracha = models.CharField(max_length=200, unique=True, verbose_name="Número do Crachá")
     nome = models.CharField(max_length=200, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     data_cadastro = models.DateTimeField(auto_now_add=True)
