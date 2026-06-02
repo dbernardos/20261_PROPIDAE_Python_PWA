@@ -1,0 +1,230 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Controle de Acesso</title>
+    
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/png" href="{% static 'acesso/images/android/Icontransparent.png' %}">
+    <link rel="icon" type="image/png" href="{% static 'acesso/images/android/Icontransparent.png' %}?v=2">
+
+    
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register("/service-worker.js");
+      }
+    </script>
+    
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <style>
+
+        .navbar{
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            
+
+            background-color: green;
+            text-align: center;
+            min-height: 20vh;
+        }
+
+        .principal{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+
+            min-height: 60vh;
+        }
+
+        .rodape{
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            
+
+            background-color: green;
+            text-align: center;
+            min-height: 20vh;
+        }
+
+        .cam{
+            height: 400px;
+            width: 400px;
+            background-color: gray;
+        }
+
+        .button-quiz{
+            border: none;
+            
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        /* A div do leitor substitui o <video> */
+        #reader {
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #resultado {
+            margin-top: 20px;
+            padding: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .autorizado {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .negado {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+
+<body>
+  
+
+   
+
+    <br>
+   
+
+     <div>
+        <nav class="navbar">
+            <div>
+                <h1>Evento IFSC</h1>
+            </div>
+        </nav>
+    </div>
+    <div>
+        <main class="principal">
+            <div>
+                <h2>Leitor</h2>
+                 <div id="reader"></div>
+                <div id="resultado">Aguardando QR Code...</div>
+            </div>
+
+            <div>
+                <button class="button-quiz">Ir para o Quiz</button>
+            </div>
+        </main>
+    </div>
+    <div>
+        <footer class="rodape">
+            <div>
+                <h3>Patrocinadores</h3>
+            </div>
+        </footer>
+    </div>
+
+
+
+    <script>
+        
+        const resultadoDiv = document.getElementById('resultado');
+        let processando = false; 
+
+        
+        async function validarNoServidor(codigoLido) {
+            
+           // processando = true; 
+            if (processando) return; // ISSO AQUI É O FREIO DE MÃO
+            processando = true;
+
+            try {
+                const response = await fetch('/identificar/', {
+                    method: 'POST',
+                     headers: { 
+                         'Content-Type': 'application/json',
+                         'X-CSRFToken': '{{ csrf_token }}' 
+                },
+
+
+                    body: JSON.stringify({ codigo: codigoLido })
+                });
+
+                const dados = await response.json();
+
+                if (dados.autorizado) {
+
+                    html5QrCode.stop().then(() => {
+                            console.log("Câmera desligada após sucesso.");
+                    }).catch(err => console.error("Erro ao desligar:", err));
+
+
+                    resultadoDiv.textContent = `✅ Acesso Liberado: ${dados.nome}`;
+                    resultadoDiv.className = 'autorizado';
+                    
+                   
+                    setTimeout(() => {
+                          window.location.href = `/sucesso/?nome=${encodeURIComponent(dados.nome)}&codigo=${encodeURIComponent(dados.codigo)}`;
+                    }, 1500);
+                            
+                  
+                    
+                } else {
+                    resultadoDiv.textContent = `❌ Acesso Negado: ${dados.mensagem}`;
+                    resultadoDiv.className = 'negado';
+
+                    setTimeout(() => {
+                       resultadoDiv.textContent = "Aguardando QR Code...";
+                       resultadoDiv.className = '';
+                       processando = false; // Libera a câmera para a próxima pessoa!
+            }, 3000); // 3000 = 3 segundos de espera para ler a mensagem    
+                }
+
+            } catch (err) {
+                console.error("Erro: ", err);
+                resultadoDiv.textContent = "Erro de conexão. Tente novamente.";
+                resultadoDiv.className = 'negado';
+
+                setTimeout(() => {
+                    resultadoDiv.textContent = "Aguardando QR Code...";
+                    resultadoDiv.className = '';
+                    processando = false;
+              }, 3000);
+            }
+        }   
+
+        
+        function onScanSuccess(decodedText) {
+            if (!processando) {
+               // processando = true; // Trava o leitor temporariamente
+                validarNoServidor(decodedText);
+            }
+        }
+
+        
+        const html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start(
+            { facingMode: "environment" }, // Tenta usar a câmera traseira
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            onScanSuccess
+        ).catch(err => {
+            console.error("Erro na câmera: ", err);
+            resultadoDiv.textContent = "Erro ao ligar a câmera.";
+        });
+    </script>
+</body>
+
+</html>

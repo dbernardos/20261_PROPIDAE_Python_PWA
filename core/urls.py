@@ -12,7 +12,8 @@ def service_worker(request):
     return response
 
 urlpatterns = [
-    path('', views.index, name="urlindex"), 
+    path('', views.leitor_qrcode, name="urlleitor_qrcode"), 
+    path('home', views.index, name="urlindex"), 
     path('entrar', views.entrar, name="urlentrar"),
     path('sair', views.sair, name="urlsair"),
     path('quiz', views.quiz, name='urlquiz'),

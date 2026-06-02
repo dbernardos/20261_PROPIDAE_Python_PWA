@@ -1,0 +1,17 @@
+{% extends 'global/base.html' %}
+{% load static %}
+
+{% block title %}Leitor de QR Code - XXIX Colóquio de Usinagem{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4 text-center">Registre a sua presença aqui </h1>
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <p class="lead mb-4">Aponte a câmera do seu dispositivo para o QR Code abaixo para acessar o conteúdo exclusivo do evento.</p>
+            <img src="{% static 'images/qrcode-placeholder.png' %}" alt="QR Code" class="img-fluid rounded shadow" />
+            <p class="mt-3 text-muted">Certifique-se de ter um leitor de QR Code instalado em seu dispositivo.</p>
+        </div>
+    </div>
+</div>  
+{% endblock %}

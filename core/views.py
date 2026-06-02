@@ -9,6 +9,9 @@ from .models import Participante, Quiz, RespostaQuiz, LogAcesso
 from .form import ParticipanteForm, RespostaQuizForm
 import json
 
+def leitor_qrcode(request):
+    return render(request, 'leitor_qrcode.html')
+
 def get_client_ip(request):
     """Obtém o IP do cliente"""
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
