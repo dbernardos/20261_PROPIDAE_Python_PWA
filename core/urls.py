@@ -7,7 +7,7 @@ from . import views
 from django.views.decorators.cache import cache_control
 
 def service_worker(request):
-    response = HttpResponse(open('static/js/sw.js').read(), content_type="application/javascript")
+    response = HttpResponse(open('service-worker.js').read(), content_type="application/javascript")
     response['Cache-Control'] = 'no-cache'
     return response
 
@@ -22,11 +22,11 @@ urlpatterns = [
     path('<str:cracha>/desafio/<int:quiz_numero>/reset/', views.reset_quiz, name='reset_quiz'),
 
     # Service Worker e Manifest PWA
-    path('sw.js', service_worker, name='service_worker'),
+    path('service-worker.js', service_worker, name='service_worker'),
     path('manifest.json', 
          cache_control(no_cache=True)(
              lambda r: HttpResponse(
-                 open('static/manifest.json').read(), 
+                 open('manifest.json').read(), 
                  content_type="application/json"
              )
          ), 
