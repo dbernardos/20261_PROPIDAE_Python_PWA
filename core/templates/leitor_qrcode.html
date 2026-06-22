@@ -90,7 +90,18 @@
       }
     }
     
-    
+    const html5QrCode = new Html5Qrcode('reader')
+    html5QrCode
+      .start(
+        { facingMode: 'user' }, // Tenta usar a câmera traseira
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        onScanSuccess
+      )
+      .catch((err) => {
+        console.error('Erro na câmera: ', err)
+        resultadoDiv.textContent = 'Erro ao ligar a câmera.'
+      })
+    </script>
 {% endblock %}
 
 {% block content %}
@@ -121,5 +132,4 @@
       </div>
     </footer>
   </div>
-
 {% endblock %}
