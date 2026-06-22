@@ -1,7 +1,12 @@
-{% extends 'global/base.html' %}
+{% extends '../global/base.html' %}
 {% load static %}
 
 {% block title %}Bem-vindo - {{ participante.nome|default:"Participante" }}{% endblock %}
+
+
+{% block extra_script %}
+<link rel="manifest" href="manifest.json" crossorigin="use-credentials"/> 
+{% endblock %}
 
 {% block content %}
 <div class="container py-5">
