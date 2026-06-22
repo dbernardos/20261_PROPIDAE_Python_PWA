@@ -71,7 +71,7 @@ async function validarNoServidor(codigoLido) {
   // processando = true;
   if (processando) return // ISSO AQUI É O FREIO DE MÃO
   processando = true
-
+  console.log('processando = true')
   try {
     const response = await fetch('/identificar/', {
       method: 'POST',
@@ -79,12 +79,12 @@ async function validarNoServidor(codigoLido) {
         'Content-Type': 'application/json',
         'X-CSRFToken': '{{ csrf_token }}'
       },
-
+     
       body: JSON.stringify({ codigo: codigoLido })
     })
-
+    
     const dados = await response.json()
-
+    console.log('header')
     if (dados.autorizado) {
       html5QrCode
         .stop()
@@ -93,14 +93,16 @@ async function validarNoServidor(codigoLido) {
         })
         .catch((err) => console.error('Erro ao desligar:', err))
 
-      resultadoDiv.textContent = `✅ Acesso Liberado: ${dados.nome}`
+      resultadoDiv.textContent = `✅ Acesso Liberado: ${dados.nome}: ${dados.cargo}: ${dados.empresa}`
       resultadoDiv.className = 'autorizado'
 
       setTimeout(() => {
-        window.location.href = `/sucesso/?nome=${encodeURIComponent(dados.nome)}&codigo=${encodeURIComponent(dados.codigo)}`
+        //window.location.href = `/sucesso/?nome=${encodeURIComponent(dados.nome)}&codigo=${encodeURIComponent(dados.codigo)}`
+        window.location.href = `/home`
       }, 1500)
-
+      console.log('if autorizado ???????????????')
     } else {
+      console.log('else ???????????????')
       resultadoDiv.textContent = `❌ Acesso Negado: ${dados.mensagem}`
       resultadoDiv.className = 'negado'
 

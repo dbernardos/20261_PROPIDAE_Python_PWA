@@ -8,6 +8,8 @@ from django.utils import timezone
 from .models import Participante, Quiz, RespostaQuiz, LogAcesso
 from .form import ParticipanteForm, RespostaQuizForm
 import json
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
 def leitor_qrcode(request):
     return render(request, 'leitor_qrcode.html')
@@ -180,3 +182,44 @@ def entrar(request):
 def sair(request):
     logout(request)
     return redirect('urlentrar')
+
+
+# Nosso "banco de dados" simulado
+db_funcionarios = {
+    "FUNC_1001": {"nome": "João Silva", "cargo": "Desenvolvedor", "empresa": "Weg"},
+    "FUNC_1002": {"nome": "Maria Souza", "cargo": "Gerente de Projetos", "empresa": "Weg" },
+    "ADMIN_9999": {"nome": "Carlos Oliveira", "cargo": "Diretor", "empresa": "Weg"},
+}
+
+#@csrf_exempt
+def identificar_funcionario(request):
+    if request.method == 'POST':
+        try:
+            # Pega o JSON enviado pelo JavaScript do celular
+            dados_recebidos = json.loads(request.body)
+            codigo = dados_recebidos.get('codigo', '')
+
+            print(f"DEBUG - Código recebido da câmera: '{codigo}'")
+            codigo = codigo.strip()
+            # Verifica se o código existe no dicionário
+            if codigo in db_funcionarios:
+                dados = db_funcionarios[codigo]
+                return JsonResponse({
+                    "autorizado": True,
+                    "id": codigo,
+                    "nome": dados["nome"],
+                    "cargo": dados["cargo"],
+                    "empresa": dados["empresa"],
+                    "mensagem": "ACESSO LIBERADO"
+                })
+
+            else:
+                return JsonResponse({
+                    "autorizado": False,
+                    "id": codigo,
+                    "mensagem": "ACESSO NEGADO"
+                })
+        except json.JSONDecodeError:
+            return JsonResponse({"mensagem": "Erro nos dados enviados"}, status=400)
+
+    return JsonResponse({"mensagem": "Método não permitido"}, status=405)    
