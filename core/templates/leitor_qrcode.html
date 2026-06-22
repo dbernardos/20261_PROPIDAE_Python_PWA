@@ -7,11 +7,7 @@
 
 {% block extra_script %}
 <script src="https://unpkg.com/html5-qrcode"></script>
-  <script>
-        const resultadoDiv = document.getElementById('resultado')
-    let processando = false
-    
-    
+  <Script>
     if('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/service-worker.js')
                 .then(registration => {
@@ -23,81 +19,7 @@
     }
     
 
-    async function validarNoServidor(codigoLido) {
-      // processando = true;
-      if (processando) return // ISSO AQUI É O FREIO DE MÃO
-      processando = true
-    
-      try {
-        const response = await fetch('/identificar/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-          },
-    
-          body: JSON.stringify({ codigo: codigoLido })
-        })
-    
-        const dados = await response.json()
-    
-        if (dados.autorizado) {
-          html5QrCode
-            .stop()
-            .then(() => {
-              console.log('Câmera desligada após sucesso.')
-            })
-            .catch((err) => console.error('Erro ao desligar:', err))
-    
-          resultadoDiv.textContent = `✅ Acesso Liberado: ${dados.nome}`
-          resultadoDiv.className = 'autorizado'
-    
-          setTimeout(() => {
-            window.location.href = `/sucesso/?nome=${encodeURIComponent(dados.nome)}&codigo=${encodeURIComponent(dados.codigo)}`
-          }, 1500)
-
-        } else {
-          resultadoDiv.textContent = `❌ Acesso Negado: ${dados.mensagem}`
-          resultadoDiv.className = 'negado'
-    
-          setTimeout(() => {
-            resultadoDiv.textContent = 'Aguardando QR Code...'
-            resultadoDiv.className = ''
-            processando = false // Libera a câmera para a próxima pessoa!
-          }, 3000) // 3000 = 3 segundos de espera para ler a mensagem
-        }
-      } catch (err) {
-        console.error('Erro: ', err)
-        resultadoDiv.textContent = 'Erro de conexão. Tente novamente.'
-        resultadoDiv.className = 'negado'
-    
-        setTimeout(() => {
-          resultadoDiv.textContent = 'Aguardando QR Code...'
-          resultadoDiv.className = ''
-          processando = false
-        }, 3000)
-      }
-    }
-    
-    function onScanSuccess(decodedText) {
-      if (!processando) {
-        // processando = true; // Trava o leitor temporariamente
-        validarNoServidor(decodedText)
-      }
-    }
-    
-    const html5QrCode = new Html5Qrcode('reader')
-    html5QrCode
-      .start(
-        { facingMode: 'user' }, // Tenta usar a câmera traseira
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        onScanSuccess
-      )
-      .catch((err) => {
-        console.error('Erro na câmera: ', err)
-        resultadoDiv.textContent = 'Erro ao ligar a câmera.'
-      })
-    </script>
+   </Script>
 {% endblock %}
 
 {% block content %}
@@ -128,4 +50,85 @@
       </div>
     </footer>
   </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const resultadoDiv = document.getElementById('resultado')
+let processando = false
+async function validarNoServidor(codigoLido) {
+  // processando = true;
+  if (processando) return // ISSO AQUI É O FREIO DE MÃO
+  processando = true
+
+  try {
+    const response = await fetch('/identificar/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+
+      body: JSON.stringify({ codigo: codigoLido })
+    })
+
+    const dados = await response.json()
+
+    if (dados.autorizado) {
+      html5QrCode
+        .stop()
+        .then(() => {
+          console.log('Câmera desligada após sucesso.')
+        })
+        .catch((err) => console.error('Erro ao desligar:', err))
+
+      resultadoDiv.textContent = `✅ Acesso Liberado: ${dados.nome}`
+      resultadoDiv.className = 'autorizado'
+
+      setTimeout(() => {
+        window.location.href = `/sucesso/?nome=${encodeURIComponent(dados.nome)}&codigo=${encodeURIComponent(dados.codigo)}`
+      }, 1500)
+
+    } else {
+      resultadoDiv.textContent = `❌ Acesso Negado: ${dados.mensagem}`
+      resultadoDiv.className = 'negado'
+
+      setTimeout(() => {
+        resultadoDiv.textContent = 'Aguardando QR Code...'
+        resultadoDiv.className = ''
+        processando = false // Libera a câmera para a próxima pessoa!
+      }, 3000) // 3000 = 3 segundos de espera para ler a mensagem
+    }
+  } catch (err) {
+    console.error('Erro: ', err)
+    resultadoDiv.textContent = 'Erro de conexão. Tente novamente.'
+    resultadoDiv.className = 'negado'
+
+    setTimeout(() => {
+      resultadoDiv.textContent = 'Aguardando QR Code...'
+      resultadoDiv.className = ''
+      processando = false
+    }, 3000)
+  }
+}
+
+function onScanSuccess(decodedText) {
+  if (!processando) {
+    // processando = true; // Trava o leitor temporariamente
+    validarNoServidor(decodedText)
+  }
+}
+
+const html5QrCode = new Html5Qrcode('reader')
+html5QrCode
+  .start(
+    { facingMode: 'user' }, // Tenta usar a câmera traseira
+    { fps: 10, qrbox: { width: 250, height: 250 } },
+    onScanSuccess
+  )
+  .catch((err) => {
+    console.error('Erro na câmera: ', err)
+    resultadoDiv.textContent = 'Erro ao ligar a câmera.'
+  })
+</script>
 {% endblock %}
