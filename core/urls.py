@@ -24,11 +24,11 @@ urlpatterns = [
     path('<str:cracha>/desafio/<int:quiz_numero>/reset/', views.reset_quiz, name='reset_quiz'),
 
     # Service Worker e Manifest PWA
-    path('service-worker.js', service_worker, name='service_worker'),
+    # path('service-worker.js', service_worker, name='service_worker'),
 
 
     path('manifest.json', TemplateView.as_view(template_name="manifest.json", content_type='application/manifest+json')),
-    path('service-worker.js', TemplateView.as_view(template_name="service-worker.js", content_type='application/javascript'), name="service-worker"),  
+    path('service-worker.js', TemplateView.as_view(template_name="service-worker.js", content_type='application/javascript'), name="service_worker"),  
     
     # path('manifest.json', 
      #    cache_control(no_cache=True)(
