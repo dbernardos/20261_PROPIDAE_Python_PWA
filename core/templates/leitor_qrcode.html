@@ -63,36 +63,6 @@
   </div>
 {% endblock %}
 
-{% block content %}
-  <div>
-    <nav class="navbar">
-      <div>
-        <h1>Evento IFSC</h1>
-      </div>
-    </nav>
-  </div>
-  <div>
-    <main class="principal">
-      <div>
-        <h2>Leitor</h2>
-        <div id="reader"></div>
-        <div id="resultado">Aguardando QR Code...</div>
-      </div>
-
-      <div>
-        <button class="button-quiz">Ir para o Quiz</button>
-      </div>
-    </main>
-  </div>
-  <div>
-    <footer class="rodape">
-      <div>
-        <h3>Patrocinadores</h3>
-      </div>
-    </footer>
-  </div>
-{% endblock %}
-
 {% block extra_js %}
 <script>
 const resultadoDiv = document.getElementById('resultado')
