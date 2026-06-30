@@ -98,6 +98,7 @@ async function validarNoServidor(codigoLido) {
 
       setTimeout(() => {
         //window.location.href = `/sucesso/?nome=${encodeURIComponent(dados.nome)}&codigo=${encodeURIComponent(dados.codigo)}`
+        processando = false; //evitar processamento desnecessário
         window.location.href = `/home`
       }, 1500)
       console.log('if autorizado ???????????????')
