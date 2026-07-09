@@ -193,7 +193,13 @@ db_funcionarios = {
 
 #@csrf_exempt
 def identificar_funcionario(request):
+    
+    print(f"DEBUG - Método recebido: {request.method}")
+    print(f"DEBUG - Headers: {request.headers}")
+    print(f"DEBUG - Body: {request.body}")
+
     if request.method == 'POST':
+        print("entrou no primeiro IF")
         try:
             # Pega o JSON enviado pelo JavaScript do celular
             dados_recebidos = json.loads(request.body)
@@ -203,6 +209,7 @@ def identificar_funcionario(request):
             codigo = codigo.strip()
             # Verifica se o código existe no dicionário
             if codigo in db_funcionarios:
+                print("entrou no segundo IF - código encontrado")
                 dados = db_funcionarios[codigo]
                 return JsonResponse({
                     "autorizado": True,
@@ -214,6 +221,7 @@ def identificar_funcionario(request):
                 })
 
             else:
+                print("entrou no else - código não encontrado")
                 return JsonResponse({
                     "autorizado": False,
                     "id": codigo,
