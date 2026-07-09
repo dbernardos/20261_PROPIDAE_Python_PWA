@@ -186,9 +186,9 @@ def sair(request):
 
 # Nosso "banco de dados" simulado
 db_funcionarios = {
-    "FUNC_1001": {"nome": "João Silva", "cargo": "Desenvolvedor", "empresa": "Weg"},
-    "FUNC_1002": {"nome": "Maria Souza", "cargo": "Gerente de Projetos", "empresa": "Weg" },
-    "ADMIN_9999": {"nome": "Carlos Oliveira", "cargo": "Diretor", "empresa": "Weg"},
+    "1": {"nome": "João Silva", "cargo": "Desenvolvedor", "empresa": "Weg"},
+    "2": {"nome": "Maria Souza", "cargo": "Gerente de Projetos", "empresa": "Weg" },
+    "3": {"nome": "Carlos Oliveira", "cargo": "Diretor", "empresa": "Weg"},
 }
 
 #@csrf_exempt
