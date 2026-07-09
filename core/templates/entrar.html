@@ -8,30 +8,40 @@
     <title>Login</title>
     {% bootstrap_css %}
   </head>
+  
   <body>
-    <div class="container">
-      <h1>Página de Login</h1>
+    <div class="container shadow border border-1 rounded d-flex justify-content-center p-5" style="max-width: 60vh; height: 100vh;">
+       <div>
+          <h1>Página de Login</h1>
+          <figure class="figure d-flex justify-content-center">
+            <img src="./static/images/images-default/Icontransparent.png" alt="" class="d-flex justify-content-center" style="height: 20vh;">
+          </figure>
 
-      <form action="{% url 'urlentrar' %}" method="POST">
-        {% csrf_token %}
-        <div class="mb-3">
-          <input type="text" name="txtUser" placeholder="Digite o seu usuário..." class="form-control" required />
+          <form action="{% url 'urlentrar' %}" method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="txtUser">Usuario:</label>
+              <input type="text" name="txtUser" id="txtUser" placeholder="Digite o seu usuário..." class="form-control" required />
+            </div>
+
+            <div class="mb-3">
+              <label for="txtPass">Senha:</label>
+              <input type="password" name="txtPass" id="txtPass" placeholder="Digite a sua senha..." class="form-control" required />
+            </div>
+
+            <div class="container mb-3 d-flex justify-content-center">
+              <input type="submit" value="🏃‍♂️‍➡️ Entrar" class="btn btn-primary" />
+              {% comment %} <a href="{% url 'urlcadastrarUsuario' %}" class="btn btn-success">➕ Cadastrar</a> {% endcomment %}
+            </div>
+          </form>
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-danger">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
         </div>
 
-        <div class="mb-3">
-          <input type="password" name="txtPass" placeholder="Digite a sua senha..." class="form-control" required />
-        </div>
-
-        <div class="mb-3">
-          <input type="submit" value="🏃‍♂️‍➡️ Entrar" class="btn btn-primary" />
-          {% comment %} <a href="{% url 'urlcadastrarUsuario' %}" class="btn btn-success">➕ Cadastrar</a> {% endcomment %}
-        </div>
-      </form>
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert-danger">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
+       
     </div>
   </body>
 </html>
