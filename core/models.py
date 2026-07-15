@@ -113,10 +113,30 @@ class Usuario(models.Model):
     biografia = models.CharField(max_length=500, blank=True, null=True)
     fotoPerfil = models.CharField(max_length=200, blank=True, null=True)
     cpf = models.CharField(max_length=14, unique=True)
-    telefone = models.CharField(max_length=15, blank=True, null=True)
+    telefone = models.CharField(max_length=20, blank=True, null=True)
     dataNascimento = models.DateField(blank=True, null=True)
-    cargo = models.CharField(max_length=50, blank=True, null=True)
-    formacao = models.CharField(max_length=100, blank=True, null=True)
-    empresa = models.CharField(max_length=100, blank=True, null=True)
+    cargo = models.CharField(max_length=45, blank=True, null=True)
+    formacao = models.CharField(max_length=200, blank=True, null=True)
+    empresa = models.CharField(max_length=45, blank=True, null=True)
     data_cadastro = models.DateTimeField(auto_now_add=True)
     ultimo_acesso = models.DateTimeField(auto_now=True)
+
+"""Model da tabela Evento"""
+class Evento(models.Model):
+    administrador = models.ForeignKey('Usuario', on_delete=models.CASCADE)
+
+    nome = models.CharField(max_length=200)
+    descricao = models.TextField(max_length=500, blank=True, null=True)
+    emailContato = models.EmailField(max_length=50, blank=True, null=True)
+    apoiadores = models.TextField(max_length=200, blank=True, null=True)
+    local = models.CharField(max_length=45, blank=True, null=True)
+    complementoLocal = models.CharField(max_length=45, blank=True, null=True)
+    imagemBanner = models.CharField(max_length=200, blank=True, null=True)
+
+    dataInicio = models.DateField()
+    dataFim = models.DateField()
+
+    tipoEvento = models.CharField(max_length=45, blank=True, null=True)
+
+    eventoMultiplo = models.BooleanField(default=False)
+    eventoPublico = models.BooleanField(default=True)
