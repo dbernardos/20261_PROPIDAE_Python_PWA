@@ -140,3 +140,16 @@ class Evento(models.Model):
 
     eventoMultiplo = models.BooleanField(default=False)
     eventoPublico = models.BooleanField(default=True)
+
+"""Model da tabela Atividade"""
+class Atividade(models.Model):
+    evento = models.ForeignKey('Evento', on_delete=models.CASCADE)
+
+    nome = models.CharField(max_length=200)
+    descricao = models.TextField(max_length=500, blank=True, null=True)
+    tipoAtividade = models.CharField(max_length=45, blank=True, null=True)
+    horaInicio = models.DateTimeField()
+    horaFim = models.DateTimeField()
+    imagemBanner = models.CharField(max_length=200, blank=True, null=True)
+    limitePessoas = models.PositiveIntegerField(blank=True, null=True)
+    
