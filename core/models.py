@@ -153,6 +153,7 @@ class Atividade(models.Model):
     imagemBanner = models.CharField(max_length=200, blank=True, null=True)
     limitePessoas = models.PositiveIntegerField(blank=True, null=True)
     
+
 """Model da tabela Inscricao"""  
 class Inscricao(models.Model):
     usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE)
