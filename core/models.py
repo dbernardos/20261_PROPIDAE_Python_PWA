@@ -160,3 +160,9 @@ class Inscricao(models.Model):
 
     dataHora = models.DateTimeField(auto_now_add=True)
     cracha = models.CharField(max_length=50, unique=True, default=uuid.uuid4)
+
+"""Model da tabela Participa"""
+class Participa(models.Model):
+    inscricao = models.ForeignKey('Inscricao', on_delete=models.CASCADE)
+    atividade = models.ForeignKey('Atividade', on_delete=models.CASCADE)
+
