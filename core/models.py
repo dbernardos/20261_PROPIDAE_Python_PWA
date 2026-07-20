@@ -167,3 +167,11 @@ class Participa(models.Model):
     inscricao = models.ForeignKey('Inscricao', on_delete=models.CASCADE)
     atividade = models.ForeignKey('Atividade', on_delete=models.CASCADE)
 
+"""Model da tabela Quiz"""
+class Quiz(models.Model):
+    atividade = models.ForeignKey('Atividade', on_delete=models.CASCADE)
+    
+    nome = models.CharField(max_length=45)
+    descricao = models.CharField(max_length=200, blank=True, null=True)
+    urlCaminho = models.URLField(max_length=200)
+
