@@ -175,3 +175,9 @@ class Quiz(models.Model):
     descricao = models.CharField(max_length=200, blank=True, null=True)
     urlCaminho = models.URLField(max_length=200)
 
+"""Model da tabela Resposta"""
+class Resposta(models.Model):
+    quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE)
+    usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE)
+    
+    resposta = models.CharField(max_length=200)
