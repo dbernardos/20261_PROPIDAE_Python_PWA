@@ -152,7 +152,6 @@ class Atividade(models.Model):
     horaFim = models.DateTimeField()
     imagemBanner = models.CharField(max_length=200, blank=True, null=True)
     limitePessoas = models.PositiveIntegerField(blank=True, null=True)
-    
 
 """Model da tabela Inscricao"""  
 class Inscricao(models.Model):
