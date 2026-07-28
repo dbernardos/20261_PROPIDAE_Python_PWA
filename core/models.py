@@ -36,6 +36,7 @@ class Quiz(models.Model):
     descricao = models.TextField(help_text="Descrição do desafio")
     numero = models.PositiveIntegerField(unique=True, help_text="Número do desafio")
     icone = models.CharField(max_length=50, default="bi-trophy", help_text="Classe do Bootstrap Icon")
+    atividade = models.ForeignKey('Atividade', on_delete=models.CASCADE)
     
     # Configurações da resposta
     pergunta = models.TextField()
@@ -165,14 +166,6 @@ class Inscricao(models.Model):
 class Participa(models.Model):
     inscricao = models.ForeignKey('Inscricao', on_delete=models.CASCADE)
     atividade = models.ForeignKey('Atividade', on_delete=models.CASCADE)
-
-"""Model da tabela Quiz"""
-class Quiz(models.Model):
-    atividade = models.ForeignKey('Atividade', on_delete=models.CASCADE)
-    
-    nome = models.CharField(max_length=45)
-    descricao = models.CharField(max_length=200, blank=True, null=True)
-    urlCaminho = models.URLField(max_length=200)
 
 """Model da tabela Resposta"""
 class Resposta(models.Model):
