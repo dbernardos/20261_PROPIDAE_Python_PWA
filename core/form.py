@@ -2,7 +2,7 @@ from django import forms
 from django.forms import fields
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Participante, RespostaQuiz
+from .models import Usuario, Resposta
 
 
 class UsuarioForm(UserCreationForm):
@@ -23,14 +23,9 @@ class UsuarioForm(UserCreationForm):
 class ParticipanteForm(forms.ModelForm):
     """Form para registro/login do participante pelo crachá"""
     class Meta:
-        model = Participante
-        fields = ['cracha', 'nome', 'email']
+        model = Usuario
+        fields = ['nome', 'email']
         widgets = {
-            'cracha': forms.TextInput(attrs={
-                'class': 'form-control form-control-lg',
-                'placeholder': 'Digite ou passe o crachá',
-                'autofocus': True
-            }),
             'nome': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Nome completo (opcional)'
@@ -44,7 +39,7 @@ class ParticipanteForm(forms.ModelForm):
 class RespostaQuizForm(forms.ModelForm):
     """Form para resposta do quiz"""
     class Meta:
-        model = RespostaQuiz
+        model = Resposta
         fields = ['valor_resposta']
         widgets = {
             'valor_resposta': forms.NumberInput(attrs={

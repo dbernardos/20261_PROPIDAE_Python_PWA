@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .form import UsuarioForm
 from django.utils import timezone
-from .models import Participante, Quiz, RespostaQuiz, LogAcesso
+from .models import Participa, Quiz, Resposta, Usuario
 from .form import ParticipanteForm, RespostaQuizForm
 import json
 from django.views.decorators.csrf import csrf_exempt
@@ -32,8 +32,7 @@ def login_participante(request):
             cracha = form.cleaned_data['cracha']
             
             # Tenta encontrar participante existente ou cria novo
-            participante, created = Participante.objects.get_or_create(
-                cracha=cracha,
+            participante, created = Usuario.objects.get_or_create(
                 defaults={
                     'nome': form.cleaned_data.get('nome'),
                     'email': form.cleaned_data.get('email')
@@ -48,19 +47,12 @@ def login_participante(request):
                     participante.email = form.cleaned_data.get('email')
                 participante.save()
             
-            # Registra log de acesso
-            LogAcesso.objects.create(
-                participante=participante,
-                ip_address=get_client_ip(request),
-                user_agent=request.META.get('HTTP_USER_AGENT')
-            )
-            
             # Atualiza último acesso
             participante.ultimo_acesso = timezone.now()
             participante.save()
             
             # Redireciona para página de boas-vindas
-            return redirect('boas_vindas', cracha=participante.cracha)
+            return redirect('boas_vindas', cracha=participante.nome)
     else:
         form = ParticipanteForm()
     
@@ -68,7 +60,7 @@ def login_participante(request):
 
 def boas_vindas(request, cracha):
     """Página de boas-vindas com quadro de progresso"""
-    participante = get_object_or_404(Participante, cracha=cracha)
+    participante = get_object_or_404(Usuario, nome=cracha)
     
     # Obtém todos os quizzes ativos
     quizzes = Quiz.objects.filter(ativo=True)
@@ -76,7 +68,7 @@ def boas_vindas(request, cracha):
     # Calcula progresso para cada quiz
     progresso_quizzes = []
     for quiz in quizzes:
-        resposta = RespostaQuiz.objects.filter(
+        resposta = Resposta.objects.filter(
             participante=participante, 
             quiz=quiz
         ).first()
@@ -84,8 +76,8 @@ def boas_vindas(request, cracha):
         progresso_quizzes.append({
             'quiz': quiz,
             'resposta': resposta,
-            'completo': resposta.completo if resposta else False,
-            'tentativas': resposta.tentativas if resposta else 0
+            #'completo': resposta.completo if resposta else False,
+            #'tentativas': resposta.tentativas if resposta else 0
         })
     
     # Progresso geral
