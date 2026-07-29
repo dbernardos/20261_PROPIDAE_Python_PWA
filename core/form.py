@@ -67,7 +67,32 @@ class EventoForm(forms.ModelForm):
             'eventoPublico'
         ]
 
+        labels = {
+            'nome': 'Nome do Evento',
+            'descricao': 'Descrição',
+            'emailContato': 'E-mail de Contato',
+            'apoiadores': 'Apoiadores / Patrocinadores',
+            'local': 'Local do Evento',
+            'complementoLocal': 'Complemento do Local',
+            'imagemBanner': 'Imagem do Banner',
+            'dataInicio': 'Data de Início',
+            'dataFim': 'Data de Término',
+            'tipoEvento': 'Tipo do Evento',
+            'eventoMultiplo': 'Evento Múltiplo?',
+            'eventoPublico': 'Evento Público?',
+        }
+
         widgets = {
-            'dataInicio': forms.DateInput(attrs={'type': 'date'}),
-            'dataFim': forms.DateInput(attrs={'type': 'date'}),
+            'nome': forms.TextInput(attrs={'class': 'form-control mb-3'}),
+            'descricao': forms.Textarea(attrs={'class': 'form-control mb-3', 'rows': 4}),
+            'emailContato': forms.EmailInput(attrs={'class': 'form-control mb-3'}),
+            'apoiadores': forms.TextInput(attrs={'class': 'form-control mb-3'}),
+            'local': forms.TextInput(attrs={'class': 'form-control mb-3'}),
+            'complementoLocal': forms.TextInput(attrs={'class': 'form-control mb-3'}),
+            'imagemBanner': forms.FileInput(attrs={'class': 'form-control mb-3'}),
+            'dataInicio': forms.DateInput(attrs={'class': 'form-control mb-3', 'type': 'date'}),
+            'dataFim': forms.DateInput(attrs={'class': 'form-control mb-3', 'type': 'date'}),
+            'tipoEvento': forms.Select(attrs={'class': 'form-select mb-3'}),
+            'eventoMultiplo': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
+            'eventoPublico': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
         }

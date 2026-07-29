@@ -24,7 +24,7 @@ urlpatterns = [
     path('boas-vindas/<str:cracha>/', views.boas_vindas, name='boas_vindas'),
     path('<str:cracha>/desafio/<int:quiz_numero>/', views.quiz_detail, name='quiz_detail'),
     path('<str:cracha>/desafio/<int:quiz_numero>/reset/', views.reset_quiz, name='reset_quiz'),
-    path('evento/criar/', views.criar_evento, name='criar_evento'),
+    path('cadastrar_evento/', views.criar_evento, name='criar_evento'),
 
     path('manifest.json', TemplateView.as_view(template_name="manifest.json", content_type='application/manifest+json')),
     path('service-worker.js', TemplateView.as_view(template_name="service-worker.js", content_type='application/javascript'), name="service_worker"),  

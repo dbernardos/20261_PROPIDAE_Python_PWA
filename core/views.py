@@ -226,7 +226,7 @@ def identificar_funcionario(request):
 
 #####
 
-@login_required
+#@login_required
 def criar_evento(request):
     """View para cadastro de evento para o adm logado"""
     if request.method == 'POST':
@@ -240,4 +240,4 @@ def criar_evento(request):
     else:
         form = EventoForm()
 
-    return render(request, 'criar_evento.html', {'form': form})
+    return render(request, 'cadastrar_evento.html', {'form': form})
