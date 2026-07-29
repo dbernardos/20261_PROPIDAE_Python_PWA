@@ -49,6 +49,7 @@ class RespostaQuizForm(forms.ModelForm):
             })
         }
 
+
 class EventoForm(forms.ModelForm):
     class Meta:
         model = Evento

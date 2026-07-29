@@ -224,8 +224,6 @@ def identificar_funcionario(request):
 
     return JsonResponse({"mensagem": "Método não permitido"}, status=405)    
 
-#####
-
 #@login_required
 def cadastrar_evento(request):
     """View para cadastro de evento para o adm logado"""

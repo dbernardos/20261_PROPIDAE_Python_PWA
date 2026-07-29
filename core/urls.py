@@ -21,6 +21,9 @@ urlpatterns = [
     path('entrar', views.entrar, name="urlentrar"),
     path('sair', views.sair, name="urlsair"),
     path('quiz', views.quiz, name='urlquiz'),
+
+    path('cadastrar_atividade/', views.cadastrar_atividade, name='urlcadastrarAtividade'),
+
     path('boas-vindas/<str:cracha>/', views.boas_vindas, name='boas_vindas'),
     path('<str:cracha>/desafio/<int:quiz_numero>/', views.quiz_detail, name='quiz_detail'),
     path('<str:cracha>/desafio/<int:quiz_numero>/reset/', views.reset_quiz, name='reset_quiz'),
