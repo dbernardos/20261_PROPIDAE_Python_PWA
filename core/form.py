@@ -2,7 +2,7 @@ from django import forms
 from django.forms import fields
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Usuario, Resposta
+from .models import Usuario, Resposta, Evento
 
 
 class UsuarioForm(UserCreationForm):
@@ -47,4 +47,27 @@ class RespostaQuizForm(forms.ModelForm):
                 'step': '0.01',
                 'placeholder': 'Digite sua resposta'
             })
+        }
+
+class EventoForm(forms.ModelForm):
+    class Meta:
+        model = Evento
+        fields = [
+            'nome',
+            'descricao',
+            'emailContato',
+            'apoiadores',
+            'local',
+            'complementoLocal',
+            'imagemBanner',
+            'dataInicio',
+            'dataFim',
+            'tipoEvento',
+            'eventoMultiplo',
+            'eventoPublico'
+        ]
+
+        widgets = {
+            'dataInicio': forms.DateInput(attrs={'type': 'date'}),
+            'dataFim': forms.DateInput(attrs={'type': 'date'}),
         }
