@@ -29,7 +29,7 @@ class Evento(models.Model):
     apoiadores = models.TextField(max_length=200, blank=True, null=True)
     local = models.CharField(max_length=45, blank=True, null=True)
     complementoLocal = models.CharField(max_length=45, blank=True, null=True)
-    imagemBanner = models.CharField(max_length=200, blank=True, null=True)
+    imagemBanner = models.ImageField(upload_to='banners/', blank=True, null=True)
 
     dataInicio = models.DateField()
     dataFim = models.DateField()
