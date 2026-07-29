@@ -28,7 +28,6 @@ class Evento(models.Model):
     emailContato = models.EmailField(max_length=50, blank=True, null=True)
     apoiadores = models.TextField(max_length=200, blank=True, null=True)
     local = models.CharField(max_length=45, blank=True, null=True)
-    complementoLocal = models.CharField(max_length=45, blank=True, null=True)
     imagemBanner = models.ImageField(upload_to='banners/', blank=True, null=True)
 
     dataInicio = models.DateField()
@@ -88,6 +87,7 @@ class Atividade(models.Model):
     nome = models.CharField(max_length=200)
     descricao = models.TextField(max_length=500, blank=True, null=True)
     tipoAtividade = models.CharField(max_length=45, blank=True, null=True)
+    complementoLocal = models.CharField(max_length=45, blank=True, null=True)
     horaInicio = models.DateTimeField()
     horaFim = models.DateTimeField()
     imagemBanner = models.CharField(max_length=200, blank=True, null=True)

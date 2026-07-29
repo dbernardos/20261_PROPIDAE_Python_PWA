@@ -6,7 +6,7 @@ from django.contrib import messages
 from .form import UsuarioForm
 from django.utils import timezone
 from .models import Participa, Quiz, Resposta, Usuario
-from .form import ParticipanteForm, RespostaQuizForm, EventoForm
+from .form import ParticipanteForm, RespostaQuizForm, EventoForm, AtividadeForm
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -227,7 +227,7 @@ def identificar_funcionario(request):
 #####
 
 #@login_required
-def criar_evento(request):
+def cadastrar_evento(request):
     """View para cadastro de evento para o adm logado"""
     if request.method == 'POST':
         form = EventoForm(request.POST, request.FILES)
@@ -241,3 +241,20 @@ def criar_evento(request):
         form = EventoForm()
 
     return render(request, 'cadastrar_evento.html', {'form': form})
+
+
+def cadastrar_atividade(request):
+    """View para cadastro de atividade para o adm logado"""
+    
+    if request.method == 'POST':
+        form = AtividadeForm(request.POST)
+        if form.is_valid():
+            atividade = form.save(commit=False)
+            #atividade.administrador = request.user
+            atividade.save()
+            messages.success(request, '🎉 Atividade cadastrado com sucesso!')
+            return redirect('urlindex')
+    else:
+        form = EventoForm()
+
+    return render(request, 'cadastrar_atividade.html', {'form': form})

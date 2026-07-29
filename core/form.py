@@ -2,7 +2,7 @@ from django import forms
 from django.forms import fields
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Usuario, Resposta, Evento
+from .models import Usuario, Resposta, Evento, Atividade
 
 
 class UsuarioForm(UserCreationForm):
@@ -58,7 +58,6 @@ class EventoForm(forms.ModelForm):
             'emailContato',
             'apoiadores',
             'local',
-            'complementoLocal',
             'imagemBanner',
             'dataInicio',
             'dataFim',
@@ -73,7 +72,6 @@ class EventoForm(forms.ModelForm):
             'emailContato': 'E-mail de Contato',
             'apoiadores': 'Apoiadores / Patrocinadores',
             'local': 'Local do Evento',
-            'complementoLocal': 'Complemento do Local',
             'imagemBanner': 'Imagem do Banner',
             'dataInicio': 'Data de Início',
             'dataFim': 'Data de Término',
@@ -88,11 +86,45 @@ class EventoForm(forms.ModelForm):
             'emailContato': forms.EmailInput(attrs={'class': 'form-control mb-3'}),
             'apoiadores': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'local': forms.TextInput(attrs={'class': 'form-control mb-3'}),
-            'complementoLocal': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'imagemBanner': forms.FileInput(attrs={'class': 'form-control mb-3'}),
             'dataInicio': forms.DateInput(attrs={'class': 'form-control mb-3', 'type': 'date'}),
             'dataFim': forms.DateInput(attrs={'class': 'form-control mb-3', 'type': 'date'}),
             'tipoEvento': forms.Select(attrs={'class': 'form-select mb-3'}),
             'eventoMultiplo': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
             'eventoPublico': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
+        }
+
+class AtividadeForm(forms.ModelForm):
+    class Meta:
+        model = Atividade
+        fields = [
+            'nome',
+            'descricao',
+            'tipoAtividade',
+            'complementoLocal',
+            'horaInicio',
+            'horaFim',
+            'limitePessoas',
+        ]
+
+        labels = {
+            'nome': 'Nome do Atividade',
+            'descricao': 'Descrição',
+            'tipoAtividade' : 'Tipo de atividade',
+            'complementoLocal': 'Complemento do Local',
+            'horaInicio': 'Hora de Início',
+            'horaFim': 'Hora de Término',
+            'limitePessoas': 'Limite de Participantes',
+
+        }
+
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control mb-3'}),
+            'descricao': forms.Textarea(attrs={'class': 'form-control mb-3', 'rows': 4}),
+            'tipoAtividade': forms.Select(attrs={'class': 'form-select mb-3'}),
+            'complementoLocal': forms.TextInput(attrs={'class': 'form-control mb-3'}),
+            'horaInicio': forms.DateInput(attrs={'class': 'form-control mb-3', 'type': 'date'}),
+            'horaFim': forms.DateInput(attrs={'class': 'form-control mb-3', 'type': 'date'}),
+            'limitePessoas': forms.NumberInput(attrs={'class': 'form-control mb-3', 'type': 'date'}),
+            
         }
