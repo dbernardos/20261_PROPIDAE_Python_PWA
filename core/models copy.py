@@ -1,4 +1,4 @@
-from django.db import models
+'''from django.db import models
 from django.utils import timezone
 import uuid
 
@@ -171,4 +171,4 @@ class Resposta(models.Model):
     quiz = models.ForeignKey('Quiz', on_delete=models.CASCADE)
     usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE)
     
-    resposta = models.CharField(max_length=200)
+    resposta = models.CharField(max_length=200)'''
