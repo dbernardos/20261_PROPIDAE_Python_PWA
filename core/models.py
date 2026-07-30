@@ -19,6 +19,12 @@ class Usuario(models.Model):
     ultimo_acesso = models.DateTimeField(auto_now=True)
     participante = models.OneToOneField(User, on_delete=models.CASCADE)
 
+class tipoEvento(models.TextChoices):
+    COLOQUIO = 'Colóquio'
+    FORUM = 'Fórum'
+    PALESTRA = 'Palestra'
+
+
 """Model da tabela Evento"""
 class Evento(models.Model):
     administrador = models.ForeignKey('Usuario', on_delete=models.CASCADE)
@@ -33,7 +39,8 @@ class Evento(models.Model):
     dataInicio = models.DateField()
     dataFim = models.DateField()
 
-    tipoEvento = models.CharField(max_length=45, blank=True, null=True)
+    #tipoEvento = models.CharField(max_length=45, blank=True, null=True)
+    tipoEvento = models.CharField('tipoEvento', choices=tipoEvento.choices, max_length=20, default=tipoEvento.PALESTRA)
 
     eventoMultiplo = models.BooleanField(default=False)
     eventoPublico = models.BooleanField(default=True)
@@ -81,12 +88,19 @@ class Participa(models.Model):
     '''
 
 """Model da tabela Atividade"""
+
+class tipoAtividade(models.TextChoices):
+    COLOQUIO = 'Colóquio'
+    FORUM = 'Fórum'
+    PALESTRA = 'Palestra'
+
 class Atividade(models.Model):
     evento = models.ForeignKey('Evento', on_delete=models.CASCADE)
 
     nome = models.CharField(max_length=200)
     descricao = models.TextField(max_length=500, blank=True, null=True)
-    tipoAtividade = models.CharField(max_length=45, blank=True, null=True)
+  #  tipoAtividade = models.CharField(max_length=45, blank=True, null=True)
+    tipoAtividade = models.CharField('tipoAtividade', choices=tipoAtividade.choices, max_length=20, default=tipoAtividade.PALESTRA)
     complementoLocal = models.CharField(max_length=45, blank=True, null=True)
     horaInicio = models.DateTimeField()
     horaFim = models.DateTimeField()
