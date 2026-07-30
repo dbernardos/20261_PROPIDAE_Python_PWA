@@ -229,6 +229,10 @@ def cadastrar_evento(request):
     """View para cadastro de evento para o adm logado"""
     if request.method == 'POST':
         form = EventoForm(request.POST, request.FILES)
+        context = {
+            'form_evento': form,
+        }
+
         if form.is_valid():
             evento = form.save(commit=False)
             evento.administrador = request.user
@@ -238,7 +242,7 @@ def cadastrar_evento(request):
     else:
         form = EventoForm()
 
-    return render(request, 'cadastrar_evento.html', {'form': form})
+    return render(request, 'cadastrar_evento.html', {'form_evento': form})
 
 
 def cadastrar_atividade(request):
@@ -246,6 +250,10 @@ def cadastrar_atividade(request):
     
     if request.method == 'POST':
         form = AtividadeForm(request.POST)
+        context = {
+            'form_atividade': form,
+        }
+
         if form.is_valid():
             atividade = form.save(commit=False)
             #atividade.administrador = request.user
@@ -253,6 +261,6 @@ def cadastrar_atividade(request):
             messages.success(request, '🎉 Atividade cadastrado com sucesso!')
             return redirect('urlindex')
     else:
-        form = EventoForm()
+        form = AtividadeForm()
 
-    return render(request, 'cadastrar_atividade.html', {'form': form})
+    return render(request, 'cadastrar_atividade.html', {'form_atividade': form})

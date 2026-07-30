@@ -126,6 +126,6 @@ class AtividadeForm(forms.ModelForm):
             'complementoLocal': forms.TextInput(attrs={'class': 'form-control mb-3'}),
             'horaInicio': forms.DateInput(attrs={'class': 'form-control mb-3', 'type': 'date'}),
             'horaFim': forms.DateInput(attrs={'class': 'form-control mb-3', 'type': 'date'}),
-            'limitePessoas': forms.NumberInput(attrs={'class': 'form-control mb-3', 'type': 'date'}),
+            'limitePessoas': forms.NumberInput(attrs={'class': 'form-control mb-3', 'type': 'number'}),
             
         }

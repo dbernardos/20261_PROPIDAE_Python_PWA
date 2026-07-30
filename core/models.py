@@ -90,7 +90,7 @@ class Atividade(models.Model):
     complementoLocal = models.CharField(max_length=45, blank=True, null=True)
     horaInicio = models.DateTimeField()
     horaFim = models.DateTimeField()
-    imagemBanner = models.CharField(max_length=200, blank=True, null=True)
+    #imagemBanner = models.CharField(max_length=200, blank=True, null=True)
     limitePessoas = models.PositiveIntegerField(blank=True, null=True)
 
 class Quiz(models.Model):
