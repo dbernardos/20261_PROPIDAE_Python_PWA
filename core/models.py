@@ -8,7 +8,7 @@ class Usuario(models.Model):
     nome = models.CharField(max_length=200)
     email = models.EmailField(max_length=200,unique=True)
     biografia = models.CharField(max_length=500, blank=True, null=True)
-    fotoPerfil = models.CharField(max_length=200, blank=True, null=True)
+    fotoPerfil = models.ImageField(upload_to='perfil/', blank=True, null=True)
     cpf = models.CharField(max_length=14, unique=True)
     telefone = models.CharField(max_length=20, blank=True, null=True)
     dataNascimento = models.DateField(blank=True, null=True)
@@ -27,7 +27,8 @@ class tipoEvento(models.TextChoices):
 
 """Model da tabela Evento"""
 class Evento(models.Model):
-    administrador = models.ForeignKey('Usuario', on_delete=models.CASCADE)
+    #administrador = models.ForeignKey('Usuario', on_delete=models.CASCADE)
+    administrador = models.ForeignKey(User, on_delete=models.CASCADE)
 
     nome = models.CharField(max_length=200)
     descricao = models.TextField(max_length=500, blank=True, null=True)

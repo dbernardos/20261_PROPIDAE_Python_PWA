@@ -6,6 +6,8 @@ from django.conf import settings
 
 from . import views
 
+from core.views import dados
+
 from django.views.decorators.cache import cache_control
 
 def service_worker(request):
@@ -22,14 +24,16 @@ urlpatterns = [
     path('sair', views.sair, name="urlsair"),
     path('quiz', views.quiz, name='urlquiz'),
 
-    path('cadastrar_atividade/', views.cadastrar_atividade, name='urlcadastrarAtividade'),
+    path('cadastrar_atividade/<int:evento_id>/', views.cadastrar_atividade, name='urlcadastrarAtividade'),
 
     path('boas-vindas/<str:cracha>/', views.boas_vindas, name='boas_vindas'),
     path('<str:cracha>/desafio/<int:quiz_numero>/', views.quiz_detail, name='quiz_detail'),
     path('<str:cracha>/desafio/<int:quiz_numero>/reset/', views.reset_quiz, name='reset_quiz'),
     
     path('cadastrar_evento/', views.cadastrar_evento, name='cadastrar_evento'),
-    path('cadastrar_atividade/', views.cadastrar_atividade, name='cadastrar_atividade'),
+    path('cadastrar_atividade/<int:evento_id>/', views.cadastrar_atividade, name='cadastrar_atividade'),
+
+    path('dados/', dados, name='dados'),
 
     path('manifest.json', TemplateView.as_view(template_name="manifest.json", content_type='application/manifest+json')),
     path('service-worker.js', TemplateView.as_view(template_name="service-worker.js", content_type='application/javascript'), name="service_worker"),  
