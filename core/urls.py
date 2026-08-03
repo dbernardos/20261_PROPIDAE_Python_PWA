@@ -9,6 +9,7 @@ from . import views
 from core.views import dados
 
 from django.views.decorators.cache import cache_control
+from django.contrib.auth import views as auth_views
 
 def service_worker(request):
     response = HttpResponse(open('service-worker.js').read(), content_type="application/javascript")
@@ -16,6 +17,10 @@ def service_worker(request):
     return response
 
 urlpatterns = [
+    
+    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    
     
     path('identificar/', views.identificar_funcionario, name='identificar'),
     path('', views.leitor_qrcode, name="urlleitor_qrcode"), 

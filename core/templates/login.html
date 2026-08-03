@@ -1,0 +1,36 @@
+{% extends 'global/base.html' %}
+{% load bootstrap5 %}
+
+{% block title %}
+  Login
+{% endblock %}
+
+{% block content %}
+<section class="py-5">
+
+    <div class="container shadow border border-1 rounded d-flex justify-content-center p-5" style="max-width: 60vh; height: 70vh;">
+       <div>
+          <h1>Página de Login</h1>
+          <figure class="figure d-flex justify-content-center">
+            {% load static %}
+            <img src="{% static 'images/images-default/Icontransparent.png' %}" alt="" class="d-flex justify-content-center" style="height: 20vh;">
+        
+          </figure>
+            {% if form.errors %}
+                 <div class="alert alert-danger" role="alert">
+                            Usuário ou senha incorretos. Tente novamente.
+                </div>
+            {% endif %}
+ 
+          <form action="{% url 'urlindex' %}" method="POST">
+            {% csrf_token %}
+
+            {% bootstrap_form form %}
+            <div class="container mb-3 d-flex justify-content-center">
+              <input type="submit" value="🏃‍♂️‍➡️ Entrar" class="btn btn-primary" />
+            </div>
+          </form>
+         
+        </div>
+</section>
+{% endblock %}
