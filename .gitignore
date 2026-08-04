@@ -12,3 +12,6 @@ __pycache__/
 *.log
 .coverage 
 htmlcov/
+
+*.sqlite3
+db.sqlite3
