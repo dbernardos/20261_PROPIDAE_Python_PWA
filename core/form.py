@@ -124,8 +124,8 @@ class AtividadeForm(forms.ModelForm):
             'descricao': forms.Textarea(attrs={'placeholder':'digite a descrição da atividade','class': 'form-control mb-3', 'rows': 4}),
             'tipoAtividade': forms.Select(attrs={'placeholder':'selecione o tipo de atividade','class': 'form-select mb-3'}),
             'complementoLocal': forms.TextInput(attrs={'placeholder':'digite o complemento do local','class': 'form-control mb-3'}),
-            'horaInicio': forms.DateInput(attrs={'placeholder':'selecione a hora de início','class': 'form-control mb-3', 'type': 'date'}),
-            'horaFim': forms.DateInput(attrs={'placeholder':'selecione a hora de término','class': 'form-control mb-3', 'type': 'date'}),
+            'horaInicio': forms.DateTimeInput(attrs={'placeholder':'selecione a hora de início','class': 'form-control mb-3', 'type': 'datetime-local'}),
+            'horaFim': forms.DateTimeInput(attrs={'placeholder':'selecione a hora de término','class': 'form-control mb-3', 'type': 'datetime-local'}),
             'limitePessoas': forms.NumberInput(attrs={'placeholder':'digite o limite de participantes','class': 'form-control mb-3', 'type': 'number'}),
             
         }
