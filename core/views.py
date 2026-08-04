@@ -229,9 +229,6 @@ def cadastrar_evento(request):
     """View para cadastro de evento para o adm logado"""
     if request.method == 'POST':
         form = EventoForm(request.POST, request.FILES)
-        context = {
-            'form_evento': form,
-        }
 
         if form.is_valid():
             evento = form.save(commit=False)
@@ -242,6 +239,9 @@ def cadastrar_evento(request):
     else:
         form = EventoForm()
 
+    context = {
+            'form_evento': form,
+    }
     return render(request, 'cadastrar_evento.html', {'form_evento': form})
 
 
