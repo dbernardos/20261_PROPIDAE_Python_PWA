@@ -19,17 +19,17 @@
 
                     <p>----------------------</p>
                     {% for evento in eventos %}
-                    <strong><p>Nome: {{ evento.nome }}</p></strong>
-                    <p>Descrição: {{ evento.descricao }}</p>
-                    <p>Email de Contato: {{ evento.emailContato }}</p>
-                    <p>Apoiadores: {{ evento.apoiadores }}</p>
-                    <p>Local: {{ evento.local }}</p>
-                    <p>Imagem do banner: {{ evento.imagemBanner }}</p>
-                    <p>Data de Início: {{ evento.dataInicio }}</p>
-                    <p>Data de Fim: {{ evento.dataFim }}</p>
-                    <p>Tipo de Evento: {{ evento.tipoEvento }}</p>
-                    <p>Evento multiplo: {{ evento.eventoMultiplo }}</p>
-                    <p>Evento público: {{ evento.eventoPublico }}</p>
+                        <strong><p>Nome: {{ evento.nome }}</p></strong>
+                        <p>Descrição: {{ evento.descricao }}</p>
+                        <p>Email de Contato: {{ evento.emailContato }}</p>
+                        <p>Apoiadores: {{ evento.apoiadores }}</p>
+                        <p>Local: {{ evento.local }}</p>
+                        <p>Imagem do banner: {{ evento.imagemBanner }}</p>
+                        <p>Data de Início: {{ evento.dataInicio }}</p>
+                        <p>Data de Fim: {{ evento.dataFim }}</p>
+                        <p>Tipo de Evento: {{ evento.tipoEvento }}</p>
+                        <p>Evento multiplo: {{ evento.eventoMultiplo }}</p>
+                        <p>Evento público: {{ evento.eventoPublico }}</p>
                     <br>
                     
                     {% endfor %}
@@ -40,17 +40,18 @@
                     <h4>Dados das atividades</h4>
 
                     {% for atividade in atividades %}
-                    <strong><p>Atividade do Evento: {{ atividade.evento.nome }}</p></strong>
-                    <strong><p>Nome: {{ atividade.nome }}</p></strong>
-                    <p>Descrição: {{ atividade.descricao }}</p>
-                    <p>Tipo de Atividade: {{ atividade.tipoAtividade }}</p>
-                    <p>Complemento do Local: {{ atividade.complementoLocal }}</p>
-                    <p>Hora de Início: {{ atividade.horaInicio }}</p>
-                    <p>Hora de Fim: {{ atividade.horaFim }}</p>
-                    <p>Limite de Pessoas: {{ atividade.limitePessoas }}</p>
-                    <br>
-                    <p>----------------------</p>
+                        <strong><p>Atividade do Evento: {{ atividade.evento.nome }}</p></strong>
+                            <strong><p>Nome: {{ atividade.nome }}</p></strong>
+                            <p>Descrição: {{ atividade.descricao }}</p>
+                            <p>Tipo de Atividade: {{ atividade.tipoAtividade }}</p>
+                            <p>Complemento do Local: {{ atividade.complementoLocal }}</p>
+                            <p>Hora de Início: {{ atividade.horaInicio }}</p>
+                            <p>Hora de Fim: {{ atividade.horaFim }}</p>
+                            <p>Limite de Pessoas: {{ atividade.limitePessoas }}</p>
+                            <br>
+                      <p>----------------------</p>
                     {% endfor %}
+
                 </div>
             </div>
         </div>
