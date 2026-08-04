@@ -27,6 +27,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'app_login',
+    'app_evento',
+    'app_quiz',
     'bootstrap5',
     'pwa',
     'django_extensions',
@@ -47,7 +50,7 @@ ROOT_URLCONF = 'SEA.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
