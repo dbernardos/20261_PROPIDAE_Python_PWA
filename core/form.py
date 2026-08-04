@@ -109,7 +109,7 @@ class AtividadeForm(forms.ModelForm):
         ]
 
         labels = {
-            'nome': 'Nome do Atividade',
+            'nome': 'Nome da Atividade',
             'descricao': 'Descrição',
             'tipoAtividade' : 'Tipo de atividade',
             'complementoLocal': 'Complemento do Local',
