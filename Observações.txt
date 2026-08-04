@@ -1,0 +1,15 @@
+- verificar se existe algum recurso do forms que valida campos requeridos automáticamente
+
+EVENTO 
+- tem alguma validação de email?
+- apoiadores em texto corrido?
+- Local: é endereço ou é IFSC, por exemplo
+- imagem do banner serve para que?
+- data inicio poderia não permitir data antiga?
+- multiplo e publico mudará alguma coisa em outras páginas?
+
+ATIVIDADE
+- tipo da atividade é o mesmo do tipo do evento?
+- complemento do local, tive uma impressão que era endereço ainda
+- data e hora inicio fim deveria validar se está dentro do evento
+
