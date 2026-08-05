@@ -8,7 +8,7 @@ from .models import Usuario, Resposta, Evento, Atividade
 class UsuarioForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2']
+        fields = ['username', 'email']
 
         widgets = {
             'username': forms.TextInput(attrs={
