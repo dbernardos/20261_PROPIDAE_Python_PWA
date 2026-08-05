@@ -1,5 +1,4 @@
 from django import forms
-from django.forms import fields
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Usuario, Resposta, Evento, Atividade
@@ -15,7 +14,7 @@ class UsuarioForm(UserCreationForm):
                 'class': 'form-control',   
             }),
 
-            'email': forms.TextInput(attrs={
+            'email': forms.EmailInput(attrs={
                 'class': 'form-control',   
             }),
         }
@@ -87,12 +86,12 @@ class EventoForm(forms.ModelForm):
             'emailContato': forms.EmailInput(attrs={'placeholder': 'digite o e-mail de contato', 'class': 'form-control mb-3'}),
             'apoiadores': forms.TextInput(attrs={'placeholder': 'digite os apoiadores', 'class': 'form-control mb-3'}),
             'local': forms.TextInput(attrs={'placeholder': 'digite o local do evento', 'class': 'form-control mb-3'}),
-            'imagemBanner': forms.FileInput(attrs={'class': 'form-control mb-3'}),
-            'dataInicio': forms.DateInput(attrs={'placeholder': 'selecione a data de início', 'class': 'form-control mb-3', 'type': 'date'}),
-            'dataFim': forms.DateInput(attrs={'placeholder': 'selecione a data de término', 'class': 'form-control mb-3', 'type': 'date'}),
-            'tipoEvento': forms.Select(attrs={'placeholder': 'selecione o tipo do evento', 'class': 'form-select mb-3'}),
-            'eventoMultiplo': forms.CheckboxInput(attrs={'placeholder': 'o evento é múltiplo?', 'class': 'form-check-input mb-3'}),
-            'eventoPublico': forms.CheckboxInput(attrs={'placeholder': 'o evento é público?', 'class': 'form-check-input mb-3'}),
+            'imagemBanner': forms.FileInput(attrs={'class': 'form-control mb-3','accept': 'image/*'}),
+            'dataInicio': forms.DateInput(attrs={'class': 'form-control mb-3', 'type': 'date'}),
+            'dataFim': forms.DateInput(attrs={'class': 'form-control mb-3', 'type': 'date'}),
+            'tipoEvento': forms.Select(attrs={'class': 'form-select mb-3'}),
+            'eventoMultiplo': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
+            'eventoPublico': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
         }
 
 class AtividadeForm(forms.ModelForm):
@@ -122,10 +121,10 @@ class AtividadeForm(forms.ModelForm):
         widgets = {
             'nome': forms.TextInput(attrs={'placeholder':'digite o nome da atividade','class': 'form-control mb-3'}),
             'descricao': forms.Textarea(attrs={'placeholder':'digite a descrição da atividade','class': 'form-control mb-3', 'rows': 4}),
-            'tipoAtividade': forms.Select(attrs={'placeholder':'selecione o tipo de atividade','class': 'form-select mb-3'}),
+            'tipoAtividade': forms.Select(attrs={'class': 'form-select mb-3'}),
             'complementoLocal': forms.TextInput(attrs={'placeholder':'digite o complemento do local','class': 'form-control mb-3'}),
-            'horaInicio': forms.DateTimeInput(attrs={'placeholder':'selecione a hora de início','class': 'form-control mb-3', 'type': 'datetime-local'}),
-            'horaFim': forms.DateTimeInput(attrs={'placeholder':'selecione a hora de término','class': 'form-control mb-3', 'type': 'datetime-local'}),
+            'horaInicio': forms.DateTimeInput(attrs={'class': 'form-control mb-3', 'type': 'datetime-local'}),
+            'horaFim': forms.DateTimeInput(attrs={'class': 'form-control mb-3', 'type': 'datetime-local'}),
             'limitePessoas': forms.NumberInput(attrs={'placeholder':'digite o limite de participantes','class': 'form-control mb-3', 'type': 'number'}),
             
         }
