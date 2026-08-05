@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from .form import UsuarioForm
 from django.utils import timezone
@@ -9,6 +10,7 @@ from .models import Participa, Quiz, Resposta, Usuario, Evento, Atividade, Inscr
 from .form import ParticipanteForm, RespostaQuizForm, EventoForm, AtividadeForm
 import json
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import never_cache
 from django.http import JsonResponse
 
 def leitor_qrcode(request):
@@ -154,9 +156,12 @@ def reset_quiz(request, cracha, quiz_numero):
 def quiz(request):
     return render(request, 'quiz.html')
 
+@never_cache
 def index(request):
     return render(request, 'index.html')
 
+
+'''
 def entrar(request):
     if request.method == "GET":
         return render(request, "entrar.html")
@@ -171,10 +176,11 @@ def entrar(request):
         messages.error(request, "Falha na autenticação!")    
         return render(request, 'entrar.html')
 
+
 def sair(request):
     logout(request)
-    return redirect('urlentrar')
-
+    return redirect('login')
+'''
 
 # Nosso "banco de dados" simulado
 db_funcionarios = {
@@ -224,7 +230,7 @@ def identificar_funcionario(request):
 
     return JsonResponse({"mensagem": "Método não permitido"}, status=405)    
 
-@login_required(login_url='urlentrar')
+@login_required(login_url='login')
 def cadastrar_evento(request):
     """View para cadastro de evento para o adm logado"""
     if request.method == 'POST':
@@ -245,7 +251,8 @@ def cadastrar_evento(request):
     return render(request, 'cadastrar_evento.html', {'form_evento': form})
 
 
-'''def cadastrar_atividade(request):
+'''
+def cadastrar_atividade(request):
     """View para cadastro de atividade para o adm logado"""
     
     if request.method == 'POST':
@@ -307,3 +314,35 @@ def dados(request):
         'atividades': atividades,
     }
     return render(request, template, contexto)
+
+
+
+'''
+
+def login(request):
+    # Se o usuário já estiver logado, manda direto para a index
+    if request.user.is_authenticated:
+        return redirect('urlindex')
+
+    if request.method == 'POST':
+        # Passamos os dados do POST para o formulário do Django
+        form = AuthenticationForm(request, data=request.POST)
+        
+        # O isValid() já verifica se os campos foram preenchidos
+        if form.is_valid():
+            # O form já faz a autenticação e retorna o objeto do usuário
+            user = form.get_user()
+            login(request, user)
+            return redirect('urlindex')
+        else:
+            messages.error(request, "Usuário ou senha inválidos!")
+    else:
+        # Se for GET, exibe o formulário em branco
+        form = AuthenticationForm()
+
+    return render(request, 'login.html', {'form': form})
+
+def sair(request):
+    logout(request)
+    return redirect('login')
+'''
