@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ evento.nome }} - Atividades{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    
+    <!-- Navegação Superior -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <a href="{% url 'cadastrar_evento' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Voltar para Eventos
+      </a>
+      
+      {% if user.is_staff or user.is_superuser %}
+        <a href="{% url 'cadastrar_atividade' evento.id %}" class="btn btn-primary-custom shadow-sm">
+          <i class="bi bi-plus-lg me-1"></i> Nova Atividade
+        </a>
+      {% endif %}
+    </div>
+
+    <!-- Banner e Detalhes Principais do Evento -->
+    <div class="card card-custom shadow-sm mb-5 border-0 overflow-hidden">
+      <div class="row g-0 align-items-center">
+        {% if evento.imagemBanner %}
+          <div class="col-md-4">
+            <img src="{{ evento.imagemBanner.url }}" alt="{{ evento.nome }}" class="img-fluid w-100 h-100" style="object-fit: cover; min-height: 220px;">
+          </div>
+        {% endif %}
+        <div class="{% if evento.imagemBanner %}col-md-8{% else %}col-12{% endif %} p-4">
+          <span class="badge bg-light text-dark border mb-2">
+            {% firstof evento.get_tipoEvento_display evento.tipoEvento "Evento" %}
+          </span>
+          <h1 class="h2 fw-bold text-verde-escuro mb-2">{{ evento.nome }}</h1>
+          {% if evento.descricao %}
+            <p class="text-muted mb-3">{{ evento.descricao }}</p>
+          {% endif %}
+          
+          <div class="d-flex flex-wrap gap-4 text-muted small">
+            <div><i class="bi bi-calendar-event me-1 text-verde-claro"></i> <strong>Período:</strong> {{ evento.dataInicio|date:"d/m/Y" }} a {{ evento.dataFim|date:"d/m/Y" }}</div>
+            <div><i class="bi bi-geo-alt me-1 text-vermelho"></i> <strong>Local:</strong> {{ evento.local|default:"A definir" }}</div>
+            {% if evento.emailContato %}
+              <div><i class="bi bi-envelope me-1 text-primary"></i> <strong>Contato:</strong> {{ evento.emailContato }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista Detalhada de Atividades -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="fw-bold text-verde-escuro mb-0">
+        <i class="bi bi-journal-text me-2"></i>Atividades Programadas
+      </h3>
+      <span class="badge bg-secondary rounded-pill fs-6">{{ atividades|length }} atividade(s)</span>
+    </div>
+
+    {% if atividades %}
+      <div class="row g-4">
+        {% for atividade in atividades %}
+          <div class="col-12">
+            <div class="card card-custom shadow-sm border-0 border-start border-4 border-success overflow-hidden">
+              <div class="card-body p-4">
+                
+                <!-- Cabeçalho da Atividade -->
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-3 pb-3 border-bottom">
+                  <div>
+                    <span class="badge bg-success px-3 py-1 mb-2">
+                      {% firstof atividade.get_tipo_display atividade.get_tipoAtividade_display atividade.tipoAtividade atividade.tipo "Atividade" %}
+                    </span>
+                    <h4 class="h4 fw-bold text-verde-escuro mb-0">
+                      {% firstof atividade.titulo atividade.nome "Atividade" %}
+                    </h4>
+                  </div>
+
+                  <a href="{% url 'urlleitor_qrcode' %}" class="btn btn-outline-success btn-sm">
+                    <i class="bi bi-qr-code-scan me-1"></i> Ler QR Code
+                  </a>
+                </div>
+
+                <!-- Descrição Completa da Atividade -->
+                {% if atividade.descricao %}
+                  <div class="mb-4">
+                    <p class="text-secondary mb-0">{{ atividade.descricao }}</p>
+                  </div>
+                {% endif %}
+
+                <!-- Grade de Detalhes Específicos -->
+                <div class="row g-3 bg-light rounded p-3 m-0">
+                  
+                  <!-- Data da Atividade -->
+                  <div class="col-sm-6 col-md-3">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-calendar3 text-verde-claro fs-5"></i>
+                      <div>
+                        <span class="text-muted d-block small">Data</span>
+                        <strong class="text-dark small">
+                          {% if atividade.data %}
+                            {{ atividade.data|date:"d/m/Y" }}
+                          {% elif atividade.dataInicio %}
+                            {{ atividade.dataInicio|date:"d/m/Y" }}
+                          {% elif atividade.data_inicio %}
+                            {{ atividade.data_inicio|date:"d/m/Y" }}
+                          {% elif atividade.dataAtividade %}
+                            {{ atividade.dataAtividade|date:"d/m/Y" }}
+                          {% else %}
+                            A definir
+                          {% endif %}
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Horário da Atividade -->
+                  <div class="col-sm-6 col-md-3">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-clock text-verde-claro fs-5"></i>
+                      <div>
+                        <span class="text-muted d-block small">Horário</span>
+                        <strong class="text-dark small">
+                          {% if atividade.hora_inicio %}
+                            {{ atividade.hora_inicio|time:"H:i" }}{% if atividade.hora_fim %} às {{ atividade.hora_fim|time:"H:i" }}{% endif %}
+                          {% elif atividade.horaInicio %}
+                            {{ atividade.horaInicio|time:"H:i" }}{% if atividade.horaFim %} às {{ atividade.horaFim|time:"H:i" }}{% endif %}
+                          {% elif atividade.horario_inicio %}
+                            {{ atividade.horario_inicio|time:"H:i" }}{% if atividade.horario_fim %} às {{ atividade.horario_fim|time:"H:i" }}{% endif %}
+                          {% elif atividade.hora %}
+                            {{ atividade.hora|time:"H:i" }}
+                          {% else %}
+                            A definir
+                          {% endif %}
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Local / Sala -->
+                  <div class="col-sm-6 col-md-3">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-geo-alt text-vermelho fs-5"></i>
+                      <div>
+                        <span class="text-muted d-block small">Local / Sala</span>
+                        <strong class="text-dark small">
+                          {% firstof atividade.local atividade.sala atividade.localizacao "A definir" %}
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Palestrante / Responsável -->
+                  <div class="col-sm-6 col-md-3">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-person-badge text-primary fs-5"></i>
+                      <div>
+                        <span class="text-muted d-block small">Palestrante / Responsável</span>
+                        <strong class="text-dark small">
+                          {% firstof atividade.palestrante atividade.responsavel atividade.ministrante "Não informado" %}
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card card-custom p-5 text-center text-muted border-0 shadow-sm">
+        <i class="bi bi-calendar-x display-4 mb-3 text-secondary"></i>
+        <h5>Nenhuma atividade cadastrada para este evento.</h5>
+        <p class="mb-0">Cadastre a primeira atividade clicando no botão no topo da página.</p>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}
