@@ -164,27 +164,6 @@ def index(request):
     return render(request, 'index.html')
 
 
-'''
-def entrar(request):
-    if request.method == "GET":
-        return render(request, "entrar.html")
-    elif request.method == "POST":
-        usuario = request.POST.get("txtUser")
-        senha = request.POST.get("txtPass")
-        user = authenticate(username=usuario, password=senha)
-
-        if user:
-            login(request, user)
-            return redirect('urlindex')
-        messages.error(request, "Falha na autenticação!")    
-        return render(request, 'entrar.html')
-
-
-def sair(request):
-    logout(request)
-    return redirect('login')
-'''
-
 # Nosso "banco de dados" simulado
 db_funcionarios = {
     "1": {"nome": "João Silva", "cargo": "Desenvolvedor", "empresa": "Weg"},
@@ -235,57 +214,47 @@ def identificar_funcionario(request):
 
 @never_cache
 @login_required(login_url='login')
-def cadastrar_evento(request):
-    """View para cadastro de evento para o adm logado"""
+def cadastrar_evento(request, evento_id=None):
+    """View para cadastro e edição de evento para o adm logado"""
+    evento = get_object_or_404(Evento, id=evento_id) if evento_id else None
+    eventos = Evento.objects.all().order_by('-dataInicio')
+
     if request.method == 'POST':
-        form = EventoForm(request.POST, request.FILES)
+        form = EventoForm(request.POST, request.FILES, instance=evento)
 
         if form.is_valid():
-            evento = form.save(commit=False)
-            evento.administrador = request.user
-            evento.save()
-            messages.success(request, '🎉 Evento cadastrado com sucesso!')
-            return redirect('cadastrar_atividade', evento_id=evento.id)  # Redireciona para a página de cadastro de atividade
+            evento_salvo = form.save(commit=False)
+            if not evento_salvo.pk:
+                evento_salvo.administrador = request.user
+            evento_salvo.save()
+
+            if evento_id:
+                messages.success(request, '🎉 Evento atualizado com sucesso!')
+                return redirect('cadastrar_evento')
+            else:
+                messages.success(request, '🎉 Evento cadastrado com sucesso!')
+                return redirect('cadastrar_atividade', evento_id=evento_salvo.id)
     else:
-        form = EventoForm()
+        form = EventoForm(instance=evento)
 
     context = {
-            'form_evento': form,
+        'form_evento': form,
+        'eventos': eventos,
+        'editando': bool(evento_id),
+        'evento': evento
     }
-    return render(request, 'cadastrar_evento.html', {'form_evento': form})
+    return render(request, 'eventos.html', context)
 
-
-'''
-def cadastrar_atividade(request):
-    """View para cadastro de atividade para o adm logado"""
-    
+@never_cache
+@login_required(login_url='login')
+def excluir_evento(request, evento_id):
+    """View para excluir um evento cadastrado"""
+    evento = get_object_or_404(Evento, id=evento_id)
     if request.method == 'POST':
-        form = AtividadeForm(request.POST)
-        context = {
-            'form_atividade': form,
-        }
+        evento.delete()
+        messages.success(request, '🗑️ Evento excluído com sucesso!')
+    return redirect('cadastrar_evento')
 
-        if form.is_valid():
-            atividade = Atividade (
-                nome=form.cleaned_data['nome'],
-                descricao=form.cleaned_data['descricao'],
-                tipoAtividade=form.cleaned_data['tipoAtividade'],
-                complementoLocal=form.cleaned_data['complementoLocal'],
-                horaInicio=form.cleaned_data['horaInicio'],
-                horaFim=form.cleaned_data['horaFim'],
-                limitePessoas=form.cleaned_data['limitePessoas']
-            )
-            atividade = form.save(commit=False)
-            #atividade.administrador = request.user
-            atividade.save()
-            messages.success(request, '🎉 Atividade cadastrado com sucesso!')
-            return redirect('dados/')
-    else:
-        form = AtividadeForm()
-
-    return render(request, 'cadastrar_atividade.html', {'form_atividade': form})
-
-'''
 @never_cache
 @login_required(login_url='login')
 def cadastrar_atividade(request, evento_id):
@@ -294,12 +263,8 @@ def cadastrar_atividade(request, evento_id):
         form = AtividadeForm(request.POST)
 
         if form.is_valid():
-
             atividade = form.save(commit=False)
-            
-            #evento_atual = Evento.objects.first() 
             atividade.evento = evento_atual
-            
             atividade.save()
             
             messages.success(request, '🎉 Atividade cadastrada com sucesso!')
@@ -320,35 +285,3 @@ def dados(request):
         'atividades': atividades,
     }
     return render(request, template, contexto)
-
-
-
-'''
-
-def login(request):
-    # Se o usuário já estiver logado, manda direto para a index
-    if request.user.is_authenticated:
-        return redirect('urlindex')
-
-    if request.method == 'POST':
-        # Passamos os dados do POST para o formulário do Django
-        form = AuthenticationForm(request, data=request.POST)
-        
-        # O isValid() já verifica se os campos foram preenchidos
-        if form.is_valid():
-            # O form já faz a autenticação e retorna o objeto do usuário
-            user = form.get_user()
-            login(request, user)
-            return redirect('urlindex')
-        else:
-            messages.error(request, "Usuário ou senha inválidos!")
-    else:
-        # Se for GET, exibe o formulário em branco
-        form = AuthenticationForm()
-
-    return render(request, 'login.html', {'form': form})
-
-def sair(request):
-    logout(request)
-    return redirect('login')
-'''

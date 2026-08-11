@@ -28,7 +28,6 @@
     {% block extra_css %}{% endblock %}
     {% block extra_script %}{% endblock %}
 
-
 </head>
 <body class="d-flex flex-column min-vh-100">
     <!-- Cabeçalho -->
@@ -46,6 +45,9 @@
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="{% url 'urlindex' %}">Início</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'cadastrar_evento' %}">Eventos</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'urlleitor_qrcode' %}">QR-Code</a>
@@ -66,7 +68,7 @@
                         <li class="nav-item">
                             <form method="POST" action="{% url 'logout' %}" autocomplete="off">
                                  {% csrf_token %}
-                                 <button type="submit" class="nav-link">
+                                 <button type="submit" class="nav-link btn btn-link text-decoration-none">
                                     Sair
                                 </button>
                             </form>
@@ -82,7 +84,7 @@
         </nav>
     </header>
 
-    <!-- Mensagens Django -->
+    <!-- Mensagens Django Globais -->
     {% if messages %}
     <div class="container mt-3">
         {% for message in messages %}
@@ -154,6 +156,7 @@
                     <h6 class="text-white">Links Rápidos</h6>
                     <ul class="list-unstyled">
                         <li><a href="{% url 'urlindex' %}" class="text-secondary text-decoration-none">Início</a></li>
+                        <li><a href="{% url 'cadastrar_evento' %}" class="text-secondary text-decoration-none">Eventos</a></li>
                         <li><a href="#" class="text-secondary text-decoration-none">Programação</a></li>
                         <li><a href="#" class="text-secondary text-decoration-none">Inscrições</a></li>
                         <li><a href="#" class="text-secondary text-decoration-none">Contato</a></li>
@@ -186,10 +189,9 @@
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
 
-{% comment %} PWA {% endcomment %}
-<script>
+    {% comment %} PWA {% endcomment %}
+    <script>
         // Registrar Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -208,12 +210,10 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            // Mostrar botão de instalar
             showInstallButton();
         });
         
         function showInstallButton() {
-            // Lógica para mostrar botão de instalação
             console.log('App pode ser instalado');
         }
         
