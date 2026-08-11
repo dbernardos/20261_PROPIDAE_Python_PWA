@@ -122,8 +122,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'  
 
-
-LOGIN_REDIRECT_URL = 'urlindex'
-LOGOUT_REDIRECT_URL = 'login'
-LOGIN_URL = 'login'
+LOGIN_URL = "app_login:urllogin"
+LOGIN_REDIRECT_URL = "app_quiz:urlindex"
+LOGOUT_REDIRECT_URL = "app_login:login"
 CSRF_USE_SESSIONS = True

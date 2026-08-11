@@ -1,9 +1,30 @@
 from django.urls import path
+from django.http import HttpResponse
+from django.conf.urls.static import static
+from django.conf import settings
 from . import views
+from django.views.generic import TemplateView
 
 # Opcional: dá um "nome" ao namespace do app (útil para usar {% url %} nos templates)
 app_name = 'quiz'
 
-urlpatterns = [
+def service_worker(request):
+    response = HttpResponse(open('service-worker.js').read(), content_type="application/javascript")
+    response['Cache-Control'] = 'no-cache'
+    return response
 
+urlpatterns = [
+    path('quiz/', views.quiz, name='urlquiz'),
+    path('identificar/', views.identificar_funcionario, name='identificar'),
+    path('', views.leitor_qrcode, name="urlleitor_qrcode"), 
+    path('home/', views.index, name="urlindex"), 
+
+    path('boas-vindas/<str:cracha>/', views.boas_vindas, name='boas_vindas'),
+    path('<str:cracha>/desafio/<int:quiz_numero>/', views.quiz_detail, name='quiz_detail'),
+    path('<str:cracha>/desafio/<int:quiz_numero>/reset/', views.reset_quiz, name='reset_quiz'),
+
+    path('manifest.json', TemplateView.as_view(template_name="manifest.json", content_type='application/manifest+json')),
+    path('service-worker.js', TemplateView.as_view(template_name="service-worker.js", content_type='application/javascript'), name="service_worker"),  
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

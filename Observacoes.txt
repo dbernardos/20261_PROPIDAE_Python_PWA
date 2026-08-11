@@ -14,3 +14,6 @@ ATIVIDADE
 - tipo da atividade é o mesmo do tipo do evento?
 - complemento do local, tive uma impressão que era endereço ainda
 - data e hora inicio fim deveria validar se está dentro do evento
+
+NOVAS ATIVIDADES
+- 
