@@ -5,7 +5,7 @@ from django.conf import settings
 from . import views
 from django.views.generic import TemplateView
 
-# Opcional: dá um "nome" ao namespace do app (útil para usar {% url %} nos templates)
+# Pode usar {% url %} nos templates
 app_name = 'quiz'
 
 def service_worker(request):
@@ -13,6 +13,8 @@ def service_worker(request):
     response['Cache-Control'] = 'no-cache'
     return response
 
+# Create your QUIZ urls here.
+# -----------------------------------------------
 urlpatterns = [
     path('quiz/', views.quiz, name='urlquiz'),
     path('identificar/', views.identificar_funcionario, name='identificar'),

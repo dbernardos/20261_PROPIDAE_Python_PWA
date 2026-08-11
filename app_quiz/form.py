@@ -1,6 +1,8 @@
 from django import forms
 from .models import Resposta
 
+# Create your QUIZ forms here.
+# -----------------------------------------------
 class RespostaQuizForm(forms.ModelForm):
     """Form para resposta do quiz"""
     class Meta:

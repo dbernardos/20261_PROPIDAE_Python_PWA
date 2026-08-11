@@ -21,12 +21,48 @@ db_funcionarios = {
     "3": {"nome": "Carlos Oliveira", "cargo": "Diretor", "empresa": "Weg"},
 }
 
-# Create your views here.
+# Create your QUIZ views here.
 # -----------------------------------------------
 @never_cache
 @ensure_csrf_cookie
 def index(request):
     return render(request, 'index.html')
+
+def boas_vindas(request, cracha):
+    """Página de boas-vindas com quadro de progresso"""
+    participante = get_object_or_404(Usuario, nome=cracha)
+    
+    # Obtém todos os quizzes ativos
+    quizzes = Quiz.objects.filter(ativo=True)
+    
+    # Calcula progresso para cada quiz
+    progresso_quizzes = []
+    for quiz in quizzes:
+        resposta = Resposta.objects.filter(
+            participante=participante, 
+            quiz=quiz
+        ).first()
+        
+        progresso_quizzes.append({
+            'quiz': quiz,
+            'resposta': resposta,
+            #'completo': resposta.completo if resposta else False,
+            #'tentativas': resposta.tentativas if resposta else 0
+        })
+    
+    # Progresso geral
+    progresso_geral = participante.get_progresso_geral()
+    
+    context = {
+        'participante': participante,
+        'progresso_quizzes': progresso_quizzes,
+        'progresso_geral': progresso_geral,
+        'quizzes_completos': progresso_geral['respondidos'],
+        'total_quizzes': progresso_geral['total'],
+        'porcentagem_conclusao': progresso_geral['porcentagem']
+    }
+    
+    return render(request, 'quiz/boas_vindas.html', context)
 
 def leitor_qrcode(request):
     return render(request, 'leitor_qrcode.html')

@@ -1,23 +1,8 @@
 from django import forms
 from .models import Evento, Atividade
-from .models import Usuario
 
-class ParticipanteForm(forms.ModelForm):
-    """Form para registro/login do participante pelo crachá"""
-    class Meta:
-        model = Usuario
-        fields = ['nome', 'email']
-        widgets = {
-            'nome': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Nome completo (opcional)'
-            }),
-            'email': forms.EmailInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'E-mail (opcional)'
-            })
-        }
-
+# Create your EVENTO forms here.
+# -----------------------------------------------
 class EventoForm(forms.ModelForm):
     class Meta:
         model = Evento

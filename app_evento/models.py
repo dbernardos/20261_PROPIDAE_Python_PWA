@@ -3,7 +3,7 @@ from django.utils import timezone
 import uuid
 from django.contrib.auth.models import User
 
-# Create your models here.
+# Create your EVENTO models here.
 # -----------------------------------------------
 class tipoEvento(models.TextChoices):
     COLOQUIO = 'Colóquio'
@@ -42,7 +42,7 @@ class Evento(models.Model):
 
 """Model da tabela Inscricao"""  
 class Inscricao(models.Model):
-    usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE)
+    usuario = models.ForeignKey('app_login.Usuario', on_delete=models.CASCADE)
     evento = models.ForeignKey('Evento', on_delete=models.CASCADE)
 
     dataHora = models.DateTimeField(auto_now_add=True)

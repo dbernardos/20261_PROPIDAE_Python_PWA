@@ -9,9 +9,11 @@ from django.views.decorators.cache import cache_control
 from django.contrib.auth import views as auth_views
 
 
-# Opcional: dá um "nome" ao namespace do app (útil para usar {% url %} nos templates)
+# Pode usar {% url %} nos templates
 app_name = 'login'
 
+# Create your LOGIN urls here.
+# -----------------------------------------------
 urlpatterns = [
     path('login/', LoginView.as_view(template_name='app_login/login.html'), name='urllogin'),
     path('logout/', LogoutView.as_view(), name='app_login/urllogout'),

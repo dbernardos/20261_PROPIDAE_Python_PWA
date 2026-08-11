@@ -3,7 +3,7 @@ from django.utils import timezone
 import uuid
 from django.contrib.auth.models import User
 
-# Create your models here.
+# Create your LOGIN models here.
 # -----------------------------------------------
 """Model da tabela Usuario"""
 class Usuario(models.Model):

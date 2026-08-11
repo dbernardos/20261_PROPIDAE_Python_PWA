@@ -12,9 +12,9 @@ from django.middleware.csrf import rotate_token
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import Evento, Atividade, Inscricao
-from .form import ParticipanteForm, EventoForm, AtividadeForm
+from .form import EventoForm, AtividadeForm
 
-# reate your views here.
+# reate your EVENTO views here.
 # -----------------------------------------------
 @never_cache
 @login_required(login_url='login')
@@ -37,6 +37,27 @@ def cadastrar_evento(request):
     }
     return render(request, 'cadastrar_evento.html', {'form_evento': form})
 
+@never_cache
+@login_required(login_url='login')
+def excluir_evento(request, evento_id):
+    """View para excluir um evento cadastrado"""
+    evento = get_object_or_404(Evento, id=evento_id)
+    if request.method == 'POST':
+        evento.delete()
+        messages.success(request, '🗑️ Evento excluído com sucesso!')
+    return redirect('cadastrar_evento')
+
+@never_cache
+def detalhes_evento(request, evento_id):
+    """Exibe os detalhes de um evento e a lista de suas atividades cadastradas"""
+    evento = get_object_or_404(Evento, id=evento_id)
+    atividades = Atividade.objects.filter(evento=evento)
+
+    context = {
+        'evento': evento,
+        'atividades': atividades,
+    }
+    return render(request, 'detalhes_evento.html', context)
 
 @never_cache
 @login_required(login_url='login')

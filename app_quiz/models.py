@@ -3,12 +3,12 @@ from django.utils import timezone
 import uuid
 from django.contrib.auth.models import User
 
-# Create your models here.
+# Create your QUIZ models here.
 # -----------------------------------------------
 class Quiz(models.Model):
     """Model para os desafios/quiz"""
     ## CORRIGIR FALTA DE INTEGRIDADE NAS ATIVIDADES (remover blank=True, null=True)
-    atividade = models.ForeignKey('Atividade', on_delete=models.CASCADE, blank=True, null=True)
+    atividade = models.ForeignKey('app_evento.Atividade', on_delete=models.CASCADE, blank=True, null=True)
     titulo = models.CharField(max_length=200)
     numero = models.PositiveIntegerField(unique=True, help_text="Número do desafio")
     subtitulo = models.CharField(max_length=300, blank=True, null=True)
@@ -42,7 +42,7 @@ class Quiz(models.Model):
 """Model da tabela Resposta"""
 class Resposta(models.Model):
     """Model para armazenar as respostas dos participantes"""
-    participa = models.ForeignKey(Participa, on_delete=models.CASCADE, related_name='respostas')
+    participa = models.ForeignKey("app_evento.Participa", on_delete=models.CASCADE, related_name='respostas')
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='respostas')
     
     valor_resposta = models.DecimalField(null=True, blank=True, max_digits=10, decimal_places=2)

@@ -4,9 +4,11 @@ from django.conf.urls.static import static
 from django.conf import settings
 from . import views
 
-# Opcional: dá um "nome" ao namespace do app (útil para usar {% url %} nos templates)
+# Pode usar {% url %} nos templates
 app_name = 'evento'
 
+# Create your EVENTO urls here.
+# -----------------------------------------------
 urlpatterns = [
     path('cadastrar_evento/', views.cadastrar_evento, name='cadastrar_evento'),
     path('editar_evento/<int:evento_id>/', views.cadastrar_evento, name='editar_evento'),
