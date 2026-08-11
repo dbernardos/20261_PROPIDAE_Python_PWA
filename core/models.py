@@ -19,11 +19,21 @@ class Usuario(models.Model):
     ultimo_acesso = models.DateTimeField(auto_now=True)
     participante = models.OneToOneField(User, on_delete=models.CASCADE)
 
+
+'''
+class Apoiador(models.Model):
+    nome = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.nome
+'''
 class tipoEvento(models.TextChoices):
     COLOQUIO = 'Colóquio'
     FORUM = 'Fórum'
-    PALESTRA = 'Palestra'
-
+    SIMPOSIO = 'Simpósio'
+    SEMANA = 'Semana Acadêmica'
+    ENCONTRO = 'Encontro'
+    CONGRESSO = 'Congresso'
 
 """Model da tabela Evento"""
 class Evento(models.Model):
@@ -41,10 +51,17 @@ class Evento(models.Model):
     dataFim = models.DateField()
 
     #tipoEvento = models.CharField(max_length=45, blank=True, null=True)
-    tipoEvento = models.CharField('tipoEvento', choices=tipoEvento.choices, max_length=20, default=tipoEvento.PALESTRA)
+    tipoEvento = models.CharField('tipoEvento', choices=tipoEvento.choices, max_length=20, default=tipoEvento.SEMANA)
 
     eventoMultiplo = models.BooleanField(default=False)
     eventoPublico = models.BooleanField(default=True)
+    
+    #apoiadores = models.ManyToManyField(Apoiador, related_name='eventos')
+    
+    def __str__(self):
+        return self.titulo
+    
+
 
 """Model da tabela Inscricao"""  
 class Inscricao(models.Model):
@@ -94,13 +111,21 @@ class tipoAtividade(models.TextChoices):
     COLOQUIO = 'Colóquio'
     FORUM = 'Fórum'
     PALESTRA = 'Palestra'
+    OFICINA = 'Oficina'
+    MESA_REDONDA = 'Mesa Redonda'
+    PAINEL = 'Painel'
+    MINICURSO = 'Minicurso'
+    MEETUP = 'Meetup'
+    MASTERCLASS = 'Masterclass'
+    DEMODAY = 'Demo Day'
+    OUTRO = 'Outro'
 
 class Atividade(models.Model):
     evento = models.ForeignKey('Evento', on_delete=models.CASCADE)
 
     nome = models.CharField(max_length=200)
     descricao = models.TextField(max_length=500, blank=True, null=True)
-  #  tipoAtividade = models.CharField(max_length=45, blank=True, null=True)
+    #tipoAtividade = models.CharField(max_length=45, blank=True, null=True)
     tipoAtividade = models.CharField('tipoAtividade', choices=tipoAtividade.choices, max_length=20, default=tipoAtividade.PALESTRA)
     complementoLocal = models.CharField(max_length=45, blank=True, null=True)
     horaInicio = models.DateTimeField()

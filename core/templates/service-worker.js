@@ -67,31 +67,62 @@
         if (event.request.method !== 'GET') {
              return; 
         }     
+
+        const url = new URL(event.request.url);
+
+        // 1. ROTAS DE AUTENTICAÇÃO E ADMIN: Ignora o Service Worker completamente
+        if (url.pathname.startsWith('/admin/') || 
+            url.pathname.startsWith('/login/') || 
+            url.pathname.startsWith('/logout/')) {
+            return; 
+        }
     // Skip some of cross-origin requests, like those for Google Analytics.
-    if (HOSTNAME_WHITELIST.indexOf(new URL(event.request.url).hostname) > -1) {
-        // Stale-while-revalidate
-        // similar to HTTP's stale-while-revalidate: https://www.mnot.net/blog/2007/12/12/stale
-        // Upgrade from Jake's to Surma's: https://gist.github.com/surma/eb441223daaedf880801ad80006389f1
-        const cached = caches.match(event.request)
-        const fixedUrl = getFixedUrl(event.request)
-        const fetched = fetch(fixedUrl, { cache: 'no-store' })
-        const fetchedCopy = fetched.then(resp => resp.clone())
+        if (HOSTNAME_WHITELIST.indexOf(new URL(event.request.url).hostname) > -1) {
+            // Stale-while-revalidate
+            // similar to HTTP's stale-while-revalidate: https://www.mnot.net/blog/2007/12/12/stale
+            // Upgrade from Jake's to Surma's: https://gist.github.com/surma/eb441223daaedf880801ad80006389f1
 
-        // Call respondWith() with whatever we get first.
-        // If the fetch fails (e.g disconnected), wait for the cache.
-        // If there’s nothing in cache, wait for the fetch.
-        // If neither yields a response, return offline pages.
-        event.respondWith(
-        Promise.race([fetched.catch(_ => cached), cached])
-            .then(resp => resp || fetched)
-            .catch(_ => { /* eat any errors */ })
-        )
 
-        // Update the cache with the version we fetched (only for ok status)
-        event.waitUntil(
-        Promise.all([fetchedCopy, caches.open("pwa-cache")])
-            .then(([response, cache]) => response.ok && cache.put(event.request, response))
-            .catch(_ => { /* eat any errors */ })
-        )
-    }
-    })
+            const isDocument = event.request.mode === 'navigate' || event.request.destination === 'document';
+
+            if (isDocument) {
+                // 2. PARA PÁGINAS HTML: Network First (Rede Primeiro)
+                // Tenta buscar no Django primeiro para validar sessão e CSRF.
+                event.respondWith(
+                    fetch(getFixedUrl(event.request), { cache: 'no-store' })
+                        .then(response => {
+                            // Se a rede respondeu, salva uma cópia no cache caso fique offline depois
+                            const copy = response.clone();
+                            caches.open("pwa-cache").then(cache => cache.put(event.request, copy));
+                            return response;
+                        })
+                        .catch(() => {
+                            // SÓ usa o cache se o servidor estiver inacessível/offline
+                            return caches.match(event.request);
+                        })
+                );
+            } else {    
+                const cached = caches.match(event.request)
+                const fixedUrl = getFixedUrl(event.request)
+                const fetched = fetch(fixedUrl, { cache: 'no-store' })
+                const fetchedCopy = fetched.then(resp => resp.clone())
+
+                // Call respondWith() with whatever we get first.
+                // If the fetch fails (e.g disconnected), wait for the cache.
+                // If there’s nothing in cache, wait for the fetch.
+                // If neither yields a response, return offline pages.
+                event.respondWith(
+                Promise.race([fetched.catch(_ => cached), cached])
+                    .then(resp => resp || fetched)
+                    .catch(_ => { /* eat any errors */ })
+                )
+
+                // Update the cache with the version we fetched (only for ok status)
+                event.waitUntil(
+                Promise.all([fetchedCopy, caches.open("pwa-cache")])
+                    .then(([response, cache]) => response.ok && cache.put(event.request, response))
+                    .catch(_ => { /* eat any errors */ })
+                )
+            }
+        }
+})

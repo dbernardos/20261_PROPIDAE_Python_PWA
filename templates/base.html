@@ -64,12 +64,16 @@
                         </li>
                         {% if request.user.is_authenticated %}
                         <li class="nav-item">
-                            <form method="POST" action="{% url 'logout' %}">
+                            <form method="POST" action="{% url 'logout' %}" autocomplete="off">
                                  {% csrf_token %}
-                                 <button type="submit" class="nav">
+                                 <button type="submit" class="nav-link">
                                     Sair
                                 </button>
                             </form>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                             <a class="nav-link" href="{% url 'login' %}">Entrar</a>
                         </li>
                         {% endif %}       
                     </ul>

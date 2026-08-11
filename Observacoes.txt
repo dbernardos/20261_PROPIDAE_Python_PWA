@@ -2,7 +2,9 @@
 
 EVENTO 
 - tem alguma validação de email?
+=== O próprio forms do Django já possui sistema de validação para email
 - apoiadores em texto corrido?
+====
 - Local: é endereço ou é IFSC, por exemplo
 - imagem do banner serve para que?
 - data inicio poderia não permitir data antiga?

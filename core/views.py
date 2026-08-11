@@ -9,9 +9,11 @@ from django.utils import timezone
 from .models import Participa, Quiz, Resposta, Usuario, Evento, Atividade, Inscricao
 from .form import ParticipanteForm, RespostaQuizForm, EventoForm, AtividadeForm
 import json
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.cache import never_cache
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.middleware.csrf import rotate_token
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.cache import never_cache
 
 def leitor_qrcode(request):
     return render(request, 'leitor_qrcode.html')
@@ -157,6 +159,7 @@ def quiz(request):
     return render(request, 'quiz.html')
 
 @never_cache
+@ensure_csrf_cookie
 def index(request):
     return render(request, 'index.html')
 
@@ -230,6 +233,7 @@ def identificar_funcionario(request):
 
     return JsonResponse({"mensagem": "Método não permitido"}, status=405)    
 
+@never_cache
 @login_required(login_url='login')
 def cadastrar_evento(request):
     """View para cadastro de evento para o adm logado"""
@@ -282,7 +286,8 @@ def cadastrar_atividade(request):
     return render(request, 'cadastrar_atividade.html', {'form_atividade': form})
 
 '''
-@login_required
+@never_cache
+@login_required(login_url='login')
 def cadastrar_atividade(request, evento_id):
     evento_atual = get_object_or_404(Evento, id=evento_id)
     if request.method == 'POST':
@@ -292,7 +297,7 @@ def cadastrar_atividade(request, evento_id):
 
             atividade = form.save(commit=False)
             
-            evento_atual = Evento.objects.first() 
+            #evento_atual = Evento.objects.first() 
             atividade.evento = evento_atual
             
             atividade.save()
@@ -305,6 +310,7 @@ def cadastrar_atividade(request, evento_id):
 
     return render(request, 'cadastrar_atividade.html', {'form_atividade': form})
 
+@never_cache
 def dados(request):
     template = 'dados.html'
     eventos = Evento.objects.all()

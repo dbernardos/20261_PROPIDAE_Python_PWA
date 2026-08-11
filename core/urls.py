@@ -3,7 +3,6 @@ from django.conf.urls.static import static
 from django.http import HttpResponse
 from django.views.generic import TemplateView
 from django.conf import settings
-from django.views.decorators.cache import never_cache
 
 from . import views
 
@@ -19,7 +18,7 @@ def service_worker(request):
 
 urlpatterns = [
     
-    path('login/', never_cache(auth_views.LoginView.as_view(template_name='login.html')), name='login'),
+    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     
     
@@ -30,7 +29,7 @@ urlpatterns = [
     #path('sair', views.sair, name="urlsair"),
     path('quiz', views.quiz, name='urlquiz'),
 
-    path('cadastrar_atividade/<int:evento_id>/', views.cadastrar_atividade, name='urlcadastrarAtividade'),
+    #path('cadastrar_atividade/<int:evento_id>/', views.cadastrar_atividade, name='urlcadastrarAtividade'),
 
     path('boas-vindas/<str:cracha>/', views.boas_vindas, name='boas_vindas'),
     path('<str:cracha>/desafio/<int:quiz_numero>/', views.quiz_detail, name='quiz_detail'),
