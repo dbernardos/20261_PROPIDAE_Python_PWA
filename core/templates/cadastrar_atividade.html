@@ -3,7 +3,7 @@
 {% load bootstrap5 %}
 
 {% block title %}
-  Cadastrar Atividade
+  Cadastrar Atividade {% if evento %}- {{ evento.nome }}{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -12,20 +12,32 @@
     <div class="row justify-content-center">
       <div class="col-lg-8">
         
-        
-          <h2 class="fw-bold text-verde-escuro mb-4">Cadastrar Nova Atividade de {{ evento_atual.nome }} 📅</h2>
-        
+        <!-- Cabeçalho da Seção -->
+        <div class="mb-4">
+          <h2 class="display-6 fw-bold text-verde-escuro mb-1">
+            Cadastrar Nova Atividade 📅
+          </h2>
+          {% if evento %}
+            <p class="text-muted fs-5">
+              Evento: <strong class="text-verde-claro">{{ evento.nome }}</strong>
+            </p>
+          {% endif %}
+        </div>
 
-        <form method="POST" class="card p-4 shadow-sm bg-white">
-          {% csrf_token %}
+        <!-- Formulário da Atividade Estilizado -->
+        <div class="card card-custom shadow-sm p-4">
+          <form method="POST">
+            {% csrf_token %}
 
-          {{ form_atividade.as_p }}
-          
-          <div class="d-flex justify-content-end gap-2 mt-4">
-            <a href="{% url 'urlindex' %}" class="btn btn-outline-secondary">Cancelar</a>
-            <button type="submit" class="btn btn-success">Salvar Atividade</button>
-          </div>
-        </form>
+            <!-- Renderiza os campos com o Bootstrap 5 automaticamente -->
+            {% bootstrap_form form_atividade %}
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <a href="{% url 'cadastrar_evento' %}" class="btn btn-outline-secondary btn-lg">Cancelar</a>
+              <button type="submit" class="btn btn-primary-custom btn-lg">Salvar Atividade</button>
+            </div>
+          </form>
+        </div>
 
       </div>
     </div>

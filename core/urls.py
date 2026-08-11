@@ -36,6 +36,9 @@ urlpatterns = [
     path('<str:cracha>/desafio/<int:quiz_numero>/reset/', views.reset_quiz, name='reset_quiz'),
     
     path('cadastrar_evento/', views.cadastrar_evento, name='cadastrar_evento'),
+    path('editar_evento/<int:evento_id>/', views.cadastrar_evento, name='editar_evento'),
+    path('excluir_evento/<int:evento_id>/', views.excluir_evento, name='excluir_evento'),
+    path('eventos/<int:evento_id>/', views.detalhes_evento, name='detalhes_evento'),
     path('cadastrar_atividade/<int:evento_id>/', views.cadastrar_atividade, name='cadastrar_atividade'),
 
     path('dados/', dados, name='dados'),
@@ -43,6 +46,5 @@ urlpatterns = [
     path('manifest.json', TemplateView.as_view(template_name="manifest.json", content_type='application/manifest+json')),
     path('service-worker.js', TemplateView.as_view(template_name="service-worker.js", content_type='application/javascript'), name="service_worker"),  
 ]
-
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
