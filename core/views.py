@@ -256,6 +256,18 @@ def excluir_evento(request, evento_id):
     return redirect('cadastrar_evento')
 
 @never_cache
+def detalhes_evento(request, evento_id):
+    """Exibe os detalhes de um evento e a lista de suas atividades cadastradas"""
+    evento = get_object_or_404(Evento, id=evento_id)
+    atividades = Atividade.objects.filter(evento=evento)
+
+    context = {
+        'evento': evento,
+        'atividades': atividades,
+    }
+    return render(request, 'detalhes_evento.html', context)
+
+@never_cache
 @login_required(login_url='login')
 def cadastrar_atividade(request, evento_id):
     evento_atual = get_object_or_404(Evento, id=evento_id)
