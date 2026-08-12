@@ -10,6 +10,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.middleware.csrf import rotate_token
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+#from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from .models import Quiz, Resposta
 from .form import RespostaQuizForm
 
@@ -25,7 +27,8 @@ db_funcionarios = {
 # -----------------------------------------------
 def boas_vindas(request, cracha):
     """Página de boas-vindas com quadro de progresso"""
-    participante = get_object_or_404(Usuario, nome=cracha)
+    Usuario = get_user_model()
+    participante = get_object_or_404(Usuario, username=cracha)
     
     # Obtém todos os quizzes ativos
     quizzes = Quiz.objects.filter(ativo=True)
@@ -66,11 +69,14 @@ def leitor_qrcode(request):
 
 def quiz_detail(request, cracha, quiz_numero):
     """Página detalhada do quiz"""
-    participante = get_object_or_404(Participante, cracha=cracha)
+    Usuario = get_user_model()
+    participante = get_object_or_404(Usuario, username=cracha)
+    #participante = get_object_or_404(Usuario, username=cracha)
+    #participante = get_object_or_404(Participante, cracha=cracha)
     quiz = get_object_or_404(Quiz, numero=quiz_numero, ativo=True)
     
     # Obtém ou cria resposta
-    resposta, created = RespostaQuiz.objects.get_or_create(
+    resposta, created = Resposta.objects.get_or_create(
         participante=participante,
         quiz=quiz
     )
@@ -104,10 +110,12 @@ def quiz_detail(request, cracha, quiz_numero):
 
 def reset_quiz(request, cracha, quiz_numero):
     """Permite resetar um quiz para tentar novamente"""
-    participante = get_object_or_404(Participante, cracha=cracha)
+    Usuario = get_user_model()
+    participante = get_object_or_404(Usuario, username=cracha)
+    #participante = get_object_or_404(Participante, cracha=cracha)
     quiz = get_object_or_404(Quiz, numero=quiz_numero)
     
-    resposta = RespostaQuiz.objects.filter(
+    resposta = Resposta.objects.filter(
         participante=participante,
         quiz=quiz
     ).first()
