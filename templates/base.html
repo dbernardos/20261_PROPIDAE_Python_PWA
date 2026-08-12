@@ -34,7 +34,7 @@
     <header class="site-header">
         <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container">
-                <a class="navbar-brand" href="{% url 'urlindex' %}">
+                <a class="navbar-brand" href="{% url 'app_quiz:urlindex' %}">
                     <img src="{% static 'images/logo.png' %}" alt="XXIX Colóquio de Usinagem" height="60">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,13 +44,13 @@
                 <div class="collapse navbar-collapse" id="navbarMain">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="{% url 'urlindex' %}">Início</a>
+                            <a class="nav-link active" aria-current="page" href="{% url 'app_quiz:urlindex' %}">Início</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'cadastrar_evento' %}">Eventos</a>
+                            <a class="nav-link" href="{% url 'app_evento:urlcad_evento' %}">Eventos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'urlleitor_qrcode' %}">QR-Code</a>
+                            <a class="nav-link" href="{% url 'app_quiz:urlleitor_qrcode' %}">QR-Code</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">Sobre</a>
@@ -66,7 +66,7 @@
                         </li>
                         {% if request.user.is_authenticated %}
                         <li class="nav-item">
-                            <form method="POST" action="{% url 'logout' %}" autocomplete="off">
+                            <form method="POST" action="{% url 'app_login:urllogout' %}" autocomplete="off">
                                  {% csrf_token %}
                                  <button type="submit" class="nav-link btn btn-link text-decoration-none">
                                     Sair
@@ -75,7 +75,7 @@
                         </li>
                         {% else %}
                         <li class="nav-item">
-                             <a class="nav-link" href="{% url 'login' %}">Entrar</a>
+                             <a class="nav-link" href="{% url 'app_login:urllogin' %}">Entrar</a>
                         </li>
                         {% endif %}       
                     </ul>
@@ -155,8 +155,8 @@
                 <div class="col-md-4 mb-3">
                     <h6 class="text-white">Links Rápidos</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{% url 'urlindex' %}" class="text-secondary text-decoration-none">Início</a></li>
-                        <li><a href="{% url 'cadastrar_evento' %}" class="text-secondary text-decoration-none">Eventos</a></li>
+                        <li><a href="{% url 'app_quiz:urlindex' %}" class="text-secondary text-decoration-none">Início</a></li>
+                        <li><a href="{% url 'app_evento:urlcad_evento' %}" class="text-secondary text-decoration-none">Eventos</a></li>
                         <li><a href="#" class="text-secondary text-decoration-none">Programação</a></li>
                         <li><a href="#" class="text-secondary text-decoration-none">Inscrições</a></li>
                         <li><a href="#" class="text-secondary text-decoration-none">Contato</a></li>
@@ -195,7 +195,7 @@
         // Registrar Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('{% url "service_worker" %}')
+                navigator.serviceWorker.register('{% url "app_quiz:service_worker" %}')
                     .then(registration => {
                         console.log('SW registrado:', registration.scope);
                     })

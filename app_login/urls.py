@@ -10,13 +10,13 @@ from django.contrib.auth import views as auth_views
 
 
 # Pode usar {% url %} nos templates
-app_name = 'login'
+app_name = 'app_login'
 
 # Create your LOGIN urls here.
 # -----------------------------------------------
 urlpatterns = [
-    path('login/', LoginView.as_view(template_name='app_login/login.html'), name='urllogin'),
-    path('logout/', LogoutView.as_view(), name='app_login/urllogout'),
+    path('', LoginView.as_view(template_name='app_login/login.html'), name='urllogin'),
+    path('logout/', LogoutView.as_view(), name='urllogout'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

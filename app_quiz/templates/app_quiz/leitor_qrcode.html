@@ -93,7 +93,7 @@ async function validarNoServidor(codigoLido) {
         })
         .catch((err) => console.error('Erro ao desligar:', err))
 
-      resultadoDiv.textContent = `✅ Acesso Liberado: ${dados.nome}: ${dados.cargo}: ${dados.empresa}`
+      resultadoDiv.textContent = `Acesso Liberado: ${dados.nome}: ${dados.cargo}: ${dados.empresa}`
       resultadoDiv.className = 'autorizado'
 
       setTimeout(() => {
@@ -104,7 +104,7 @@ async function validarNoServidor(codigoLido) {
       console.log('if autorizado ???????????????')
     } else {
       console.log('else ???????????????')
-      resultadoDiv.textContent = `❌ Acesso Negado: ${dados.mensagem}`
+      resultadoDiv.textContent = `Acesso Negado: ${dados.mensagem}`
       resultadoDiv.className = 'negado'
 
       setTimeout(() => {

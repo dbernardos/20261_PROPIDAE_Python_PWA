@@ -26,7 +26,7 @@ db_funcionarios = {
 @never_cache
 @ensure_csrf_cookie
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'app_quiz/index.html')
 
 def boas_vindas(request, cracha):
     """Página de boas-vindas com quadro de progresso"""
@@ -62,11 +62,11 @@ def boas_vindas(request, cracha):
         'porcentagem_conclusao': progresso_geral['porcentagem']
     }
     
-    return render(request, 'quiz/boas_vindas.html', context)
+    return render(request, 'app_quiz/boas_vindas.html', context)
+
 
 def leitor_qrcode(request):
-    return render(request, 'leitor_qrcode.html')
-    #return render(request, 'leitor_qrcode_copy.html')
+    return render(request, 'app_quiz/leitor_qrcode.html')
 
 
 def quiz_detail(request, cracha, quiz_numero):
@@ -105,7 +105,7 @@ def quiz_detail(request, cracha, quiz_numero):
         'progresso_geral': participante.get_progresso_geral()
     }
     
-    return render(request, 'quiz/quiz_detail.html', context)
+    return render(request, 'app_quiz/quiz_detail.html', context)
 
 def reset_quiz(request, cracha, quiz_numero):
     """Permite resetar um quiz para tentar novamente"""
@@ -121,13 +121,13 @@ def reset_quiz(request, cracha, quiz_numero):
         resposta.delete()
         messages.info(request, 'Quiz reiniciado. Boa sorte!')
     
-    return redirect('quiz_detail', cracha=cracha, quiz_numero=quiz_numero)
+    return redirect('app_quiz:urlquiz_detail', cracha=cracha, quiz_numero=quiz_numero)
 
 
 #####
 
 def quiz(request):
-    return render(request, 'quiz.html')
+    return render(request, 'app_quiz/quiz.html')
 
 
 #@csrf_exempt
