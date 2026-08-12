@@ -16,6 +16,7 @@ app_name = 'app_login'
 # -----------------------------------------------
 urlpatterns = [
     path('', LoginView.as_view(template_name='app_login/login.html'), name='urllogin'),
+
     path('logout/', LogoutView.as_view(), name='urllogout'),
 ]
 
