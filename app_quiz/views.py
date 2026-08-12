@@ -23,11 +23,6 @@ db_funcionarios = {
 
 # Create your QUIZ views here.
 # -----------------------------------------------
-@never_cache
-@ensure_csrf_cookie
-def index(request):
-    return render(request, 'app_quiz/index.html')
-
 def boas_vindas(request, cracha):
     """Página de boas-vindas com quadro de progresso"""
     participante = get_object_or_404(Usuario, nome=cracha)

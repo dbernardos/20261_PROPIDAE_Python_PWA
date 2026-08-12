@@ -19,7 +19,6 @@ urlpatterns = [
     path('quiz/', views.quiz, name='urlquiz'),
     path('identificar/', views.identificar_funcionario, name='urlidentificar'),
     path('', views.leitor_qrcode, name="urlleitor_qrcode"), 
-    path('home/', views.index, name="urlindex"), 
 
     path('boas-vindas/<str:cracha>/', views.boas_vindas, name='urlboas_vindas'),
     path('<str:cracha>/desafio/<int:quiz_numero>/', views.quiz_detail, name='urlquiz_detail'),

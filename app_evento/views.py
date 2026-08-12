@@ -17,6 +17,11 @@ from .form import EventoForm, AtividadeForm
 # reate your EVENTO views here.
 # -----------------------------------------------
 @never_cache
+@ensure_csrf_cookie
+def home(request):
+    return render(request, 'app_evento/home.html')
+
+@never_cache
 @login_required(login_url='login')
 def cadastrar_evento(request):
     """View para cadastro de evento para o adm logado"""

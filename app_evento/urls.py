@@ -10,6 +10,7 @@ app_name = 'app_evento'
 # Create your EVENTO urls here.
 # -----------------------------------------------
 urlpatterns = [
+    path('', views.home, name="urlhome"), 
     path('cadastrar_evento/', views.cadastrar_evento, name='urlcad_evento'),
     path('editar_evento/<int:evento_id>/', views.cadastrar_evento, name='urledt_evento'),
     path('excluir_evento/<int:evento_id>/', views.excluir_evento, name='urldel_evento'),
