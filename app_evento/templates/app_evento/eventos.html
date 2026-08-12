@@ -52,7 +52,7 @@
                 </button>
                 
                 {% if editando %}
-                  <a href="{% url 'cadastrar_evento' %}" class="btn btn-outline-secondary btn-lg">Cancelar Edição</a>
+                  <a href="{% url 'app_evento:urlcad_evento' %}" class="btn btn-outline-secondary btn-lg">Cancelar Edição</a>
                 {% else %}
                   <button type="button" class="btn btn-outline-secondary btn-lg" data-bs-toggle="collapse" data-bs-target="#formEvento">
                     Fechar
@@ -123,17 +123,17 @@
 
                 <!-- Botões de Ação na Parte Inferior -->
                 <div class="pt-3 border-top d-flex flex-wrap align-items-center justify-content-between gap-2">
-                  <a href="{% url 'cadastrar_atividade' item.id %}" class="btn btn-outline-success btn-sm">
+                  <a href="{% url 'app_evento:cad_atividade' item.id %}" class="btn btn-outline-success btn-sm">
                     <i class="bi bi-plus-circle me-1"></i> Cadastrar Atividade
                   </a>
 
                   {% if user.is_staff or user.is_superuser %}
                     <div class="d-inline-flex gap-2">
-                      <a href="{% url 'editar_evento' item.id %}" class="btn btn-outline-secondary btn-sm">
+                      <a href="{% url 'app_evento:urledt_evento' item.id %}" class="btn btn-outline-secondary btn-sm">
                         <i class="bi bi-pencil me-1"></i> Editar
                       </a>
 
-                      <form action="{% url 'excluir_evento' item.id %}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir o evento {{ item.nome }}?');">
+                      <form action="{% url 'app_evento:delurl_evento' item.id %}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir o evento {{ item.nome }}?');">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-outline-danger btn-sm">
                           <i class="bi bi-trash me-1"></i> Excluir

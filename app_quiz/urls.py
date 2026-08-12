@@ -25,8 +25,8 @@ urlpatterns = [
     path('<str:cracha>/desafio/<int:quiz_numero>/', views.quiz_detail, name='urlquiz_detail'),
     path('<str:cracha>/desafio/<int:quiz_numero>/reset/', views.reset_quiz, name='urlreset_quiz'),
 
-    path('manifest.json', TemplateView.as_view(template_name="manifest.json", content_type='application/manifest+json')),
-    path('service-worker.js', TemplateView.as_view(template_name="service-worker.js", content_type='application/javascript'), name="service_worker"),  
+    path('manifest.json', TemplateView.as_view(template_name="app_quiz/manifest.json", content_type='application/manifest+json')),
+    path('service-worker.js', TemplateView.as_view(template_name="app_quiz/service-worker.js", content_type='application/javascript'), name="service_worker"),  
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

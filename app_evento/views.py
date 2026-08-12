@@ -27,15 +27,15 @@ def cadastrar_evento(request):
             evento = form.save(commit=False)
             evento.administrador = request.user
             evento.save()
-            messages.success(request, '🎉 Evento cadastrado com sucesso!')
-            return redirect('cadastrar_atividade', evento_id=evento.id)  # Redireciona para a página de cadastro de atividade
+            messages.success(request, 'Evento cadastrado com sucesso!')
+            return redirect('app_evento:urlcad_atividade', evento_id=evento.id)  # Redireciona para a página de cadastro de atividade
     else:
         form = EventoForm()
 
     context = {
             'form_evento': form,
     }
-    return render(request, 'cadastrar_evento.html', {'form_evento': form})
+    return render(request, 'app_evento/cadastrar_evento.html', {'form_evento': form})
 
 @never_cache
 @login_required(login_url='login')
@@ -45,7 +45,7 @@ def excluir_evento(request, evento_id):
     if request.method == 'POST':
         evento.delete()
         messages.success(request, '🗑️ Evento excluído com sucesso!')
-    return redirect('cadastrar_evento')
+    return redirect('app_evento:urlcad_evento')
 
 @never_cache
 def detalhes_evento(request, evento_id):
@@ -57,7 +57,7 @@ def detalhes_evento(request, evento_id):
         'evento': evento,
         'atividades': atividades,
     }
-    return render(request, 'detalhes_evento.html', context)
+    return render(request, 'app_evento/detalhes_evento.html', context)
 
 @never_cache
 @login_required(login_url='login')
@@ -76,17 +76,17 @@ def cadastrar_atividade(request, evento_id):
             atividade.save()
             
             messages.success(request, '🎉 Atividade cadastrada com sucesso!')
-            return redirect('dados') 
+            return redirect('app_evento:urldados') 
             
     else:
         form = AtividadeForm()
 
-    return render(request, 'cadastrar_atividade.html', {'form_atividade': form})
+    return render(request, 'app_evento/cadastrar_atividade.html', {'form_atividade': form})
 
 
 @never_cache
 def dados(request):
-    template = 'dados.html'
+    template = 'app_evento/dados.html'
     eventos = Evento.objects.all()
     atividades = Atividade.objects.all()
     contexto = {

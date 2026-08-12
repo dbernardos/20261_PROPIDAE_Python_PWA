@@ -19,7 +19,7 @@
           <a href="{% url 'urlcontato' %}">Contato</a>
           <a href="{% url 'urlsair' %}">Logout</a>
         {% else %}
-          <a href="{% url 'urlentrar' %}">Login</a>
+          <a href="{% url 'app_login:urllogin' %}">Login</a>
         {% endif %}
       </nav>
     </div>

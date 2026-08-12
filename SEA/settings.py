@@ -26,7 +26,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core',
     'app_login',
     'app_evento',
     'app_quiz',
@@ -124,5 +123,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = "app_login:urllogin"
 LOGIN_REDIRECT_URL = "app_quiz:urlindex"
-LOGOUT_REDIRECT_URL = "app_login:login"
+LOGOUT_REDIRECT_URL = "app_login:urllogin"
 CSRF_USE_SESSIONS = True

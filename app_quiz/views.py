@@ -93,7 +93,7 @@ def quiz_detail(request, cracha, quiz_numero):
             else:
                 messages.warning(request, f'Resposta incorreta. Tente novamente!')
             
-            return redirect('quiz_detail', cracha=cracha, quiz_numero=quiz_numero)
+            return redirect('app_quiz:urlquiz_detail', cracha=cracha, quiz_numero=quiz_numero)
     else:
         form = RespostaQuizForm(instance=resposta)
     
