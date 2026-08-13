@@ -5,13 +5,21 @@ from django.contrib.auth.models import User
 
 # Create your EVENTO models here.
 # -----------------------------------------------
-class tipoEvento(models.TextChoices):
-    COLOQUIO = 'Colóquio'
-    FORUM = 'Fórum'
-    SIMPOSIO = 'Simpósio'
-    SEMANA = 'Semana Acadêmica'
-    ENCONTRO = 'Encontro'
-    CONGRESSO = 'Congresso'
+
+
+class Apoiador(models.Model):
+    nome = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.nome
+
+class tipoEvento(models.TextChoices):   
+    COLOQUIO = 'Coloquio', 'Colóquio'
+    FORUM = 'Forum', 'Fórum'
+    SIMPOSIO = 'Simposio', 'Simpósio'
+    SEMANA = 'SemanaAcademica', 'Semana Acadêmica'
+    ENCONTRO = 'Encontro', 'Encontro'
+    CONGRESSO = 'Congresso', 'Congresso'
 
 """Model da tabela Evento"""
 class Evento(models.Model):
@@ -21,7 +29,8 @@ class Evento(models.Model):
     nome = models.CharField(max_length=200)
     descricao = models.TextField(max_length=500, blank=True, null=True)
     emailContato = models.EmailField(max_length=50, blank=True, null=True)
-    apoiadores = models.TextField(max_length=200, blank=True, null=True)
+    #apoiadores = models.TextField(max_length=200, blank=True, null=True)
+    apoiadores = models.ManyToManyField(Apoiador, related_name='eventos')
     local = models.CharField(max_length=45, blank=True, null=True)
     imagemBanner = models.ImageField(upload_to='banners/', blank=True, null=True)
 
@@ -37,7 +46,7 @@ class Evento(models.Model):
     #apoiadores = models.ManyToManyField(Apoiador, related_name='eventos')
     
     def __str__(self):
-        return self.titulo
+        return self.nome
     
 
 """Model da tabela Inscricao"""  
@@ -49,9 +58,9 @@ class Inscricao(models.Model):
     cracha = models.CharField(max_length=50, unique=True, default=uuid.uuid4)
 
 class StatusParticipa(models.TextChoices):
-    PARTICIPANTE = 'Participante'
-    PALESTRANTE = 'Palestrante'
-    ORGANIZADOR = 'Organizador'
+    PARTICIPANTE = 'Participante', 'Participante'
+    PALESTRANTE = 'Palestrante', 'Palestrante'
+    ORGANIZADOR = 'Organizador', 'Organizador'
 
 class Participa(models.Model):
     """Model para armazenar os participantes pelo crachá"""
@@ -73,17 +82,17 @@ class Participa(models.Model):
 
 """Model da tabela Atividade"""
 class tipoAtividade(models.TextChoices):
-    COLOQUIO = 'Colóquio'
-    FORUM = 'Fórum'
-    PALESTRA = 'Palestra'
-    OFICINA = 'Oficina'
-    MESA_REDONDA = 'Mesa Redonda'
-    PAINEL = 'Painel'
-    MINICURSO = 'Minicurso'
-    MEETUP = 'Meetup'
-    MASTERCLASS = 'Masterclass'
-    DEMODAY = 'Demo Day'
-    OUTRO = 'Outro'
+    COLOQUIO = 'Coloquio', 'Colóquio'
+    FORUM = 'Forum', 'Fórum'
+    PALESTRA = 'Palestra', 'Palestra'
+    OFICINA = 'Oficina', 'Oficina'
+    MESA_REDONDA = 'Mesa Redonda', 'Mesa Redonda'
+    PAINEL = 'Painel', 'Painel'
+    MINICURSO = 'Minicurso', 'Minicurso'
+    MEETUP = 'Meetup', 'Meetup'
+    MASTERCLASS = 'Masterclass', 'Masterclass'
+    DEMODAY = 'DemoDay', 'Demo Day'
+    OUTRO = 'Outro', 'Outro'
 
 class Atividade(models.Model):
     evento = models.ForeignKey('Evento', on_delete=models.CASCADE)

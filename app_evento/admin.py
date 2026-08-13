@@ -1,12 +1,11 @@
 from django.contrib import admin
-from .models import  Evento, Atividade, Participa, Inscricao
+from .models import  Evento, Atividade, Participa, Inscricao, Apoiador
 
 # Register your models here.
 # -----------------------------------------------
 @admin.register(Evento)
 class EventoAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'descricao', 'emailContato', 'apoiadores', 'local', 'imagemBanner', 'dataInicio', 'dataFim', 'tipoEvento', 'eventoMultiplo', 'eventoPublico')
-    
+    list_display = ('nome', 'descricao', 'emailContato', 'local', 'imagemBanner', 'dataInicio', 'dataFim', 'tipoEvento', 'eventoMultiplo', 'eventoPublico')
     
 @admin.register(Atividade)
 class AtividadeAdmin(admin.ModelAdmin):
@@ -20,4 +19,7 @@ class InscricaoAdmin(admin.ModelAdmin):
 class ParticipaAdmin(admin.ModelAdmin):
     list_display = ('inscricao', 'atividade', 'funcao', 'data_hora', 'data_hora_presenca')
     
-
+@admin.register(Apoiador)    
+class ApoiadorAdmin(admin.ModelAdmin):
+    list_display = ('nome',)
+    

@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.middleware.csrf import rotate_token
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from .models import Evento, Atividade, Inscricao
+from .models import Evento, Atividade, Inscricao, Apoiador
 from .form import EventoForm, AtividadeForm
 
 # reate your EVENTO views here.
@@ -32,8 +32,22 @@ def cadastrar_evento(request):
             evento = form.save(commit=False)
             evento.administrador = request.user
             evento.save()
+            
+            #processamento do campo de apoiadores(separado por virgulas)
+            nomes_apoiadores = form.cleaned_data.get('apoiadores')
+            if nomes_apoiadores:
+                objetos_apoiadores = []
+                for nome in nomes_apoiadores:
+                    # Busca o apoiador pelo nome, cria um novo se não existir
+                    apoiador_obj, criado = Apoiador.objects.get_or_create(nome=nome)
+                    objetos_apoiadores.append(apoiador_obj)
+
+                #Vincula a lista de objetos ao relacionamento ManyToMany do evento
+                evento.apoiadores.set(objetos_apoiadores)
+                
             messages.success(request, 'Evento cadastrado com sucesso!')
-            return redirect('app_evento:urlcad_atividade', evento_id=evento.id)  # Redireciona para a página de cadastro de atividade
+            return redirect('app_evento:urlcad_atividade', evento_id=evento.id)
+        
     else:
         form = EventoForm()
 

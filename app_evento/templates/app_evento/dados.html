@@ -22,7 +22,7 @@
                         <strong><p>Nome: {{ evento.nome }}</p></strong>
                         <p>Descrição: {{ evento.descricao }}</p>
                         <p>Email de Contato: {{ evento.emailContato }}</p>
-                        <p>Apoiadores: {{ evento.apoiadores }}</p>
+                        <p>Apoiadores: {{ evento.apoiadores.all|join:", " }}</p>
                         <p>Local: {{ evento.local }}</p>
                         <p>Imagem do banner: {{ evento.imagemBanner }}</p>
                         <p>Data de Início: {{ evento.dataInicio }}</p>
