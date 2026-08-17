@@ -14,10 +14,16 @@ SECRET_KEY = 'django-insecure-9q#0(2@c0a%f%4quo!ea(d6u2u=zjt64cjq4wvvgd!qrgf^#g3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# Permite que o Django responda às requisições do ngrok
 ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.ngrok-free.app', 
+    'https://*.ngrok.io', 
+    'https://tipping-skipping-dangle.ngrok-free.dev', 
+    'https://tipping-skipping-dangle.ngrok.io'
+]
 
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -125,3 +131,12 @@ LOGIN_URL = "app_login:urllogin"
 LOGIN_REDIRECT_URL = "app_evento:urlhome"
 LOGOUT_REDIRECT_URL = "app_login:urllogin"
 CSRF_USE_SESSIONS = True
+
+
+# Ative estas configurações se estiver navegando pela URL HTTPS do Ngrok
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# Garante que o navegador no celular aceite o cookie de origem cruzada/túnel
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'

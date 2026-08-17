@@ -172,4 +172,7 @@ def identificar_funcionario(request):
         except json.JSONDecodeError:
             return JsonResponse({"mensagem": "Erro nos dados enviados"}, status=400)
 
-    return JsonResponse({"mensagem": "Método não permitido"}, status=405)    
+    return JsonResponse({"mensagem": "Método não permitido"}, status=405)  
+
+
+from django.shortcuts import render, redirect

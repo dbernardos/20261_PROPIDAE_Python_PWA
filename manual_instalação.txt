@@ -11,3 +11,12 @@ pip install -r requirements.txt
 python manage.py runserver 
 
 python manage.py runserver 8080
+
+
+
+
+
+
+
+
+pip install --upgrade django (caso de algum erro no django admin)

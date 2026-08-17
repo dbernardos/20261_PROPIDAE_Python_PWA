@@ -14,7 +14,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from .models import Evento, Atividade, Inscricao, Apoiador
 from .form import EventoForm, AtividadeForm
 
-# reate your EVENTO views here.
+# create your EVENTO views here.
 # -----------------------------------------------
 @never_cache
 @ensure_csrf_cookie
@@ -33,7 +33,7 @@ def cadastrar_evento(request):
             evento.administrador = request.user
             evento.save()
             
-            #processamento do campo de apoiadores(separado por virgulas)
+            # processamento do campo de apoiadores(separado por virgulas)
             nomes_apoiadores = form.cleaned_data.get('apoiadores')
             if nomes_apoiadores:
                 objetos_apoiadores = []
@@ -42,7 +42,7 @@ def cadastrar_evento(request):
                     apoiador_obj, criado = Apoiador.objects.get_or_create(nome=nome)
                     objetos_apoiadores.append(apoiador_obj)
 
-                #Vincula a lista de objetos ao relacionamento ManyToMany do evento
+                # Vincula a lista de objetos ao relacionamento ManyToMany do evento
                 evento.apoiadores.set(objetos_apoiadores)
                 
             messages.success(request, 'Evento cadastrado com sucesso!')
