@@ -19,6 +19,7 @@ urlpatterns = [
     path('cadastrar_atividade/<int:evento_id>/', views.cadastrar_atividade, name='urlcad_atividade'),
 
     path('dados/', views.dados, name='urldados'),
+    path('minhas_inscricoes/', views.minhas_inscricoes, name='urlminhas_inscricoes')
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

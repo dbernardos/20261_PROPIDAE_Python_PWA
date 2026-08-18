@@ -115,3 +115,16 @@ def dados(request):
         'atividades': atividades,
     }
     return render(request, template, contexto)
+
+@never_cache
+@login_required(login_url='app_login:urllogin')
+def minhas_inscricoes(request):
+    inscricoes = (
+        Inscricao.objects.filter(usuario=request.user)
+        .select_related('evento')
+        .order_by('-dataHora')
+    )
+
+    return render(
+        request, 'app_evento/minhas_inscricoes.html', {'inscricoes': inscricoes}
+    )

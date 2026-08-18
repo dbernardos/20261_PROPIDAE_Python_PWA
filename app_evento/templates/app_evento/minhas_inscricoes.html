@@ -1,0 +1,160 @@
+{% extends 'base.html' %} {# Altere para o seu template base padrão #}
+
+{% block content %}
+<div class="container my-5">
+    
+    <!-- Cabeçalho da Tela com o Botão para Dados -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h1 class="h3 fw-bold mb-0">Minhas Inscrições</h1>
+            <p class="text-muted mb-0">Consulte os detalhes das suas participações, horários e crachás.</p>
+        </div>
+        <div>
+            <!-- Botão direcionando para a URL de dados -->
+            <a href="{% url 'app_evento:urldados' %}" class="btn btn-outline-primary">
+                <i class="bi bi-person-vcard me-1"></i> Ir para Meus Dados
+            </a>
+        </div>
+    </div>
+
+    {% if inscricoes %}
+        <div class="row g-4">
+            {% for item in inscricoes %}
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm overflow-hidden">
+                        
+                        <!-- Topo do Card do Evento -->
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+                            <span class="badge bg-light text-primary fw-bold text-uppercase">
+                                {{ item.evento.get_tipoEvento_display }}
+                            </span>
+                            <small class="text-white-50">
+                                Inscrito em: {{ item.dataHora|date:"d/m/Y \à\s H:i" }}
+                            </small>
+                        </div>
+
+                        <div class="card-body p-4">
+                            <div class="row align-items-center mb-4">
+                                {% if item.evento.imagemBanner %}
+                                    <div class="col-md-3 mb-3 mb-md-0">
+                                        <img src="{{ item.evento.imagemBanner.url }}" alt="{{ item.evento.nome }}" class="img-fluid rounded shadow-sm w-100" style="max-height: 160px; object-fit: cover;">
+                                    </div>
+                                {% endif %}
+                                
+                                <div class="{% if item.evento.imagemBanner %}col-md-9{% else %}col-12{% endif %}">
+                                    <h3 class="card-title fw-bold text-dark mb-2">{{ item.evento.nome }}</h3>
+                                    <p class="card-text text-muted mb-3">{{ item.evento.descricao|default:"Sem descrição cadastrada." }}</p>
+
+                                    <!-- Informações Gerais de Data e Local -->
+                                    <div class="row g-2 text-secondary">
+                                        <div class="col-md-6">
+                                            <strong>Data do Evento:</strong> 
+                                            {{ item.evento.dataInicio|date:"d/m/Y" }} até {{ item.evento.dataFim|date:"d/m/Y" }}
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Local:</strong> 
+                                            {{ item.evento.local|default:"A definir" }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <!-- Seção de Atividades e Participações (Atividades Selecionadas) -->
+                            <h5 class="fw-bold mb-3 text-dark">Atividades Vinculadas</h5>
+
+                            {% if item.participa_set.all %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover border align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Atividade</th>
+                                                <th>Tipo</th>
+                                                <th>Data/Hora de Início</th>
+                                                <th>Local/Complemento</th>
+                                                <th>Sua Função</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for participa in item.participa_set.all %}
+                                                <tr>
+                                                    <td class="fw-semibold">{{ participa.atividade.nome }}</td>
+                                                    <td><span class="badge bg-secondary">{{ participa.atividade.get_tipoAtividade_display }}</span></td>
+                                                    <td>{{ participa.atividade.horaInicio|date:"d/m/Y H:i" }} - {{ participa.atividade.horaFim|date:"H:i" }}</td>
+                                                    <td>{{ participa.atividade.complementoLocal|default:item.evento.local }}</td>
+                                                    <td>
+                                                        <span class="badge {% if participa.funcao == 'Palestrante' %}bg-success{% elif participa.funcao == 'Organizador' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %}">
+                                                            {{ participa.get_funcao_display }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-light border text-muted">
+                                    Nenhuma atividade selecionada especificamente para este evento.
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Rodapé com Ações e Botão do Crachá -->
+                        <div class="card-footer bg-light p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <small class="text-muted">Código do Crachá:</small>
+                                <span class="font-monospace fw-bold text-dark ms-1">{{ item.cracha }}</span>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'app_evento:urldet_evento' item.evento.id %}" class="btn btn-outline-secondary btn-sm">
+                                    Ver Detalhes do Evento
+                                </a>
+                                
+                                <!-- Botão que abre a janela (Modal) do Crachá -->
+                                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalCracha{{ item.id }}">
+                                    Gerar Crachá
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Modal de Visualização do Crachá -->
+                <div class="modal fade" id="modalCracha{{ item.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content text-center">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">Crachá de Acesso</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <h4 class="fw-bold mb-1">{{ request.user.get_full_name|default:request.user.username }}</h4>
+                                <p class="text-muted mb-3">{{ item.evento.nome }}</p>
+                                
+                                <div class="p-3 bg-light rounded border d-inline-block mb-3">
+                                    <p class="small text-muted mb-1">CÓDIGO DO CRACHÁ</p>
+                                    <p class="font-monospace fw-bold text-primary mb-0 fs-5">{{ item.cracha }}</p>
+                                </div>
+                                <p class="small text-muted mb-0">Apresente este código na recepção do evento.</p>
+                            </div>
+                            <div class="modal-footer justify-content-center">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                <button type="button" class="btn btn-primary" onclick="window.print()">Imprimir</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <h4 class="text-secondary">Você ainda não tem inscrições cadastradas.</h4>
+            <a href="{% url 'app_evento:urlhome' %}" class="btn btn-primary mt-3">Ver Eventos Disponíveis</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
