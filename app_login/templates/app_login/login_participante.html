@@ -1,79 +1,74 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Acesso - XXIX Colóquio de Usinagem{% endblock %}
+{% block title %}
+  Acesso - XXIX Colóquio de Usinagem
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+  <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-lg border-0">
-                <div class="card-body p-5">
-                    <div class="text-center mb-4">
-                        <img src="{% static 'images/logo.png' %}" alt="Logo" height="80" class="mb-3">
-                        <h2 class="text-verde-escuro fw-bold">Bem-vindo!</h2>
-                        <p class="text-muted">Acesse para participar dos desafios</p>
-                    </div>
-                    
-                    <form method="post" id="crachaForm">
-                        {% csrf_token %}
-                        <div class="mb-4">
-                            <label for="{{ form.cracha.id_for_label }}" class="form-label fw-bold">
-                                <i class="bi bi-card-heading me-2"></i>Número do Crachá
-                            </label>
-                            {{ form.cracha }}
-                            <div class="form-text">Passe o crachá ou digite o número</div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            {{ form.nome }}
-                        </div>
-                        
-                        <div class="mb-4">
-                            {{ form.email }}
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary-custom w-100 btn-lg">
-                            <i class="bi bi-box-arrow-in-right me-2"></i>Acessar Sistema
-                        </button>
-                    </form>
-                    
-                    <div class="text-center mt-4">
-                        <small class="text-muted">
-                            <i class="bi bi-shield-check me-1"></i>
-                            Acesso exclusivo para participantes do evento
-                        </small>
-                    </div>
-                </div>
+      <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg border-0">
+          <div class="card-body p-5">
+            <div class="text-center mb-4">
+              <img src="{% static 'images/logo.png' %}" alt="Logo" height="80" class="mb-3" />
+              <h2 class="text-verde-escuro fw-bold">Bem-vindo!</h2>
+              <p class="text-muted">Acesse para participar dos desafios</p>
             </div>
-        </div>
-    </div>
-</div>
 
-<script>
-// Auto-focus no campo do crachá
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('{{ form.cracha.id_for_label }}').focus();
+            <form method="post" id="crachaForm">
+              {% csrf_token %}
+              <div class="mb-4">
+                <label for="{{ form.cracha.id_for_label }}" class="form-label fw-bold"><i class="bi bi-card-heading me-2"></i>Número do Crachá</label>
+                {{ form.cracha }}
+                <div class="form-text">Passe o crachá ou digite o número</div>
+              </div>
+
+              <div class="mb-3">{{ form.nome }}</div>
+
+              <div class="mb-4">{{ form.email }}</div>
+
+              <button type="submit" class="btn btn-primary-custom w-100 btn-lg"><i class="bi bi-box-arrow-in-right me-2"></i>Acessar Sistema</button>
+            </form>
+
+            <div class="text-center mt-4">
+              <small class="text-muted">
+                <i class="bi bi-shield-check me-1"></i>
+                Acesso exclusivo para participantes do evento
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Auto-focus no campo do crachá
+    document.addEventListener('DOMContentLoaded', function () {
+      document.getElementById('{{ form.cracha.id_for_label }}').focus()
     
-    // Se for um leitor de crachá (entrada rápida), submit automático
-    let crachaInput = document.getElementById('{{ form.cracha.id_for_label }}');
-    let lastKeyTime = 0;
-    let keyCount = 0;
+      // Se for um leitor de crachá (entrada rápida), submit automático
+      let crachaInput = document.getElementById('{{ form.cracha.id_for_label }}')
+      let lastKeyTime = 0
+      let keyCount = 0
     
-    crachaInput.addEventListener('keypress', function(e) {
-        let currentTime = new Date().getTime();
+      crachaInput.addEventListener('keypress', function (e) {
+        let currentTime = new Date().getTime()
         if (currentTime - lastKeyTime < 100) {
-            keyCount++;
-            if (keyCount > 5) { // Se digitou rápido, é leitor de crachá
-                setTimeout(() => {
-                    document.getElementById('crachaForm').submit();
-                }, 300);
-            }
+          keyCount++
+          if (keyCount > 5) {
+            // Se digitou rápido, é leitor de crachá
+            setTimeout(() => {
+              document.getElementById('crachaForm').submit()
+            }, 300)
+          }
         } else {
-            keyCount = 1;
+          keyCount = 1
         }
-        lastKeyTime = currentTime;
-    });
-});
-</script>
+        lastKeyTime = currentTime
+      })
+    })
+  </script>
 {% endblock %}
