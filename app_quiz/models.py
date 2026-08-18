@@ -59,7 +59,8 @@ class Resposta(models.Model):
         ordering = ['-data_resposta']
     
     def __str__(self):
-        return f"{self.participa} - {self.quiz}: {self.valor_resposta}"
+        #return f"{self.participa} - {self.quiz}: {self.valor_resposta}"
+        return f"Resposta de {self.participa} para {self.quiz}"
     
     def verificar_resposta(self):
         """Verifica se a resposta está dentro da faixa aceitável"""

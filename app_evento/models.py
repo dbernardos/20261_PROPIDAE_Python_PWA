@@ -14,13 +14,17 @@ from django.conf import settings
 class Apoiador(models.Model):
     nome = models.CharField(max_length=255, unique=True)
 
+    class Meta:
+        verbose_name = "Apoiador"
+        verbose_name_plural = "Apoiadores"
+
     def __str__(self):
         return self.nome
 
 class tipoEvento(models.TextChoices):   
     COLOQUIO = 'Coloquio', 'Colóquio'
     FORUM = 'Forum', 'Fórum'
-    SIMPOSIO = 'Simposio', 'Simpósio'
+    SIMPOSIO = 'Simposio', 'Simpósio'  
     SEMANA = 'SemanaAcademica', 'Semana Acadêmica'
     ENCONTRO = 'Encontro', 'Encontro'
     CONGRESSO = 'Congresso', 'Congresso'
@@ -28,9 +32,7 @@ class tipoEvento(models.TextChoices):
 """Model da tabela Evento"""
 class Evento(models.Model):
     #administrador = models.ForeignKey('Usuario', on_delete=models.CASCADE)
-    administrador = models.ForeignKey(settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='eventos',)
+    administrador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='eventos',)
 
     nome = models.CharField(max_length=200)
     descricao = models.TextField(max_length=500, blank=True, null=True)
@@ -65,6 +67,10 @@ class Inscricao(models.Model):
 
     dataHora = models.DateTimeField(auto_now_add=True)
     cracha = models.CharField(max_length=50, unique=True, default=gerar_codigo_cracha)
+    
+    class Meta:
+        verbose_name = "Inscrição"
+        verbose_name_plural = "Inscrições"
     
     def __str__(self):
         nome_usuario = self.usuario.nome if hasattr(self.usuario, 'nome') else str(self.usuario)
@@ -121,8 +127,8 @@ class Participa(models.Model):
        
     
     def __str__(self):
-        return f"{self.funcao or 'Sem funcao'} - {self.data_hora}"
-    
+        #return f"{self.funcao or 'Sem funcao'} - {self.data_hora}"
+        return f"{self.inscricao} ; {self.atividade} ; {self.funcao}"
 
 """Model da tabela Atividade"""
 class tipoAtividade(models.TextChoices):
