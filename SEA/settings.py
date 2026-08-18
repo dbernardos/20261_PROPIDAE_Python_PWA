@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'bootstrap5',
     'pwa',
     'django_extensions',
+    'smart_selects',
 ]
 
 MIDDLEWARE = [

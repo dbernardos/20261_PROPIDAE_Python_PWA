@@ -3,6 +3,7 @@ from django.utils import timezone
 import uuid
 from django.contrib.auth.models import User
 
+
 # Create your QUIZ models here.
 # -----------------------------------------------
 class Quiz(models.Model):

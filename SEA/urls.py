@@ -23,4 +23,6 @@ urlpatterns = [
     
     path('manifest.json', TemplateView.as_view(template_name="manifest.json", content_type='application/manifest+json')),
     path('service-worker.js', TemplateView.as_view(template_name="service-worker.js", content_type='application/javascript'), name="service_worker"),
+    
+    path('chaining/', include('smart_selects.urls')),
 ]

@@ -1,7 +1,11 @@
 from django.db import models
 from django.utils import timezone
 import uuid
+import uuid6
 from django.contrib.auth.models import User
+from smart_selects.db_fields import ChainedForeignKey #Para encadeamento de campos
+from django.core.exceptions import ValidationError # ValidationError para validação de campos no backend
+from django.conf import settings
 
 # Create your EVENTO models here.
 # -----------------------------------------------
@@ -24,7 +28,9 @@ class tipoEvento(models.TextChoices):
 """Model da tabela Evento"""
 class Evento(models.Model):
     #administrador = models.ForeignKey('Usuario', on_delete=models.CASCADE)
-    administrador = models.ForeignKey(User, on_delete=models.CASCADE)
+    administrador = models.ForeignKey(settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='eventos',)
 
     nome = models.CharField(max_length=200)
     descricao = models.TextField(max_length=500, blank=True, null=True)
@@ -50,12 +56,20 @@ class Evento(models.Model):
     
 
 """Model da tabela Inscricao"""  
+
+def gerar_codigo_cracha():
+    return str(uuid6.uuid7())
 class Inscricao(models.Model):
-    usuario = models.ForeignKey('app_login.Usuario', on_delete=models.CASCADE)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     evento = models.ForeignKey('Evento', on_delete=models.CASCADE)
 
     dataHora = models.DateTimeField(auto_now_add=True)
-    cracha = models.CharField(max_length=50, unique=True, default=uuid.uuid4)
+    cracha = models.CharField(max_length=50, unique=True, default=gerar_codigo_cracha)
+    
+    def __str__(self):
+        nome_usuario = self.usuario.nome if hasattr(self.usuario, 'nome') else str(self.usuario)
+        return f"{nome_usuario} - {self.evento.nome}"
+        
 
 class StatusParticipa(models.TextChoices):
     PARTICIPANTE = 'Participante', 'Participante'
@@ -65,7 +79,19 @@ class StatusParticipa(models.TextChoices):
 class Participa(models.Model):
     """Model para armazenar os participantes pelo crachá"""
     inscricao = models.ForeignKey('Inscricao', on_delete=models.CASCADE)
-    atividade = models.ForeignKey('Atividade', on_delete=models.CASCADE)
+    
+    atividade = ChainedForeignKey(
+        'Atividade',
+        chained_field='inscricao',  # Campo da classe local que dispara o filtro
+        chained_model_field='evento__inscricao',  # Busca as atividades do evento relacionado à inscrição
+        show_all=False,  # Não exibe atividades antes de escolher a inscrição
+        auto_choose=False,  # Se só houver 1 atividade no evento, seleciona automaticamente
+        sort=True,
+        on_delete=models.CASCADE,
+    )
+    
+    
+    #atividade = models.ForeignKey('Atividade', on_delete=models.CASCADE)
     funcao = models.CharField('Funcao', choices=StatusParticipa.choices, max_length=20, default=StatusParticipa.PARTICIPANTE)
     
     data_hora = models.DateTimeField(auto_now_add=True)
@@ -75,6 +101,24 @@ class Participa(models.Model):
         verbose_name = "Participa"
         verbose_name_plural = "Participam"
         ordering = ['funcao']
+    
+    
+    def clean(self):
+        """Garantia no Backend: Impede salvamento de atividade incompatível com o evento"""
+        super().clean()
+        if self.inscricao_id and self.atividade_id:
+            if self.atividade.evento != self.inscricao.evento:
+                raise ValidationError({
+                    'atividade': (
+                        'A atividade selecionada não pertence ao evento'
+                        ' desta inscrição.'
+                    )
+                })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()  # Força o disparo da validação clean() antes de salvar
+        super().save(*args, **kwargs)
+       
     
     def __str__(self):
         return f"{self.funcao or 'Sem funcao'} - {self.data_hora}"
@@ -106,3 +150,8 @@ class Atividade(models.Model):
     horaFim = models.DateTimeField()
     #imagemBanner = models.CharField(max_length=200, blank=True, null=True)
     limitePessoas = models.PositiveIntegerField(blank=True, null=True)
+    
+
+    
+    def __str__(self):
+        return self.nome + " - " + self.evento.nome

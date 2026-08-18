@@ -71,8 +71,9 @@
         const url = new URL(event.request.url);
 
         // 1. ROTAS DE AUTENTICAÇÃO E ADMIN: Ignora o Service Worker completamente
-        if (url.pathname.startsWith('/admin/') || 
-            url.pathname.startsWith('/login/') || 
+        if (url.pathname.startsWith('/admin/')    || 
+            url.pathname.startsWith('/login/')    || 
+            url.pathname.startsWith('/chaining/') || 
             url.pathname.startsWith('/logout/')) {
             return; 
         }
