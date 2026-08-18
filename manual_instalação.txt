@@ -12,7 +12,12 @@ python manage.py runserver
 
 python manage.py runserver 8080
 
+------ 
 
+se der erro em albumas biblioteca(bootstrap, pwa, django extensions e smart-select), 
+executar comando abaixo:
+
+pip install django-bootstrap-v5 django-pwa django-extensions django-smart-selects
 
 
 
