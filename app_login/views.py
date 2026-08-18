@@ -13,9 +13,11 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from .models import Usuario
 
 from .form import UsuarioForm, ParticipanteForm
+from .form import CadastroUsuarioForm
 
 
 # Create your LOGIN views here.
@@ -30,17 +32,37 @@ def get_client_ip(request):
     return ip
 
 def cadastrar_usuario(request):
-    """View para cadastro de usuário"""
     if request.method == 'POST':
-        form = UsuarioForm(request.POST)
+        # request.FILES é necessário por causa da fotoPerfil (ImageField)
+        form = CadastroUsuarioForm(request.POST, request.FILES)
+        
         if form.is_valid():
-            usuario = form.save(commit=False)
-            usuario.set_password(form.cleaned_data['password'])
-            usuario.save()
-            messages.success(request, 'Usuário cadastrado com sucesso!')
-            return redirect('app_login:urllogin')
+            # 1. Pegamos os dados validados
+            email = form.cleaned_data['email']
+            senha = form.cleaned_data['senha']
+            cpf = form.cleaned_data['cpf'] # Usaremos o CPF como 'username' do Django
+            
+            # 2. Criamos o User padrão de autenticação do Django
+            user = User.objects.create_user(
+                username=cpf, # O Django exige um username. Usar o CPF ou E-mail é uma boa tática
+                email=email,
+                password=senha
+            )
+            
+            # 3. Criamos o model 'Usuario' sem salvar no banco ainda (commit=False)
+            usuario_perfil = form.save(commit=False)
+            
+            # 4. Vinculamos o User do Django ao campo 'participante'
+            usuario_perfil.participante = user
+            
+            # 5. Salva o perfil no banco de dados
+            usuario_perfil.save()
+            
+            messages.success(request, 'Cadastro realizado com sucesso! Faça seu login.')
+            return redirect('app_login:urllogin') # Troque pela sua URL de login
     else:
-        form = UsuarioForm()
+        form = CadastroUsuarioForm()
+
     return render(request, 'app_login/cadastrar_usuario.html', {'form': form})
 
 def login_participante(request):

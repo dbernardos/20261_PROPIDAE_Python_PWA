@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load bootstrap5 %}
+{% load static %}
+
+{% block title %}
+  Cadastro de Usuário - SEA
+{% endblock %}
+
+{% block content %}
+  <section class="py-4">
+    <!-- Container um pouco mais largo (max-width: 800px) para acomodar melhor os muitos campos -->
+    <div class="container shadow border border-1 rounded p-4 p-md-5" style="max-width: 800px;">
+      
+      <!-- Logo do SEA -->
+      <figure class="figure d-flex justify-content-center mb-4">
+        <img src="{% static 'images/images-default/Icontransparent.png' %}" alt="logo do SEA" style="height: 15vh;" />
+      </figure>
+
+      <h3 class="text-center mb-4">Criar nova conta</h3>
+
+      <!-- O enctype="multipart/form-data" é OBRIGATÓRIO por causa da foto de perfil -->
+      <form action="" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- O bootstrap_form já renderiza e estiliza todos os campos e erros do form -->
+        {% bootstrap_form form %}
+        
+        <!-- Botões de ação -->
+        <div class="d-flex justify-content-center gap-3 mt-4">
+          <!-- Botão para voltar ao login (Ajuste o nome da url conforme seu projeto) -->
+          <a href="{% url 'app_login:urllogin' %}" class="btn btn-outline-secondary">
+            Voltar
+          </a>
+          
+          <button type="submit" class="btn btn-primary">
+            Cadastrar
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </section>
+{% endblock %}
