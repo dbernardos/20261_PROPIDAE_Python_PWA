@@ -18,6 +18,7 @@ urlpatterns = [
     path('', LoginView.as_view(template_name='app_login/login.html'), name='urllogin'),
 
     path('logout/', LogoutView.as_view(), name='urllogout'),
+    path('cadastrar/', views.cadastrar_usuario, name='urlcad_usuario'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

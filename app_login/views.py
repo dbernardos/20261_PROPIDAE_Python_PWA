@@ -29,6 +29,20 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
+def cadastrar_usuario(request):
+    """View para cadastro de usuário"""
+    if request.method == 'POST':
+        form = UsuarioForm(request.POST)
+        if form.is_valid():
+            usuario = form.save(commit=False)
+            usuario.set_password(form.cleaned_data['password'])
+            usuario.save()
+            messages.success(request, 'Usuário cadastrado com sucesso!')
+            return redirect('app_login:urllogin')
+    else:
+        form = UsuarioForm()
+    return render(request, 'app_login/cadastrar_usuario.html', {'form': form})
+
 def login_participante(request):
     """Página de login/cadastro pelo crachá"""
     if request.method == 'POST':
