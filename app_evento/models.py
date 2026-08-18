@@ -45,14 +45,11 @@ class Evento(models.Model):
     dataInicio = models.DateField()
     dataFim = models.DateField()
 
-    #tipoEvento = models.CharField(max_length=45, blank=True, null=True)
     tipoEvento = models.CharField('tipoEvento', choices=tipoEvento.choices, max_length=20, default=tipoEvento.SEMANA)
 
     eventoMultiplo = models.BooleanField(default=False)
     eventoPublico = models.BooleanField(default=True)
-    
-    #apoiadores = models.ManyToManyField(Apoiador, related_name='eventos')
-    
+
     def __str__(self):
         return self.nome
     
@@ -149,12 +146,10 @@ class Atividade(models.Model):
 
     nome = models.CharField(max_length=200)
     descricao = models.TextField(max_length=500, blank=True, null=True)
-    #tipoAtividade = models.CharField(max_length=45, blank=True, null=True)
     tipoAtividade = models.CharField('tipoAtividade', choices=tipoAtividade.choices, max_length=20, default=tipoAtividade.PALESTRA)
     complementoLocal = models.CharField(max_length=45, blank=True, null=True)
     horaInicio = models.DateTimeField()
     horaFim = models.DateTimeField()
-    #imagemBanner = models.CharField(max_length=200, blank=True, null=True)
     limitePessoas = models.PositiveIntegerField(blank=True, null=True)
     
 
