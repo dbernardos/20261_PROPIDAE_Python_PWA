@@ -1,237 +1,193 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0A0302">
-    <meta name="description" content="Meu App Django PWA">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0A0302" />
+    <meta name="description" content="Meu App Django PWA" />
 
     <!-- PWA Manifest -->
-    <link rel="manifest" href="{% static 'manifest.json' %}" crossorigin="use-credentials">
+    <link rel="manifest" href="{% static 'manifest.json' %}" crossorigin="use-credentials" />
 
     <!-- Icons -->
-    <link rel="apple-touch-icon" href="{% static 'icons/icon-192.png' %}">
-    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'icons/icon-192.png' %}">
-    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'icons/icon-512.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'icons/icon-192.png' %}" />
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'icons/icon-192.png' %}" />
+    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'icons/icon-512.png' %}" />
 
-    <title>{% block title %}XXIX Colóquio de Usinagem{% endblock %}</title>
-    
+    <title>
+      {% block title %}
+        XXIX Colóquio de Usinagem
+      {% endblock %}
+    </title>
+
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
     <!-- CSS Customizado -->
-    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
-    
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
 
-    {% block extra_css %}{% endblock %}
-    {% block pre_script %}{% endblock %}
-
-     
-    
-</head>
-<body class="d-flex flex-column min-vh-100">
+    {% block extra_css %}
+    {% endblock %}
+    {% block pre_script %}
+    {% endblock %}
+  </head>
+  <body class="d-flex flex-column min-vh-100">
     <!-- Cabeçalho -->
     <header class="site-header">
-        <nav class="navbar navbar-expand-lg navbar-dark">
-            <div class="container">
-                <a class="navbar-brand" href="{% url 'app_evento:urlhome' %}">
-                    <img src="{% static 'images/logo.png' %}" alt="XXIX Colóquio de Usinagem" height="60">
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                
-                <div class="collapse navbar-collapse" id="navbarMain">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="{% url 'app_evento:urlhome' %}">Início</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Sobre</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Programação</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Inscrições</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Contato</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+      <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+          <a class="navbar-brand" href="{% url 'app_evento:urlhome' %}"><img src="{% static 'images/logo.png' %}" alt="XXIX Colóquio de Usinagem" height="60" /></a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+
+          <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{% url 'app_evento:urlhome' %}">Início</a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" href="#">Inscrições</a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+      </nav>
     </header>
 
     <!-- Mensagens Django -->
     {% if messages %}
-    <div class="container mt-3">
+      <div class="container mt-3">
         {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+          </div>
         {% endfor %}
-    </div>
+      </div>
     {% endif %}
 
     <!-- Corpo do Site -->
     <main class="flex-grow-1">
-        {% block content %}
+      {% block content %}
         <!-- Conteúdo específico de cada página vai aqui -->
-        {% endblock %}
+      {% endblock %}
     </main>
 
     <!-- Rodapé com Patrocinadores -->
     <footer class="site-footer mt-auto">
-        <div class="container">
-            <!-- Seção de Patrocinadores -->
-            <div class="row mb-4">
-                <div class="col-12 text-center">
-                    <h5 class="text-white mb-4">Patrocinadores</h5>
-                </div>
-            </div>
-            
-            <div class="row align-items-center mb-4">
-                <!-- Patrocinador Ouro -->
-                <div class="col-md-4 col-6 text-center mb-3">
-                    <div class="sponsor-card">
-                        <img src="{% static 'images/sponsor1.png' %}" alt="Patrocinador Ouro" class="img-fluid sponsor-logo">
-                        <p class="text-white small mt-2">Patrocinador Ouro</p>
-                    </div>
-                </div>
-                
-                <!-- Patrocinador Prata -->
-                <div class="col-md-4 col-6 text-center mb-3">
-                    <div class="sponsor-card">
-                        <img src="{% static 'images/sponsor2.png' %}" alt="Patrocinador Prata" class="img-fluid sponsor-logo">
-                        <p class="text-white small mt-2">Patrocinador Prata</p>
-                    </div>
-                </div>
-                
-                <!-- Patrocinador Bronze -->
-                <div class="col-md-4 col-6 text-center mb-3">
-                    <div class="sponsor-card">
-                        <img src="{% static 'images/sponsor3.png' %}" alt="Patrocinador Bronze" class="img-fluid sponsor-logo">
-                        <p class="text-white small mt-2">Patrocinador Bronze</p>
-                    </div>
-                </div>
-            </div>
-            
-            <hr class="border-secondary">
-            
-            <!-- Informações de Contato e Links -->
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <h6 class="text-white">XXIX Colóquio de Usinagem</h6>
-                    <p class="text-secondary small">
-                        <i class="bi bi-geo-alt-fill me-2"></i>Local do Evento<br>
-                        <i class="bi bi-calendar-event me-2"></i>Data do Evento<br>
-                        <i class="bi bi-envelope-fill me-2"></i>contato@colouiquousinagem.com.br
-                    </p>
-                </div>
-                
-                <div class="col-md-4 mb-3">
-                    <h6 class="text-white">Links Rápidos</h6>
-                    <ul class="list-unstyled">
-                        <li><a href="{% url 'app_evento:urlhome' %}" class="text-secondary text-decoration-none">Início</a></li>
-                        <li><a href="#" class="text-secondary text-decoration-none">Programação</a></li>
-                        <li><a href="#" class="text-secondary text-decoration-none">Inscrições</a></li>
-                        <li><a href="#" class="text-secondary text-decoration-none">Contato</a></li>
-                    </ul>
-                </div>
-                
-                <div class="col-md-4 mb-3">
-                    <h6 class="text-white">Redes Sociais</h6>
-                    <div class="social-links">
-                        <a href="#" class="text-white me-3"><i class="bi bi-facebook fs-5"></i></a>
-                        <a href="#" class="text-white me-3"><i class="bi bi-instagram fs-5"></i></a>
-                        <a href="#" class="text-white me-3"><i class="bi bi-linkedin fs-5"></i></a>
-                        <a href="#" class="text-white"><i class="bi bi-youtube fs-5"></i></a>
-                    </div>
-                </div>
-            </div>
-            
-            <hr class="border-secondary">
-            
-            <!-- Copyright -->
-            <div class="row">
-                <div class="col-12 text-center">
-                    <p class="text-secondary small mb-0">
-                        &copy; {% now "Y" %} XXIX Colóquio de Usinagem. Todos os direitos reservados.
-                    </p>
-                </div>
-            </div>
+      <div class="container">
+        <!-- Seção de Patrocinadores -->
+        <div class="row mb-4">
+          <div class="col-12 text-center">
+            <h5 class="text-white mb-4">Patrocinadores</h5>
+          </div>
         </div>
+
+        <div class="row align-items-center mb-4">
+          <!-- Patrocinador Ouro -->
+          <div class="col-md-4 col-6 text-center mb-3">
+            <div class="sponsor-card">
+              <img src="{% static 'images/sponsor1.png' %}" alt="Patrocinador Ouro" class="img-fluid sponsor-logo" />
+              <p class="text-white small mt-2">Patrocinador Ouro</p>
+            </div>
+          </div>
+
+          <!-- Patrocinador Prata -->
+          <div class="col-md-4 col-6 text-center mb-3">
+            <div class="sponsor-card">
+              <img src="{% static 'images/sponsor2.png' %}" alt="Patrocinador Prata" class="img-fluid sponsor-logo" />
+              <p class="text-white small mt-2">Patrocinador Prata</p>
+            </div>
+          </div>
+
+          <!-- Patrocinador Bronze -->
+          <div class="col-md-4 col-6 text-center mb-3">
+            <div class="sponsor-card">
+              <img src="{% static 'images/sponsor3.png' %}" alt="Patrocinador Bronze" class="img-fluid sponsor-logo" />
+              <p class="text-white small mt-2">Patrocinador Bronze</p>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-secondary" />
+
+        <!-- Informações de Contato e Links -->
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <h6 class="text-white">XXIX Colóquio de Usinagem</h6>
+            <p class="text-secondary small">
+              <i class="bi bi-geo-alt-fill me-2"></i>Local do Evento<br />
+              <i class="bi bi-calendar-event me-2"></i>Data do Evento<br />
+              <i class="bi bi-envelope-fill me-2"></i>contato@colouiquousinagem.com.br
+            </p>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <h6 class="text-white">Links Rápidos</h6>
+            <ul class="list-unstyled">
+              <li>
+                <a href="{% url 'app_evento:urlhome' %}" class="text-secondary text-decoration-none">Início</a>
+              </li>
+              <li>
+                <a href="#" class="text-secondary text-decoration-none">Programação</a>
+              </li>
+              <li>
+                <a href="#" class="text-secondary text-decoration-none">Inscrições</a>
+              </li>
+              <li>
+                <a href="#" class="text-secondary text-decoration-none">Contato</a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <h6 class="text-white">Redes Sociais</h6>
+            <div class="social-links">
+              <a href="#" class="text-white me-3"><i class="bi bi-facebook fs-5"></i></a>
+              <a href="#" class="text-white me-3"><i class="bi bi-instagram fs-5"></i></a>
+              <a href="#" class="text-white me-3"><i class="bi bi-linkedin fs-5"></i></a>
+              <a href="#" class="text-white"><i class="bi bi-youtube fs-5"></i></a>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-secondary" />
+
+        <!-- Copyright -->
+        <div class="row">
+          <div class="col-12 text-center">
+            <p class="text-secondary small mb-0">
+              &copy;{% now 'Y' %}XXIX Colóquio de Usinagem. Todos os direitos reservados.
+            </p>
+          </div>
+        </div>
+      </div>
     </footer>
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
 
-{% comment %} PWA
+    {% block extra_js %}
+    {% endblock %}
+
     <script>
-            // Registrar Service Worker
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('{% url "service_worker" %}')
-                        .then(registration => {
-                            console.log('SW registrado:', registration.scope);
-                        })
-                        .catch(error => {
-                            console.log('SW falhou:', error);
-                        });
-                });
-            }
-            
-            // Prompt de Instalação
-            let deferredPrompt;
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                // Mostrar botão de instalar
-                showInstallButton();
-            });
-            
-            function showInstallButton() {
-                // Lógica para mostrar botão de instalação
-                console.log('App pode ser instalado');
-            }
-            
-            function installApp() {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then((choiceResult) => {
-                        if (choiceResult.outcome === 'accepted') {
-                            console.log('Usuário aceitou instalar');
-                        }
-                        deferredPrompt = null;
-                    });
-                }
-            }
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker
+            .register('{% url "service_worker" %}')
+            .then((registration) => {
+              console.log('Service-worker registrado com sucesso:', registration.scope)
+            })
+            .catch((error) => {
+              console.log('Falha ao registrar Service Worker:', error)
+            })
+        })
+      } else {
+        console.log('Service Worker não é suportado neste navegador.')
+      }
     </script>
-
-    
- {% endcomment %}
-{% block extra_js %}{% endblock %} 
-
-<script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('{% url "service_worker" %}')
-                    .then(registration => {
-                        console.log('Service-worker registrado com sucesso:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('Falha ao registrar Service Worker:', error);
-                    });
-            });
-        } else {
-        console.log('Service Worker não é suportado neste navegador.');
-        }
-</script>
-</body>
+  </body>
 </html>
