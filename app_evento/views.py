@@ -47,13 +47,9 @@ def cadastrar_evento(request):
                 
             messages.success(request, 'Evento cadastrado com sucesso!')
             return redirect('app_evento:urlcad_atividade', evento_id=evento.id)
-        
     else:
         form = EventoForm()
 
-    context = {
-            'form_evento': form,
-    }
     return render(request, 'app_evento/cadastrar_evento.html', {'form_evento': form})
 
 @never_cache
@@ -88,21 +84,20 @@ def cadastrar_atividade(request, evento_id):
         form = AtividadeForm(request.POST)
 
         if form.is_valid():
-
             atividade = form.save(commit=False)
-            
-            #evento_atual = Evento.objects.first() 
             atividade.evento = evento_atual
-            
             atividade.save()
             
             messages.success(request, '🎉 Atividade cadastrada com sucesso!')
             return redirect('app_evento:urldados') 
-            
     else:
         form = AtividadeForm()
+        context = {
+            'form_atividade': form,
+            'evento': evento_atual  # Passando o objeto evento para o HTML
+        }
 
-    return render(request, 'app_evento/cadastrar_atividade.html', {'form_atividade': form})
+    return render(request, 'app_evento/cadastrar_atividade.html', context)
 
 
 @never_cache
