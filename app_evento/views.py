@@ -22,7 +22,7 @@ def home(request):
     return render(request, 'app_evento/home.html')
 
 @never_cache
-@login_required(login_url='app_login:urllogin')
+@login_required
 def cadastrar_evento(request):
     """View para cadastro de evento para o adm logado"""
     if request.method == 'POST':
@@ -53,7 +53,7 @@ def cadastrar_evento(request):
     return render(request, 'app_evento/cadastrar_evento.html', {'form_evento': form})
 
 @never_cache
-@login_required(login_url='app_login:urllogin')
+@login_required
 def excluir_evento(request, evento_id):
     """View para excluir um evento cadastrado"""
     evento = get_object_or_404(Evento, id=evento_id)
@@ -64,7 +64,7 @@ def excluir_evento(request, evento_id):
 
 
 @never_cache
-@login_required(login_url='app_login:urllogin')
+@login_required
 def detalhes_evento(request, evento_id):
     """Exibe os detalhes de um evento e a lista de suas atividades cadastradas"""
     evento = get_object_or_404(Evento, id=evento_id)
@@ -77,7 +77,7 @@ def detalhes_evento(request, evento_id):
     return render(request, 'app_evento/detalhes_evento.html', context)
 
 @never_cache
-@login_required(login_url='app_login:urllogin')
+@login_required
 def cadastrar_atividade(request, evento_id):
     evento_atual = get_object_or_404(Evento, id=evento_id)
     if request.method == 'POST':
@@ -112,7 +112,7 @@ def dados(request):
     return render(request, template, contexto)
 
 @never_cache
-@login_required(login_url='app_login:urllogin')
+@login_required
 def minhas_inscricoes(request):
     inscricoes = (
         Inscricao.objects.filter(usuario=request.user)

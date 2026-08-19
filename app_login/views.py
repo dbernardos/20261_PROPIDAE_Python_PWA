@@ -59,7 +59,7 @@ def cadastrar_usuario(request):
             usuario_perfil.save()
             
             messages.success(request, 'Cadastro realizado com sucesso! Faça seu login.')
-            return redirect('app_login:urllogin') # Troque pela sua URL de login
+            return redirect('app_login:urllogin')
     else:
         form = CadastroUsuarioForm()
 

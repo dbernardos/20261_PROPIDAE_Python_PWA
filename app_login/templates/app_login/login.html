@@ -1,35 +1,47 @@
 {% extends 'base.html' %}
 {% load bootstrap5 %}
+{% load static %} 
 
 {% block title %}
-  Login
+  Login - SEA
 {% endblock %}
 
 {% block content %}
-  <section class="py-2">
-    <div class="container shadow border border-1 rounded d-flex justify-content-center p-5" style="max-width: 60vh; min-height: 70vh;">
-      <div>
-        <figure class="figure d-flex justify-content-center">
-          {% load static %}
-          <img src="{% static 'images/images-default/Icontransparent.png' %}" alt="logo do SEA" class="d-flex justify-content-center" style="height: 20vh;" />
+  <!-- O min-vh-100 garante que a seção ocupe a tela toda, centralizando o card verticalmente -->
+  <section class="min-vh-100 d-flex align-items-center justify-content-center py-4 bg-light">
+    
+    <!-- Foi trocado o container genérico pelo componente Card do Bootstrap -->
+    <div class="card shadow-sm border-0" style="width: 100%; max-width: 400px;">
+      <div class="card-body p-4 p-md-5">
+        
+        <!-- Logo -->
+        <figure class="text-center mb-4">
+          <!-- Altura fixa em px garante que a logo não distorça em telas diferentes -->
+          <img src="{% static 'images/images-default/Icontransparent.png' %}" alt="Logo do SEA" style="height: 100px; object-fit: contain;" />
         </figure>
+
+        <!-- Alerta de Erro -->
         {% if form.errors %}
-          <div class="alert alert-danger" role="alert">Usuário ou senha incorretos. Tente novamente.</div>
+          <div class="alert alert-danger text-center shadow-sm" role="alert">
+            Usuário ou senha incorretos. Tente novamente.
+          </div>
         {% endif %}
 
+        <!-- Formulário -->
         <form action="" method="POST">
           {% csrf_token %}
 
           {% bootstrap_form form %}
-          <div class="container mb-1 d-flex justify-content-center gap-2">
-            <input type="submit" value="Entrar" class="btn btn-primary" />
-
-            <a href="{% url 'app_login:urlcad_usuario' %}" class="btn btn-outline-secondary">
-              Cadastrar
-            </a>
+          
+          <!-- Botões Empilhados ocupando 100% da largura (d-grid) -->
+          <div class="d-grid gap-3 mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">Entrar</button>
+            <a href="{% url 'app_login:urlcad_usuario' %}" class="btn btn-outline-secondary">Cadastrar nova conta</a>
           </div>
+          
         </form>
       </div>
     </div>
+    
   </section>
 {% endblock %}
