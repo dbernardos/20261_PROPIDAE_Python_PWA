@@ -36,16 +36,15 @@ class Evento(models.Model):
 
     nome = models.CharField(max_length=200)
     descricao = models.TextField(max_length=500, blank=True, null=True)
-    emailContato = models.EmailField(max_length=50, blank=True, null=True)
-    #apoiadores = models.TextField(max_length=200, blank=True, null=True)
+    emailContato = models.EmailField(verbose_name="Email de Contato", max_length=50, blank=True, null=True)
     apoiadores = models.ManyToManyField(Apoiador, related_name='eventos')
     local = models.CharField(max_length=45, blank=True, null=True)
-    imagemBanner = models.ImageField(upload_to='banners/', blank=True, null=True)
+    imagemBanner = models.ImageField(verbose_name="Banner", upload_to='banners/', blank=True, null=True)
 
-    dataInicio = models.DateField()
-    dataFim = models.DateField()
+    dataInicio = models.DateField(verbose_name="Data de Início")
+    dataFim = models.DateField(verbose_name="Data de Término")
 
-    tipoEvento = models.CharField('tipoEvento', choices=tipoEvento.choices, max_length=20, default=tipoEvento.SEMANA)
+    tipoEvento = models.CharField(verbose_name="Tipo de Evento", choices=tipoEvento.choices, max_length=20, default=tipoEvento.SEMANA)
 
     eventoMultiplo = models.BooleanField(default=False)
     eventoPublico = models.BooleanField(default=True)
@@ -145,12 +144,12 @@ class Atividade(models.Model):
     evento = models.ForeignKey('Evento', on_delete=models.CASCADE)
 
     nome = models.CharField(max_length=200)
-    descricao = models.TextField(max_length=500, blank=True, null=True)
-    tipoAtividade = models.CharField('tipoAtividade', choices=tipoAtividade.choices, max_length=20, default=tipoAtividade.PALESTRA)
-    complementoLocal = models.CharField(max_length=45, blank=True, null=True)
-    horaInicio = models.DateTimeField()
-    horaFim = models.DateTimeField()
-    limitePessoas = models.PositiveIntegerField(blank=True, null=True)
+    descricao = models.TextField(verbose_name="Descrição", max_length=500, blank=True, null=True)
+    tipoAtividade = models.CharField(verbose_name="Tipo de Atividade", choices=tipoAtividade.choices, max_length=20, default=tipoAtividade.PALESTRA)
+    complementoLocal = models.CharField(verbose_name="Complemento do Local", max_length=45, blank=True, null=True)
+    horaInicio = models.DateTimeField(verbose_name="Hora de Início")
+    horaFim = models.DateTimeField(verbose_name="Hora de Término")
+    limitePessoas = models.PositiveIntegerField(verbose_name="Limite de Pessoas", blank=True, null=True)
     
 
     

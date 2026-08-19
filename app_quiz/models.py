@@ -18,10 +18,10 @@ class Quiz(models.Model):
     # Configurações da resposta
     pergunta = models.TextField()
     dica = models.TextField(blank=True, null=True, help_text="Dica para o participante")
-    unidade_medida = models.CharField(max_length=50, help_text="Ex: mm, gramas, unidades")
-    valor_minimo = models.DecimalField(max_digits=10, decimal_places=2, help_text="Valor mínimo aceitável")
-    valor_maximo = models.DecimalField(max_digits=10, decimal_places=2, help_text="Valor máximo aceitável")
-    valor_ideal = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text="Valor ideal/resposta correta")
+    unidade_medida = models.CharField(verbose_name="Unidade de Medida", max_length=50, help_text="Ex: mm, gramas, unidades")
+    valor_minimo = models.DecimalField(verbose_name="Valor Mínimo", max_digits=10, decimal_places=2, help_text="Valor mínimo aceitável")
+    valor_maximo = models.DecimalField(verbose_name="Valor Máximo", max_digits=10, decimal_places=2, help_text="Valor máximo aceitável")
+    valor_ideal = models.DecimalField(verbose_name="Valor Ideal", max_digits=10, decimal_places=2, blank=True, null=True, help_text="Valor ideal/resposta correta")
     icone = models.CharField(max_length=50, default="bi-trophy", help_text="Classe do Bootstrap Icon")
 
     # Controle
