@@ -28,9 +28,7 @@
     <!-- CSS Customizado -->
     <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
 
-    {% block extra_css %}
-      <link rel="stylesheet" href="{% static 'css/qrcode.css' %} " />
-    {% endblock %}
+    {% block extra_css %}{% endblock %}
   </head>
   <body class="d-flex flex-column min-vh-100">
     <!-- Cabeçalho -->
@@ -209,5 +207,18 @@
         console.log('Service Worker não é suportado neste navegador.')
       }
     </script>
+    
+    <script>
+      //procura campos obrigatórios para por asterisco
+      document.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
+          // Procura pelo label associado ao ID do campo obrigatório
+          const label = document.querySelector(`label[for="${input.id}"]`);
+          if (label) {
+              label.classList.add('required');
+          }
+      });
+    </script>
+
+
   </body>
 </html>

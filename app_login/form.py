@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Usuario
+import re
 
 class CadastroUsuarioForm(forms.ModelForm):
     # Criamos campos extras que não estão no model Usuario, mas são necessários para o login
@@ -25,8 +26,18 @@ class CadastroUsuarioForm(forms.ModelForm):
         # Ajustando os widgets para melhor usabilidade no HTML
         widgets = {
             'dataNascimento': forms.DateInput(attrs={'type': 'date'}),
+            'cpf': forms.TextInput(attrs={'placeholder': '000.000.000-00', 'required': 'required'}),
             'biografia': forms.Textarea(attrs={'rows': 3}),
         }
+
+    # 2. Exemplo de validação individual para o CPF
+    def clean_cpf(self):
+        cpf = self.cleaned_data.get('cpf')
+        # Remove pontos e traços para validar apenas os números
+        cpf_limio = re.sub(r'\D', '', cpf)
+        if len(cpf_limio) != 11:
+            raise forms.ValidationError("Insira um CPF válido com 11 dígitos.")
+        return cpf
 
     # Validação para verificar se as senhas são iguais
     def clean(self):
