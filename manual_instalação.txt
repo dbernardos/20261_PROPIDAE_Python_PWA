@@ -32,3 +32,10 @@ pip install pillow
 
 
 pip install --upgrade django (caso de algum erro no django admin)
+
+
+// Remover algo do cache do GIT
+git rm --cached caminho/para/o/arquivo.css
+git add .
+git commit -m "Remove arquivos estáticos do cache do Git"
+git push origin nome-da-branch
