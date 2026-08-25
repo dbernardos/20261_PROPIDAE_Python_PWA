@@ -30,7 +30,10 @@
       </div>
 
       <div>
-        <button class="button-quiz">Ir para o Quiz</button>
+        <form id="formManual" style="margin-bottom: 20px; text-align: center;">
+          <input type="text" id="codigoManual" placeholder="Digite o código se necessário" style="padding: 8px; width: 220px;">
+          <input type="submit" value="Validar Código" style="padding: 8px 15px; cursor: pointer;">
+        </form>
       </div>
     </main>
   </div>
@@ -51,7 +54,7 @@
       processando = true
       console.log('processando = true')
       try {
-        const response = await fetch('identificar/', {
+        const response = await fetch('quiz/identificar/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
