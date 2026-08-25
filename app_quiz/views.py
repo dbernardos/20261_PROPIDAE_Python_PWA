@@ -127,12 +127,6 @@ def reset_quiz(request, cracha, quiz_numero):
     return redirect('app_quiz:urlquiz_detail', cracha=cracha, quiz_numero=quiz_numero)
 
 
-#####
-
-def quiz(request):
-    return render(request, 'app_quiz/quiz.html')
-
-
 #@csrf_exempt
 def identificar_funcionario(request):
     
