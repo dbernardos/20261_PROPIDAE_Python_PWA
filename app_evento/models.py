@@ -57,6 +57,7 @@ class Evento(models.Model):
 
 def gerar_codigo_cracha():
     return str(uuid6.uuid7())
+
 class Inscricao(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     evento = models.ForeignKey('Evento', on_delete=models.CASCADE)

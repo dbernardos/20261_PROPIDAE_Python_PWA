@@ -12,8 +12,9 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 
 #from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
-from .models import Quiz, Resposta
+from .models import Quiz, Resposta, calcular_progresso_geral
 from .form import RespostaQuizForm
+from app_evento.models import Inscricao 
 
 # Nosso "banco de dados" simulado
 # -----------------------------------------------
@@ -27,9 +28,14 @@ db_funcionarios = {
 # -----------------------------------------------
 def boas_vindas(request, cracha):
     """Página de boas-vindas com quadro de progresso"""
-    Usuario = get_user_model()
-    participante = get_object_or_404(Usuario, username=cracha)
-    
+    # Busca a inscrição no app_evento usando o crachá
+    inscricao = get_object_or_404(Inscricao, cracha=cracha)
+    # Extrai o participante (Usuário) a partir da inscrição
+    participante = inscricao.usuario 
+
+    print(f">>>>> Inscrição encontrada: {inscricao}")
+    print(f">>>>> participante: {participante}")
+
     # Obtém todos os quizzes ativos
     quizzes = Quiz.objects.filter(ativo=True)
     
@@ -49,10 +55,11 @@ def boas_vindas(request, cracha):
         })
     
     # Progresso geral
-    progresso_geral = participante.get_progresso_geral()
+    progresso_geral = calcular_progresso_geral(participante)
     
     context = {
         'participante': participante,
+        'inscricao': inscricao,
         'progresso_quizzes': progresso_quizzes,
         'progresso_geral': progresso_geral,
         'quizzes_completos': progresso_geral['respondidos'],
@@ -61,6 +68,7 @@ def boas_vindas(request, cracha):
     }
     
     return render(request, 'app_quiz/boas_vindas.html', context)
+
 
 
 def leitor_qrcode(request):
