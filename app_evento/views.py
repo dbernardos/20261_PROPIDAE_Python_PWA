@@ -123,3 +123,13 @@ def minhas_inscricoes(request):
     return render(
         request, 'app_evento/minhas_inscricoes.html', {'inscricoes': inscricoes}
     )
+
+def eventos_disponiveis(request):
+    eventos = Evento.objects.all()
+    form = EventoForm()  # Instancia o formulário
+    
+    context = {
+        'eventos': eventos,
+        'form_evento': form,  # Passa o form esperado pelo template
+    }
+    return render(request, 'app_evento/eventos.html', context)
