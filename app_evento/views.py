@@ -30,7 +30,7 @@ def cadastrar_evento(request):
 
         if form.is_valid():
             evento = form.save(commit=False)
-            evento.administrador = request.user
+            evento.administrador = request.user.participante  # Atribui o usuário logado como administrador do evento
             evento.save()
             
             # processamento do campo de apoiadores(separado por virgulas)

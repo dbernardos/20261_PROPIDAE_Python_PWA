@@ -30,12 +30,12 @@ def boas_vindas(request, cracha):
     """Página de boas-vindas com quadro de progresso"""
     # Busca a inscrição no app_evento usando o crachá
     inscricao = get_object_or_404(Inscricao, cracha=cracha)
-    # Extrai o participante (Usuário) a partir da inscrição
+     # Extrai o participante (Usuário) a partir da inscrição
     participante = inscricao.usuario 
 
     print(f">>>>> Inscrição encontrada: {inscricao}")
     print(f">>>>> participante: {participante}")
-
+    #return HttpResponse(f"Bem-vindo(a), {inscricao.usuario.nome}! Seu crachá é: {cracha}.")
     # Obtém todos os quizzes ativos
     quizzes = Quiz.objects.filter(ativo=True)
     
@@ -68,6 +68,8 @@ def boas_vindas(request, cracha):
     }
     
     return render(request, 'app_quiz/boas_vindas.html', context)
+    
+    
 
 
 

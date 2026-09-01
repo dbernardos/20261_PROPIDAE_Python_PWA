@@ -9,8 +9,6 @@ from django.conf import settings
 
 # Create your EVENTO models here.
 # -----------------------------------------------
-
-
 class Apoiador(models.Model):
     nome = models.CharField(max_length=255, unique=True)
 
@@ -32,12 +30,12 @@ class tipoEvento(models.TextChoices):
 """Model da tabela Evento"""
 class Evento(models.Model):
     #administrador = models.ForeignKey('Usuario', on_delete=models.CASCADE)
-    administrador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='eventos',)
-
+    #administrador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='eventos',)
+    administrador = models.ForeignKey('app_login.Usuario', on_delete=models.CASCADE, related_name='administrador')
     nome = models.CharField(max_length=200)
     descricao = models.TextField(max_length=500, blank=True, null=True)
     emailContato = models.EmailField(verbose_name="Email de Contato", max_length=50, blank=True, null=True)
-    apoiadores = models.ManyToManyField(Apoiador, related_name='eventos')
+    apoiadores = models.ManyToManyField(Apoiador, related_name='apoiadores', blank=True)
     local = models.CharField(max_length=45, blank=True, null=True)
     imagemBanner = models.ImageField(verbose_name="Banner", upload_to='banners/', blank=True, null=True)
 
@@ -54,12 +52,11 @@ class Evento(models.Model):
     
 
 """Model da tabela Inscricao"""  
-
 def gerar_codigo_cracha():
     return str(uuid6.uuid7())
 
 class Inscricao(models.Model):
-    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    usuario = models.ForeignKey('app_login.Usuario', on_delete=models.CASCADE, related_name='usuario')
     evento = models.ForeignKey('Evento', on_delete=models.CASCADE)
 
     dataHora = models.DateTimeField(auto_now_add=True)
