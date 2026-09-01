@@ -19,7 +19,8 @@ class Usuario(models.Model):
     empresa = models.CharField(max_length=45, blank=True, null=True)
     data_cadastro = models.DateTimeField(auto_now_add=True)
     ultimo_acesso = models.DateTimeField(auto_now=True)
-    participante = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_django = models.OneToOneField(User, on_delete=models.CASCADE, related_name='participante')
+    #participante = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     
     def __str__(self):
         return self.nome 

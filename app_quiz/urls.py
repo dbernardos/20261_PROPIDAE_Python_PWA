@@ -19,8 +19,6 @@ urlpatterns = [
     path('boas-vindas/<str:cracha>/', views.boas_vindas, name='urlboas_vindas'),
     path('<str:cracha>/desafio/<int:quiz_numero>/', views.quiz_detail, name='urlquiz_detail'),
     path('<str:cracha>/desafio/<int:quiz_numero>/reset/', views.reset_quiz, name='urlreset_quiz'),
-
-     
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
