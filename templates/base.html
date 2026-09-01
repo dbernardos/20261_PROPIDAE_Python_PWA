@@ -195,7 +195,7 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker
-            .register('{% url "service_worker" %}')
+            .register('/{% url "service_worker" %}')
             .then((registration) => {
               console.log('Service-worker registrado com sucesso:', registration.scope)
             })
