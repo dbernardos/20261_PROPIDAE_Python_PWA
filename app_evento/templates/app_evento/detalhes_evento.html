@@ -25,11 +25,7 @@
               <img src="{{ evento.imagemBanner.url }}" alt="{{ evento.nome }}" class="img-fluid w-100 h-100" style="object-fit: cover; min-height: 220px;" />
             </div>
           {% endif %}
-          <div class="{% if evento.imagemBanner %}
-              col-md-8
-            {% else %}
-              col-12
-            {% endif %} p-4">
+          <div class="{% if evento.imagemBanner %}col-md-8{% else %}col-12{% endif %} p-4">
             <span class="badge bg-light text-dark border mb-2">{% firstof evento.get_tipoEvento_display evento.tipoEvento 'Evento' %}</span>
             <h1 class="h2 fw-bold text-verde-escuro mb-2">{{ evento.nome }}</h1>
             {% if evento.descricao %}
@@ -72,7 +68,14 @@
                       <h4 class="h4 fw-bold text-verde-escuro mb-0">{% firstof atividade.titulo atividade.nome 'Atividade' %}</h4>
                     </div>
 
-                    <a href="{% url 'app_quiz:urlleitor_qrcode' %}" class="btn btn-outline-success btn-sm"><i class="bi bi-qr-code-scan me-1"></i> Ler QR Code</a>
+                    <!-- Botões da Atividade -->
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                      <a href="{% url 'app_quiz:urlleitor_qrcode' %}" class="btn btn-outline-success btn-sm"><i class="bi bi-qr-code-scan me-1"></i> Ler QR Code</a>
+                      
+                      {% if user.is_staff or user.is_superuser %}
+                        <a href="{% url 'app_evento:urlsorteio' %}" class="btn btn-warning btn-sm text-dark shadow-sm"><i class="bi bi-gift me-1"></i> Sorteio</a>
+                      {% endif %}
+                    </div>
                   </div>
 
                   <!-- Descrição Completa da Atividade -->
@@ -115,17 +118,11 @@
                           <span class="text-muted d-block small">Horário</span>
                           <strong class="text-dark small">
                             {% if atividade.hora_inicio %}
-                              {{ atividade.hora_inicio|time:'H:i' }}{% if atividade.hora_fim %}
-                                às {{ atividade.hora_fim|time:'H:i' }}
-                              {% endif %}
+                              {{ atividade.hora_inicio|time:'H:i' }}{% if atividade.hora_fim %} às {{ atividade.hora_fim|time:'H:i' }}{% endif %}
                             {% elif atividade.horaInicio %}
-                              {{ atividade.horaInicio|time:'H:i' }}{% if atividade.horaFim %}
-                                às {{ atividade.horaFim|time:'H:i' }}
-                              {% endif %}
+                              {{ atividade.horaInicio|time:'H:i' }}{% if atividade.horaFim %} às {{ atividade.horaFim|time:'H:i' }}{% endif %}
                             {% elif atividade.horario_inicio %}
-                              {{ atividade.horario_inicio|time:'H:i' }}{% if atividade.horario_fim %}
-                                às {{ atividade.horario_fim|time:'H:i' }}
-                              {% endif %}
+                              {{ atividade.horario_inicio|time:'H:i' }}{% if atividade.horario_fim %} às {{ atividade.horario_fim|time:'H:i' }}{% endif %}
                             {% elif atividade.hora %}
                               {{ atividade.hora|time:'H:i' }}
                             {% else %}

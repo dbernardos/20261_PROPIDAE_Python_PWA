@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sorteio{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container text-center" style="max-width: 800px;">
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <!-- Canto Esquerdo: Navegação -->
+        <a href="{% url 'app_evento:urlhome' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-house-door me-1"></i> Ir para o Início
+        </a>
+      
+        <!-- Canto Direito: Ações do Sorteio -->
+        <div class="d-flex gap-2">
+          <!-- Ver Lista de Prêmios (Acessível a todos) -->
+          <button type="button" class="btn btn-outline-info btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#modalListaPremios">
+            <i class="bi bi-trophy me-1"></i> Lista de Prêmios
+          </button>
+      
+          <!-- Configurar/Editar Sorteio (Apenas Admin) -->
+          {% if user.is_staff or user.is_superuser %}
+            <button type="button" class="btn btn-outline-primary btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#modalEditarSorteio">
+              <i class="bi bi-pencil me-1"></i> Editar Sorteio
+            </button>
+          {% endif %}
+        </div>
+      </div>
+
+    <!-- Cabeçalho Principal -->
+    <div class="mb-4">
+      <h2 class="display-6 fw-bold text-verde-escuro mb-1">
+        🎁 Sorteio de <span class="text-verde-claro">Prêmios</span>
+      </h2>
+      <p class="text-muted mb-2">
+        Atividade: <strong>Nome da Atividade Selecionada</strong>
+      </p>
+      <span class="badge bg-success-subtle text-success border border-success px-3 py-2 fs-6 rounded-pill">
+        <i class="bi bi-people-fill me-1"></i> x Participantes com Presença Confirmada
+      </span>
+    </div>
+
+    <!-- Card Principal da Roleta/Ganhador -->
+    <div class="card card-custom shadow-lg border-0 p-5 mb-4 text-center bg-light position-relative overflow-hidden">
+      <div class="py-4">
+        <span class="text-uppercase tracking-wider text-muted small fw-bold d-block mb-2">
+          Ganhador(a)
+        </span>
+
+        <!-- Display do Nome (Estado Inicial) -->
+        <h1 class="display-3 fw-bold text-verde-escuro my-3">
+          ❓
+        </h1>
+
+        <p class="text-secondary mb-0 fs-5">
+          Aguardando início do sorteio...
+        </p>
+      </div>
+    </div>
+
+    <!-- Botões de Ação -->
+    <div class="d-flex justify-content-center gap-3 mb-5">
+      <button type="button" class="btn btn-success btn-lg px-4 shadow-sm">
+        <i class="bi bi-shuffle me-2"></i> Realizar Sorteio
+      </button>
+
+      <button type="button" class="btn btn-outline-secondary btn-lg px-4">
+        <i class="bi bi-arrow-clockwise me-2"></i> Reiniciar
+      </button>
+    </div>
+
+    <!-- Histórico de Sorteados -->
+    <div class="card card-custom border-0 shadow-sm text-start">
+      <div class="card-header bg-white py-3 border-bottom-0">
+        <h5 class="fw-bold text-verde-escuro mb-0">
+          <i class="bi bi-trophy text-warning me-2"></i>Sorteados da Sessão
+        </h5>
+      </div>
+      <ul class="list-group list-group-flush border-top">
+        <!-- Exemplo de participante sorteado -->
+        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-check-circle-fill text-success fs-5 me-3"></i>
+            <div>
+              <strong class="text-dark d-block">Maria Oliveira Santos</strong>
+              <small class="text-muted">maria.santos@email.com</small>
+            </div>
+          </div>
+          <span class="badge bg-light text-dark border">1º Sorteio</span>
+        </li>
+
+        <!-- Resultado do Sorteio -->
+        <li class="list-group-item text-muted text-center py-4 d-none">
+          Nenhum participante foi sorteado ainda.
+        </li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Editar Sorteio -->
+<div class="modal fade" id="modalEditarSorteio" tabindex="-1" aria-labelledby="modalEditarSorteioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold text-verde-escuro" id="modalEditarSorteioLabel">
+            <i class="bi bi-gear-fill me-2"></i>Configurar Sorteio
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <form method="POST" action="">
+          {% csrf_token %}
+          <div class="modal-body text-start">
+            <div class="mb-3">
+              <label for="id_premio" class="form-label fw-semibold">Nome do Prêmio</label>
+              <input type="text" name="premio" id="id_premio" class="form-control" placeholder="Ex: Livro / Kit de Brindes" value="{{ sorteio.premio|default:'' }}" required>
+            </div>
+  
+            <div class="mb-3">
+              <label for="id_qtd_ganhadores" class="form-label fw-semibold">Quantidade de Ganhadores</label>
+              <input type="number" name="qtd_ganhadores" id="id_qtd_ganhadores" class="form-control" min="1" value="{{ sorteio.qtd_ganhadores|default:'1' }}" required>
+            </div>
+          </div>
+  
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-success btn-sm fw-bold">Salvar Alterações</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Lista de Prêmios -->
+<div class="modal fade" id="modalListaPremios" tabindex="-1" aria-labelledby="modalListaPremiosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-light">
+          <h5 class="modal-title fw-bold text-verde-escuro" id="modalListaPremiosLabel">
+            <i class="bi bi-gift-fill me-2 text-warning"></i>Prêmios do Evento
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+  
+        <div class="modal-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Prêmio</th>
+                  <th class="text-center">Quantidade</th>
+                  <th class="text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in premios %}
+                  <tr>
+                    <td class="fw-semibold text-dark">{{ item.nome }}</td>
+                    <td class="text-center">{{ item.quantidade }}</td>
+                    <td class="text-center">
+                      {% if item.sorteado %}
+                        <span class="badge bg-secondary">Sorteado</span>
+                      {% else %}
+                        <span class="badge bg-success">Disponível</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="3" class="text-center text-muted py-4">
+                      Nenhum prêmio cadastrado para este sorteio.
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+  
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -19,6 +19,8 @@ urlpatterns = [
 
     path('cadastrar_atividade/<int:evento_id>/', views.cadastrar_atividade, name='urlcad_atividade'),
 
+    path('sorteio/', views.sorteio, name='urlsorteio'),
+
     path('dados/', views.dados, name='urldados'),
     path('minhas_inscricoes/', views.minhas_inscricoes, name='urlminhas_inscricoes')
 ]
