@@ -54,6 +54,35 @@ def cadastrar_evento(request):
 
 @never_cache
 @login_required
+def editar_evento(request, evento_id):
+    evento = get_object_or_404(Evento, id=evento_id)
+    
+    if request.method == 'POST':
+        form = EventoForm(request.POST, request.FILES, instance=evento)
+        if form.is_valid():
+            evento = form.save()
+            
+            nomes_apoiadores = form.cleaned_data.get('apoiadores')
+            if nomes_apoiadores:
+                objetos_apoiadores = [Apoiador.objects.get_or_create(nome=nome)[0] for nome in nomes_apoiadores]
+                evento.apoiadores.set(objetos_apoiadores)
+            else:
+                evento.apoiadores.clear()
+            
+            messages.success(request, '✅ Evento atualizado com sucesso!')
+            return redirect('app_evento:urldis_evento')
+    else:
+        form = EventoForm(instance=evento)
+        messages.info(request, f'✏️ Edite as informações do evento "{evento.nome}" abaixo:')
+
+    return render(request, 'app_evento/cadastrar_evento.html', {
+        'form_evento': form, 
+        'evento': evento,
+        'editando': True
+    })
+
+@never_cache
+@login_required
 def excluir_evento(request, evento_id):
     """View para excluir um evento cadastrado"""
     evento = get_object_or_404(Evento, id=evento_id)
