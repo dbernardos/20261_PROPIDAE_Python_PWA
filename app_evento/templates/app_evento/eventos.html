@@ -80,7 +80,16 @@
 
                   <!-- Botões de Ação na Parte Inferior -->
                   <div class="pt-3 border-top d-flex flex-wrap align-items-center justify-content-between gap-2">
-                    <a href="{% url 'app_evento:urlcad_atividade' item.id %}" class="btn btn-outline-success btn-sm"><i class="bi bi-plus-circle me-1"></i> Cadastrar Atividade</a>
+                      <div class="d-inline-flex gap-2 align-items-center">
+
+                        <a href="{% url 'app_evento:urlcad_atividade' item.id %}" class="btn btn-outline-success btn-sm">
+                          <i class="bi bi-plus-circle me-1"></i> Cadastrar Atividade
+                        </a>
+                      
+                        <a href="{% url 'app_evento:urldet_evento' item.id %}" class="btn btn-success btn-sm shadow-sm">
+                          <i class="bi bi-info-circle me-1"></i> Detalhes do Evento
+                        </a>
+                      </div>
 
                     {% if user.is_staff or user.is_superuser %}
                       <div class="d-inline-flex gap-2">
