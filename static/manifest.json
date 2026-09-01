@@ -13,13 +13,13 @@
 "orientation": "any",
 "icons": [
     {
-        "src": "static/images/images-default/icontransparent.png",
+        "src": "images/images-default/icontransparent.png",
         "sizes": "512x512",
         "type": "image/png",
         "purpose": "maskable"
     },
     {
-        "src": "static/images/images-default/icontransparent.png",
+        "src": "images/images-default/icontransparent.png",
         "sizes": "192x192",
         "type": "image/png",
         "purpose": "any"
@@ -27,7 +27,7 @@
 ],
 "screenshots": [
     {
-        "src": "static/images/images-default/icontransparent.png",
+        "src": "images/images-default/icontransparent.png",
         "sizes": "2880x1800",
         "type": "image/png",
         "description": "A screenshot of the home page"
