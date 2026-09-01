@@ -18,49 +18,12 @@
 
         {% if user.is_staff or user.is_superuser %}
           {% if not editando %}
-            <a href="#formEvento" class="btn btn-primary-custom btn-lg shadow-sm" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="formEvento"><i class="bi bi-plus-lg me-1"></i> Cadastrar Novo Evento</a>
+          <a href="{% url 'app_evento:urlcad_evento' %}" class="btn btn-primary-custom btn-lg shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> Cadastrar Novo Evento
+          </a>
           {% endif %}
         {% endif %}
       </div>
-
-      <!-- Formulário de Cadastro/Edição de Evento (Expansível / Visível no modo de edição) -->
-      {% if user.is_staff or user.is_superuser %}
-        <div class="collapse {% if editando %}show{% endif %} mb-5" id="formEvento">
-          <div class="card card-custom shadow-sm border-0">
-            <div class="card-body p-4">
-              <h4 class="card-title text-verde-escuro fw-bold mb-4">
-                {% if editando %}
-                  ✏️ Editar Evento: {{ evento.nome }}
-                {% else %}
-                  ➕ Novo Evento
-                {% endif %}
-              </h4>
-
-              <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-
-                {% bootstrap_form form_evento %}
-
-                <div class="d-flex gap-2 mt-4">
-                  <button type="submit" class="btn btn-primary-custom btn-lg">
-                    {% if editando %}
-                      Salvar Alterações
-                    {% else %}
-                      Cadastrar Evento
-                    {% endif %}
-                  </button>
-
-                  {% if editando %}
-                    <a href="{% url 'app_evento:urlcad_evento' %}" class="btn btn-outline-secondary btn-lg">Cancelar Edição</a>
-                  {% else %}
-                    <button type="button" class="btn btn-outline-secondary btn-lg" data-bs-toggle="collapse" data-bs-target="#formEvento">Fechar</button>
-                  {% endif %}
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      {% endif %}
 
       <!-- Listagem em Formato de Catálogo (Cards Horizontais) -->
       <div class="row g-4">
