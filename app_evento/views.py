@@ -162,3 +162,44 @@ def eventos_disponiveis(request):
         'form_evento': form,  # Passa o form esperado pelo template
     }
     return render(request, 'app_evento/eventos.html', context)
+
+@never_cache
+@login_required
+def sorteio(request):
+    # Inicializa a lista de prêmios na sessão se não existir
+    if 'premios_lista' not in request.session:
+        request.session['premios_lista'] = []
+
+    if request.method == 'POST':
+        premio_nome = request.POST.get('premio')
+        qtd_ganhadores = request.POST.get('qtd_ganhadores', 1)
+
+        if premio_nome:
+            # Recupera a lista atual e adiciona o novo prêmio
+            premios = request.session['premios_lista']
+            premios.append({
+                'nome': premio_nome,
+                'quantidade': int(qtd_ganhadores) if qtd_ganhadores else 1,
+                'sorteado': False
+            })
+            
+            # Atualiza e marca a sessão como modificada
+            request.session['premios_lista'] = premios
+            request.session.modified = True
+
+            messages.success(request, f'Prêmio "{premio_nome}" cadastrado com sucesso!')
+
+        return redirect('app_evento:urlsorteio')
+
+    # Carrega a lista cadastrada
+    premios = request.session.get('premios_lista', [])
+    
+    # Define o último prêmio cadastrado como o ativo para a tela inicial
+    ultimo_premio = premios[-1] if premios else {'nome': 'Nenhum prêmio cadastrado', 'quantidade': 1}
+
+    context = {
+        'premios': premios,
+        'sorteio': ultimo_premio,
+    }
+
+    return render(request, 'app_evento/sorteio.html', context)
