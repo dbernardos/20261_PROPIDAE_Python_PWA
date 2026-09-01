@@ -30,7 +30,7 @@ def cadastrar_evento(request):
 
         if form.is_valid():
             evento = form.save(commit=False)
-            evento.administrador = request.user.participante  # Atribui o usuário logado como administrador do evento
+            evento.administrador = request.user.user_django  # Atribui o usuário logado como administrador do evento
             evento.save()
             
             # processamento do campo de apoiadores(separado por virgulas)
@@ -127,6 +127,18 @@ def cadastrar_atividade(request, evento_id):
         }
 
     return render(request, 'app_evento/cadastrar_atividade.html', context)
+
+def editar_atividade(request, atividade_id):
+    atividade = get_object_or_404(Atividade, pk=atividade_id)
+    return render(request, 'app_evento/form_atividade.html', {'atividade': atividade})
+
+def excluir_atividade(request, atividade_id):
+    atividade = get_object_or_404(Atividade, pk=atividade_id)
+    evento_id = atividade.evento.id 
+    if request.method == 'POST':
+        atividade.delete()
+        return redirect('app_evento:urldetalhes_evento', evento_id=evento_id)
+    return redirect('app_evento:urldetalhes_evento', evento_id=evento_id)
 
 
 @never_cache
