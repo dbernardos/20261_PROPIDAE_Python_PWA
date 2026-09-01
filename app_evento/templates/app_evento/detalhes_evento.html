@@ -8,12 +8,17 @@
 {% block content %}
   <section class="py-5">
     <div class="container">
+      
       <!-- Navegação Superior -->
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <a href="{% url 'app_evento:urlcad_evento' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i> Voltar para Eventos</a>
+        <a href="{% url 'app_evento:urlcad_evento' %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i> Voltar para Eventos
+        </a>
 
         {% if user.is_staff or user.is_superuser %}
-          <a href="{% url 'app_evento:urlcad_atividade' evento.id %}" class="btn btn-primary-custom shadow-sm"><i class="bi bi-plus-lg me-1"></i> Nova Atividade</a>
+          <a href="{% url 'app_evento:urlcad_atividade' evento.id %}" class="btn btn-primary-custom shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> Nova Atividade
+          </a>
         {% endif %}
       </div>
 
@@ -70,10 +75,24 @@
 
                     <!-- Botões da Atividade -->
                     <div class="d-flex flex-wrap gap-2 align-items-center">
-                      <a href="{% url 'app_quiz:urlleitor_qrcode' %}" class="btn btn-outline-success btn-sm"><i class="bi bi-qr-code-scan me-1"></i> Ler QR Code</a>
+                      <a href="{% url 'app_quiz:urlleitor_qrcode' %}" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-qr-code-scan me-1"></i> Ler QR Code
+                      </a>
                       
                       {% if user.is_staff or user.is_superuser %}
-                        <a href="{% url 'app_evento:urlsorteio' %}" class="btn btn-warning btn-sm text-dark shadow-sm"><i class="bi bi-gift me-1"></i> Sorteio</a>
+                        <a href="{% url 'app_evento:urlsorteio' %}" class="btn btn-warning btn-sm text-dark shadow-sm">
+                          <i class="bi bi-gift me-1"></i> Sorteio
+                        </a>
+                        
+                        <!-- Botão Editar Atividade -->
+                        <a href="{% url 'app_evento:urleditar_atividade' atividade.id %}" class="btn btn-outline-secondary btn-sm" title="Editar Atividade">
+                          <i class="bi bi-pencil"></i>
+                        </a>
+
+                        <!-- Botão Excluir Atividade -->
+                        <button type="button" class="bi bi-trash me-1" data-bs-toggle="modal" data-bs-target="#modalExcluirAtividade{{ atividade.id }}" title="Excluir Atividade">
+                          <i class="bi bi-trash"></i>
+                        </button>
                       {% endif %}
                     </div>
                   </div>
@@ -87,7 +106,6 @@
 
                   <!-- Grade de Detalhes Específicos -->
                   <div class="row g-3 bg-light rounded p-3 m-0">
-                    <!-- Data da Atividade -->
                     <div class="col-sm-6 col-md-3">
                       <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-calendar3 text-verde-claro fs-5"></i>
@@ -110,7 +128,6 @@
                       </div>
                     </div>
 
-                    <!-- Horário da Atividade -->
                     <div class="col-sm-6 col-md-3">
                       <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-clock text-verde-claro fs-5"></i>
@@ -133,7 +150,6 @@
                       </div>
                     </div>
 
-                    <!-- Local / Sala -->
                     <div class="col-sm-6 col-md-3">
                       <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-geo-alt text-vermelho fs-5"></i>
@@ -144,7 +160,6 @@
                       </div>
                     </div>
 
-                    <!-- Palestrante / Responsável -->
                     <div class="col-sm-6 col-md-3">
                       <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-person-badge text-primary fs-5"></i>
@@ -158,6 +173,30 @@
                 </div>
               </div>
             </div>
+
+            <!-- Modal Excluir Atividade -->
+            {% if user.is_staff or user.is_superuser %}
+              <div class="modal fade" id="modalExcluirAtividade{{ atividade.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-danger text-white">
+                      <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão</h5>
+                      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-start">
+                      Tem certeza que deseja excluir a atividade <strong>{% firstof atividade.titulo atividade.nome 'esta atividade' %}</strong>? Esta ação não poderá ser desfeita.
+                    </div>
+                    <div class="modal-footer bg-light">
+                      <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                      <form method="POST" action="{% url 'app_evento:urlexcluir_atividade' atividade.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm fw-bold">Excluir Atividade</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
           {% endfor %}
         </div>
       {% else %}

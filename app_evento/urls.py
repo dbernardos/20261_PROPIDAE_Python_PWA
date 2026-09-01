@@ -18,6 +18,8 @@ urlpatterns = [
     path('eventos_disponiveis/', views.eventos_disponiveis, name='urldis_evento'),
 
     path('cadastrar_atividade/<int:evento_id>/', views.cadastrar_atividade, name='urlcad_atividade'),
+    path('atividade/<int:atividade_id>/editar/', views.editar_atividade, name='urleditar_atividade'),
+    path('atividade/<int:atividade_id>/excluir/', views.excluir_atividade, name='urlexcluir_atividade'),
 
     path('sorteio/', views.sorteio, name='urlsorteio'),
 
