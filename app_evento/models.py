@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils import timezone
-import uuid
-import uuid6
+from nanoid import generate
 from django.contrib.auth.models import User
 from smart_selects.db_fields import ChainedForeignKey #Para encadeamento de campos
 from django.core.exceptions import ValidationError # ValidationError para validação de campos no backend
@@ -53,14 +52,19 @@ class Evento(models.Model):
 
 """Model da tabela Inscricao"""  
 def gerar_codigo_cracha():
-    return str(uuid6.uuid7())
+    alfabeto = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
+    parte1 = generate(alfabeto, size=3)
+    parte2 = generate(alfabeto, size=3)
+    
+    return f"{parte1}-{parte2}"
+
 
 class Inscricao(models.Model):
     usuario = models.ForeignKey('app_login.Usuario', on_delete=models.CASCADE, related_name='usuario')
     evento = models.ForeignKey('Evento', on_delete=models.CASCADE)
 
     dataHora = models.DateTimeField(auto_now_add=True)
-    cracha = models.CharField(max_length=50, unique=True, default=gerar_codigo_cracha)
+    cracha = models.CharField(max_length=7, unique=True, default=gerar_codigo_cracha)
     
     class Meta:
         verbose_name = "Inscrição"
