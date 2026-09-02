@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.middleware.csrf import rotate_token
 
 from .models import Evento, Atividade, Inscricao, Apoiador
+from app_login.models import Usuario
 from .form import EventoForm, AtividadeForm
 
 # create your EVENTO views here.
@@ -22,12 +23,20 @@ def home(request):
 @login_required
 def cadastrar_evento(request):
     """View para cadastro de evento para o adm logado"""
+
+    try:
+        usuario_perfil = Usuario.objects.get(user_django=request.user)
+    except Usuario.DoesNotExist:
+        # Opção A: Redirecionar para preencher o perfil (Mais recomendado)
+        messages.warning(request, 'Você precisa completar seu perfil de Usuário antes de criar um evento.')
+        return redirect('app_login:urlcad_usuario') # Ajuste para a sua URL de cadastro/perfil
+    
     if request.method == 'POST':
         form = EventoForm(request.POST, request.FILES)
 
         if form.is_valid():
             evento = form.save(commit=False)
-            evento.administrador = request.user.user_django  # Atribui o usuário logado como administrador do evento
+            evento.administrador = usuario_perfil
             evento.save()
             
             # processamento do campo de apoiadores (separado por vírgulas)

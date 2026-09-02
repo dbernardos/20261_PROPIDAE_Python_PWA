@@ -38,13 +38,14 @@ def cadastrar_usuario(request):
         
         if form.is_valid():
             # 1. Pegamos os dados validados
+            username = form.cleaned_data['username']
             email = form.cleaned_data['email']
             senha = form.cleaned_data['senha']
-            cpf = form.cleaned_data['cpf'] # Usaremos o CPF como 'username' do Django
+            #cpf = form.cleaned_data['cpf'] # Usaremos o CPF como 'username' do Django
             
             # 2. Criamos o User padrão de autenticação do Django
             user = User.objects.create_user(
-                username=cpf, # O Django exige um username. Usar o CPF ou E-mail é uma boa tática
+                username=username, # O Django exige um username. Usar o CPF ou E-mail é uma boa tática
                 email=email,
                 password=senha
             )

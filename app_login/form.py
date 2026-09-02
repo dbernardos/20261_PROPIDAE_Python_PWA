@@ -5,6 +5,9 @@ from .models import Usuario
 import re
 
 class CadastroUsuarioForm(forms.ModelForm):
+
+    username = forms.CharField(max_length=150, label="Nome de Usuário")
+
     # Criamos campos extras que não estão no model Usuario, mas são necessários para o login
     senha = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Digite sua senha'}),

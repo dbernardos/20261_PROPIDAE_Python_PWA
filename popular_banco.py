@@ -45,7 +45,7 @@ def popular_banco():
     # 1. USUÁRIOS E PERFIS (User + Usuario)
     # -------------------------------------------------------------
     # Administrador
-    user_admin, _ = User.objects.get_or_create(
+    user_admin, created_admin = User.objects.get_or_create(
         username="admin_eventos",
         defaults={
             "email": "admin@sea.com",
@@ -55,7 +55,7 @@ def popular_banco():
             "is_superuser": True
         }
     )
-    if not user_admin.has_usable_password():
+    if created_admin:
         user_admin.set_password("admin123")
         user_admin.save()
 
@@ -75,7 +75,7 @@ def popular_banco():
     )
 
     # Palestrante
-    user_palestrante, _ = User.objects.get_or_create(
+    user_palestrante, created_palestrante = User.objects.get_or_create(
         username="mariana_docente",
         defaults={
             "email": "mariana@universidade.edu.br",
@@ -83,6 +83,11 @@ def popular_banco():
             "last_name": "Lima"
         }
     )
+
+    if created_palestrante:
+        user_palestrante.set_password('palestrante123')
+        user_palestrante.save()
+
     usuario_palestrante, _ = Usuario.objects.get_or_create(
         user_django=user_palestrante,
         defaults={
@@ -99,7 +104,7 @@ def popular_banco():
     )
 
     # Participante / Aluno
-    user_aluno, _ = User.objects.get_or_create(
+    user_aluno, created_aluno = User.objects.get_or_create(
         username="lucas_aluno",
         defaults={
             "email": "lucas@estudante.edu.br",
@@ -107,6 +112,11 @@ def popular_banco():
             "last_name": "Mendes"
         }
     )
+
+    if created_aluno:
+        user_aluno.set_password('aluno123')
+        user_aluno.save()
+
     usuario_aluno, _ = Usuario.objects.get_or_create(
         user_django=user_aluno,
         defaults={
@@ -135,7 +145,7 @@ def popular_banco():
     evento, _ = Evento.objects.get_or_create(
         nome="Semana Acadêmica de Tecnologia 2026",
         defaults={
-            "administrador": usuario_admin.id,
+            "administrador": usuario_admin,
             "descricao": "Evento focado em tecnologia, inovação e desafios práticos.",
             "emailContato": "contato@semanaacademica.com",
             "local": "Campus Central - Bloco A",
