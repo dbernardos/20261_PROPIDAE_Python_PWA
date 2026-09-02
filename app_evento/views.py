@@ -1,15 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
-
 from django.utils import timezone
 import json
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.middleware.csrf import rotate_token
-from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import Evento, Atividade, Inscricao, Apoiador
 from .form import EventoForm, AtividadeForm
@@ -33,16 +30,14 @@ def cadastrar_evento(request):
             evento.administrador = request.user.user_django  # Atribui o usuário logado como administrador do evento
             evento.save()
             
-            # processamento do campo de apoiadores(separado por virgulas)
+            # processamento do campo de apoiadores (separado por vírgulas)
             nomes_apoiadores = form.cleaned_data.get('apoiadores')
             if nomes_apoiadores:
                 objetos_apoiadores = []
                 for nome in nomes_apoiadores:
-                    # Busca o apoiador pelo nome, cria um novo se não existir
                     apoiador_obj, criado = Apoiador.objects.get_or_create(nome=nome)
                     objetos_apoiadores.append(apoiador_obj)
 
-                # Vincula a lista de objetos ao relacionamento ManyToMany do evento
                 evento.apoiadores.set(objetos_apoiadores)
                 
             messages.success(request, 'Evento cadastrado com sucesso!')
@@ -123,7 +118,7 @@ def cadastrar_atividade(request, evento_id):
         form = AtividadeForm()
         context = {
             'form_atividade': form,
-            'evento': evento_atual  # Passando o objeto evento para o HTML
+            'evento': evento_atual
         }
 
     return render(request, 'app_evento/cadastrar_atividade.html', context)
@@ -155,11 +150,17 @@ def dados(request):
 @never_cache
 @login_required
 def minhas_inscricoes(request):
-    inscricoes = (
-        Inscricao.objects.filter(usuario=request.user)
-        .select_related('evento')
-        .order_by('-dataHora')
-    )
+    # Obtém a instância de Usuario vinculada ao User logado
+    usuario_logado = getattr(request.user, 'user_django', None)
+
+    if usuario_logado:
+        inscricoes = (
+            Inscricao.objects.filter(usuario=usuario_logado)
+            .select_related('evento')
+            .order_by('-dataHora')
+        )
+    else:
+        inscricoes = Inscricao.objects.none()
 
     return render(
         request, 'app_evento/minhas_inscricoes.html', {'inscricoes': inscricoes}
@@ -167,18 +168,17 @@ def minhas_inscricoes(request):
 
 def eventos_disponiveis(request):
     eventos = Evento.objects.all()
-    form = EventoForm()  # Instancia o formulário
+    form = EventoForm()
     
     context = {
         'eventos': eventos,
-        'form_evento': form,  # Passa o form esperado pelo template
+        'form_evento': form,
     }
     return render(request, 'app_evento/eventos.html', context)
 
 @never_cache
 @login_required
 def sorteio(request):
-    # Inicializa a lista de prêmios na sessão se não existir
     if 'premios_lista' not in request.session:
         request.session['premios_lista'] = []
 
@@ -187,7 +187,6 @@ def sorteio(request):
         qtd_ganhadores = request.POST.get('qtd_ganhadores', 1)
 
         if premio_nome:
-            # Recupera a lista atual e adiciona o novo prêmio
             premios = request.session['premios_lista']
             premios.append({
                 'nome': premio_nome,
@@ -195,7 +194,6 @@ def sorteio(request):
                 'sorteado': False
             })
             
-            # Atualiza e marca a sessão como modificada
             request.session['premios_lista'] = premios
             request.session.modified = True
 
@@ -203,10 +201,7 @@ def sorteio(request):
 
         return redirect('app_evento:urlsorteio')
 
-    # Carrega a lista cadastrada
     premios = request.session.get('premios_lista', [])
-    
-    # Define o último prêmio cadastrado como o ativo para a tela inicial
     ultimo_premio = premios[-1] if premios else {'nome': 'Nenhum prêmio cadastrado', 'quantidade': 1}
 
     context = {

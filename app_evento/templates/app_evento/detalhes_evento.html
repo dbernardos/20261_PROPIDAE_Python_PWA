@@ -11,12 +11,12 @@
       
       <!-- Navegação Superior -->
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <a href="{% url 'app_evento:urlcad_evento' %}" class="btn btn-outline-secondary">
+        <a href="{% url 'app_evento:urlcad_evento' %}" class="btn btn-secondary">
           <i class="bi bi-arrow-left me-1"></i> Voltar para Eventos
         </a>
 
         {% if user.is_staff or user.is_superuser %}
-          <a href="{% url 'app_evento:urlcad_atividade' evento.id %}" class="btn btn-primary-custom shadow-sm">
+          <a href="{% url 'app_evento:urlcad_atividade' evento.id %}" class="btn btn-primary shadow-sm">
             <i class="bi bi-plus-lg me-1"></i> Nova Atividade
           </a>
         {% endif %}
@@ -73,25 +73,25 @@
                       <h4 class="h4 fw-bold text-verde-escuro mb-0">{% firstof atividade.titulo atividade.nome 'Atividade' %}</h4>
                     </div>
 
-                    <!-- Botões da Atividade -->
+                    <!-- Botões da Atividade Padronizados -->
                     <div class="d-flex flex-wrap gap-2 align-items-center">
-                      <a href="{% url 'app_quiz:urlleitor_qrcode' %}" class="btn btn-outline-success btn-sm">
+                      <a href="{% url 'app_quiz:urlleitor_qrcode' %}" class="btn btn-success btn-sm">
                         <i class="bi bi-qr-code-scan me-1"></i> Ler QR Code
                       </a>
                       
                       {% if user.is_staff or user.is_superuser %}
-                        <a href="{% url 'app_evento:urlsorteio' %}" class="btn btn-warning btn-sm text-dark shadow-sm">
+                        <a href="{% url 'app_evento:urlsorteio' %}" class="btn btn-warning btn-sm shadow-sm">
                           <i class="bi bi-gift me-1"></i> Sorteio
                         </a>
                         
                         <!-- Botão Editar Atividade -->
-                        <a href="{% url 'app_evento:urleditar_atividade' atividade.id %}" class="btn btn-outline-secondary btn-sm" title="Editar Atividade">
-                          <i class="bi bi-pencil"></i>
+                        <a href="{% url 'app_evento:urleditar_atividade' atividade.id %}" class="btn btn-primary btn-sm" title="Editar Atividade">
+                          <i class="bi bi-pencil me-1"></i> Editar
                         </a>
 
                         <!-- Botão Excluir Atividade -->
-                        <button type="button" class="bi bi-trash me-1" data-bs-toggle="modal" data-bs-target="#modalExcluirAtividade{{ atividade.id }}" title="Excluir Atividade">
-                          <i class="bi bi-trash"></i>
+                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalExcluirAtividade{{ atividade.id }}" title="Excluir Atividade">
+                          <i class="bi bi-trash me-1"></i> Excluir
                         </button>
                       {% endif %}
                     </div>
