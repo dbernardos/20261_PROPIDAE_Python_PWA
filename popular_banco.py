@@ -59,8 +59,8 @@ def popular_banco():
         user_admin.set_password("admin123")
         user_admin.save()
 
-    Usuario.objects.get_or_create(
-        participante=user_admin,
+    usuario_admin, _ = Usuario.objects.get_or_create(
+        user_django=user_admin,
         defaults={
             "nome": "Carlos Eduardo",
             "email": "admin@sea.com",
@@ -83,8 +83,8 @@ def popular_banco():
             "last_name": "Lima"
         }
     )
-    Usuario.objects.get_or_create(
-        participante=user_palestrante,
+    usuario_palestrante, _ = Usuario.objects.get_or_create(
+        user_django=user_palestrante,
         defaults={
             "nome": "Mariana Lima",
             "email": "mariana@universidade.edu.br",
@@ -107,8 +107,8 @@ def popular_banco():
             "last_name": "Mendes"
         }
     )
-    Usuario.objects.get_or_create(
-        participante=user_aluno,
+    usuario_aluno, _ = Usuario.objects.get_or_create(
+        user_django=user_aluno,
         defaults={
             "nome": "Lucas Mendes",
             "email": "lucas@estudante.edu.br",
@@ -135,7 +135,7 @@ def popular_banco():
     evento, _ = Evento.objects.get_or_create(
         nome="Semana Acadêmica de Tecnologia 2026",
         defaults={
-            "administrador": user_admin,
+            "administrador": usuario_admin.id,
             "descricao": "Evento focado em tecnologia, inovação e desafios práticos.",
             "emailContato": "contato@semanaacademica.com",
             "local": "Campus Central - Bloco A",
@@ -183,12 +183,12 @@ def popular_banco():
     # 5. INSCRIÇÕES
     # -------------------------------------------------------------
     inscricao_palestrante, _ = Inscricao.objects.get_or_create(
-        usuario=user_palestrante,
+        usuario_id=usuario_palestrante.id,
         evento=evento
     )
 
     inscricao_aluno, _ = Inscricao.objects.get_or_create(
-        usuario=user_aluno,
+        usuario_id=usuario_aluno.id,
         evento=evento
     )
 

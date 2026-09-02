@@ -53,7 +53,7 @@ def cadastrar_usuario(request):
             usuario_perfil = form.save(commit=False)
             
             # 4. Vinculamos o User do Django ao campo 'participante'
-            usuario_perfil.participante = user
+            usuario_perfil.user_django = user
             
             # 5. Salva o perfil no banco de dados
             usuario_perfil.save()
