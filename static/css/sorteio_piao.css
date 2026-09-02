@@ -1,0 +1,158 @@
+/* Palette: Verde e Branco */
+:root {
+  --verde-principal: #0d5c3a;
+  --verde-escuro: #0a3a25;
+  --verde-destaque: #25c274;
+  --verde-claro: #e8f5e9;
+  --branco: #ffffff;
+}
+
+/* Container do Pião */
+.piao-card {
+  background: linear-gradient(135deg, var(--verde-escuro) 0%, var(--verde-principal) 100%);
+  border: 4px solid var(--verde-destaque) !important;
+  box-shadow: 0 10px 30px rgba(10, 58, 37, 0.3);
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Esteira Horizontal Expandida */
+.horizontal-wrapper {
+  position: relative;
+  width: 100%;
+  height: 180px; /* Altura aumentada para melhor visualização */
+  margin: 30px 0;
+  overflow: hidden;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Sombras graduais laterais */
+.horizontal-wrapper::before,
+.horizontal-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 120px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.horizontal-wrapper::before {
+  left: 0;
+  background: linear-gradient(to right, var(--verde-escuro), transparent);
+}
+
+.horizontal-wrapper::after {
+  right: 0;
+  background: linear-gradient(to left, var(--verde-escuro), transparent);
+}
+
+/* Indicador / Ponteiro Central */
+.ponteiro-central {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  background-color: var(--branco);
+  box-shadow: 0 0 12px var(--branco), 0 0 20px var(--verde-destaque);
+  z-index: 8;
+  pointer-events: none;
+}
+
+.ponteiro-seta-top,
+.ponteiro-seta-bottom {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--branco);
+  font-size: 2rem;
+  z-index: 9;
+  text-shadow: 0 0 10px var(--verde-destaque);
+  pointer-events: none;
+}
+
+.ponteiro-seta-top { top: -10px; }
+.ponteiro-seta-bottom { bottom: -10px; }
+
+/* Trilho Horizontal */
+.horizontal-track {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  will-change: transform;
+}
+
+/* Cards Individuais dos Participantes */
+.item-participante {
+  flex: 0 0 280px; /* Largura expandida */
+  height: 120px;    /* Altura expandida */
+  margin: 0 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  color: var(--branco);
+  font-weight: 800;
+  font-size: 1.75rem; /* Fonte maior para leitura de longe */
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  backdrop-filter: blur(4px);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+/* Card Vencedor */
+.item-participante.vencedor {
+  background: var(--branco);
+  color: var(--verde-escuro);
+  border-color: var(--verde-destaque);
+  transform: scale(1.1);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 15px var(--verde-destaque);
+  z-index: 6;
+  font-size: 2rem;
+}
+
+/* Estilos de Tela Cheia */
+.piao-container:fullscreen {
+  background-color: var(--verde-escuro);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  width: 100vw;
+  height: 100vh;
+}
+
+.piao-container:fullscreen .piao-card {
+  width: 90vw;
+  max-width: 1400px;
+}
+
+.piao-container:fullscreen .horizontal-wrapper {
+  height: 240px;
+}
+
+.piao-container:fullscreen .item-participante {
+  flex: 0 0 360px;
+  height: 160px;
+  font-size: 2.3rem;
+}
+
+.piao-container:fullscreen .item-participante.vencedor {
+  font-size: 2.7rem;
+}
