@@ -25,6 +25,7 @@ class tipoEvento(models.TextChoices):
     SEMANA = 'SemanaAcademica', 'Semana Acadêmica'
     ENCONTRO = 'Encontro', 'Encontro'
     CONGRESSO = 'Congresso', 'Congresso'
+    OUTRO = 'Outro', 'Outro'
 
 """Model da tabela Evento"""
 class Evento(models.Model):
