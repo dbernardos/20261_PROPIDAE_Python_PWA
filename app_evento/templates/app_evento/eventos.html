@@ -18,9 +18,9 @@
 
         {% if user.is_staff or user.is_superuser %}
           {% if not editando %}
-          <a href="{% url 'app_evento:urlcad_evento' %}" class="btn btn-primary-custom btn-lg shadow-sm">
-            <i class="bi bi-plus-lg me-1"></i> Cadastrar Novo Evento
-          </a>
+            <a href="{% url 'app_evento:urlcad_evento' %}" class="btn btn-primary-custom btn-lg shadow-sm">
+              <i class="bi bi-plus-lg me-1"></i> Cadastrar Novo Evento
+            </a>
           {% endif %}
         {% endif %}
       </div>
@@ -80,24 +80,25 @@
 
                   <!-- Botões de Ação na Parte Inferior -->
                   <div class="pt-3 border-top d-flex flex-wrap align-items-center justify-content-between gap-2">
-                      <div class="d-inline-flex gap-2 align-items-center">
-
-                        <a href="{% url 'app_evento:urlcad_atividade' item.id %}" class="btn btn-outline-success btn-sm">
-                          <i class="bi bi-plus-circle me-1"></i> Cadastrar Atividade
-                        </a>
-                      
-                        <a href="{% url 'app_evento:urldet_evento' item.id %}" class="btn btn-success btn-sm shadow-sm">
-                          <i class="bi bi-info-circle me-1"></i> Detalhes do Evento
-                        </a>
-                      </div>
+                    <div class="d-inline-flex gap-2 align-items-center">
+                      <a href="{% url 'app_evento:urldet_evento' item.id %}" class="btn btn-success btn-sm shadow-sm">
+                        <i class="bi bi-info-circle me-1"></i> Detalhes do Evento
+                      </a>
+                    </div>
 
                     {% if user.is_staff or user.is_superuser %}
                       <div class="d-inline-flex gap-2">
-                        <a href="{% url 'app_evento:urledt_evento' item.id %}" class="btn btn-warning btn-sm"><i class="bi bi-pencil me-1"></i> Editar</a>
-
+                        <a href="{% url 'app_evento:urlcad_atividade' item.id %}" class="btn btn-outline-success btn-sm">
+                          <i class="bi bi-plus-circle me-1"></i> Cadastrar Atividade
+                        </a>
+                        <a href="{% url 'app_evento:urledt_evento' item.id %}" class="btn btn-warning btn-sm">
+                          <i class="bi bi-pencil me-1"></i> Editar
+                        </a>
                         <form action="{% url 'app_evento:urldel_evento' item.id %}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir o evento {{ item.nome }}?');">
                           {% csrf_token %}
-                          <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-1"></i> Excluir</button>
+                          <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash me-1"></i> Excluir
+                          </button>
                         </form>
                       </div>
                     {% endif %}
