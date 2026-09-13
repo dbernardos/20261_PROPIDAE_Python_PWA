@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Credencial - {{ evento.nome }}{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'app_evento/css/cracha.css' %}" />
+{% endblock %}
+
+{% block content %}
+<section class="py-4">
+  <div class="container">
+    
+    <!-- Barra de Ações Superior (Oculta na Impressão) -->
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+      <a href="{% url 'app_evento:urldet_evento' evento.id %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Voltar ao Evento
+      </a>
+      <button onclick="window.print()" class="btn btn-success fw-bold shadow-sm">
+        <i class="bi bi-printer me-1"></i> Imprimir / Salvar PDF
+      </button>
+    </div>
+
+    <div class="row g-4 justify-content-center print-container">
+      
+      <!-- Credencial Estilo IFSC -->
+      <div class="col-md-5 d-flex justify-content-center">
+        <div class="badge-card">
+          
+          <!-- Cabeçalho IFSC -->
+          <div class="badge-header">
+            <div>
+              {% if static_logo_exists %}
+                <img src="{% static 'app_evento/img/logo_ifsc.png' %}" alt="IFSC" class="badge-logo" />
+              {% else %}
+                <span class="badge-logo-placeholder">IFSC</span>
+              {% endif %}
+            </div>
+            <div class="badge-header-text">
+              <div class="badge-header-inst">Instituto Federal</div>
+              <div class="badge-header-sub">Santa Catarina</div>
+            </div>
+          </div>
+
+          <!-- Tag de Função -->
+          <div class="badge-role-title">Participante</div>
+
+          <!-- Foto (Esquerda) e QR Code (Direita) -->
+          <div class="badge-media-grid">
+            {% if usuario.foto %}
+              <img src="{{ usuario.foto.url }}" alt="{{ usuario.nome }}" class="badge-avatar-circle" />
+            {% elif usuario.imagem %}
+              <img src="{{ usuario.imagem.url }}" alt="{{ usuario.nome }}" class="badge-avatar-circle" />
+            {% else %}
+              <div class="badge-avatar-placeholder" title="Sem foto">
+                <i class="bi bi-person-fill"></i>
+              </div>
+            {% endif %}
+
+            <div class="badge-qrcode-wrapper">
+              <div class="badge-qrcode-box">
+                {% if inscricao.qrCode %}
+                  <img src="{{ inscricao.qrCode.url }}" alt="QR Code" class="badge-qrcode-img" />
+                {% else %}
+                  <i class="bi bi-qr-code text-muted display-6"></i>
+                {% endif %}
+              </div>
+              <span class="badge-qrcode-label">Código de Acesso</span>
+              <span class="badge-qrcode-code">#{{ inscricao.cracha }}</span>
+            </div>
+          </div>
+
+          <!-- Nome do Participante -->
+          <div class="badge-name-section">
+            <h2 class="badge-user-name">
+              {% firstof usuario.nome usuario.user_django.get_full_name usuario.user_django.username %}
+            </h2>
+            <div class="badge-user-sub">
+              {{ usuario.user_django.email|default:usuario.email }}
+            </div>
+          </div>
+
+          <!-- Rodapé do Evento -->
+          <div class="badge-footer-info">
+            <div class="badge-footer-event-name">{{ evento.nome }}</div>
+            <div class="badge-footer-detail">
+              <strong>DATA:</strong> {{ evento.dataInicio|date:'d/m/Y' }} a {{ evento.dataFim|date:'d/m/Y' }}
+            </div>
+            <div class="badge-footer-detail">
+              <strong>LOCAL:</strong> {{ evento.local|default:'A definir' }}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Atividades Confirmadas (Oculto na Impressão) -->
+      <div class="col-md-7 no-print">
+        <div class="card card-custom shadow-sm border-0 p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold text-verde-escuro mb-0">
+              <i class="bi bi-journal-check me-2"></i>Atividades Confirmadas
+            </h4>
+            <span class="badge bg-success rounded-pill">{{ participacoes|length }}</span>
+          </div>
+
+          {% if participacoes %}
+            <div class="list-group list-group-flush">
+              {% for p in participacoes %}
+                <div class="list-group-item px-0 py-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h6 class="fw-bold mb-1 text-dark">{{ p.atividade.nome }}</h6>
+                      <small class="text-muted d-block mb-1">
+                        <i class="bi bi-clock text-verde-claro me-1"></i>{{ p.atividade.horaInicio|date:'d/m/Y H:i' }}
+                      </small>
+                      <small class="text-muted d-block">
+                        <i class="bi bi-geo-alt text-vermelho me-1"></i>{{ p.atividade.complementoLocal|default:'Sala / Local a definir' }}
+                      </small>
+                    </div>
+
+                    <form action="{% url 'app_evento:urlparticipar_atividade' p.atividade.id %}" method="POST" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Tem certeza que deseja cancelar a inscrição na atividade {{ p.atividade.nome }}?');">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-warning mb-0" role="alert">
+              <i class="bi bi-exclamation-triangle me-2"></i> Você não possui atividades ativas neste evento.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}

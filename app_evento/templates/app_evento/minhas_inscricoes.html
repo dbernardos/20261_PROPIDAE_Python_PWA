@@ -27,7 +27,7 @@
                         <!-- Topo do Card -->
                         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
                             <span class="badge bg-light text-primary fw-bold text-uppercase px-3 py-2">
-                                {{ item.evento.get_tipoEvento_display }}
+                                {{ item.evento.get_tipoEvento_display|default:item.evento.tipoEvento }}
                             </span>
                             <small class="text-white-50">
                                 <i class="bi bi-clock me-1"></i>Inscrito em {{ item.dataHora|date:"d/m/Y \à\s H:i" }}
@@ -85,7 +85,7 @@
                                                     <td class="fw-semibold">{{ participa.atividade.nome }}</td>
                                                     <td>
                                                         <span class="badge bg-secondary">
-                                                            {{ participa.atividade.get_tipoAtividade_display }}
+                                                            {{ participa.atividade.get_tipoAtividade_display|default:participa.atividade.tipoAtividade }}
                                                         </span>
                                                     </td>
                                                     <td>
@@ -97,7 +97,7 @@
                                                     </td>
                                                     <td class="text-center">
                                                         <span class="badge {% if participa.funcao == 'Palestrante' %}bg-success{% elif participa.funcao == 'Organizador' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} px-2 py-1">
-                                                            {{ participa.get_funcao_display }}
+                                                            {{ participa.get_funcao_display|default:participa.funcao }}
                                                         </span>
                                                     </td>
                                                 </tr>
@@ -116,7 +116,7 @@
                         <div class="card-footer bg-light p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
                             <div>
                                 <small class="text-muted">Código do Crachá:</small>
-                                <span class="font-monospace fw-bold text-dark ms-1">{{ item.cracha }}</span>
+                                <span class="font-monospace fw-bold text-dark ms-1">{{ item.cracha|default:"---" }}</span>
                             </div>
                             
                             <div class="d-flex gap-2">
@@ -152,7 +152,7 @@
                                 
                                 <div class="p-3 bg-light rounded border d-inline-block mb-3 shadow-sm w-100" style="max-width: 280px;">
                                     <p class="small text-muted text-uppercase mb-1 fw-bold">Código de Acesso</p>
-                                    <p class="font-monospace fw-bold text-primary mb-0 fs-4">{{ item.cracha }}</p>
+                                    <p class="font-monospace fw-bold text-primary mb-0 fs-4">{{ item.cracha|default:"---" }}</p>
                                 </div>
                                 
                                 <p class="small text-muted mb-0">Apresente este código ou crachá na recepção do evento.</p>
@@ -185,7 +185,6 @@
     {% endif %}
 </div>
 
-<!-- Estilo de Impressão (Imprime apenas o crachá quando acionado) -->
 <style>
 @media print {
     body * {

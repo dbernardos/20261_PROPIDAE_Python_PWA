@@ -1,0 +1,226 @@
+/* ==========================================================================
+   Credencial Oficial IFSC (Modelo SCT / Eventos)
+   ========================================================================== */
+
+.badge-card {
+  background: #ffffff;
+  border: 2px solid #0f5132;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  width: 340px;
+  margin: 0 auto;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  background-color: #ffffff;
+}
+
+/* 1. Cabeçalho Verde IFSC */
+.badge-header {
+  background-color: #0f5132 !important;
+  color: #ffffff !important;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+
+.badge-logo {
+  max-height: 38px;
+  max-width: 80px;
+  object-fit: contain;
+}
+
+.badge-logo-placeholder {
+  font-weight: 800;
+  font-size: 1rem;
+  color: #ffffff;
+  border: 1.5px solid #ffffff;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+.badge-header-text {
+  flex: 1;
+}
+
+.badge-header-inst {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+.badge-header-sub {
+  font-size: 0.6rem;
+  opacity: 0.9;
+  color: #ffffff;
+}
+
+/* 2. Tag de Função (PALESTRANTE / PARTICIPANTE) */
+.badge-role-title {
+  color: #0f5132;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 14px;
+  margin-bottom: 10px;
+}
+
+/* 3. Seção Mídia: Foto Circular (Esquerda) + QR Code (Direita) */
+.badge-media-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 0 16px 12px 16px;
+}
+
+.badge-avatar-circle {
+  width: 105px;
+  height: 105px;
+  border-radius: 50%;
+  border: 3px solid #198754;
+  object-fit: cover;
+  background-color: #e9ecef;
+}
+
+.badge-avatar-placeholder {
+  width: 105px;
+  height: 105px;
+  border-radius: 50%;
+  border: 3px solid #198754;
+  background-color: #e9ecef;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+}
+
+.badge-qrcode-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.badge-qrcode-box {
+  width: 100px;
+  height: 100px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  padding: 4px;
+  background-color: #ffffff;
+}
+
+.badge-qrcode-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.badge-qrcode-label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #495057;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.badge-qrcode-code {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #000000;
+  font-family: monospace;
+}
+
+/* 4. Nome em Destaque Verde */
+.badge-name-section {
+  padding: 4px 14px;
+}
+
+.badge-user-name {
+  color: #0f5132;
+  font-size: 1.35rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1.15;
+  margin-bottom: 2px;
+}
+
+.badge-user-sub {
+  font-size: 0.725rem;
+  color: #495057;
+  margin-bottom: 10px;
+}
+
+/* 5. Rodapé Informativo do Evento */
+.badge-footer-info {
+  border-top: 1px solid #dee2e6;
+  padding: 10px 14px 14px 14px;
+  font-size: 0.7rem;
+  color: #212529;
+}
+
+.badge-footer-event-name {
+  color: #0f5132;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.badge-footer-detail {
+  font-size: 0.675rem;
+  line-height: 1.3;
+}
+
+/* ==========================================================================
+   Forçar Impressão de Cores e Ocultar Elementos Indesejados no PDF
+   ========================================================================== */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Oculta Navbar, Footer do site, botões e lista de atividades */
+  nav, footer, header, .navbar, .no-print, .no-print * {
+    display: none !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Centraliza unicamente o crachá na folha de impressão */
+  .badge-card {
+    box-shadow: none !important;
+    border: 2px solid #0f5132 !important;
+    margin: 40px auto !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  @page {
+    size: portrait;
+    margin: 10mm;
+  }
+}

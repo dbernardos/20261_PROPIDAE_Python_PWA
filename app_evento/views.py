@@ -8,28 +8,29 @@ import json
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.middleware.csrf import rotate_token
 
-from .models import Evento, Atividade, Inscricao, Apoiador
+from .models import Evento, Atividade, Inscricao, Apoiador, Participa, StatusParticipa
 from app_login.models import Usuario
 from .form import EventoForm, AtividadeForm
 
-# create your EVENTO views here.
+
+# -----------------------------------------------
+# VIEWS GERAIS E EVENTOS
 # -----------------------------------------------
 @never_cache
 @ensure_csrf_cookie
 def home(request):
     return render(request, 'app_evento/home.html')
 
+
 @never_cache
 @login_required
 def cadastrar_evento(request):
     """View para cadastro de evento para o adm logado"""
-
     try:
         usuario_perfil = Usuario.objects.get(user_django=request.user)
     except Usuario.DoesNotExist:
-        # Opção A: Redirecionar para preencher o perfil (Mais recomendado)
         messages.warning(request, 'Você precisa completar seu perfil de Usuário antes de criar um evento.')
-        return redirect('app_login:urlcad_usuario') # Ajuste para a sua URL de cadastro/perfil
+        return redirect('app_login:urlcad_usuario')
     
     if request.method == 'POST':
         form = EventoForm(request.POST, request.FILES)
@@ -39,7 +40,6 @@ def cadastrar_evento(request):
             evento.administrador = usuario_perfil
             evento.save()
             
-            # processamento do campo de apoiadores (separado por vírgulas)
             nomes_apoiadores = form.cleaned_data.get('apoiadores')
             if nomes_apoiadores:
                 objetos_apoiadores = []
@@ -55,6 +55,7 @@ def cadastrar_evento(request):
         form = EventoForm()
 
     return render(request, 'app_evento/cadastrar_evento.html', {'form_evento': form})
+
 
 @never_cache
 @login_required
@@ -85,6 +86,7 @@ def editar_evento(request, evento_id):
         'editando': True
     })
 
+
 @never_cache
 @login_required
 def excluir_evento(request, evento_id):
@@ -97,18 +99,43 @@ def excluir_evento(request, evento_id):
 
 
 @never_cache
-@login_required
 def detalhes_evento(request, evento_id):
-    """Exibe os detalhes de um evento e a lista de suas atividades cadastradas"""
+    """Exibe os detalhes de um evento e indica em quais atividades o usuário está inscrito"""
     evento = get_object_or_404(Evento, id=evento_id)
     atividades = Atividade.objects.filter(evento=evento)
+
+    atividades_inscritas_ids = []
+    
+    if request.user.is_authenticated:
+        usuario_perfil = getattr(request.user, 'user_django', None)
+        if usuario_perfil:
+            atividades_inscritas_ids = Participa.objects.filter(
+                inscricao__usuario=usuario_perfil,
+                atividade__evento=evento
+            ).values_list('atividade_id', flat=True)
 
     context = {
         'evento': evento,
         'atividades': atividades,
+        'atividades_inscritas_ids': list(atividades_inscritas_ids),
     }
     return render(request, 'app_evento/detalhes_evento.html', context)
 
+
+def eventos_disponiveis(request):
+    eventos = Evento.objects.all()
+    form = EventoForm()
+    
+    context = {
+        'eventos': eventos,
+        'form_evento': form,
+    }
+    return render(request, 'app_evento/eventos.html', context)
+
+
+# -----------------------------------------------
+# VIEWS DE ATIVIDADES E INSCRIÇÕES
+# -----------------------------------------------
 @never_cache
 @login_required
 def cadastrar_atividade(request, evento_id):
@@ -132,19 +159,85 @@ def cadastrar_atividade(request, evento_id):
 
     return render(request, 'app_evento/cadastrar_atividade.html', context)
 
+
 def editar_atividade(request, atividade_id):
     atividade = get_object_or_404(Atividade, pk=atividade_id)
     return render(request, 'app_evento/form_atividade.html', {'atividade': atividade})
+
 
 def excluir_atividade(request, atividade_id):
     atividade = get_object_or_404(Atividade, pk=atividade_id)
     evento_id = atividade.evento.id 
     if request.method == 'POST':
         atividade.delete()
-        return redirect('app_evento:urldetalhes_evento', evento_id=evento_id)
-    return redirect('app_evento:urldetalhes_evento', evento_id=evento_id)
+        return redirect('app_evento:urldet_evento', evento_id=evento_id)
+    return redirect('app_evento:urldet_evento', evento_id=evento_id)
 
 
+@never_cache
+@login_required
+def alternar_participacao_atividade(request, atividade_id):
+    """Inscreve ou cancela a inscrição do usuário na atividade informada"""
+    atividade = get_object_or_404(Atividade, id=atividade_id)
+    evento = atividade.evento
+
+    try:
+        usuario_perfil = Usuario.objects.get(user_django=request.user)
+    except Usuario.DoesNotExist:
+        messages.warning(request, 'Você precisa completar seu perfil antes de se inscrever em atividades.')
+        return redirect('app_login:urlcad_usuario')
+
+    # 1. Garante a existência da Inscrição no evento
+    inscricao, _ = Inscricao.objects.get_or_create(
+        usuario=usuario_perfil,
+        evento=evento
+    )
+
+    # 2. Verifica se a participação já existe nesta atividade
+    participacao = Participa.objects.filter(inscricao=inscricao, atividade=atividade).first()
+
+    if participacao:
+        participacao.delete()
+        messages.warning(request, f'Você se desinscreveu da atividade "{atividade.nome}".')
+        return redirect('app_evento:urldet_evento', evento_id=evento.id)
+
+    # 3. Controle de limite de vagas
+    if atividade.limitePessoas:
+        total_inscritos = Participa.objects.filter(atividade=atividade).count()
+        if total_inscritos >= atividade.limitePessoas:
+            messages.error(request, f'A atividade "{atividade.nome}" está com as vagas esgotadas.')
+            return redirect('app_evento:urldet_evento', evento_id=evento.id)
+
+    # 4. Cria a participação
+    Participa.objects.create(
+        inscricao=inscricao,
+        atividade=atividade,
+        funcao=StatusParticipa.PARTICIPANTE
+    )
+    messages.success(request, f'Inscrição confirmada na atividade "{atividade.nome}"!')
+
+    return redirect('app_evento:urlcomprovante_inscricao', evento_id=evento.id)
+
+
+@login_required
+def minhas_inscricoes(request):
+    """Exibe todas as inscrições do usuário logado"""
+    try:
+        usuario = Usuario.objects.get(user_django=request.user)
+    except Usuario.DoesNotExist:
+        messages.warning(request, 'Você precisa completar seu perfil para visualizar suas inscrições.')
+        return redirect('app_login:urlcad_usuario')
+
+    inscricoes = Inscricao.objects.filter(usuario=usuario).select_related('evento').prefetch_related('participa_set__atividade')
+
+    return render(request, 'app_evento/minhas_inscricoes.html', {
+        'inscricoes': inscricoes
+    })
+
+
+# -----------------------------------------------
+# OUTRAS VIEWS
+# -----------------------------------------------
 @never_cache
 def dados(request):
     template = 'app_evento/dados.html'
@@ -156,34 +249,6 @@ def dados(request):
     }
     return render(request, template, contexto)
 
-@never_cache
-@login_required
-def minhas_inscricoes(request):
-    # Obtém a instância de Usuario vinculada ao User logado
-    usuario_logado = getattr(request.user, 'user_django', None)
-
-    if usuario_logado:
-        inscricoes = (
-            Inscricao.objects.filter(usuario=usuario_logado)
-            .select_related('evento')
-            .order_by('-dataHora')
-        )
-    else:
-        inscricoes = Inscricao.objects.none()
-
-    return render(
-        request, 'app_evento/minhas_inscricoes.html', {'inscricoes': inscricoes}
-    )
-
-def eventos_disponiveis(request):
-    eventos = Evento.objects.all()
-    form = EventoForm()
-    
-    context = {
-        'eventos': eventos,
-        'form_evento': form,
-    }
-    return render(request, 'app_evento/eventos.html', context)
 
 @never_cache
 @login_required
@@ -219,3 +284,26 @@ def sorteio(request):
     }
 
     return render(request, 'app_evento/sorteio.html', context)
+
+
+@never_cache
+@login_required
+def comprovante_inscricao(request, evento_id):
+    """Exibe o comprovante e o crachá do participante no evento"""
+    try:
+        usuario_perfil = Usuario.objects.get(user_django=request.user)
+    except Usuario.DoesNotExist:
+        messages.warning(request, 'Você precisa completar seu perfil de usuário.')
+        return redirect('app_login:urlcad_usuario')
+
+    evento = get_object_or_404(Evento, id=evento_id)
+    inscricao = get_object_or_404(Inscricao, usuario=usuario_perfil, evento=evento)
+    participacoes = Participa.objects.filter(inscricao=inscricao).select_related('atividade')
+
+    context = {
+        'evento': evento,
+        'inscricao': inscricao,
+        'participacoes': participacoes,
+        'usuario': usuario_perfil,
+    }
+    return render(request, 'app_evento/inscricao.html', context)

@@ -24,7 +24,9 @@ urlpatterns = [
     path('sorteio/', views.sorteio, name='urlsorteio'),
 
     path('dados/', views.dados, name='urldados'),
-    path('minhas_inscricoes/', views.minhas_inscricoes, name='urlminhas_inscricoes')
+    path('minhas_inscricoes/', views.minhas_inscricoes, name='urlminhas_inscricoes'),
+    path('atividade/<int:atividade_id>/participar/', views.alternar_participacao_atividade, name='urlparticipar_atividade'),
+    path('evento/<int:evento_id>/comprovante/', views.comprovante_inscricao, name='urlcomprovante_inscricao'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
