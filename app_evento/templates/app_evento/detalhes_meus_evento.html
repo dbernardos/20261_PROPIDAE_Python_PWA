@@ -11,15 +11,14 @@
       
       <!-- Navegação Superior -->
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-secondary">
+        <a href="{% url 'app_evento:urldis_myevento' %}" class="btn btn-secondary">
           <i class="bi bi-arrow-left me-1"></i> Voltar para Eventos
         </a>
 
         <div class="d-flex gap-2">
-          <!-- Botão para Acessar o Crachá/Comprovante -->
-          {% if user.is_authenticated and atividades_inscritas_ids %}
-            <a href="{% url 'app_evento:urlcomprovante_inscricao' evento.id %}" class="btn btn-outline-success shadow-sm fw-bold">
-              <i class="bi bi-person-badge me-1"></i> Ver Meu Crachá / Comprovante
+          {% if user.is_staff or user.is_superuser %}
+            <a href="{% url 'app_evento:urlcad_atividade' evento.id %}" class="btn btn-primary shadow-sm">
+              <i class="bi bi-plus-lg me-1"></i> Nova Atividade
             </a>
           {% endif %}
         </div>
@@ -78,37 +77,24 @@
 
                     <!-- Botões da Atividade (Inscrição, Scanner e Ações Admin) -->
                     <div class="d-flex flex-wrap gap-2 align-items-center">
-                      
-                      <!-- Botão Dinâmico de Inscrição -->
-                      {% if user.is_authenticated %}
-                        {% if atividade.id in atividades_inscritas_ids %}
-                          <form action="{% url 'app_evento:urlparticipar_atividade' atividade.id %}" method="POST" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-danger btn-sm">
-                              <i class="bi bi-dash-circle me-1"></i> Cancelar Inscrição
-                            </button>
-                          </form>
-                        {% else %}
-                          {% if atividade.limitePessoas and atividade.participa_set.count >= atividade.limitePessoas %}
-                            <button type="button" class="btn btn-secondary btn-sm" disabled>
-                              <i class="bi bi-slash-circle me-1"></i> Vagas Esgotadas
-                            </button>
-                          {% else %}
-                            <form action="{% url 'app_evento:urlparticipar_atividade' atividade.id %}" method="POST" class="d-inline">
-                              {% csrf_token %}
-                              <button type="submit" class="btn btn-success btn-sm fw-bold">
-                                <i class="bi bi-check-circle me-1"></i> Inscrever-se
-                              </button>
-                            </form>
-                          {% endif %}
-                        {% endif %}
-                      {% else %}
-                        <a href="{% url 'app_login:urllogin' %}?next={{ request.path }}" class="btn btn-outline-primary btn-sm">
-                          <i class="bi bi-box-arrow-in-right me-1"></i> Entrar para Inscrever-se
-                        </a>
-                      {% endif %}
 
+                      <a href="{% url 'app_quiz:urlleitor_qrcode' %}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-qr-code-scan me-1"></i> QR Code
+                      </a>
                       
+                      
+                      <a href="{% url 'app_evento:urlsorteio' %}" class="btn btn-warning btn-sm shadow-sm">
+                        <i class="bi bi-gift me-1"></i> Sorteio
+                      </a>
+                        
+                      <a href="{% url 'app_evento:urleditar_atividade' atividade.id %}" class="btn btn-primary btn-sm" title="Editar Atividade">
+                        <i class="bi bi-pencil me-1"></i> Editar
+                      </a>
+
+                      <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalExcluirAtividade{{ atividade.id }}" title="Excluir Atividade">
+                        <i class="bi bi-trash me-1"></i> Excluir
+                      </button>
+                     
                     </div>
                   </div>
 
@@ -172,28 +158,28 @@
             </div>
 
             <!-- Modal Excluir Atividade -->
-            {% if user.is_staff or user.is_superuser %}
-              <div class="modal fade" id="modalExcluirAtividade{{ atividade.id }}" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                  <div class="modal-content border-0 shadow">
-                    <div class="modal-header bg-danger text-white">
-                      <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão</h5>
-                      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body text-start">
-                      Tem certeza que deseja excluir a atividade <strong>{{ atividade.nome }}</strong>? Esta ação não poderá ser desfeita.
-                    </div>
-                    <div class="modal-footer bg-light">
-                      <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                      <form method="POST" action="{% url 'app_evento:urlexcluir_atividade' atividade.id %}" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm fw-bold">Excluir Atividade</button>
-                      </form>
-                    </div>
+            
+            <div class="modal fade" id="modalExcluirAtividade{{ atividade.id }}" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                  <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body text-start">
+                    Tem certeza que deseja excluir a atividade <strong>{{ atividade.nome }}</strong>? Esta ação não poderá ser desfeita.
+                  </div>
+                  <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <form method="POST" action="{% url 'app_evento:urlexcluir_atividade' atividade.id %}" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-danger btn-sm fw-bold">Excluir Atividade</button>
+                    </form>
                   </div>
                 </div>
               </div>
-            {% endif %}
+            </div>
+            
           {% endfor %}
         </div>
       {% else %}

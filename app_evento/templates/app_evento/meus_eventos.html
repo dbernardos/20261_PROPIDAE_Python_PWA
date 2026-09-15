@@ -3,7 +3,7 @@
 {% load bootstrap5 %}
 
 {% block title %}
-  Catálogo de Eventos - XXIX Colóquio de Usinagem
+  Catálogo de Meus Eventos - XXIX Colóquio de Usinagem
 {% endblock %}
 
 {% block content %}
@@ -12,14 +12,14 @@
       <!-- Cabeçalho Principal -->
       <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
-          <h2 class="display-6 fw-bold text-verde-escuro mb-1">Catálogo de <span class="text-verde-claro">Eventos</span></h2>
-          <p class="text-muted mb-0">Confira os eventos e veja as programações para poder se inscrever.</p>
+          <h2 class="display-6 fw-bold text-verde-escuro mb-1">Catálogo de <span class="text-verde-claro">Meus Eventos</span></h2>
+          <p class="text-muted mb-0">Confira os eventos cadastrados ou gerencie as informações da programação.</p>
         </div>
 
         {% if user.is_staff or user.is_superuser %}
           {% if not editando %}
-            <a href="{% url 'app_evento:urldis_myevento' %}" class="btn btn-primary-custom btn-lg shadow-sm">
-              <i class="bi bi-plus-lg me-1"></i> Ir para Meus Eventos
+            <a href="{% url 'app_evento:urlcad_evento' %}" class="btn btn-primary-custom btn-lg shadow-sm">
+              <i class="bi bi-plus-lg me-1"></i> Cadastrar Novo Evento
             </a>
           {% endif %}
         {% endif %}
@@ -81,11 +81,24 @@
                   <!-- Botões de Ação na Parte Inferior -->
                   <div class="pt-3 border-top d-flex flex-wrap align-items-center justify-content-between gap-2">
                     <div class="d-inline-flex gap-2 align-items-center">
-                      <a href="{% url 'app_evento:urldet_evento' item.id %}" class="btn btn-success btn-sm shadow-sm">
+                      <a href="{% url 'app_evento:urldet_myevento' item.id %}" class="btn btn-success btn-sm shadow-sm">
                         <i class="bi bi-info-circle me-1"></i> Detalhes do Evento
                       </a>
                     </div>
 
+                    {% if user.is_staff or user.is_superuser %}
+                      <div class="d-inline-flex gap-2">
+                        <a href="{% url 'app_evento:urledt_evento' item.id %}" class="btn btn-warning btn-sm">
+                          <i class="bi bi-pencil me-1"></i> Editar
+                        </a>
+                        <form action="{% url 'app_evento:urldel_evento' item.id %}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir o evento {{ item.nome }}?');">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash me-1"></i> Excluir
+                          </button>
+                        </form>
+                      </div>
+                    {% endif %}
                   </div>
                 </div>
               </div>

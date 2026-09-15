@@ -124,6 +124,14 @@ def detalhes_evento(request, evento_id):
 
 def eventos_disponiveis(request):
     eventos = Evento.objects.all()
+    
+    if request.user.is_authenticated:
+        try:
+            usuario_perfil = Usuario.objects.get(user_django=request.user)
+            eventos = eventos.exclude(administrador=usuario_perfil)
+        except Usuario.DoesNotExist:
+            pass
+        
     form = EventoForm()
     
     context = {
@@ -132,6 +140,46 @@ def eventos_disponiveis(request):
     }
     return render(request, 'app_evento/eventos.html', context)
 
+@never_cache
+@login_required
+def detalhes_meus_evento(request, evento_id):
+    """Exibe os detalhes de um evento e indica em quais atividades o usuário está inscrito"""
+    
+    try:
+        usuario_perfil = Usuario.objects.get(user_django=request.user)
+    except Usuario.DoesNotExist:
+        raise PermissionDenied("Você precisa completar seu perfil de usuário para acessar esta página.")
+    
+    evento = get_object_or_404(Evento, id=evento_id, administrador=usuario_perfil)
+    atividades = Atividade.objects.filter(evento=evento)
+
+    #atividades_inscritas_ids = []
+    
+    total_inscritos = Participa.objects.filter(atividade__evento=evento).count()
+
+    context = {
+        'evento': evento,
+        'atividades': atividades,
+        'total_inscritos': total_inscritos,
+        #'atividades_inscritas_ids': list(atividades_inscritas_ids),
+    }
+    return render(request, 'app_evento/detalhes_meus_evento.html', context)
+
+@login_required
+@never_cache
+def meus_eventos_disponiveis(request):
+    try:
+        usuario_perfil = Usuario.objects.get(user_django=request.user)
+        
+        eventos_do_usuario = Evento.objects.filter(administrador=usuario_perfil)
+        
+    except Evento.DoesNotExist:
+        eventos_do_usuario = []
+    
+    context = {
+        'eventos': eventos_do_usuario,
+    }
+    return render(request, 'app_evento/meus_eventos.html', context)
 
 # -----------------------------------------------
 # VIEWS DE ATIVIDADES E INSCRIÇÕES
