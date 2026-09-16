@@ -118,7 +118,12 @@
                                 <small class="text-muted">Código do Crachá:</small>
                                 <span class="font-monospace fw-bold text-dark ms-1">{{ item.cracha|default:"---" }}</span>
                             </div>
-                            
+                            <div class="qrcode-container">
+                                <h3> Seu QR Code de Inscrição:</h3>
+                                <img src="{{ item.qrcode_imagem.url }}" alt="QR Code da Inscrição {{inscricao.cracha }}" class="img-fluid rounded shadow-sm" style="max-width: 120px;">
+                                <p>Código: <strong>{{ item.cracha}}</strong></p>
+
+
                             <div class="d-flex gap-2">
                                 <a href="{% url 'app_evento:urldet_evento' item.evento.id %}" class="btn btn-outline-secondary btn-sm">
                                     <i class="bi bi-eye me-1"></i> Detalhes

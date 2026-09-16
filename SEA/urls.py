@@ -33,6 +33,9 @@ urlpatterns = [
 
 # Força o Django a servir arquivos estáticos e de mídia quando DEBUG = False
 if not settings.DEBUG:
+    
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    
     urlpatterns += [
         # Rota para os arquivos de mídia (Uploads, foto de perfil)
         re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),

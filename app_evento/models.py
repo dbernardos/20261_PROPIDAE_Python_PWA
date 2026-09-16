@@ -1,3 +1,7 @@
+import qrcode
+from io import BytesIO
+from django.core.files.base import ContentFile
+
 from django.db import models
 from django.utils import timezone
 from nanoid import generate
@@ -5,6 +9,7 @@ from django.contrib.auth.models import User
 from smart_selects.db_fields import ChainedForeignKey #Para encadeamento de campos
 from django.core.exceptions import ValidationError # ValidationError para validação de campos no backend
 from django.conf import settings
+
 
 # Create your EVENTO models here.
 # -----------------------------------------------
@@ -66,7 +71,30 @@ class Inscricao(models.Model):
 
     dataHora = models.DateTimeField(auto_now_add=True)
     cracha = models.CharField(max_length=7, unique=True, default=gerar_codigo_cracha)
+    qrcode_imagem = models.ImageField(upload_to='qrcodes/', blank=True, null=True)  
     
+    def save(self, *args, **kwargs):
+        if not self.qrcode_imagem and self.cracha:
+            
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=10,    
+                border=4,
+            )
+            
+            qr.add_data(self.cracha)
+            qr.make(fit=True)
+            
+            img = qr.make_image(fill_color="black", back_color="white")
+            buffer = BytesIO()
+            img.save(buffer, format='PNG')
+            buffer.seek(0)
+            
+            nome_arquivo = f'qrcode_{self.cracha}.png'
+            self.qrcode_imagem.save(nome_arquivo, ContentFile(buffer.read()), save=False)
+
+        super().save(*args, **kwargs)
     class Meta:
         verbose_name = "Inscrição"
         verbose_name_plural = "Inscrições"
