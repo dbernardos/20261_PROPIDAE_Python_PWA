@@ -19,3 +19,6 @@ db.sqlite3
 staticfiles/
 static_collected/
 static_root/
+
+media/
+

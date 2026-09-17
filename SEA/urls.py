@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.conf import settings
 
 from django.views.static import serve
+from django.conf.urls.static import static
 
 def service_worker(request):
         response = HttpResponse(open('service-worker.js').read(), content_type="application/javascript")
@@ -32,10 +33,11 @@ urlpatterns = [
 ]
 
 # Força o Django a servir arquivos estáticos e de mídia quando DEBUG = False
-if not settings.DEBUG:
+if settings.DEBUG:
     
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     
+else:
     urlpatterns += [
         # Rota para os arquivos de mídia (Uploads, foto de perfil)
         re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
