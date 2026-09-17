@@ -121,7 +121,7 @@
                             
                             <div class="qrcode-container">
                                 <p>QR Code de Inscrição:</p>
-                                <img src="{{ item.qrcode_imagem.url }}" alt="QR Code da Inscrição {{inscricao.cracha }}" class="img-fluid rounded shadow-sm" style="max-width: 120px;">
+                                <img src="{{ item.qrcode_imagem.url }}" alt="QR Code da Inscrição {{inscricao.cracha }}" class="img-fluid rounded shadow-sm" style="max-width: 220px;">
                             </div>    
 
                             <div class="d-flex gap-2">
@@ -158,6 +158,7 @@
                                 <div class="p-3 bg-light rounded border d-inline-block mb-3 shadow-sm w-100" style="max-width: 280px;">
                                     <p class="small text-muted text-uppercase mb-1 fw-bold">Código de Acesso</p>
                                     <p class="font-monospace fw-bold text-primary mb-0 fs-4">{{ item.cracha|default:"---" }}</p>
+                                      <img src="{{ item.qrcode_imagem.url }}" alt="QR Code da Inscrição {{inscricao.cracha }}" class="img-fluid rounded shadow-sm" style="max-width: 220px;">
                                 </div>
                                 
                                 <p class="small text-muted mb-0">Apresente este código ou crachá na recepção do evento.</p>
