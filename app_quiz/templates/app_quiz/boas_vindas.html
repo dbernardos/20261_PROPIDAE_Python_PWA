@@ -23,7 +23,7 @@
                   Olá, {{ participante.nome|default:'Participante' }}!
                 </h1>
                 <p class="lead mb-0">
-                  <i class="bi bi-card-list me-2"></i>Crachá: {{ participante.cracha }}<br />
+                  <i class="bi bi-card-list me-2"></i>Crachá: {{ cracha }}<br />
                   <i class="bi bi-calendar-check me-2"></i>Bem-vindo ao XXIX Colóquio de Usinagem
                 </p>
               </div>
@@ -116,7 +116,7 @@
               </div>
             </div>
             <div class="card-footer bg-white border-0">
-              <a href="{% url 'app_quiz:urlquiz_detail' participante.cracha item.quiz.numero %}" class="btn btn-primary-custom w-100">
+              <a href="{% url 'app_quiz:urlquiz_detail' cracha item.quiz.numero %}" class="btn btn-primary-custom w-100">
                 {% if item.completo %}
                   <i class="bi bi-eye me-2"></i>Ver Resposta
                 {% elif item.tentativas > 0 %}

@@ -14,7 +14,9 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import get_user_model
 from .models import Quiz, Resposta, calcular_progresso_geral
 from .form import RespostaQuizForm
-from app_evento.models import Inscricao 
+from app_evento.models import Inscricao, Participa, Atividade 
+
+from django.contrib.auth import get_user_model
 
 # Nosso "banco de dados" simulado
 # -----------------------------------------------
@@ -43,14 +45,15 @@ def boas_vindas(request, cracha):
     progresso_quizzes = []
     for quiz in quizzes:
         resposta = Resposta.objects.filter(
-            participante=participante, 
-            quiz=quiz
+            participa__inscricao=inscricao, 
+            quiz=quiz,
+            #completo=True
         ).first()
         
         progresso_quizzes.append({
             'quiz': quiz,
             'resposta': resposta,
-            #'completo': resposta.completo if resposta else False,
+            'completo': resposta.completo if resposta else False,
             #'tentativas': resposta.tentativas if resposta else 0
         })
     
@@ -58,6 +61,7 @@ def boas_vindas(request, cracha):
     progresso_geral = calcular_progresso_geral(participante)
     
     context = {
+        'cracha': cracha,
         'participante': participante,
         'inscricao': inscricao,
         'progresso_quizzes': progresso_quizzes,
@@ -79,27 +83,110 @@ def leitor_qrcode(request):
 
 def quiz_detail(request, cracha, quiz_numero):
     """Página detalhada do quiz"""
-    Usuario = get_user_model()
-    participante = get_object_or_404(Usuario, username=cracha)
-    #participante = get_object_or_404(Usuario, username=cracha)
-    #participante = get_object_or_404(Participante, cracha=cracha)
+    # 1. Busca a inscrição pelo crachá e obtém o usuário associado
+    inscricao = get_object_or_404(Inscricao, cracha=cracha)
+    participante = inscricao.usuario 
     quiz = get_object_or_404(Quiz, numero=quiz_numero, ativo=True)
     
-    # Obtém ou cria resposta
-    resposta, created = Resposta.objects.get_or_create(
-        participante=participante,
-        quiz=quiz
-    )
+    # 2. Obtém a relação Participa
+    #participa_obj = getattr(inscricao, 'participa', None) or getattr(participante, 'participa', None)
+    participa_obj = Participa.objects.filter(inscricao=inscricao).first()
     
+  
+        
+    if not participa_obj:
+        atividade = Atividade.objects.filter(evento=inscricao.evento).first()
+        if not atividade:
+            atividade = Atividade.objects.create(
+            evento=inscricao.evento,
+            nome="Quiz/Desafio",
+            descricao="Atividade gerada para vincular ao Quiz"
+            )
+            
+        participa_obj = Participa.objects.create(
+            inscricao=inscricao,
+            atividade=atividade,
+            
+        )
+            
+    resposta, created = Resposta.objects.get_or_create(
+        participa=participa_obj,
+        quiz=quiz,
+    )
+            
+    # 3. Processa o formulário de resposta
     if request.method == 'POST':
         form = RespostaQuizForm(request.POST, instance=resposta)
         if form.is_valid():
+            resposta = form.save(commit=False)
+            
+            if hasattr(resposta, 'tentativas'):
+                resposta.tentativas += 1
+                
+            if hasattr(resposta, 'verificar_resposta'):
+                resposta.verificar_resposta()
+            else:
+                resposta.correto = (quiz.valor_minimo <= resposta.valor_resposta <= quiz.valor_maximo)
+            resposta.save()
+            
+            if getattr(resposta, 'correto', False):
+                messages.success(request, 'Parabéns! Sua resposta está correta!')
+            else:
+                messages.warning(request, 'Resposta incorreta. Tente novamente!')
+            
+            return redirect('app_quiz:urlquiz_detail', cracha=cracha, quiz_numero=quiz_numero)
+             
+    else:
+        form = RespostaQuizForm(instance=resposta)
+    
+    context = {
+        'cracha': cracha,
+        'participante': participante,
+        'inscricao': inscricao,
+        'quiz': quiz,
+        'resposta': resposta,
+        'form': form,
+        'progresso_geral': calcular_progresso_geral(participante)
+    }
+    
+    return render(request, 'app_quiz/quiz_detail.html', context)
+
+def reset_quiz(request, cracha, quiz_numero):
+    """Permite resetar um quiz para tentar novamente"""
+    #Usuario = get_user_model()
+    #participante = get_object_or_404(Usuario, username=cracha)
+    #participante = get_object_or_404(Participante, cracha=cracha)
+    inscricao = get_object_or_404(Inscricao, cracha=cracha)
+    participante = inscricao.usuario
+    
+    quiz = get_object_or_404(Quiz, numero=quiz_numero)
+    
+    resposta = Resposta.objects.filter(
+        participa__inscricao=inscricao,
+        quiz=quiz,
+       #completo=True
+    ).first()
+    
+    if resposta:
+        resposta.delete()
+        messages.info(request, 'Quiz reiniciado. Boa sorte!')
+    
+    return redirect('app_quiz:urlquiz_detail', cracha=cracha, quiz_numero=quiz_numero)
+
+
+#@csrf_exempt
+'''def identificar_funcionario(request):
+    
+    print(f"DEBUG - Método recebido: {request.method}")
+    print(f"DEBUG - Headers: {request.headers}")
+    print(f"DEBUG - Body: {request.body}")
+
             resposta = form.save(commit=False)
             resposta.tentativas += 1
             resposta.verificar_resposta()
             resposta.save()
             
-            if resposta.correto:
+            if resposta.completo:
                 messages.success(request, f'Parabéns! Sua resposta está correta!')
             else:
                 messages.warning(request, f'Resposta incorreta. Tente novamente!')
@@ -120,14 +207,18 @@ def quiz_detail(request, cracha, quiz_numero):
 
 def reset_quiz(request, cracha, quiz_numero):
     """Permite resetar um quiz para tentar novamente"""
-    Usuario = get_user_model()
-    participante = get_object_or_404(Usuario, username=cracha)
+    #Usuario = get_user_model()
+    #participante = get_object_or_404(Usuario, username=cracha)
     #participante = get_object_or_404(Participante, cracha=cracha)
+    inscricao = get_object_or_404(Inscricao, cracha=cracha)
+    participante = inscricao.usuario
+    
     quiz = get_object_or_404(Quiz, numero=quiz_numero)
     
     resposta = Resposta.objects.filter(
-        participante=participante,
-        quiz=quiz
+        participa__inscricao=inscricao,
+        quiz=quiz,
+        completo=True
     ).first()
     
     if resposta:
@@ -178,5 +269,39 @@ def identificar_funcionario(request):
 
     return JsonResponse({"mensagem": "Método não permitido"}, status=405)  
 
+'''
+def identificar_funcionario(request):
+    if request.method == 'POST':
+        try:
+            # Pega o JSON enviado pelo JavaScript do celular
+            dados_recebidos = json.loads(request.body)
+            codigo = dados_recebidos.get('codigo', '').strip()
+
+            try:
+                inscricao = Inscricao.objects.select_related('usuario').get(cracha=codigo)
+                usuario = inscricao.usuario
+                
+                return JsonResponse({
+                    "autorizado": True,
+                    "id": codigo,
+                    "nome": getattr(usuario, 'nome', 'Nome não cadastrado'),
+                    "cargo": getattr(usuario, 'cargo', 'Cargo não cadastrado'),
+                    "empresa": getattr(usuario, 'empresa', 'Empresa não cadastrada'),
+                    "mensagem": "ACESSO LIBERADO"  
+                })                    
+            # Verifica se o código existe no dicionário
+            
+            except Inscricao.DoesNotExist:
+                print(f"DEBUG - Inscrição não encontrada para o código: '{codigo}'")
+                return JsonResponse({
+                    "autorizado": False,
+                    "id": codigo,
+                    "mensagem": "ACESSO NEGADO"
+                })
+                
+        except json.JSONDecodeError:
+            return JsonResponse({"mensagem": "Erro nos dados enviados"}, status=400)
+
+    return JsonResponse({"mensagem": "Método não permitido"}, status=405)  
 
 from django.shortcuts import render, redirect

@@ -16,7 +16,7 @@
     <nav aria-label="breadcrumb" class="mb-4">
       <ol class="breadcrumb">
         <li class="breadcrumb-item">
-          <a href="{% url 'app_quiz:urlboas_vindas' participante.cracha %}" class="text-decoration-none"><i class="bi bi-house me-1"></i>Início</a>
+          <a href="{% url 'app_quiz:urlboas_vindas' cracha %}" class="text-decoration-none"><i class="bi bi-house me-1"></i>Início</a>
         </li>
         <li class="breadcrumb-item active" aria-current="page">Desafio {{ quiz.numero }}</li>
       </ol>
@@ -40,7 +40,7 @@
 
         <!-- Formulário -->
         {% if not resposta.completo %}
-          <form method="post" class="mb-4">
+          <form method="post" class="mb-4" action="{% url 'app_quiz:urlquiz_detail' cracha quiz.numero %}">
             {% csrf_token %}
             <div class="mb-4">
               {% comment %} <label for="{{ form.valor_resposta.id_for_label }}" class="form-label fw-bold">Sua Resposta:</label> {% endcomment %}
@@ -101,7 +101,7 @@
     </div>
     <!-- Botão Voltar -->
     <div class="text-center mt-4">
-      <a href="{% url 'app_quiz:urlboas_vindas' participante.cracha %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Voltar para Página Inicial</a>
+      <a href="{% url 'app_quiz:urlboas_vindas' cracha %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Voltar para Página Inicial</a>
     </div>
     <!-- FIM DESAFIO -->
   </div>

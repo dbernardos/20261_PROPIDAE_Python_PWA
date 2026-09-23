@@ -50,7 +50,7 @@ class Resposta(models.Model):
     valor_resposta = models.DecimalField(null=True, blank=True, max_digits=10, decimal_places=2)
     data_resposta = models.DateTimeField(auto_now_add=True)
     correto = models.BooleanField(default=False)
-    #completo = models.BooleanField(default=False, help_text="Indica se o quiz foi completado com sucesso")
+    completo = models.BooleanField(default=False, help_text="Indica se o quiz foi completado com sucesso")
     #tentativas = models.PositiveIntegerField(default=1)
     
     class Meta:
@@ -65,13 +65,14 @@ class Resposta(models.Model):
     
     def verificar_resposta(self):
         """Verifica se a resposta está dentro da faixa aceitável"""
-        self.correto = self.quiz.valor_minimo <= self.valor_resposta <= self.quiz.valor_maximo
-        if self.correto:
-            self.completo = True
+        self.completo = self.quiz.valor_minimo <= self.valor_resposta <= self.quiz.valor_maximo
+        #if self.correto:
+         #   self.completo = True
         self.save()
         return self.correto
 
 
+'''
 def calcular_progresso_geral(participante):
     """
     Calcula o progresso geral de um participante nos quizzes.
@@ -90,6 +91,25 @@ def calcular_progresso_geral(participante):
     ).count()
     
     # Evita divisão por zero
+    porcentagem = round((respondidos / total) * 100, 2) if total > 0 else 0
+    
+    return {
+        'total': total,
+        'respondidos': respondidos,
+        'porcentagem': porcentagem,
+    }
+'''
+
+
+def calcular_progresso_geral(participante):
+    total = Quiz.objects.filter(ativo=True).count()
+    
+    respondidos = Resposta.objects.filter(
+        participa__inscricao__usuario=participante,
+        quiz__ativo=True,
+        completo=True
+    ).count()
+    
     porcentagem = round((respondidos / total) * 100, 2) if total > 0 else 0
     
     return {
