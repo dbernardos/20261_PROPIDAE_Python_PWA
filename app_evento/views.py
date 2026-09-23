@@ -282,7 +282,10 @@ def minhas_inscricoes(request):
         'inscricoes': inscricoes
     })
 
-
+'''@login_required
+def meu_usuario(request):
+     return render(request, 'app_evento/meu_usuario.html')
+'''
 # -----------------------------------------------
 # OUTRAS VIEWS
 # -----------------------------------------------

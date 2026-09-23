@@ -92,3 +92,46 @@ class ParticipanteForm(forms.ModelForm):
                 'placeholder': 'E-mail (opcional)'
             })
         }
+
+class EditarPerfilForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        # O atributo 'fields' DEVE estar dentro de 'class Meta'
+        fields = [
+            'nome', 
+            'email', 
+            'cpf', 
+            'telefone', 
+            'dataNascimento', 
+            'cargo', 
+            'empresa', 
+            'formacao', 
+            'fotoPerfil', 
+            'biografia'
+        ]
+        
+        labels = {
+            'nome': 'Nome Completo',
+            'email': 'E-mail',
+            'cpf': 'CPF',
+            'telefone': 'Telefone',
+            'dataNascimento': 'Data de Nascimento',
+            'cargo': 'Cargo',
+            'empresa': 'Empresa / Instituição',
+            'formacao': 'Formação Acadêmica',
+            'fotoPerfil': 'Foto de Perfil',
+            'biografia': 'Biografia',
+        }
+        
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'cpf': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '000.000.000-00'}),
+            'telefone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(00) 00000-0000'}),
+            'dataNascimento': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'cargo': forms.TextInput(attrs={'class': 'form-control'}),
+            'empresa': forms.TextInput(attrs={'class': 'form-control'}),
+            'formacao': forms.TextInput(attrs={'class': 'form-control'}),
+            'fotoPerfil': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'biografia': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }

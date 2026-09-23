@@ -17,7 +17,8 @@ from django.contrib.auth.models import User
 from .models import Usuario
 
 from .form import UsuarioForm, ParticipanteForm
-from .form import CadastroUsuarioForm
+from .form import CadastroUsuarioForm, EditarPerfilForm
+
 
 
 # Create your LOGIN views here.
@@ -100,3 +101,38 @@ def login_participante(request):
     
     return render(request, 'quiz/login_participante.html', {'form': form})
 
+@login_required
+def meu_usuario(request):
+   # Busca o perfil Usuario ligado ao login atual ou cria se não existir
+    usuario, created = Usuario.objects.get_or_create(
+        user_django=request.user,
+        defaults={
+            'nome': request.user.first_name or request.user.username,
+            'email': request.user.email,
+        }
+    )
+
+    if request.method == 'POST':
+        form = EditarPerfilForm(request.POST, request.FILES, instance=usuario)
+        
+        if form.is_valid():
+            # 1. Salva as alterações no model Usuario no Banco de Dados
+            usuario_atualizado = form.save()
+
+            # 2. Sincroniza o E-mail e Nome também no User nativo do Django
+            request.user.email = usuario_atualizado.email
+            request.user.first_name = usuario_atualizado.nome
+            request.user.save()
+
+            messages.success(request, 'Perfil atualizado com sucesso no banco de dados!')
+            return redirect('app_login:urlmeu_usuario') # Ajuste com o seu name da URL
+        else:
+            # Alerta se houver erro de validação
+            messages.error(request, 'Não foi possível salvar. Verifique os erros no formulário.')
+    else:
+        form = EditarPerfilForm(instance=usuario)
+
+    return render(request, 'app_evento/meu_usuario.html', {
+        'usuario': usuario,
+        'form': form
+    })
