@@ -31,7 +31,7 @@
 
       <div>
         <form id="formManual" style="margin-bottom: 20px; text-align: center;">
-          <input type="text" id="codigoManual" placeholder="Digite o código se necessário" style="padding: 8px; width: 220px;">
+          <input type="text" id="codigoManual" placeholder="Digite o código se necessário" style="padding: 8px; width: 220px;" required>
           <input type="submit" value="Validar Código" style="padding: 8px 15px; cursor: pointer;">
         </form>
       </div>
@@ -48,6 +48,15 @@
   <script>
     const resultadoDiv = document.getElementById('resultado')
     let processando = false
+
+    document.getElementById('formManual').addEventListener('submit', function (event) {
+      event.preventDefault()
+      const codigoManual = document.getElementById('codigoManual').value.trim()
+      if (codigoManual) {
+        validarNoServidor(codigoManual)
+      }
+    })
+
     async function validarNoServidor(codigoLido) {
       // processando = true;
       if (processando) return // ISSO AQUI É O FREIO DE MÃO
@@ -124,7 +133,7 @@
       )
       .catch((err) => {
         console.error('Erro na câmera: ', err)
-        resultadoDiv.textContent = 'Erro ao ligar a câmera.'
+        resultadoDiv.textContent = 'Erro ao ligar a câmera ou sem permissão.'
       })
   </script>
 {% endblock %}
