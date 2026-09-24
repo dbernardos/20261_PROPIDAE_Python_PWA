@@ -16,6 +16,14 @@
 <body>
 
     <div class="container py-4">
+
+        <!-- Botão Voltar no Topo -->
+        <div class="d-flex justify-content-start mb-3">
+            <a href="{% url 'app_evento:urlhome' %}" class="btn btn-secondary shadow-sm fw-bold">
+                <i class="bi bi-house-door-fill me-1"></i> Início
+            </a>
+        </div>
+
         <h1 class="mb-4 text-center fw-bold text-success">
             🏆 Painel de Sorteio
             <!--{% if atividade %}<span class="text-dark fs-4">({{ atividade.nome }})</span>{% endif %} -->
