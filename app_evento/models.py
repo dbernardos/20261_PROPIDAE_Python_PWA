@@ -6,13 +6,15 @@ from django.db import models
 from django.utils import timezone
 from nanoid import generate
 from django.contrib.auth.models import User
-from smart_selects.db_fields import ChainedForeignKey #Para encadeamento de campos
-from django.core.exceptions import ValidationError # ValidationError para validação de campos no backend
+from smart_selects.db_fields import ChainedForeignKey
+from django.core.exceptions import ValidationError
 from django.conf import settings
 
 
-# Create your EVENTO models here.
 # -----------------------------------------------
+# MODELS DO EVENTO
+# -----------------------------------------------
+
 class Apoiador(models.Model):
     nome = models.CharField(max_length=255, unique=True)
 
@@ -23,6 +25,7 @@ class Apoiador(models.Model):
     def __str__(self):
         return self.nome
 
+
 class tipoEvento(models.TextChoices):   
     COLOQUIO = 'Coloquio', 'Colóquio'
     FORUM = 'Forum', 'Fórum'
@@ -32,10 +35,8 @@ class tipoEvento(models.TextChoices):
     CONGRESSO = 'Congresso', 'Congresso'
     OUTRO = 'Outro', 'Outro'
 
-"""Model da tabela Evento"""
+
 class Evento(models.Model):
-    #administrador = models.ForeignKey('Usuario', on_delete=models.CASCADE)
-    #administrador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='eventos',)
     administrador = models.ForeignKey('app_login.Usuario', on_delete=models.CASCADE, related_name='administrador')
     nome = models.CharField(max_length=200)
     descricao = models.TextField(max_length=500, blank=True, null=True)
@@ -54,14 +55,16 @@ class Evento(models.Model):
 
     def __str__(self):
         return self.nome
-    
 
-"""Model da tabela Inscricao"""  
+
+# -----------------------------------------------
+# MODELS DE INSCRIÇÃO E PARTICIPAÇÃO
+# -----------------------------------------------
+
 def gerar_codigo_cracha():
     alfabeto = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
     parte1 = generate(alfabeto, size=3)
     parte2 = generate(alfabeto, size=3)
-    
     return f"{parte1}-{parte2}"
 
 
@@ -72,17 +75,15 @@ class Inscricao(models.Model):
     dataHora = models.DateTimeField(auto_now_add=True)
     cracha = models.CharField(max_length=7, unique=True, default=gerar_codigo_cracha)
     qrcode_imagem = models.ImageField(upload_to='qrcodes/', blank=True, null=True)  
-    
+
     def save(self, *args, **kwargs):
         if not self.qrcode_imagem and self.cracha:
-            
             qr = qrcode.QRCode(
                 version=1,
                 error_correction=qrcode.constants.ERROR_CORRECT_L,
                 box_size=10,    
                 border=4,
             )
-            
             qr.add_data(self.cracha)
             qr.make(fit=True)
             
@@ -95,38 +96,36 @@ class Inscricao(models.Model):
             self.qrcode_imagem.save(nome_arquivo, ContentFile(buffer.read()), save=False)
 
         super().save(*args, **kwargs)
+
     class Meta:
         verbose_name = "Inscrição"
         verbose_name_plural = "Inscrições"
     
     def __str__(self):
-        nome_usuario = self.usuario.nome if hasattr(self.usuario, 'nome') else str(self.usuario)
+        nome_usuario = getattr(self.usuario, 'nome', str(self.usuario))
         return f"{nome_usuario} - {self.evento.nome}"
-        
+
 
 class StatusParticipa(models.TextChoices):
     PARTICIPANTE = 'Participante', 'Participante'
     PALESTRANTE = 'Palestrante', 'Palestrante'
     ORGANIZADOR = 'Organizador', 'Organizador'
 
+
 class Participa(models.Model):
-    """Model para armazenar os participantes pelo crachá"""
     inscricao = models.ForeignKey('Inscricao', on_delete=models.CASCADE)
     
     atividade = ChainedForeignKey(
         'Atividade',
-        chained_field='inscricao',  # Campo da classe local que dispara o filtro
-        chained_model_field='evento__inscricao',  # Busca as atividades do evento relacionado à inscrição
-        show_all=False,  # Não exibe atividades antes de escolher a inscrição
-        auto_choose=False,  # Se só houver 1 atividade no evento, seleciona automaticamente
+        chained_field='inscricao',
+        chained_model_field='evento__inscricao',
+        show_all=False,
+        auto_choose=False,
         sort=True,
         on_delete=models.CASCADE,
     )
     
-    
-    #atividade = models.ForeignKey('Atividade', on_delete=models.CASCADE)
     funcao = models.CharField('Funcao', choices=StatusParticipa.choices, max_length=20, default=StatusParticipa.PARTICIPANTE)
-    
     data_hora = models.DateTimeField(auto_now_add=True)
     data_hora_presenca = models.DateTimeField(auto_now=True)
     
@@ -134,30 +133,29 @@ class Participa(models.Model):
         verbose_name = "Participa"
         verbose_name_plural = "Participam"
         ordering = ['funcao']
-    
-    
+
     def clean(self):
-        """Garantia no Backend: Impede salvamento de atividade incompatível com o evento"""
         super().clean()
         if self.inscricao_id and self.atividade_id:
             if self.atividade.evento != self.inscricao.evento:
                 raise ValidationError({
                     'atividade': (
-                        'A atividade selecionada não pertence ao evento'
-                        ' desta inscrição.'
+                        'A atividade selecionada não pertence ao evento desta inscrição.'
                     )
                 })
 
     def save(self, *args, **kwargs):
-        self.full_clean()  # Força o disparo da validação clean() antes de salvar
+        self.full_clean()
         super().save(*args, **kwargs)
-       
-    
+
     def __str__(self):
-        #return f"{self.funcao or 'Sem funcao'} - {self.data_hora}"
         return f"{self.inscricao} ; {self.atividade} ; {self.funcao}"
 
-"""Model da tabela Atividade"""
+
+# -----------------------------------------------
+# MODELS DE ATIVIDADE E PRÊMIOS
+# -----------------------------------------------
+
 class tipoAtividade(models.TextChoices):
     COLOQUIO = 'Coloquio', 'Colóquio'
     FORUM = 'Forum', 'Fórum'
@@ -171,9 +169,9 @@ class tipoAtividade(models.TextChoices):
     DEMODAY = 'DemoDay', 'Demo Day'
     OUTRO = 'Outro', 'Outro'
 
+
 class Atividade(models.Model):
     evento = models.ForeignKey('Evento', on_delete=models.CASCADE)
-
     nome = models.CharField(max_length=200)
     descricao = models.TextField(verbose_name="Descrição", max_length=500, blank=True, null=True)
     tipoAtividade = models.CharField(verbose_name="Tipo de Atividade", choices=tipoAtividade.choices, max_length=20, default=tipoAtividade.PALESTRA)
@@ -181,8 +179,36 @@ class Atividade(models.Model):
     horaInicio = models.DateTimeField(verbose_name="Hora de Início")
     horaFim = models.DateTimeField(verbose_name="Hora de Término")
     limitePessoas = models.PositiveIntegerField(verbose_name="Limite de Pessoas", blank=True, null=True)
-    
 
-    
     def __str__(self):
-        return self.nome + " - " + self.evento.nome
+        return f"{self.nome} - {self.evento.nome}"
+
+    def get_participantes_nomes(self):
+        """Retorna a lista com os nomes de todos os inscritos desta atividade"""
+        participacoes = self.participa_set.select_related('inscricao__usuario')
+        nomes = []
+        for p in participacoes:
+            if p.inscricao and p.inscricao.usuario:
+                usr = p.inscricao.usuario
+                if hasattr(usr, 'nome') and usr.nome:
+                    nome = usr.nome
+                elif hasattr(usr, 'user_django') and usr.user_django:
+                    nome = usr.user_django.get_full_name() or usr.user_django.username
+                else:
+                    nome = str(usr)
+                nomes.append(nome)
+        return nomes
+
+
+class Premio(models.Model):
+    """Model para armazenar os prêmios exclusivos de cada atividade no banco de dados"""
+    atividade = models.ForeignKey(Atividade, on_delete=models.CASCADE, related_name='premios')
+    nome = models.CharField(max_length=200, verbose_name="Nome do Prêmio")
+    quantidade = models.PositiveIntegerField(default=1, verbose_name="Quantidade")
+
+    class Meta:
+        verbose_name = "Prêmio"
+        verbose_name_plural = "Prêmios"
+
+    def __str__(self):
+        return f"{self.nome} ({self.quantidade} un) - {self.atividade.nome}"

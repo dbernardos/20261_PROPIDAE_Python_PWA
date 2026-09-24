@@ -25,6 +25,8 @@ urlpatterns = [
     path('atividade/<int:atividade_id>/excluir/', views.excluir_atividade, name='urlexcluir_atividade'),
 
     path('sorteio/', views.sorteio, name='urlsorteio'),
+    path('atividade/<int:atividade_id>/sorteio/', views.sorteio, name='urlsorteio_atividade'),
+    path('sorteio/', views.sorteio, name='urlsorteio'), # Rota fallback
 
     path('dados/', views.dados, name='urldados'),
     path('minhas_inscricoes/', views.minhas_inscricoes, name='urlminhas_inscricoes'),
