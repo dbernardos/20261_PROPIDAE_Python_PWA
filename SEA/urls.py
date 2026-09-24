@@ -14,6 +14,7 @@ def service_worker(request):
 
 urlpatterns = [
     
+    path('', include('app_login.urls')),
      
     path('admin/', admin.site.urls),
 
