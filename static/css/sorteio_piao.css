@@ -7,6 +7,25 @@
   --branco: #ffffff;
 }
 
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f9;
+  padding-bottom: 50px;
+}
+
+.card-custom {
+  border-radius: 12px;
+  border: 1px solid #e3e6f0;
+}
+
+.messages {
+  list-style: none;
+  padding: 10px;
+  background-color: #d4edda;
+  color: #155724;
+  border-radius: 6px;
+}
+
 /* Container do Pião */
 .piao-card {
   background: linear-gradient(135deg, var(--verde-escuro) 0%, var(--verde-principal) 100%);
@@ -22,7 +41,7 @@
 .horizontal-wrapper {
   position: relative;
   width: 100%;
-  height: 180px; /* Altura aumentada para melhor visualização */
+  height: 180px;
   margin: 30px 0;
   overflow: hidden;
   border-radius: 16px;
@@ -30,7 +49,6 @@
   border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Sombras graduais laterais */
 .horizontal-wrapper::before,
 .horizontal-wrapper::after {
   content: '';
@@ -94,8 +112,8 @@
 
 /* Cards Individuais dos Participantes */
 .item-participante {
-  flex: 0 0 280px; /* Largura expandida */
-  height: 120px;    /* Altura expandida */
+  flex: 0 0 280px;
+  height: 120px;
   margin: 0 10px;
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid rgba(255, 255, 255, 0.25);
@@ -106,7 +124,7 @@
   padding: 15px;
   color: var(--branco);
   font-weight: 800;
-  font-size: 1.75rem; /* Fonte maior para leitura de longe */
+  font-size: 1.75rem;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
@@ -115,7 +133,6 @@
   transition: transform 0.2s, background-color 0.2s;
 }
 
-/* Card Vencedor */
 .item-participante.vencedor {
   background: var(--branco);
   color: var(--verde-escuro);
@@ -126,33 +143,110 @@
   font-size: 2rem;
 }
 
-/* Estilos de Tela Cheia */
-.piao-container:fullscreen {
-  background-color: var(--verde-escuro);
+/* Painel Flutuante de Prêmios (Oculto em modo normal) */
+.fullscreen-prizes-panel {
+  display: none;
+}
+
+/* =========================================================
+   MODO TELA CHEIA (ESPECIAL PARA PROJETOR / GRANDES ECRÃS)
+   ========================================================= */
+#piaoCard:fullscreen,
+#piaoCard:-webkit-full-screen {
+  background: linear-gradient(135deg, var(--verde-escuro) 0%, var(--verde-principal) 100%) !important;
+  padding: 2rem !important;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-evenly !important;
   align-items: center;
-  padding: 40px;
-  width: 100vw;
-  height: 100vh;
+  width: 100vw !important;
+  height: 100vh !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-sizing: border-box;
 }
 
-.piao-container:fullscreen .piao-card {
-  width: 90vw;
-  max-width: 1400px;
+/* Altura da Esteira em Gigante */
+#piaoCard:fullscreen .horizontal-wrapper,
+#piaoCard:-webkit-full-screen .horizontal-wrapper {
+  height: 420px !important;
+  width: 98vw !important;
+  margin: 10px 0 !important;
+  border-width: 4px !important;
 }
 
-.piao-container:fullscreen .horizontal-wrapper {
-  height: 240px;
+/* Cartões dos Participantes (Ultra Visíveis para Projetor) */
+#piaoCard:fullscreen .item-participante,
+#piaoCard:-webkit-full-screen .item-participante {
+  flex: 0 0 700px !important; /* Largura gigante */
+  height: 320px !important;   /* Altura gigante */
+  font-size: 4.8rem !important; /* Fonte para leitura à distância */
+  border-radius: 28px !important;
+  border-width: 5px !important;
 }
 
-.piao-container:fullscreen .item-participante {
-  flex: 0 0 360px;
-  height: 160px;
-  font-size: 2.3rem;
+#piaoCard:fullscreen .item-participante.vencedor,
+#piaoCard:-webkit-full-screen .item-participante.vencedor {
+  font-size: 5.5rem !important;
 }
 
-.piao-container:fullscreen .item-participante.vencedor {
-  font-size: 2.7rem;
+/* Ponteiros Centrais em Escala Maior */
+#piaoCard:fullscreen .ponteiro-seta-top,
+#piaoCard:fullscreen .ponteiro-seta-bottom {
+  font-size: 3.5rem !important;
+}
+
+#piaoCard:fullscreen .ponteiro-central {
+  width: 10px !important;
+}
+
+/* Textos e Títulos de Grande Destaque */
+#piaoCard:fullscreen #statusText,
+#piaoCard:-webkit-full-screen #statusText {
+  font-size: 4.5rem !important;
+  letter-spacing: 2px;
+}
+
+#piaoCard:fullscreen p,
+#piaoCard:-webkit-full-screen p {
+  font-size: 2.5rem !important;
+}
+
+#piaoCard:fullscreen #nomePremioAtual,
+#piaoCard:-webkit-full-screen #nomePremioAtual {
+  font-size: 3.8rem !important;
+}
+
+/* Botão Principal Destaque */
+#piaoCard:fullscreen #btnSorteio,
+#piaoCard:-webkit-full-screen #btnSorteio {
+  font-size: 3rem !important;
+  padding: 28px 110px !important;
+  border-radius: 22px !important;
+}
+
+/* Painel Flutuante de Prêmios Ampliado */
+#piaoCard:fullscreen .fullscreen-prizes-panel,
+#piaoCard:-webkit-full-screen .fullscreen-prizes-panel {
+  display: block;
+  position: absolute;
+  top: 30px;
+  right: 35px;
+  width: 350px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(14px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  padding: 22px 26px;
+  z-index: 1050;
+  text-align: left;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
+}
+
+#piaoCard:fullscreen .fullscreen-prizes-panel li,
+#piaoCard:-webkit-full-screen .fullscreen-prizes-panel li {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 1.3rem !important;
 }

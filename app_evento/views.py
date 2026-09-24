@@ -1,10 +1,12 @@
+import json
+import random
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.utils import timezone
-import json
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.middleware.csrf import rotate_token
 
@@ -140,11 +142,11 @@ def eventos_disponiveis(request):
     }
     return render(request, 'app_evento/eventos.html', context)
 
+
 @never_cache
 @login_required
 def detalhes_meus_evento(request, evento_id):
     """Exibe os detalhes de um evento e indica em quais atividades o usuário está inscrito"""
-    
     try:
         usuario_perfil = Usuario.objects.get(user_django=request.user)
     except Usuario.DoesNotExist:
@@ -153,33 +155,30 @@ def detalhes_meus_evento(request, evento_id):
     evento = get_object_or_404(Evento, id=evento_id, administrador=usuario_perfil)
     atividades = Atividade.objects.filter(evento=evento)
 
-    #atividades_inscritas_ids = []
-    
     total_inscritos = Participa.objects.filter(atividade__evento=evento).count()
 
     context = {
         'evento': evento,
         'atividades': atividades,
         'total_inscritos': total_inscritos,
-        #'atividades_inscritas_ids': list(atividades_inscritas_ids),
     }
     return render(request, 'app_evento/detalhes_meus_evento.html', context)
+
 
 @login_required
 @never_cache
 def meus_eventos_disponiveis(request):
     try:
         usuario_perfil = Usuario.objects.get(user_django=request.user)
-        
         eventos_do_usuario = Evento.objects.filter(administrador=usuario_perfil)
-        
-    except Evento.DoesNotExist:
+    except Usuario.DoesNotExist:
         eventos_do_usuario = []
     
     context = {
         'eventos': eventos_do_usuario,
     }
     return render(request, 'app_evento/meus_eventos.html', context)
+
 
 # -----------------------------------------------
 # VIEWS DE ATIVIDADES E INSCRIÇÕES
@@ -215,14 +214,12 @@ def editar_atividade(request, atividade_id):
     evento = atividade.evento
 
     if request.method == 'POST':
-        # Instancia o formulário com os dados enviados e os vincula à atividade existente
         form = AtividadeForm(request.POST, instance=atividade)
         if form.is_valid():
             form.save()
             messages.success(request, f'✅ Atividade "{atividade.nome}" atualizada com sucesso!')
             return redirect('app_evento:urldet_myevento', evento_id=evento.id)
     else:
-        # Preenche o formulário com as informações atuais da atividade
         form = AtividadeForm(instance=atividade)
 
     context = {
@@ -303,12 +300,9 @@ def minhas_inscricoes(request):
         'inscricoes': inscricoes
     })
 
-'''@login_required
-def meu_usuario(request):
-     return render(request, 'app_evento/meu_usuario.html')
-'''
+
 # -----------------------------------------------
-# OUTRAS VIEWS
+# OUTRAS VIEWS E SORTEIO
 # -----------------------------------------------
 @never_cache
 def dados(request):
@@ -324,39 +318,90 @@ def dados(request):
 
 @never_cache
 @login_required
-def sorteio(request):
-    if 'premios_lista' not in request.session:
-        request.session['premios_lista'] = []
+def sorteio(request, atividade_id=None):
+    if not atividade_id:
+        messages.warning(request, "⚠️ Nenhuma atividade selecionada.")
+        return redirect('app_evento:urldis_myevento')
 
+    atividade = get_object_or_404(Atividade, id=atividade_id)
+    
+    # 1. BUSCA OS PARTICIPANTES DA ATIVIDADE
+    # Traz todas as participações ligadas a esta atividade e otimiza a consulta (select_related)
+    participacoes = Participa.objects.filter(
+        atividade=atividade
+    ).select_related('inscricao__usuario__user_django')
+
+    # Extrai o nome completo (ou username) de cada inscrito
+    lista_participantes = []
+    for p in participacoes:
+        if p.inscricao and p.inscricao.usuario and p.inscricao.usuario.user_django:
+            user = p.inscricao.usuario.user_django
+            # Usa o nome completo; se estiver em branco, usa o nome de usuário (username)
+            nome = user.get_full_name().strip() or user.username
+            lista_participantes.append(nome)
+
+    # 2. GERENCIAMENTO DE PRÊMIOS DA SESSÃO POR ATIVIDADE
+    session_key = f'premios_atividade_{atividade.id}'
+    if session_key not in request.session:
+        request.session[session_key] = []
+
+    # Processa ações do modal (cadastrar, editar, remover, limpar)
     if request.method == 'POST':
-        premio_nome = request.POST.get('premio')
-        qtd_ganhadores = request.POST.get('qtd_ganhadores', 1)
+        if not (request.user.is_staff or request.user.is_superuser):
+            messages.error(request, '❌ Apenas administradores podem gerenciar prêmios.')
+            return redirect('app_evento:urlsorteio_atividade', atividade_id=atividade.id)
 
-        if premio_nome:
-            premios = request.session['premios_lista']
-            premios.append({
-                'nome': premio_nome,
-                'quantidade': int(qtd_ganhadores) if qtd_ganhadores else 1,
-                'sorteado': False
-            })
-            
-            request.session['premios_lista'] = premios
-            request.session.modified = True
+        action = request.POST.get('action', 'add')
+        premios = request.session.get(session_key, [])
 
-            messages.success(request, f'Prêmio "{premio_nome}" cadastrado com sucesso!')
+        if action == 'add':
+            premio_nome = request.POST.get('premio')
+            qtd_ganhadores = request.POST.get('qtd_ganhadores', 1)
+            if premio_nome:
+                premios.append({
+                    'nome': premio_nome,
+                    'quantidade': int(qtd_ganhadores) if qtd_ganhadores else 1
+                })
+                messages.success(request, f'🎁 Prêmio "{premio_nome}" cadastrado!')
 
-        return redirect('app_evento:urlsorteio')
+        elif action == 'edit':
+            try:
+                index = int(request.POST.get('premio_index'))
+                nova_qtd = int(request.POST.get('nova_qtd', 1))
+                if 0 <= index < len(premios) and nova_qtd > 0:
+                    premios[index]['quantidade'] = nova_qtd
+                    messages.success(request, '✏️ Quantidade alterada!')
+            except (ValueError, TypeError):
+                pass
 
-    premios = request.session.get('premios_lista', [])
-    ultimo_premio = premios[-1] if premios else {'nome': 'Nenhum prêmio cadastrado', 'quantidade': 1}
+        elif action == 'delete':
+            try:
+                index = int(request.POST.get('premio_index'))
+                if 0 <= index < len(premios):
+                    removido = premios.pop(index)
+                    messages.success(request, f'🗑️ Prêmio "{removido["nome"]}" removido!')
+            except (ValueError, TypeError):
+                pass
+
+        elif action == 'clear_all':
+            premios = []
+            messages.success(request, '🧹 Todos os prêmios desta atividade foram apagados!')
+
+        request.session[session_key] = premios
+        request.session.modified = True
+        return redirect('app_evento:urlsorteio_atividade', atividade_id=atividade.id)
+
+    premios = request.session.get(session_key, [])
 
     context = {
+        'atividade': atividade,
         'premios': premios,
-        'sorteio': ultimo_premio,
+        'sorteio': random.choice(premios) if premios else {'nome': 'Nenhum prêmio cadastrado', 'quantidade': 1},
+        'participantes_json': json.dumps(lista_participantes), # Passa os nomes em formato JSON para o JS
+        'premios_json': json.dumps(premios),
     }
 
     return render(request, 'app_evento/sorteio.html', context)
-
 
 @never_cache
 @login_required
