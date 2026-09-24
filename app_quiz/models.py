@@ -11,7 +11,7 @@ class Quiz(models.Model):
     titulo = models.CharField(max_length=200)
     numero = models.PositiveIntegerField(unique=True, help_text="Número do desafio")
     subtitulo = models.CharField(max_length=300, blank=True, null=True)
-    #descricao = models.TextField(help_text="Descrição do desafio")
+   
     
     # Configurações da resposta
     pergunta = models.TextField()
@@ -40,7 +40,6 @@ class Quiz(models.Model):
 
 """Model da tabela Resposta"""
 class Resposta(models.Model):
-    """Model para armazenar as respostas dos participantes"""
     participa = models.ForeignKey("app_evento.Participa", on_delete=models.CASCADE, related_name='respostas')
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='respostas')
     
@@ -48,7 +47,6 @@ class Resposta(models.Model):
     data_resposta = models.DateTimeField(auto_now_add=True)
     correto = models.BooleanField(default=False)
     completo = models.BooleanField(default=False, help_text="Indica se o quiz foi completado com sucesso")
-    #tentativas = models.PositiveIntegerField(default=1)
     
     class Meta:
         verbose_name = "Resposta do Quiz"
@@ -57,14 +55,11 @@ class Resposta(models.Model):
         ordering = ['-data_resposta']
     
     def __str__(self):
-        #return f"{self.participa} - {self.quiz}: {self.valor_resposta}"
         return f"Resposta de {self.participa} para {self.quiz}"
     
     def verificar_resposta(self):
         """Verifica se a resposta está dentro da faixa aceitável"""
         self.completo = self.quiz.valor_minimo <= self.valor_resposta <= self.quiz.valor_maximo
-        #if self.correto:
-         #   self.completo = True
         self.save()
         return self.correto
 
