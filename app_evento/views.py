@@ -208,9 +208,30 @@ def cadastrar_atividade(request, evento_id):
     return render(request, 'app_evento/cadastrar_atividade.html', context)
 
 
+@never_cache
+@login_required
 def editar_atividade(request, atividade_id):
     atividade = get_object_or_404(Atividade, pk=atividade_id)
-    return render(request, 'app_evento/form_atividade.html', {'atividade': atividade})
+    evento = atividade.evento
+
+    if request.method == 'POST':
+        # Instancia o formulário com os dados enviados e os vincula à atividade existente
+        form = AtividadeForm(request.POST, instance=atividade)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'✅ Atividade "{atividade.nome}" atualizada com sucesso!')
+            return redirect('app_evento:urldet_myevento', evento_id=evento.id)
+    else:
+        # Preenche o formulário com as informações atuais da atividade
+        form = AtividadeForm(instance=atividade)
+
+    context = {
+        'form_atividade': form,
+        'atividade': atividade,
+        'evento': evento,
+        'editando': True
+    }
+    return render(request, 'app_evento/cadastrar_atividade.html', context)
 
 
 def excluir_atividade(request, atividade_id):

@@ -3,7 +3,7 @@
 {% load bootstrap5 %}
 
 {% block title %}
-  Cadastrar Atividade
+  {% if editando %}Editar Atividade{% else %}Cadastrar Atividade{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -11,7 +11,13 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-lg-8">
-          <h2 class="fw-bold text-verde-escuro mb-4">Cadastrar Nova Atividade de {{ evento.nome }} 📅</h2>
+          <h2 class="fw-bold text-verde-escuro mb-4">
+            {% if editando %}
+              ✏️ Editar Atividade: {{ atividade.nome }}
+            {% else %}
+              📅 Cadastrar Nova Atividade em {{ evento.nome }}
+            {% endif %}
+          </h2>
 
           <form method="POST" class="card p-4 shadow-sm bg-white">
             {% csrf_token %}
@@ -19,8 +25,10 @@
             {{ form_atividade.as_p }}
 
             <div class="d-flex justify-content-end gap-2 mt-4">
-              <a href="{% url 'app_evento:urlhome' %}" class="btn btn-outline-secondary">Cancelar</a>
-              <button type="submit" class="btn btn-success">Salvar Atividade</button>
+              <a href="{% url 'app_evento:urldet_myevento' evento.id %}" class="btn btn-outline-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-success">
+                {% if editando %}Salvar Alterações{% else %}Salvar Atividade{% endif %}
+              </button>
             </div>
           </form>
         </div>
