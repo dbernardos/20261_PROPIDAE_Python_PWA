@@ -51,8 +51,8 @@ class EventoForm(forms.ModelForm):
             'emailContato': forms.EmailInput(attrs={'placeholder': 'digite o e-mail de contato', 'class': 'form-control mb-3'}),
             'local': forms.TextInput(attrs={'placeholder': 'digite o local do evento', 'class': 'form-control mb-3'}),
             'imagemBanner': forms.FileInput(attrs={'class': 'form-control mb-3', 'accept': 'image/*'}),
-            'dataInicio': forms.DateInput(attrs={'class': 'form-control mb-3', 'type': 'date'}),
-            'dataFim': forms.DateInput(attrs={'class': 'form-control mb-3', 'type': 'date'}),
+            'dataInicio': forms.DateInput(format='%Y-%m-%d',attrs={'class': 'form-control mb-3', 'type': 'date'}),
+            'dataFim': forms.DateInput(format='%Y-%m-%d',attrs={'class': 'form-control mb-3', 'type': 'date'}),
             'tipoEvento': forms.Select(attrs={'class': 'form-select mb-3'}),
             'eventoMultiplo': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
             'eventoPublico': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
@@ -128,7 +128,13 @@ class AtividadeForm(forms.ModelForm):
             'descricao': forms.Textarea(attrs={'placeholder': 'digite a descrição da atividade', 'class': 'form-control mb-3', 'rows': 4}),
             'tipoAtividade': forms.Select(attrs={'class': 'form-select mb-3'}),
             'complementoLocal': forms.TextInput(attrs={'placeholder': 'digite o complemento do local', 'class': 'form-control mb-3'}),
-            'horaInicio': forms.DateTimeInput(attrs={'class': 'form-control mb-3', 'type': 'datetime-local'}),
-            'horaFim': forms.DateTimeInput(attrs={'class': 'form-control mb-3', 'type': 'datetime-local'}),
+            'horaInicio': forms.DateTimeInput(
+                format='%Y-%m-%dT%H:%M',
+                attrs={'class': 'form-control mb-3', 'type': 'datetime-local'}
+            ),
+            'horaFim': forms.DateTimeInput(
+                format='%Y-%m-%dT%H:%M',
+                attrs={'class': 'form-control mb-3', 'type': 'datetime-local'}
+            ),
             'limitePessoas': forms.NumberInput(attrs={'placeholder': 'digite o limite de participantes', 'class': 'form-control mb-3', 'type': 'number'}),
         }
