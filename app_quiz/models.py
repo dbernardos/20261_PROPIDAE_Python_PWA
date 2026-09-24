@@ -1,8 +1,5 @@
 from django.db import models
-from django.utils import timezone
-import uuid
-from django.contrib.auth.models import User
-from django.contrib.auth import get_user_model
+
 
 
 # Create your QUIZ models here.
@@ -71,49 +68,3 @@ class Resposta(models.Model):
         self.save()
         return self.correto
 
-
-'''
-def calcular_progresso_geral(participante):
-    """
-    Calcula o progresso geral de um participante nos quizzes.
-    Retorna um dicionário com: total, respondidos, porcentagem.
-    """
-    Usuario = get_user_model()
-    
-    # Total de quizzes ativos
-    total = Quiz.objects.filter(ativo=True).count()
-    
-    # Quizzes que o participante já completou (Resposta.completo = True)
-    respondidos = Resposta.objects.filter(
-        participante=participante,
-        quiz__ativo=True,
-        completo=True
-    ).count()
-    
-    # Evita divisão por zero
-    porcentagem = round((respondidos / total) * 100, 2) if total > 0 else 0
-    
-    return {
-        'total': total,
-        'respondidos': respondidos,
-        'porcentagem': porcentagem,
-    }
-'''
-
-
-def calcular_progresso_geral(participante):
-    total = Quiz.objects.filter(ativo=True).count()
-    
-    respondidos = Resposta.objects.filter(
-        participa__inscricao__usuario=participante,
-        quiz__ativo=True,
-        completo=True
-    ).count()
-    
-    porcentagem = round((respondidos / total) * 100, 2) if total > 0 else 0
-    
-    return {
-        'total': total,
-        'respondidos': respondidos,
-        'porcentagem': porcentagem,
-    }
