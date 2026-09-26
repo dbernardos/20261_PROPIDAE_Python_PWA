@@ -15,5 +15,34 @@ ATIVIDADE
 - complemento do local, tive uma impressão que era endereço ainda
 - data e hora inicio fim deveria validar se está dentro do evento
 
-NOVAS ATIVIDADES
-- 
+--------------------------------------
+OBSERVAÇÕES 24/09
+usuario
+- cadastro de novo usuário (foto?, nome de usuário, formato cpf, formacao?)
+- foto do perfil
+- editar perfil do usuário data nascimento arrumar
+- cargo depois da empresa
+- tratar username no template, trocar ordem, avaliar duas etapas
+
+
+evento
+- precisa polir a inscrição
+- inscrever-se, inscrito, desiscrever-se
+- novo evento só pode ser cadastrado pelo admin (precisa validar a url)
+- a listagem de eventos vai para a home (inicio)
+- botão de eventos arquivados
+- armazenar foto do banner
+- arrumar a criação de evento que começa hoje e termina ontem
+- apoiadores?
+- editar evento não carrega as datas
+- exemplo local ou endereço completo
+- data do evento com inicio e fim passado, é permitido?
+- remover evento multiplo
+- pensar sobre o publico -
+- após salvar atividade enviar para o detalhe do evento (remover dados.html)
+- home com todos os eventos, clica e vai para a página do evento, com banner
+
+quiz: 
+- progresso não faz sentido
+- atrelar resposta ao dia ou atividade
+- remover inicio, cadastrar novo participante

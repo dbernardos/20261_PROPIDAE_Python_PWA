@@ -30,9 +30,6 @@ pip install pillow
 
 
 
-
-
-
 pip install --upgrade django (caso de algum erro no django admin)
 
 
