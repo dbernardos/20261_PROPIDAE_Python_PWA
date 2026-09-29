@@ -50,10 +50,6 @@
               {% comment '' %}MENUS APENAS PARA QUEM ESTÁ LOGADO{% endcomment %}
               {% if request.user.is_authenticated %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'app_evento:urldis_evento' %}">Eventos</a>
-                </li>
-
-                <li class="nav-item">
                   <a class="nav-link" href="{% url 'app_evento:urldis_myevento' %}">Meus Eventos</a>
                 </li>
 
