@@ -1,135 +1,268 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load bootstrap5 %}
+
+{% block title %}
+Minhas Inscrições - XXIX Colóquio de Usinagem
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/minhas_inscricoes.css' %}" />
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    
-    <!-- Cabeçalho da Página -->
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <div>
-            <h1 class="h3 fw-bold mb-1">
-                <i class="bi bi-ticket-perforated me-2 text-success"></i>Minhas Inscrições
-            </h1>
-            <p class="text-muted mb-0">Gerencie suas participações, horários e acesse seus crachás.</p>
-        </div>
-    </div>
+<section class="py-5">
+    <div class="container pagina-inscricoes">
+        <!-- Cabeçalho da Página -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <h2 class="display-6 fw-bold text-verde-escuro mb-1">
+                    <i class="bi bi-ticket-perforated me-2 text-verde-claro"></i>Minhas <span
+                        class="text-verde-claro">Inscrições</span>
+                </h2>
+                <p class="text-muted mb-0">Gerencie suas participações, acompanhe horários e acesse seus comprovantes e
+                    crachá.</p>
+            </div>
 
-    {% if inscricoes %}
-        <div class="row g-4">
+            <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-outline-success btn-lg shadow-sm">
+                <i class="bi bi-compass me-1"></i> Explorar Novos Eventos
+            </a>
+        </div>
+
+        {% if inscricoes %}
+        <!-- Resumo das Inscrições -->
+        <div class="inscricoes-resumo mb-4">
+            <div class="resumo-item">
+                <div class="resumo-icone">
+                    <i class="bi bi-calendar-event"></i>
+                </div>
+                <div>
+                    <span class="resumo-valor">{{ inscricoes|length }}</span>
+                    <span class="resumo-label">Evento{{ inscricoes|pluralize }} inscrito{{ inscricoes|pluralize }}</span>
+                </div>
+            </div>
+
+            <div class="resumo-item">
+                <div class="resumo-icone">
+                    <i class="bi bi-list-check"></i>
+                </div>
+                <div>
+                    <span class="resumo-valor" data-contador-atividades>0</span>
+                    <span class="resumo-label">Atividade{{ inscricoes|pluralize }} inscrita{{ inscricoes|pluralize }}</span>
+                </div>
+            </div>
+
+            <div class="resumo-item">
+                <div class="resumo-icone">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div>
+                    <span class="resumo-valor" data-contador-proximas>0</span>
+                    <span class="resumo-label">Próxima{{ inscricoes|pluralize }} atividade{{ inscricoes|pluralize }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros e Busca -->
+        <div class="filtros-inscricoes mb-4">
+            <div class="filtros-botoes">
+                <button type="button" class="filtro-btn active" data-filtro="todos">Todas</button>
+                <button type="button" class="filtro-btn" data-filtro="proximas">Próximas</button>
+                <button type="button" class="filtro-btn" data-filtro="concluidas">Concluídas</button>
+                <button type="button" class="filtro-btn" data-filtro="canceladas">Canceladas</button>
+            </div>
+
+            <div class="campo-busca">
+                <i class="bi bi-search"></i>
+                <input type="search" id="buscaInscricoes" class="form-control"
+                    placeholder="Buscar evento ou atividade..." autocomplete="off" />
+            </div>
+        </div>
+
+        <!-- Lista de Inscrições -->
+        <div class="row g-4" id="listaInscricoes">
             {% for item in inscricoes %}
-                <div class="col-12">
-                    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
-                        
-                        <!-- Topo do Card -->
-                        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center py-3">
+            <div class="col-12 inscricao-item" data-inscricao data-status="{{ item.status|default:''|lower }}">
+                <div class="card card-custom shadow-sm border-0 overflow-hidden">
+                    <!-- Topo do Card -->
+                    <div
+                        class="card-header bg-success text-white d-flex justify-content-between align-items-center py-3 flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
                             <span class="badge bg-light text-success fw-bold text-uppercase px-3 py-2">
                                 {{ item.evento.get_tipoEvento_display|default:item.evento.tipoEvento }}
                             </span>
-                            <small class="text-white-50">
-                                <i class="bi bi-clock me-1"></i>Inscrito em {{ item.dataHora|date:"d/m/Y \à\s H:i" }}
-                            </small>
-                        </div>
 
-                        <div class="card-body p-4">
-                            <div class="row align-items-center mb-4">
-                                {% if item.evento.imagemBanner %}
-                                    <div class="col-lg-3 col-md-4 mb-3 mb-md-0">
-                                        <img src="{{ item.evento.imagemBanner.url }}" alt="{{ item.evento.nome }}" class="img-fluid rounded shadow-sm w-100" style="max-height: 160px; object-fit: cover;">
-                                    </div>
-                                {% endif %}
-                                
-                                <div class="{% if item.evento.imagemBanner %}col-lg-9 col-md-8{% else %}col-12{% endif %}">
-                                    <h3 class="card-title fw-bold text-dark mb-2">{{ item.evento.nome }}</h3>
-                                    <p class="card-text text-muted mb-3">{{ item.evento.descricao|default:"Sem descrição informada." }}</p>
-
-                                    <!-- Informações Rápidas -->
-                                    <div class="row g-3 text-secondary">
-                                        <div class="col-sm-6">
-                                            <i class="bi bi-calendar-event me-2 text-success"></i>
-                                            <strong>Data:</strong> {{ item.evento.dataInicio|date:"d/m/Y" }} até {{ item.evento.dataFim|date:"d/m/Y" }}
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <i class="bi bi-geo-alt me-2 text-success"></i>
-                                            <strong>Local:</strong> {{ item.evento.local|default:"A definir" }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <hr class="my-4 text-muted">
-
-                            <!-- Atividades Vinculadas -->
-                            <h5 class="fw-bold mb-3 text-dark">
-                                <i class="bi bi-list-check me-2 text-success"></i>Atividades Vinculadas
-                            </h5>
-
-                            {% if item.participa_set.all %}
-                                <div class="table-responsive">
-                                    <table class="table table-hover border rounded align-middle mb-0">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Atividade</th>
-                                                <th>Tipo</th>
-                                                <th>Horário</th>
-                                                <th>Local / Complemento</th>
-                                                <th class="text-center">Sua Função</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for participa in item.participa_set.all %}
-                                                <tr>
-                                                    <td class="fw-semibold">{{ participa.atividade.nome }}</td>
-                                                    <td>
-                                                        <span class="badge bg-secondary">
-                                                            {{ participa.atividade.get_tipoAtividade_display|default:participa.atividade.tipoAtividade }}
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <i class="bi bi-clock me-1 text-muted"></i>
-                                                        {{ participa.atividade.horaInicio|date:"d/m/Y H:i" }} - {{ participa.atividade.horaFim|date:"H:i" }}
-                                                    </td>
-                                                    <td>
-                                                        {{ participa.atividade.complementoLocal|default:item.evento.local }}
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <span class="badge {% if participa.funcao == 'Palestrante' %}bg-success{% elif participa.funcao == 'Organizador' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} px-2 py-1">
-                                                            {{ participa.get_funcao_display|default:participa.funcao }}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            {% else %}
-                                <div class="alert alert-light border text-muted mb-0">
-                                    <i class="bi bi-info-circle me-2"></i>Nenhuma atividade específica vinculada a esta inscrição.
-                                </div>
+                            {% if item.status %}
+                            <span class="badge bg-white text-dark border">
+                                <i class="bi bi-check-circle-fill text-success me-1"></i>
+                                {{ item.status }}
+                            </span>
                             {% endif %}
                         </div>
 
-                        <!-- Rodapé com Ações -->
-                        <div class="card-footer bg-light p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                            <div>
-                                <small class="text-muted">Código do Crachá:</small>
-                                <span class="font-monospace fw-bold text-dark ms-1">{{ item.cracha|default:"---" }}</span>
-                            </div>
-                            
-                            <div class="qrcode-container">
-                                <p>QR Code de Inscrição:</p>
-                                <img src="{{ item.qrcode_imagem.url }}" alt="QR Code da Inscrição {{inscricao.cracha }}" class="img-fluid rounded shadow-sm" style="max-width: 220px;">
-                            </div>    
+                        <small class="text-white-50">
+                            <i class="bi bi-clock me-1"></i> Inscrito em {{ item.dataHora|date:'d/m/Y \à\s H:i' }}
+                        </small>
+                    </div>
 
-                            <div class="d-flex gap-2">
-                                <a href="{% url 'app_evento:urldet_evento' item.evento.id %}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-eye me-1"></i> Detalhes
-                                </a>
-                                
-                                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalCracha{{ item.id }}">
-                                    <i class="bi bi-qr-code-scan me-1"></i> Gerar Crachá
-                                </button>
+                    <!-- Corpo do Card -->
+                    <div class="card-body p-4">
+                        <!-- Informações do Evento -->
+                        <div class="row align-items-center mb-4">
+                            {% if item.evento.imagemBanner %}
+                            <div class="col-lg-3 col-md-4 mb-3 mb-md-0">
+                                <img src="{{ item.evento.imagemBanner.url }}" alt="{{ item.evento.nome }}"
+                                    class="img-fluid rounded shadow-sm w-100 banner-evento-img"
+                                    style="object-fit: cover; max-height: 180px;" />
+                            </div>
+                            {% endif %}
+
+                            <div class="{% if item.evento.imagemBanner %}col-lg-9 col-md-8{% else %}col-12{% endif %}">
+                                <h3 class="card-title fw-bold text-verde-escuro mb-2 busca-conteudo">
+                                    {{ item.evento.nome }}
+                                </h3>
+
+                                <p class="card-text text-muted mb-3">
+                                    {{ item.evento.descricao|default:'Sem descrição informada.' }}
+                                </p>
+
+                                <!-- Informações Rápidas -->
+                                <div class="row g-3 text-secondary small">
+                                    <div class="col-sm-6 col-lg-4">
+                                        <i class="bi bi-calendar-event me-1 text-verde-claro"></i>
+                                        <strong>Data:</strong> {{ item.evento.dataInicio|date:'d/m/Y' }} até {{ item.evento.dataFim|date:'d/m/Y' }}
+                                    </div>
+
+                                    <div class="col-sm-6 col-lg-4">
+                                        <i class="bi bi-geo-alt me-1 text-danger"></i>
+                                        <strong>Local:</strong> {{ item.evento.local|default:'A definir' }}
+                                    </div>
+
+                                    <div class="col-sm-6 col-lg-4">
+                                        <i class="bi bi-list-check me-1 text-verde-claro"></i>
+                                        <strong>Atividades:</strong> <span data-contador-evento>0</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
+                        <hr class="my-4 text-muted" />
+
+                        <!-- Atividades Inscritas -->
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <h5 class="fw-bold mb-0 text-verde-escuro">
+                                <i class="bi bi-list-check me-2 text-verde-claro"></i>Atividades Inscritas
+                            </h5>
+
+                            <span class="badge bg-success-subtle text-success atividade-total-badge px-3 py-2">
+                                <span data-contador-evento-badge>0</span> atividade(s)
+                            </span>
+                        </div>
+
+                        {% if item.participa_set.all %}
+                        <div class="table-responsive tabela-atividades">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Atividade</th>
+                                        <th>Tipo</th>
+                                        <th>Horário</th>
+                                        <th>Local / Complemento</th>
+                                        <th class="text-center">Função</th>
+                                        <th class="text-center">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for participa in item.participa_set.all %}
+                                    <tr class="atividade-linha" data-atividade
+                                        data-nome="{{ participa.atividade.nome|lower }}"
+                                        data-status="{{ item.status|default:''|lower }}">
+                                        <td>
+                                            <div class="atividade-nome fw-semibold">
+                                                <i class="bi bi-calendar2-event text-success me-2"></i>
+                                                <span>{{ participa.atividade.nome }}</span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <span class="badge bg-secondary atividade-tipo">
+                                                {{ participa.atividade.get_tipoAtividade_display|default:participa.atividade.tipoAtividade }}
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <div class="atividade-horario small">
+                                                <i class="bi bi-clock me-1 text-muted"></i>
+                                                <span>{{ participa.atividade.horaInicio|date:'d/m/Y H:i' }}</span>
+                                                <span class="text-muted">- {{ participa.atividade.horaFim|date:'H:i' }}</span>
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <span class="text-secondary small">
+                                                <i class="bi bi-geo-alt me-1 text-muted"></i>
+                                                {{ participa.atividade.complementoLocal|default:item.evento.local }}
+                                            </span>
+                                        </td>
+
+                                        <td class="text-center">
+                                            <span
+                                                class="badge {% if participa.funcao == 'Palestrante' %}bg-success{% elif participa.funcao == 'Organizador' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} px-2 py-1">
+                                                {{ participa.get_funcao_display|default:participa.funcao }}
+                                            </span>
+                                        </td>
+
+                                        <td class="text-center">
+                                            <a href="{% url 'app_evento:urlparticipar_atividade' participa.atividade.id %}"
+                                                class="btn btn-outline-danger btn-sm btn-cancelar-atividade"
+                                                title="Cancelar participação">
+                                                <i class="bi bi-x-circle me-1"></i> Cancelar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-light border text-muted mb-0">
+                            <i class="bi bi-info-circle me-2"></i> Ainda não se inscreveu em nenhuma atividade
+                            específica deste evento.
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Rodapé do Card -->
+                    <div
+                        class="card-footer bg-light p-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <!-- Código do Crachá -->
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="cracha-resumo-icone">
+                                <i class="bi bi-person-badge fs-4 text-success"></i>
+                            </div>
+                            <div>
+                                <small class="text-muted d-block">Código do Crachá</small>
+                                <span class="font-monospace fw-bold text-dark cracha-codigo">{{ item.cracha|default:'---' }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Ações -->
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{% url 'app_evento:urldet_evento' item.evento.id %}"
+                                class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-eye me-1"></i> Detalhes
+                            </a>
+
+                            <a href="{% url 'app_evento:urlcomprovante_inscricao' item.evento.id %}"
+                                class="btn btn-outline-success btn-sm">
+                                <i class="bi bi-file-earmark-check me-1"></i> Comprovante
+                            </a>
+
+                            <button type="button" class="btn btn-success btn-sm shadow-sm" data-bs-toggle="modal"
+                                data-bs-target="#modalCracha{{ item.id }}">
+                                <i class="bi bi-qr-code-scan me-1"></i> Ver Crachá
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -137,73 +270,88 @@
                 <div class="modal fade modal-cracha" id="modalCracha{{ item.id }}" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content text-center border-0 shadow">
+                            <!-- Cabeçalho -->
                             <div class="modal-header bg-success text-white">
                                 <h5 class="modal-title fw-bold">
-                                    <i class="bi bi-person-badge me-2"></i>Crachá de Acesso
+                                    <i class="bi bi-person-badge me-2"></i> Crachá de Acesso
                                 </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Fechar"></button>
                             </div>
-                            
+
+                            <!-- Corpo -->
                             <div class="modal-body p-4 cracha-printable">
                                 <h4 class="fw-bold text-dark mb-1">
                                     {{ item.usuario.nome|default:request.user.get_full_name|default:request.user.username }}
                                 </h4>
-                                <p class="text-success fw-semibold mb-3">{{ item.evento.nome }}</p>
-                                
-                                <div class="p-3 bg-light rounded border d-inline-block mb-3 shadow-sm w-100" style="max-width: 280px;">
+
+                                <p class="text-success fw-semibold mb-3">
+                                    {{ item.evento.nome }}
+                                </p>
+
+                                <div class="p-3 bg-light rounded border d-inline-block mb-3 shadow-sm w-100 cracha-box">
                                     <p class="small text-muted text-uppercase mb-1 fw-bold">Código de Acesso</p>
-                                    <p class="font-monospace fw-bold text-success mb-0 fs-4">{{ item.cracha|default:"---" }}</p>
-                                      <img src="{{ item.qrcode_imagem.url }}" alt="QR Code da Inscrição {{inscricao.cracha }}" class="img-fluid rounded shadow-sm" style="max-width: 220px;">
+                                    <p class="font-monospace fw-bold text-success mb-2 fs-4">{{ item.cracha|default:'---' }}</p>
+
+                                    {% if item.qrcode_imagem %}
+                                    <img src="{{ item.qrcode_imagem.url }}" alt="QR Code {{ item.cracha }}"
+                                        class="img-fluid rounded shadow-sm qrcode-modal" />
+                                    {% else %}
+                                    <div class="qrcode-indisponivel p-3">
+                                        <i class="bi bi-qr-code fs-1 d-block mb-1 text-muted"></i>
+                                        <small class="text-muted">QR Code não disponível</small>
+                                    </div>
+                                    {% endif %}
                                 </div>
-                                
-                                <p class="small text-muted mb-0">Apresente este código ou crachá na recepção do evento.</p>
+
+                                <p class="small text-muted mb-0">Apresente este código ou QR Code no controle de acesso
+                                    do evento.</p>
                             </div>
-                            
+
+                            <!-- Rodapé -->
                             <div class="modal-footer justify-content-center bg-light">
-                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
-                                <button type="button" class="btn btn-success btn-sm" onclick="window.print()">
+                                <button type="button" class="btn btn-secondary btn-sm"
+                                    data-bs-dismiss="modal">Fechar</button>
+
+                                <a href="{% url 'app_evento:urlcomprovante_inscricao' item.evento.id %}"
+                                    class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-file-earmark-text me-1"></i> Ver Comprovante
+                                </a>
+
+                                <button type="button" class="btn btn-success btn-sm btn-imprimir-cracha">
                                     <i class="bi bi-printer me-1"></i> Imprimir
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-
+            </div>
             {% endfor %}
         </div>
-    {% else %}
-        <!-- Estado Vazio -->
-        <div class="text-center py-5 my-4">
-            <div class="mb-3 text-muted">
-                <i class="bi bi-calendar-x fs-1"></i>
+
+        <!-- Sem Resultados de Busca -->
+        <div id="semResultadosBusca" class="text-center py-5 d-none">
+            <div class="empty-search-icon mb-3">
+                <i class="bi bi-search fs-1 text-muted"></i>
             </div>
-            <h4 class="text-secondary fw-semibold">Você ainda não possui inscrições.</h4>
-            <p class="text-muted">Explore a lista de eventos e garanta sua vaga!</p>
-            <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-success mt-2">
+            <h5 class="fw-bold text-secondary">Nenhuma inscrição encontrada</h5>
+            <p class="text-muted mb-0">Tente alterar o filtro ou o termo pesquisado.</p>
+        </div>
+        {% else %}
+        <!-- Estado Sem Inscrições -->
+        <div class="card card-custom p-5 text-center text-muted empty-state my-4">
+            <i class="bi bi-calendar-x display-3 mb-3 text-secondary"></i>
+            <h4 class="text-secondary fw-semibold">Ainda não possui inscrições.</h4>
+            <p class="text-muted mb-3">Explore a lista de eventos disponíveis e garanta a sua vaga!</p>
+            <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-success shadow-sm d-inline-block mx-auto">
                 <i class="bi bi-search me-1"></i> Ver Eventos Disponíveis
             </a>
         </div>
-    {% endif %}
-</div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
 
-<style>
-@media print {
-    body * {
-        visibility: hidden;
-    }
-    .modal.show .cracha-printable, .modal.show .cracha-printable * {
-        visibility: visible;
-    }
-    .modal.show .cracha-printable {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        width: 100%;
-        border: 1px solid #ddd;
-        padding: 20px;
-        border-radius: 8px;
-    }
-}
-</style>
+{% block extra_js %}
+<script src="{% static 'js/minhas_inscricoes.js' %}"></script>
 {% endblock %}
