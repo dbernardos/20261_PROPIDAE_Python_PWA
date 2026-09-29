@@ -1,23 +1,5 @@
--verificar se existe algum recurso do forms que valida campos requeridos automáticamente
-
-EVENTO 
-- tem alguma validação de email?
-=== O próprio forms do Django já possui sistema de validação para email
-- apoiadores em texto corrido?
-====
-- Local: é endereço ou é IFSC, por exemplo
-- imagem do banner serve para que?
-- data inicio poderia não permitir data antiga?
-- multiplo e publico mudará alguma coisa em outras páginas?
-
-ATIVIDADE
-- tipo da atividade é o mesmo do tipo do evento?
-- complemento do local, tive uma impressão que era endereço ainda
-- data e hora inicio fim deveria validar se está dentro do evento
-
---------------------------------------
 OBSERVAÇÕES 24/09
-usuario
+USUÁRIO:
 - cadastro de novo usuário (foto?, nome de usuário, formato cpf, formacao?)
 - foto do perfil
 - editar perfil do usuário data nascimento arrumar
@@ -25,7 +7,7 @@ usuario
 - tratar username no template, trocar ordem, avaliar duas etapas
 
 
-evento
+EVENTO:
 - precisa polir a inscrição
 - inscrever-se, inscrito, desiscrever-se
 - novo evento só pode ser cadastrado pelo admin (precisa validar a url)
@@ -41,8 +23,14 @@ evento
 - pensar sobre o publico -
 - após salvar atividade enviar para o detalhe do evento (remover dados.html) ✅
 - home com todos os eventos, clica e vai para a página do evento, com banner
+- tem alguma validação de email?
 
-quiz: 
+ATIVIDADE
+- tipo da atividade é o mesmo do tipo do evento?
+- complemento do local, tive uma impressão que era endereço ainda
+- data e hora inicio fim deveria validar se está dentro do evento
+
+QUIZ: 
 - progresso não faz sentido
 - atrelar resposta ao dia ou atividade
 - remover inicio, cadastrar novo participante ✅
