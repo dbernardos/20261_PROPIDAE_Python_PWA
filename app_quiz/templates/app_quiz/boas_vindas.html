@@ -5,9 +5,9 @@
   Bem-vindo - {{ participante.nome|default:'Participante' }}
 {% endblock %}
 
-{% block extra_script %}
+{% block pre_script %}
   <link rel="manifest" href="manifest.json" crossorigin="use-credentials" />
-  <meta http-equiv="refresh" content="10;url={% url 'app_quiz:urlleitor_qrcode' %}" />
+  <meta http-equiv="refresh" content="5;url={% url 'app_quiz:urlleitor_qrcode' %}" />
 {% endblock %}
 
 {% block content %}

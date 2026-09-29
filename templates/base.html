@@ -21,14 +21,17 @@
       {% endblock %}
     </title>
 
-      <!-- Bootstrap 5 CSS -->
-    <link rel="stylesheet"  href="{% static 'css/bootstrap.min.css' %}" />
+    <!-- Bootstrap 5 CSS -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="{% static 'css/bootstrap-icons.css' %}" />
     <!-- CSS Customizado -->
     <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
 
-    {% block extra_css %}{% endblock %}
+    {% block extra_css %}
+    {% endblock %}
+    {% block pre_script %}
+    {% endblock %}
   </head>
   <body class="d-flex flex-column min-vh-100">
     <!-- Cabeçalho -->
@@ -57,7 +60,7 @@
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'app_evento:urlminhas_inscricoes' %}">Inscrições</a>
                 </li>
-                
+
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'app_login:urlmeu_usuario' %}">Usuario</a>
                 </li>
@@ -211,18 +214,16 @@
         console.log('Service Worker não é suportado neste navegador.')
       }
     </script>
-    
+
     <script>
       //procura campos obrigatórios para por asterisco
-      document.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
-          // Procura pelo label associado ao ID do campo obrigatório
-          const label = document.querySelector(`label[for="${input.id}"]`);
-          if (label) {
-              label.classList.add('required');
-          }
-      });
+      document.querySelectorAll('input[required], select[required], textarea[required]').forEach((input) => {
+        // Procura pelo label associado ao ID do campo obrigatório
+        const label = document.querySelector(`label[for="${input.id}"]`)
+        if (label) {
+          label.classList.add('required')
+        }
+      })
     </script>
-
-
   </body>
 </html>
