@@ -26,7 +26,8 @@
       <div>
         {% comment %} <h2>Leitor</h2> {% endcomment %}
         <div id="reader"></div>
-        <div id="resultado">Aguardando QR Code...</div>
+        {% comment %} <div id="resultado">Aguardando QR Code...</div> {% endcomment %}
+        <div id="resultado" style="margin: 0; padding: 0; min-height: 0;"></div>
       </div>
 
       {% comment %} <div class="container py-3"> {% endcomment %}
@@ -100,7 +101,7 @@
           resultadoDiv.className = 'negado'
     
           setTimeout(() => {
-            resultadoDiv.textContent = 'Aguardando QR Code...'
+            resultadoDiv.textContent = ''
             resultadoDiv.className = ''
             processando = false // Libera a câmera para a próxima pessoa!
           }, 3000) // 3000 = 3 segundos de espera para ler a mensagem
@@ -111,7 +112,7 @@
         resultadoDiv.className = 'negado'
     
         setTimeout(() => {
-          resultadoDiv.textContent = 'Aguardando QR Code...'
+          resultadoDiv.textContent = ''
           resultadoDiv.className = ''
           processando = false
         }, 3000)
