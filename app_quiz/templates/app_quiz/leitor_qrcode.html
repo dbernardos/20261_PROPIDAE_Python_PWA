@@ -24,14 +24,15 @@
   <div>
     <main class="principal">
       <div>
-        <h2>Leitor</h2>
+        {% comment %} <h2>Leitor</h2> {% endcomment %}
         <div id="reader"></div>
         <div id="resultado">Aguardando QR Code...</div>
       </div>
 
+      {% comment %} <div class="container py-3"> {% endcomment %}
       <div>
         <form id="formManual" style="margin-bottom: 20px; text-align: center;">
-          <input type="text" id="codigoManual" placeholder="Digite o código se necessário" style="padding: 8px; width: 220px;" required>
+          <input type="text" id="codigoManual" placeholder="Digite o código se necessário" style="padding: 8px; width: 290px;" required>
           <input type="submit" value="Validar Código" style="padding: 8px 15px; cursor: pointer;">
         </form>
       </div>
