@@ -11,7 +11,17 @@
 {% endblock %}
 
 {% block content %}
-  <div class="container py-3">
+  <div class="container py-5">
+    <!-- Navegação -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{% url 'app_quiz:urlboas_vindas' cracha %}" class="text-decoration-none"><i class="bi bi-house me-1"></i>Início</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Desafio {{ quiz.numero }}</li>
+      </ol>
+    </nav>
+
     <!-- INICIO DESAFIO -->
     <div class="challenge-card" data-challenge="1" data-min="118.09" data-max="227.61">
       <div class="challenge-header">

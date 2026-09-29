@@ -24,14 +24,16 @@
   <div>
     <main class="principal">
       <div>
-        <h2>Leitor</h2>
+        {% comment %} <h2>Leitor</h2> {% endcomment %}
         <div id="reader"></div>
-        <div id="resultado">Aguardando QR Code...</div>
+        {% comment %} <div id="resultado">Aguardando QR Code...</div> {% endcomment %}
+        <div id="resultado" style="margin: 0; padding: 0; min-height: 0;"></div>
       </div>
 
+      {% comment %} <div class="container py-3"> {% endcomment %}
       <div>
         <form id="formManual" style="margin-bottom: 20px; text-align: center;">
-          <input type="text" id="codigoManual" placeholder="Digite o código se necessário" style="padding: 8px; width: 220px;" required>
+          <input type="text" id="codigoManual" placeholder="Digite o código se necessário" style="padding: 8px; width: 290px;" required>
           <input type="submit" value="Validar Código" style="padding: 8px 15px; cursor: pointer;">
         </form>
       </div>
@@ -99,7 +101,7 @@
           resultadoDiv.className = 'negado'
     
           setTimeout(() => {
-            resultadoDiv.textContent = 'Aguardando QR Code...'
+            resultadoDiv.textContent = ''
             resultadoDiv.className = ''
             processando = false // Libera a câmera para a próxima pessoa!
           }, 3000) // 3000 = 3 segundos de espera para ler a mensagem
@@ -110,7 +112,7 @@
         resultadoDiv.className = 'negado'
     
         setTimeout(() => {
-          resultadoDiv.textContent = 'Aguardando QR Code...'
+          resultadoDiv.textContent = ''
           resultadoDiv.className = ''
           processando = false
         }, 3000)
