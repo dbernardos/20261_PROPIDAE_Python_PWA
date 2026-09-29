@@ -29,7 +29,7 @@ evento
 - precisa polir a inscrição
 - inscrever-se, inscrito, desiscrever-se
 - novo evento só pode ser cadastrado pelo admin (precisa validar a url)
-- a listagem de eventos vai para a home (inicio)
+- a listagem de eventos vai para a home (inicio) ✅
 - botão de eventos arquivados
 - armazenar foto do banner
 - arrumar a criação de evento que começa hoje e termina ontem
@@ -37,12 +37,12 @@ evento
 - editar evento não carrega as datas
 - exemplo local ou endereço completo
 - data do evento com inicio e fim passado, é permitido?
-- remover evento multiplo
+- remover evento multiplo✅
 - pensar sobre o publico -
-- após salvar atividade enviar para o detalhe do evento (remover dados.html)
+- após salvar atividade enviar para o detalhe do evento (remover dados.html) ✅
 - home com todos os eventos, clica e vai para a página do evento, com banner
 
 quiz: 
 - progresso não faz sentido
 - atrelar resposta ao dia ou atividade
-- remover inicio, cadastrar novo participante
+- remover inicio, cadastrar novo participante ✅

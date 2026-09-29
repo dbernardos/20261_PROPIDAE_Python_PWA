@@ -276,7 +276,6 @@ def popular_banco():
             "dataInicio": hoje,
             "dataFim": hoje + timedelta(days=4),
             "tipoEvento": tipoEvento.SEMANA,
-            "eventoMultiplo": True,
             "eventoPublico": True,
         }
     )
@@ -295,7 +294,6 @@ def popular_banco():
             "dataInicio": hoje,
             "dataFim": hoje + timedelta(days=4),
             "tipoEvento": tipoEvento.OUTRO,
-            "eventoMultiplo": False,
             "eventoPublico": True,
         }
     )
@@ -313,7 +311,6 @@ def popular_banco():
             "dataInicio": hoje,
             "dataFim": hoje + timedelta(days=4),
             "tipoEvento": tipoEvento.FORUM,
-            "eventoMultiplo": False,
             "eventoPublico": True,
         }
     )

@@ -135,7 +135,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # URL para onde o usuário será enviado se tentar acessar uma página restrita
 LOGIN_URL = "app_login:urllogin"
 # (Opcional) URL para onde o usuário vai DEPOIS de fazer o login com sucesso
-LOGIN_REDIRECT_URL = "app_evento:urlhome"
+LOGIN_REDIRECT_URL = "app_evento:urldis_evento"
 LOGOUT_REDIRECT_URL = "app_login:urllogin"
 CSRF_USE_SESSIONS = True
 
