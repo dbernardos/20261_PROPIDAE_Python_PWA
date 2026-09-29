@@ -36,8 +36,52 @@
       </div>
     </div>
 
+    <!-- Quadro de Progresso Geral -->
+    <div class="row mb-5">
+      <div class="col-12">
+        <div class="card shadow border-0">
+          <div class="card-header bg-verde-escuro text-white">
+            <h3 class="mb-0"><i class="bi bi-graph-up me-2"></i>Seu Progresso</h3>
+          </div>
+          <div class="card-body p-4">
+            <div class="row text-center mb-4">
+              <div class="col-md-4 mb-3 mb-md-0">
+                <div class="p-3">
+                  <div class="display-4 fw-bold text-verde-escuro">{{ quizzes_completos }}/{{ total_quizzes }}</div>
+                  <div class="text-muted">Desafios Completados</div>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3 mb-md-0">
+                <div class="p-3">
+                  <div class="display-4 fw-bold text-verde-claro">{{ porcentagem_conclusao }}%</div>
+                  <div class="text-muted">Conclusão Total</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="p-3">
+                  <div class="display-4 fw-bold text-danger">{{ total_quizzes|add:'-'|add:quizzes_completos }}</div>
+                  <div class="text-muted">Desafios Restantes</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Barra de Progresso -->
+            <div class="progress" style="height: 30px; border-radius: 15px;">
+              <div class="progress-bar bg-gradient progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ porcentagem_conclusao }}%; background: linear-gradient(90deg, #8cc63f 0%, #1b5e3a 100%);" aria-valuenow="{{ porcentagem_conclusao }}" aria-valuemin="0" aria-valuemax="100">
+                <strong>{{ porcentagem_conclusao }}%</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Lista de Desafios -->
     <div class="row">
+      <div class="col-12">
+        <h2 class="text-verde-escuro mb-4"><i class="bi bi-list-check me-2"></i>Desafios Disponíveis</h2>
+      </div>
+
       {% for item in progresso_quizzes %}
         <div class="col-md-6 col-lg-4 mb-4">
           <div class="card h-100 shadow-sm border-0 {% if item.completo %}border-success border-2{% endif %}">
