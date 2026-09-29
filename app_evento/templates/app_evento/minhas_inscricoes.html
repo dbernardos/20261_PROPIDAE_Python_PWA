@@ -176,7 +176,8 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                                     {% for participa in item.participa_set.all %}
                                     <tr class="atividade-linha" data-atividade
                                         data-nome="{{ participa.atividade.nome|lower }}"
-                                        data-status="{{ item.status|default:''|lower }}">
+                                        data-status="{{ item.status|default:''|lower }}"
+                                        data-inicio="{{ participa.atividade.horaInicio|date:'Y-m-d\TH:i:s' }}">
                                         <td>
                                             <div class="atividade-nome fw-semibold">
                                                 <i class="bi bi-calendar2-event text-success me-2"></i>
