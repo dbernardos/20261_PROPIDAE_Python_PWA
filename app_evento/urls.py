@@ -15,7 +15,8 @@ urlpatterns = [
     path('editar_evento/<int:evento_id>/', views.editar_evento, name='urledt_evento'),
     path('excluir_evento/<int:evento_id>/', views.excluir_evento, name='urldel_evento'),
     path('eventos/<int:evento_id>/', views.detalhes_evento, name='urldet_evento'),
-    path('eventos_disponiveis/', views.eventos_disponiveis, name='urldis_evento'),
+    
+    path('eventos_disponiveis/', views.eventos_disponiveis, name='urldis_evento_aba'),
     
     path('meus_eventos/<int:evento_id>/', views.detalhes_meus_evento, name='urldet_myevento'),
     path('meus_eventos_disponiveis/', views.meus_eventos_disponiveis, name='urldis_myevento'),
@@ -26,7 +27,6 @@ urlpatterns = [
 
     path('sorteio/', views.sorteio, name='urlsorteio'),
     path('atividade/<int:atividade_id>/sorteio/', views.sorteio, name='urlsorteio_atividade'),
-    path('sorteio/', views.sorteio, name='urlsorteio'), # Rota fallback
 
     path('dados/', views.dados, name='urldados'),
     path('minhas_inscricoes/', views.minhas_inscricoes, name='urlminhas_inscricoes'),
@@ -35,4 +35,3 @@ urlpatterns = [
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-

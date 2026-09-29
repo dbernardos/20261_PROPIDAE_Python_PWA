@@ -1,0 +1,426 @@
+/* ==========================================================================
+   MINHAS INSCRIÇÕES - ESTILOS PRINCIPAIS
+   ========================================================================== */
+
+/* Variáveis de Tema Escopadas */
+.pagina-inscricoes {
+    --cor-principal: #198754;
+    --cor-principal-hover: #157347;
+    --cor-texto: #212529;
+    --cor-muted: #6c757d;
+    --cor-borda: #e9ecef;
+    --cor-fundo: #f8f9fa;
+}
+
+/* ==========================================================================
+     RESUMO DE INSCRIÇÕES (CARDS SUPERIORES)
+     ========================================================================== */
+.inscricoes-resumo {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.resumo-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #ffffff;
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+    box-shadow: 0 0.125rem 0.35rem rgba(0, 0, 0, 0.035);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.resumo-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.35rem 0.9rem rgba(0, 0, 0, 0.07);
+}
+
+.resumo-icone {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: rgba(25, 135, 84, 0.1);
+    color: var(--cor-principal);
+    font-size: 1.25rem;
+}
+
+.resumo-valor {
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--cor-texto);
+}
+
+.resumo-label {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.8rem;
+    color: var(--cor-muted);
+}
+
+/* ==========================================================================
+     FILTROS E BUSCA
+     ========================================================================== */
+.filtros-inscricoes {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: #ffffff;
+    border: 1px solid var(--cor-borda);
+    border-radius: 10px;
+}
+
+.filtros-botoes {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+}
+
+.filtro-btn {
+    border: 0;
+    background: transparent;
+    color: var(--cor-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.5rem 0.85rem;
+    border-radius: 7px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.filtro-btn:hover {
+    background: #f1f3f5;
+    color: var(--cor-texto);
+}
+
+.filtro-btn.active {
+    background: rgba(25, 135, 84, 0.1);
+    color: var(--cor-principal);
+    font-weight: 600;
+}
+
+/* Campo de Busca */
+.campo-busca {
+    position: relative;
+    width: 280px;
+    flex-shrink: 0;
+}
+
+.campo-busca i {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+    pointer-events: none;
+}
+
+.campo-busca input {
+    padding-left: 2.35rem;
+    border-radius: 7px;
+    border-color: #dee2e6;
+}
+
+.campo-busca input:focus {
+    border-color: var(--cor-principal);
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.12);
+}
+
+/* ==========================================================================
+     CARDS DE INSCRIÇÃO E EVENTO
+     ========================================================================== */
+.card-inscricao {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card-inscricao:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+.card-inscricao .card-header {
+    border-bottom: 0;
+}
+
+.card-inscricao .card-footer {
+    border-top: 1px solid #e9ecef;
+}
+
+/* Banner da Inscrição */
+.banner-evento-img {
+    height: 160px;
+    max-height: 160px;
+    object-fit: cover;
+    border-radius: 0.375rem;
+    transition: transform 0.25s ease;
+}
+
+.card-inscricao:hover .banner-evento-img {
+    transform: scale(1.015);
+}
+
+/* Status e Badges */
+.evento-status {
+    display: inline-flex;
+    align-items: center;
+    background: #ffffff;
+    color: #212529;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 50rem;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.atividade-total-badge {
+    font-weight: 500;
+}
+
+/* ==========================================================================
+     TABELA DE ATIVIDADES
+     ========================================================================== */
+.tabela-atividades {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.tabela-atividades table {
+    margin-bottom: 0;
+}
+
+.tabela-atividades th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.45px;
+    color: #6c757d;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.tabela-atividades td {
+    font-size: 0.9rem;
+}
+
+.tabela-atividades tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.atividade-nome {
+    display: flex;
+    align-items: center;
+    min-width: 220px;
+    font-weight: 600;
+}
+
+.atividade-horario {
+    white-space: nowrap;
+}
+
+.atividade-tipo {
+    font-size: 0.7rem;
+}
+
+/* ==========================================================================
+     CRACHÁ E QR CODE
+     ========================================================================== */
+.cracha-resumo-icone {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(25, 135, 84, 0.1);
+    color: var(--cor-principal);
+    border-radius: 8px;
+    font-size: 1.15rem;
+}
+
+.cracha-codigo {
+    letter-spacing: 0.5px;
+    font-size: 0.95rem;
+}
+
+.cracha-box {
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+.qrcode-thumb {
+    max-height: 80px;
+    width: auto;
+}
+
+.qrcode-modal {
+    max-width: 180px;
+    height: auto;
+}
+
+.qrcode-indisponivel {
+    width: 180px;
+    min-height: 180px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #adb5bd;
+}
+
+/* ==========================================================================
+     ESTADOS VAZIOS E ANIMAÇÕES
+     ========================================================================== */
+.empty-state {
+    border-color: #e9ecef !important;
+}
+
+.empty-search-icon {
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: #f1f3f5;
+    color: #adb5bd;
+    font-size: 1.4rem;
+}
+
+/* Animação para filtro do JS */
+.inscricao-item.filtro-oculto {
+    display: none !important;
+}
+
+/* ==========================================================================
+     MODAL DO CRACHÁ
+     ========================================================================== */
+.modal-cracha .modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.modal-cracha .modal-header {
+    border-bottom: 0;
+}
+
+.modal-cracha .modal-footer {
+    border-top: 1px solid #e9ecef;
+}
+
+/* ==========================================================================
+     RESPONSIVIDADE (MEDIA QUERIES)
+     ========================================================================== */
+@media (max-width: 991.98px) {
+    .inscricoes-resumo {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .filtros-inscricoes {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .campo-busca {
+        width: 100%;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .inscricoes-resumo {
+        grid-template-columns: 1fr;
+    }
+
+    .banner-evento-img {
+        height: 180px;
+        max-height: 180px;
+    }
+
+    .atividade-nome {
+        min-width: 180px;
+    }
+}
+
+@media (max-width: 576px) {
+    .pagina-inscricoes {
+        margin-top: 1.5rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    .filtros-botoes {
+        width: 100%;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 0.2rem;
+    }
+
+    .filtro-btn {
+        white-space: nowrap;
+    }
+
+    .card-inscricao .card-footer {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .card-inscricao .card-footer>div {
+        width: 100%;
+    }
+
+    .card-inscricao .card-footer .d-flex.gap-2 {
+        justify-content: center;
+    }
+
+    .cracha-resumo-icone {
+        width: 36px;
+        height: 36px;
+    }
+
+    .tabela-atividades {
+        border-radius: 6px;
+    }
+}
+
+/* ==========================================================================
+     ESTILOS DE IMPRESSÃO DO CRACHÁ
+     ========================================================================== */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .modal.show .cracha-printable,
+    .modal.show .cracha-printable * {
+        visibility: visible;
+    }
+
+    .modal.show .cracha-printable {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 400px;
+        border: 1px solid #dee2e6;
+        padding: 24px;
+        border-radius: 12px;
+        background-color: #ffffff;
+        box-shadow: none !important;
+    }
+
+    .modal-backdrop,
+    .btn-close,
+    .modal-footer {
+        display: none !important;
+    }
+}

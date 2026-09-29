@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    
+    <!-- Cabeçalho da Página -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h1 class="h3 fw-bold mb-1">
+                <i class="bi bi-file-earmark-check me-2 text-success"></i>Comprovante de Inscrição
+            </h1>
+            <p class="text-muted mb-0">Confira os detalhes da sua inscrição e utilize seu comprovante para credenciamento.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'app_evento:urlminhas_inscricoes' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Minhas Inscrições
+            </a>
+            <button type="button" class="btn btn-success btn-sm" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i> Imprimir Comprovante
+            </button>
+        </div>
+    </div>
+
+    <!-- Card Principal do Comprovante -->
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden comprovante-printable">
+        
+        <!-- Topo do Card -->
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center py-3">
+            <span class="badge bg-light text-success fw-bold text-uppercase px-3 py-2">
+                {{ evento.get_tipoEvento_display|default:evento.tipoEvento }}
+            </span>
+            <small class="text-white-50">
+                <i class="bi bi-clock me-1"></i>Inscrito em {{ inscricao.dataHora|date:"d/m/Y \à\s H:i" }}
+            </small>
+        </div>
+
+        <div class="card-body p-4">
+            
+            <!-- Dados do Participante e Evento -->
+            <div class="row align-items-center mb-4">
+                {% if evento.imagemBanner %}
+                    <div class="col-lg-3 col-md-4 mb-3 mb-md-0">
+                        <img src="{{ evento.imagemBanner.url }}" alt="{{ evento.nome }}" class="img-fluid rounded shadow-sm w-100" style="max-height: 160px; object-fit: cover;">
+                    </div>
+                {% endif %}
+                
+                <div class="{% if evento.imagemBanner %}col-lg-9 col-md-8{% else %}col-12{% endif %}">
+                    <h3 class="card-title fw-bold text-dark mb-2">{{ evento.nome }}</h3>
+                    <p class="card-text text-muted mb-3">{{ evento.descricao|default:"Sem descrição informada." }}</p>
+
+                    <!-- Informações Rápidas -->
+                    <div class="row g-3 text-secondary">
+                        <div class="col-sm-6">
+                            <i class="bi bi-person-circle me-2 text-success"></i>
+                            <strong>Participante:</strong> {{ usuario.nome|default:request.user.get_full_name|default:request.user.username }}
+                        </div>
+                        <div class="col-sm-6">
+                            <i class="bi bi-calendar-event me-2 text-success"></i>
+                            <strong>Data:</strong> {{ evento.dataInicio|date:"d/m/Y" }} até {{ evento.dataFim|date:"d/m/Y" }}
+                        </div>
+                        <div class="col-sm-6">
+                            <i class="bi bi-geo-alt me-2 text-success"></i>
+                            <strong>Local:</strong> {{ evento.local|default:"A definir" }}
+                        </div>
+                        <div class="col-sm-6">
+                            <i class="bi bi-ticket me-2 text-success"></i>
+                            <strong>Status:</strong> <span class="badge bg-success-subtle text-success border border-success fw-bold">Inscrição Confirmada</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4 text-muted">
+
+            <!-- Seção de QR Code e Código do Crachá -->
+            <div class="row g-4 align-items-center bg-light p-3 rounded-3 border mb-4 text-center text-md-start">
+                <div class="col-md-3 text-center">
+                    {% if inscricao.qrcode_imagem %}
+                        <img src="{{ inscricao.qrcode_imagem.url }}" alt="QR Code {{ inscricao.cracha }}" class="img-fluid rounded shadow-sm bg-white p-2 border" style="max-width: 160px;">
+                    {% else %}
+                        <div class="bg-white p-3 border rounded text-muted">
+                            <i class="bi bi-qr-code fs-1"></i>
+                            <p class="small mb-0">Sem QR Code</p>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-9">
+                    <small class="text-muted text-uppercase fw-bold">Código do Crachá / Acesso</small>
+                    <h2 class="font-monospace fw-bold text-success my-1">{{ inscricao.cracha|default:"---" }}</h2>
+                    <p class="text-muted small mb-0">
+                        <i class="bi bi-info-circle me-1"></i>Apresente este QR Code ou o código no balcão de credenciamento para registrar sua entrada no evento.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Atividades Confirmadas -->
+            <h5 class="fw-bold mb-3 text-dark">
+                <i class="bi bi-list-check me-2 text-success"></i>Atividades Confirmadas
+            </h5>
+
+            {% if participacoes %}
+                <div class="table-responsive">
+                    <table class="table table-hover border rounded align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Atividade</th>
+                                <th>Tipo</th>
+                                <th>Horário</th>
+                                <th>Local / Complemento</th>
+                                <th class="text-center">Sua Função</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for participa in participacoes %}
+                                <tr>
+                                    <td class="fw-semibold">{{ participa.atividade.nome }}</td>
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            {{ participa.atividade.get_tipoAtividade_display|default:participa.atividade.tipoAtividade }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <i class="bi bi-clock me-1 text-muted"></i>
+                                        {{ participa.atividade.horaInicio|date:"d/m/Y H:i" }} - {{ participa.atividade.horaFim|date:"H:i" }}
+                                    </td>
+                                    <td>
+                                        {{ participa.atividade.complementoLocal|default:evento.local }}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge {% if participa.funcao == 'Palestrante' %}bg-success{% elif participa.funcao == 'Organizador' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} px-2 py-1">
+                                            {{ participa.get_funcao_display|default:participa.funcao }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-light border text-muted mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Nenhuma atividade específica vinculada a este comprovante.
+                </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Rodapé do Card -->
+        <div class="card-footer bg-light p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <small class="text-muted">SEA - Sistema de Eventos Acadêmicos</small>
+            <small class="text-muted">Gerado em {% now "d/m/Y H:i" %}</small>
+        </div>
+
+    </div>
+</div>
+
+<!-- Estilo Otimizado para Impressão -->
+<style>
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .comprovante-printable, .comprovante-printable * {
+        visibility: visible;
+    }
+    .comprovante-printable {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+    }
+    .btn, nav, footer, header {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}
