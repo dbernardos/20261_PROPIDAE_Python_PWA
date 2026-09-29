@@ -50,7 +50,6 @@ class Evento(models.Model):
 
     tipoEvento = models.CharField(verbose_name="Tipo de Evento", choices=tipoEvento.choices, max_length=20, default=tipoEvento.SEMANA)
 
-    eventoMultiplo = models.BooleanField(default=False)
     eventoPublico = models.BooleanField(default=True)
 
     def __str__(self):

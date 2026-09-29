@@ -196,7 +196,7 @@ def cadastrar_atividade(request, evento_id):
             atividade.save()
             
             messages.success(request, '🎉 Atividade cadastrada com sucesso!')
-            return redirect('app_evento:urldados') 
+            return redirect('app_evento:urldet_myevento', evento_id=evento_atual.id) 
     else:
         form = AtividadeForm()
         context = {

@@ -27,7 +27,6 @@ class EventoForm(forms.ModelForm):
             'dataInicio',
             'dataFim',
             'tipoEvento',
-            'eventoMultiplo',
             'eventoPublico'
         ]
 
@@ -41,7 +40,6 @@ class EventoForm(forms.ModelForm):
             'dataInicio': 'Data de Início',
             'dataFim': 'Data de Término',
             'tipoEvento': 'Tipo do Evento',
-            'eventoMultiplo': 'Evento Múltiplo?',
             'eventoPublico': 'Evento Público?',
         }
         
@@ -54,7 +52,6 @@ class EventoForm(forms.ModelForm):
             'dataInicio': forms.DateInput(format='%Y-%m-%d',attrs={'class': 'form-control mb-3', 'type': 'date'}),
             'dataFim': forms.DateInput(format='%Y-%m-%d',attrs={'class': 'form-control mb-3', 'type': 'date'}),
             'tipoEvento': forms.Select(attrs={'class': 'form-select mb-3'}),
-            'eventoMultiplo': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
             'eventoPublico': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
         }
 

@@ -5,7 +5,7 @@ from .models import  Evento, Atividade, Participa, Inscricao, Apoiador
 # -----------------------------------------------
 @admin.register(Evento)
 class EventoAdmin(admin.ModelAdmin):
-    list_display = ('id','nome', 'descricao', 'emailContato', 'local', 'imagemBanner', 'dataInicio', 'dataFim', 'tipoEvento', 'eventoMultiplo', 'eventoPublico')
+    list_display = ('id','nome', 'descricao', 'emailContato', 'local', 'imagemBanner', 'dataInicio', 'dataFim', 'tipoEvento', 'eventoPublico')
     list_display_links = ('id', 'nome')
     
 @admin.register(Atividade)
