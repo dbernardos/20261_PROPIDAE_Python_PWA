@@ -234,18 +234,27 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                     </div>
 
                     <!-- Rodapé do Card -->
-                    <div
-                        class="card-footer bg-light p-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div class="card-footer bg-light p-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
                         <!-- Código do Crachá -->
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="cracha-resumo-icone">
-                                <i class="bi bi-person-badge fs-4 text-success"></i>
+                            <div class="row align-items-center bg-light  mb-4 text-center text-md-start flex-wrap">
+                                <div class="col-md-3 text-center p-0">
+                                    {% if item.qrcode_imagem %}
+                                    <img src="{{ item.qrcode_imagem.url }}" alt="QR Code {{ item.cracha }}"
+                                        class="img-fluid rounded shadow-sm qrcode-modal" />
+                                    {% else %}
+                                    <div class="qrcode-indisponivel p-3">
+                                        <i class="bi bi-qr-code fs-1 d-block mb-1 text-muted"></i>
+                                        <small class="text-muted">QR Code não disponível</small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-9">
+                                   <p class="small text-muted text-uppercase mb-1 fw-bold">Código de Acesso</p>
+                                    <p class="font-monospace fw-bold text-success mb-2 fs-4">{{ item.cracha|default:'---' }}</p>
+                                        <i class="bi bi-info-circle me-1"></i>Apresente este QR Code ou o código no balcão de credenciamento para registrar sua entrada no evento.
+                                    </p>
+                                </div>
                             </div>
-                            <div>
-                                <small class="text-muted d-block">Código do Crachá</small>
-                                <span class="font-monospace fw-bold text-dark cracha-codigo">{{ item.cracha|default:'---' }}</span>
-                            </div>
-                        </div>
 
                         <!-- Ações -->
                         <div class="d-flex gap-2 flex-wrap">

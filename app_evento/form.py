@@ -49,8 +49,14 @@ class EventoForm(forms.ModelForm):
             'emailContato': forms.EmailInput(attrs={'placeholder': 'digite o e-mail de contato', 'class': 'form-control mb-3'}),
             'local': forms.TextInput(attrs={'placeholder': 'digite o local do evento', 'class': 'form-control mb-3'}),
             'imagemBanner': forms.FileInput(attrs={'class': 'form-control mb-3', 'accept': 'image/*'}),
-            'dataInicio': forms.DateInput(format='%Y-%m-%d',attrs={'class': 'form-control mb-3', 'type': 'date'}),
-            'dataFim': forms.DateInput(format='%Y-%m-%d',attrs={'class': 'form-control mb-3', 'type': 'date'}),
+            'dataInicio': forms.DateInput(
+                format='%Y-%m-%d',
+                attrs={'class': 'form-control', 'type': 'date'}
+            ),
+           'dataFim': forms.DateInput(
+                format='%Y-%m-%d',
+                attrs={'class': 'form-control', 'type': 'date'}
+            ),
             'tipoEvento': forms.Select(attrs={'class': 'form-select mb-3'}),
             'eventoPublico': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
         }
@@ -96,6 +102,13 @@ class EventoForm(forms.ModelForm):
 
         return evento
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Formata a data existente para AAAA-MM-DD sem alterar a estrutura do formulário
+        if self.instance and self.instance.pk and self.instance.dataInicio:
+            self.initial['dataInicio'] = self.instance.dataNascimento.strftime('%Y-%m-%d')
+        if self.instance and self.instance.pk and self.instance.dataFim:
+            self.initial['dataFim'] = self.instance.dataNascimento.strftime('%Y-%m-%d')
 
 class AtividadeForm(forms.ModelForm):
     class Meta:
@@ -135,3 +148,14 @@ class AtividadeForm(forms.ModelForm):
             ),
             'limitePessoas': forms.NumberInput(attrs={'placeholder': 'digite o limite de participantes', 'class': 'form-control mb-3', 'type': 'number'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        if self.instance and self.instance.pk:
+          
+            if self.instance.horaInicio:
+                self.initial['horaInicio'] = self.instance.horaInicio.strftime('%Y-%m-%dT%H:%M')
+            
+            if self.instance.horaFim:
+                self.initial['horaFim'] = self.instance.horaFim.strftime('%Y-%m-%dT%H:%M')

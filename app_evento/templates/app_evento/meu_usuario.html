@@ -162,19 +162,21 @@
                   {% if form.dataNascimento.errors %}<div class="text-vermelho small mt-1">{{ form.dataNascimento.errors.0 }}</div>{% endif %}
                 </div>
 
-                <div class="col-md-4">
-                  <label for="{{ form.cargo.id_for_label }}" class="form-label font-weight-bold">Cargo</label>
-                  {{ form.cargo }}
-                  {% if form.cargo.errors %}<div class="text-vermelho small mt-1">{{ form.cargo.errors.0 }}</div>{% endif %}
-                </div>
 
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <label for="{{ form.empresa.id_for_label }}" class="form-label font-weight-bold">Empresa / Instituição</label>
                   {{ form.empresa }}
                   {% if form.empresa.errors %}<div class="text-vermelho small mt-1">{{ form.empresa.errors.0 }}</div>{% endif %}
                 </div>
 
-                <div class="col-md-4">
+                
+                <div class="col-md-6">
+                  <label for="{{ form.cargo.id_for_label }}" class="form-label font-weight-bold">Cargo</label>
+                  {{ form.cargo }}
+                  {% if form.cargo.errors %}<div class="text-vermelho small mt-1">{{ form.cargo.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="col-md-6">
                   <label for="{{ form.formacao.id_for_label }}" class="form-label font-weight-bold">Formação</label>
                   {{ form.formacao }}
                   {% if form.formacao.errors %}<div class="text-vermelho small mt-1">{{ form.formacao.errors.0 }}</div>{% endif %}

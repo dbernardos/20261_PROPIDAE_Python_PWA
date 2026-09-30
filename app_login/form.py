@@ -28,7 +28,10 @@ class CadastroUsuarioForm(forms.ModelForm):
         
         # Ajustando os widgets para melhor usabilidade no HTML
         widgets = {
-            'dataNascimento': forms.DateInput(attrs={'type': 'date'}),
+           'dataNascimento': forms.DateInput(
+                format='%Y-%m-%d',
+                attrs={'class': 'form-control', 'type': 'date'}
+            ),
             'cpf': forms.TextInput(attrs={'placeholder': '000.000.000-00', 'required': 'required'}),
             'biografia': forms.Textarea(attrs={'rows': 3}),
         }
@@ -59,6 +62,12 @@ class CadastroUsuarioForm(forms.ModelForm):
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("Este e-mail já está em uso por outro usuário.")
         return email
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Formata a data existente para AAAA-MM-DD sem alterar a estrutura do formulário
+        if self.instance and self.instance.pk and self.instance.dataNascimento:
+            self.initial['dataNascimento'] = self.instance.dataNascimento.strftime('%Y-%m-%d')
 
 # Create your LOGIN forms here.
 # -----------------------------------------------
@@ -78,6 +87,7 @@ class UsuarioForm(UserCreationForm):
         }
 
 class ParticipanteForm(forms.ModelForm):
+    
     """Form para registro/login do participante pelo crachá"""
     class Meta:
         model = Usuario
@@ -94,6 +104,7 @@ class ParticipanteForm(forms.ModelForm):
         }
 
 class EditarPerfilForm(forms.ModelForm):
+
     class Meta:
         model = Usuario
         # O atributo 'fields' DEVE estar dentro de 'class Meta'
@@ -128,10 +139,18 @@ class EditarPerfilForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'cpf': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '000.000.000-00'}),
             'telefone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(00) 00000-0000'}),
-            'dataNascimento': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'dataNascimento': forms.DateInput(
+                format='%Y-%m-%d',
+                attrs={'class': 'form-control', 'type': 'date'}
+            ),
             'cargo': forms.TextInput(attrs={'class': 'form-control'}),
             'empresa': forms.TextInput(attrs={'class': 'form-control'}),
             'formacao': forms.TextInput(attrs={'class': 'form-control'}),
             'fotoPerfil': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'biografia': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Formata a data existente para AAAA-MM-DD sem alterar a estrutura do formulário
+        if self.instance and self.instance.pk and self.instance.dataNascimento:
+            self.initial['dataNascimento'] = self.instance.dataNascimento.strftime('%Y-%m-%d')
