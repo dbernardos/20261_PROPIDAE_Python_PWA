@@ -60,7 +60,7 @@ class EventoForm(forms.ModelForm):
             'tipoEvento': forms.Select(attrs={'class': 'form-select mb-3'}),
             'eventoPublico': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
         }
-
+     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # CORREÇÃO: Sobrescreve 'self.initial['apoiadores']' com a string formatada.
@@ -68,6 +68,11 @@ class EventoForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             nomes_apoiadores = [ap.nome for ap in self.instance.apoiadores.all()]
             self.initial['apoiadores'] = ', '.join(nomes_apoiadores)
+            
+        if self.instance and self.instance.pk and self.instance.dataInicio:
+            self.initial['dataInicio'] = self.instance.dataInicio.strftime('%Y-%m-%d')
+        if self.instance and self.instance.pk and self.instance.dataFim:
+            self.initial['dataFim'] = self.instance.dataFim.strftime('%Y-%m-%d')    
 
     def clean_apoiadores(self):
         """Transforma a string digitada em uma lista de nomes limpos"""
@@ -102,13 +107,7 @@ class EventoForm(forms.ModelForm):
 
         return evento
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Formata a data existente para AAAA-MM-DD sem alterar a estrutura do formulário
-        if self.instance and self.instance.pk and self.instance.dataInicio:
-            self.initial['dataInicio'] = self.instance.dataNascimento.strftime('%Y-%m-%d')
-        if self.instance and self.instance.pk and self.instance.dataFim:
-            self.initial['dataFim'] = self.instance.dataNascimento.strftime('%Y-%m-%d')
+
 
 class AtividadeForm(forms.ModelForm):
     class Meta:

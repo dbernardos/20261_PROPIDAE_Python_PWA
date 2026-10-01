@@ -55,7 +55,6 @@ class Evento(models.Model):
     def __str__(self):
         return self.nome
 
-
 # -----------------------------------------------
 # MODELS DE INSCRIÇÃO E PARTICIPAÇÃO
 # -----------------------------------------------
