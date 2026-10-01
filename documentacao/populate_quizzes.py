@@ -8,7 +8,7 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'SEA.settings')
 django.setup()
 
-from core.models import Quiz
+from app_quiz.models import Quiz
 
 # Limpa quizzes existentes
 Quiz.objects.all().delete()

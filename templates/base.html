@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
@@ -29,8 +30,10 @@
     <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
 
     {% block extra_css %}
+
     {% endblock %}
     {% block pre_script %}
+
     {% endblock %}
   </head>
   <body class="d-flex flex-column min-vh-100">
@@ -38,7 +41,12 @@
     <header class="site-header">
       <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-          <a class="navbar-brand" href="{% url 'app_evento:urldis_evento' %}"><img src="{% static 'images/logo.png' %}" alt="XXIX Colóquio de Usinagem" height="60" /></a>
+          <a class="navbar-brand" href="{% url 'app_evento:urldis_evento' %}">
+            {% block navbar_imagem %}
+              <!-- Imagem Padrão (Estática) -->
+              <img src="{% static 'images/images-default/Icontransparent.png' %}" alt="SEA EVENTS- SISTEMA DE EVENTOS ACADEMICOS" height="60" />
+            {% endblock %}
+          </a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
 
           <div class="collapse navbar-collapse" id="navbarMain">
@@ -49,11 +57,10 @@
 
               {% comment '' %}MENUS APENAS PARA QUEM ESTÁ LOGADO{% endcomment %}
               {% if request.user.is_authenticated %}
-
-                {% if request.user.is_staff%}
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'app_evento:urldis_myevento' %}">Meus Eventos</a>
-                </li>
+                {% if request.user.is_staff %}
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'app_evento:urldis_myevento' %}">Meus Eventos</a>
+                  </li>
                 {% endif %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'app_evento:urlminhas_inscricoes' %}">Inscrições</a>

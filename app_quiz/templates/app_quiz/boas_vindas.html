@@ -7,7 +7,7 @@
 
 {% block pre_script %}
   <link rel="manifest" href="manifest.json" crossorigin="use-credentials" />
-  <meta http-equiv="refresh" content="30;url={% url 'app_quiz:urlleitor_qrcode' %}" />
+  <meta http-equiv="refresh" content="5;url={% url 'app_quiz:urlleitor_qrcode' %}" />
 {% endblock %}
 
 {% block content %}
@@ -60,12 +60,12 @@
               </div>
             </div>
             <div class="card-body">
-              {% comment %} <h6 class="card-title fw-bold">{{ item.quiz.titulo }}</h6> {% endcomment %}
-              {% comment %} <p class="card-text text-muted small">{{ item.quiz.descricao|truncatewords:15 }}</p> {% endcomment %}
+              <h6 class="card-title fw-bold">{{ item.quiz.titulo }}</h6>
+              <p class="card-text text-muted small">{{ item.quiz.descricao|truncatewords:15 }}</p>
 
               <div class="mt-3">
                 <small class="text-muted">
-                  {% comment %} <i class="bi bi-rulers me-1"></i>Unidade: {{ item.quiz.unidade_medida }}<br /> {% endcomment %}
+                  <i class="bi bi-rulers me-1"></i>Unidade: {{ item.quiz.unidade_medida }}<br />
                   {% if item.tentativas > 0 %}
                     <i class="bi bi-arrow-repeat me-1"></i>Tentativas: {{ item.tentativas }}
                   {% endif %}
