@@ -24,6 +24,66 @@
           {% endif %}
         {% endif %}
       </div>
+      
+          
+      <div class="card card-custom mb-4 border-0 shadow-sm">
+        <div class="card-body p-4">
+          
+          <!-- ATENÇÃO: Altere o 'app_evento:lista_eventos' para o nome correto da sua url de listagem -->
+          <form method="GET" action="{% url 'app_evento:urldis_myevento' %}">
+            <div class="row g-3 align-items-end">
+              
+              <!-- Busca por Texto -->
+              <div class="col-md-5">
+                <label for="busca" class="form-label fw-bold text-verde-escuro">Pesquisar Evento</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light text-muted border-end-0">
+                    <i class="bi bi-search"></i>
+                  </span>
+                  <input type="text" class="form-control border-start-0 ps-0 bg-light" id="busca" name="busca" 
+                        placeholder="Digite o nome ou palavra-chave..." value="{{ busca_atual }}">
+                </div>
+              </div>
+
+              <!-- Filtro por Tipo de Evento -->
+              <div class="col-md-3">
+                <label for="tipo" class="form-label fw-bold text-verde-escuro">Tipo</label>
+                  <select class="form-select bg-light" id="tipo" name="tipo">
+                      <option value="">Todos os tipos</option>
+                      {% for valor, rotulo in tipos_evento %}
+                        <option value="{{ valor }}" {% if tipo_atual == valor %}selected{% endif %}>
+                          {{ rotulo }}
+                        </option>
+                      {% endfor %}
+                  </select>
+              </div>
+
+              <!-- Filtro por Status (Datas) -->
+              <div class="col-md-2">
+                <label for="status" class="form-label fw-bold text-verde-escuro">Status</label>
+                <select class="form-select bg-light" id="status" name="status">
+                  <option value="">Qualquer data</option>
+                  <option value="futuros" {% if status_atual == 'futuros' %}selected{% endif %}>Próximos</option>
+                  <option value="passados" {% if status_atual == 'passados' %}selected{% endif %}>Encerrados</option>
+                </select>
+              </div>
+
+              <!-- Botões -->
+              <div class="col-md-2 d-flex gap-2">
+                <a href="{% url 'app_evento:urldis_myevento' %}" class="btn btn-outline-secondary w-50" title="Limpar Filtros">
+                  <i class="bi bi-eraser"></i>
+                </a>
+                <button type="submit" class="btn btn-success w-50" title="Buscar">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </div>
+
+
 
       <!-- Listagem em Formato de Catálogo (Cards Horizontais) -->
       <div class="row g-4">

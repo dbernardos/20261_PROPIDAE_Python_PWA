@@ -1,5 +1,6 @@
 from django import forms
 from .models import Evento, Atividade, Apoiador
+from datetime import date, datetime
 
 # Create your EVENTO forms here.
 # -----------------------------------------------
@@ -83,6 +84,15 @@ class EventoForm(forms.ModelForm):
         # Divide por vírgula e remove espaços extras de cada nome
         return [nome.strip() for nome in texto_apoiadores.split(',') if nome.strip()]
 
+    def clean_dataInicio(self):
+        dataInicio = self.cleaned_data.get('dataInicio')
+        dataFim = self.cleaned_data.get('dataFim')
+
+        if dataInicio and dataFim and dataInicio > dataFim:
+            raise forms.ValidationError("A data de início não pode ser maior que a data de término.")
+        
+        return dataInicio
+
     def save(self, commit=True):
         # Salva o evento sem commitar no banco por enquanto
         evento = super().save(commit=False)
@@ -147,6 +157,70 @@ class AtividadeForm(forms.ModelForm):
             ),
             'limitePessoas': forms.NumberInput(attrs={'placeholder': 'digite o limite de participantes', 'class': 'form-control mb-3', 'type': 'number'}),
         }
+
+
+    def clean(self):
+        cleaned_data = super().clean()
+        horaInicio = cleaned_data.get('horaInicio')
+        horaFim = cleaned_data.get('horaFim')
+
+        evento = cleaned_data.get('evento') or getattr(self.instance, 'evento', None)
+
+        # 1. Checagem de ordem simples (término < início)
+        if horaInicio and horaFim and horaFim < horaInicio:
+            self.add_error(
+                'horaFim',
+                'A hora de término não pode ser anterior à hora de início.',
+            )
+
+        # 2. Checagem dos limites do Evento
+        if evento and horaInicio and horaFim:
+            # Converte para .date() para comparação segura se houver mistura de date/datetime
+            dt_atv_inicio = (
+                horaInicio.date() if isinstance(horaInicio, datetime) else horaInicio
+            )
+            dt_atv_fim = horaFim.date() if isinstance(horaFim, datetime) else horaFim
+
+            dt_ev_inicio = (
+                evento.dataInicio.date()
+                if isinstance(evento.dataInicio, datetime)
+                else evento.dataInicio
+            )
+            dt_ev_fim = (
+                evento.dataFim.date()
+                if isinstance(evento.dataFim, datetime)
+                else evento.dataFim
+            )
+
+            # Prepara as strings formatadas antecipadamente (garante que as variáveis sempre existam)
+            inicio_fmt = (
+                evento.dataInicio.strftime('%d/%m/%Y às %H:%M')
+                if isinstance(evento.dataInicio, datetime)
+                else evento.dataInicio.strftime('%d/%m/%Y')
+            )
+
+            fim_fmt = (
+                evento.dataFim.strftime('%d/%m/%Y às %H:%M')
+                if isinstance(evento.dataFim, datetime)
+                else evento.dataFim.strftime('%d/%m/%Y')
+            )
+
+            # Valida se a atividade começa antes do evento
+            if dt_atv_inicio < dt_ev_inicio:
+                self.add_error(
+                    'horaInicio',
+                    f'A atividade não pode começar antes do evento ({inicio_fmt}).',
+                )
+
+            # Valida se a atividade termina depois do evento
+            if dt_atv_fim > dt_ev_fim:
+                self.add_error(
+                    'horaFim',
+                    f'A atividade não pode terminar após o encerramento do evento'
+                    f' ({fim_fmt}).',
+                )
+
+        return cleaned_data
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

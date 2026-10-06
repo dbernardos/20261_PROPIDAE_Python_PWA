@@ -9,8 +9,8 @@ from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.middleware.csrf import rotate_token
-
-from .models import Evento, Atividade, Inscricao, Apoiador, Participa, StatusParticipa
+from django.db.models import Q
+from .models import Evento, Atividade, Inscricao, Apoiador, Participa, StatusParticipa, tipoEvento
 from app_login.models import Usuario
 from .form import EventoForm, AtividadeForm
 
@@ -27,10 +27,32 @@ def home(request):
 @never_cache
 def eventos_disponiveis(request):
     """Exibe todos os eventos disponíveis no catálogo."""
-    eventos = Evento.objects.all()
+    eventos = Evento.objects.all().order_by('dataInicio')
+    
+    query_busca = request.GET.get('busca', '')
+    query_tipo = request.GET.get('tipo', '')
+    query_status = request.GET.get('status', '')
+    
+    if query_busca:
+        eventos = eventos.filter(
+            Q(nome__icontains=query_busca) | 
+            Q(descricao__icontains=query_busca)
+     )
 
+    if query_tipo:
+        eventos = eventos.filter(tipoEvento=query_tipo)
+
+    if query_status == 'futuros':
+        eventos = eventos.filter(dataInicio__gte=timezone.now())
+    elif query_status == 'passados':
+        eventos = eventos.filter(dataFim__lt=timezone.now())
+        
     context = {
         'eventos': eventos,
+        'tipos_evento': tipoEvento.choices,
+        'busca_atual': query_busca,
+        'tipo_atual': query_tipo,
+        'status_atual': query_status,
     }
 
     return render(request, 'app_evento/eventos.html', context)
@@ -109,8 +131,7 @@ def excluir_evento(request, evento_id):
     if request.method == 'POST':
         evento.delete()
         messages.success(request, '🗑️ Evento excluído com sucesso!')
-    return redirect('app_evento:urlcad_evento')
-
+    return redirect('app_evento:urldis_myevento')
 
 @never_cache
 def detalhes_evento(request, evento_id):
@@ -183,8 +204,35 @@ def meus_eventos_disponiveis(request):
     except Usuario.DoesNotExist:
         eventos_do_usuario = Evento.objects.none()
     
+    query_busca = request.GET.get('busca', '')
+    query_tipo = request.GET.get('tipo', '')
+    query_status = request.GET.get('status', '')
+
+    # 2. Aplica os filtros sobre a lista do administrador
+    if query_busca:
+        eventos_do_usuario = eventos_do_usuario.filter(
+            Q(nome__icontains=query_busca) | Q(descricao__icontains=query_busca)
+        )
+
+    if query_tipo:
+        eventos_do_usuario = eventos_do_usuario.filter(tipoEvento=query_tipo)
+
+    if query_status == 'futuros':
+        eventos_do_usuario = eventos_do_usuario.filter(
+            dataInicio__gte=timezone.now()
+        )
+    elif query_status == 'passados':
+        eventos_do_usuario = eventos_do_usuario.filter(
+            dataFim__lt=timezone.now()
+        )
+
+    # 3. Envia os dados filtrados e os estados da busca para o template
     context = {
         'eventos': eventos_do_usuario,
+        'tipos_evento': (tipoEvento.choices),  # Se der NameError, use Evento.tipoEvento.choices
+        'busca_atual': query_busca,
+        'tipo_atual': query_tipo,
+        'status_atual': query_status,
     }
 
     return render(request, 'app_evento/meus_eventos.html', context)

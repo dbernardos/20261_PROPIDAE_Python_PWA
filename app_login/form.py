@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Usuario
 import re
+from django.utils import timezone
 
 class CadastroUsuarioForm(forms.ModelForm):
 
@@ -23,14 +24,14 @@ class CadastroUsuarioForm(forms.ModelForm):
         # Campos do seu model que aparecerão na tela para o usuário preencher
         fields = [
             'nome', 'cpf', 'email', 'telefone', 'dataNascimento',
-            'biografia', 'fotoPerfil', 'cargo', 'formacao', 'empresa'
+            'formacao',  'empresa',  'cargo',  'fotoPerfil',  'biografia', 
         ]
         
         # Ajustando os widgets para melhor usabilidade no HTML
         widgets = {
            'dataNascimento': forms.DateInput(
                 format='%Y-%m-%d',
-                attrs={'class': 'form-control', 'type': 'date'}
+                attrs={'class': 'form-control', 'type': 'date', 'max': timezone.localdate().isoformat()}
             ),
             'cpf': forms.TextInput(attrs={'placeholder': '000.000.000-00', 'required': 'required'}),
             'biografia': forms.Textarea(attrs={'rows': 3}),
@@ -62,6 +63,23 @@ class CadastroUsuarioForm(forms.ModelForm):
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("Este e-mail já está em uso por outro usuário.")
         return email
+    
+    def clean_dataNascimento(self):
+        dataNascimento = self.cleaned_data.get('dataNascimento')
+        
+        # Compara a data inserida com a data de hoje
+        if dataNascimento and dataNascimento > timezone.localdate():
+            raise forms.ValidationError("A data de nascimento não pode ser maior que a data atual.")
+            
+        return dataNascimento
+    
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        # Nota: Se o seu sistema usa o 'email' ou 'cpf' como username, 
+        # mude 'username=nome' para 'username=email' ou 'username=cpf' abaixo:
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("Este nome já está cadastrado em nosso sistema.")
+        return username
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -113,10 +131,11 @@ class EditarPerfilForm(forms.ModelForm):
             'email', 
             'cpf', 
             'telefone', 
-            'dataNascimento', 
-            'cargo', 
-            'empresa', 
+            'dataNascimento',  
+            
             'formacao', 
+            'empresa', 
+            'cargo', 
             'fotoPerfil', 
             'biografia'
         ]
@@ -127,9 +146,10 @@ class EditarPerfilForm(forms.ModelForm):
             'cpf': 'CPF',
             'telefone': 'Telefone',
             'dataNascimento': 'Data de Nascimento',
-            'cargo': 'Cargo',
-            'empresa': 'Empresa / Instituição',
+            
             'formacao': 'Formação Acadêmica',
+            'empresa': 'Empresa / Instituição',
+            'cargo': 'Cargo',
             'fotoPerfil': 'Foto de Perfil',
             'biografia': 'Biografia',
         }
@@ -141,11 +161,12 @@ class EditarPerfilForm(forms.ModelForm):
             'telefone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(00) 00000-0000'}),
             'dataNascimento': forms.DateInput(
                 format='%Y-%m-%d',
-                attrs={'class': 'form-control', 'type': 'date'}
+                attrs={'class': 'form-control', 'type': 'date', 'max': timezone.localdate().isoformat()}
             ),
-            'cargo': forms.TextInput(attrs={'class': 'form-control'}),
-            'empresa': forms.TextInput(attrs={'class': 'form-control'}),
+            
             'formacao': forms.TextInput(attrs={'class': 'form-control'}),
+            'empresa': forms.TextInput(attrs={'class': 'form-control'}),
+            'cargo': forms.TextInput(attrs={'class': 'form-control'}),   
             'fotoPerfil': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'biografia': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }

@@ -52,6 +52,14 @@ class Evento(models.Model):
 
     eventoPublico = models.BooleanField(default=True)
 
+    def clean(self):
+        super().clean()
+        if self.dataInicio and self.dataFim:
+            if self.dataFim < self.dataInicio:
+                raise ValidationError({
+                    'dataFim': 'A data e hora de término não podem ser anteriores à data de início.'
+                })
+
     def __str__(self):
         return self.nome
 
