@@ -2,9 +2,132 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Usuario
+from dateutil.relativedelta import relativedelta
 import re
 from django.utils import timezone
 
+
+# FORMULÁRIO 1: OBRIGATÓRIO (CRIA O USUÁRIO NO BANCO)
+class CadastroEtapa1Form(forms.ModelForm):
+  username = forms.CharField(max_length=150, label='Nome de Usuário')
+  senha = forms.CharField(
+      widget=forms.PasswordInput(
+          attrs={'class': 'form-control', 'placeholder': 'Digite sua senha'}
+      ),
+      label='Senha',
+  )
+  confirmar_senha = forms.CharField(
+      widget=forms.PasswordInput(
+          attrs={'class': 'form-control', 'placeholder': 'Confirme sua senha'}
+      ),
+      label='Confirmar Senha',
+  )
+
+  class Meta:
+    model = Usuario
+    fields = ['nome', 'cpf', 'email', 'dataNascimento']
+    widgets = {
+        'dataNascimento': forms.DateInput(
+            format='%Y-%m-%d',
+            attrs={
+                'class': 'form-control',
+                'type': 'date',
+                'max': timezone.localdate().isoformat(),
+                'min': (timezone.localdate() - relativedelta(years=127)).isoformat,
+                'required': 'required',
+            },
+        ),
+        'cpf': forms.TextInput(
+            attrs={'placeholder': '000.000.000-00', 'required': 'required'}
+        ),
+    }
+
+  def clean_cpf(self):
+    cpf = self.cleaned_data.get('cpf')
+    cpf_limpo = re.sub(r'\D', '', cpf)
+    if len(cpf_limpo) != 11:
+      raise forms.ValidationError('Insira um CPF válido com 11 dígitos.')
+    if Usuario.objects.filter(cpf=cpf).exists():
+      raise forms.ValidationError('Este CPF já está cadastrado.')
+    return cpf
+
+  def clean_email(self):
+    email = self.cleaned_data.get('email')
+    if User.objects.filter(email=email).exists():
+      raise forms.ValidationError(
+          'Este e-mail já está em uso por outro usuário.'
+      )
+    return email
+
+  def clean_username(self):
+    username = self.cleaned_data.get('username')
+    if User.objects.filter(username=username).exists():
+      raise forms.ValidationError('Este nome de usuário já está em uso.')
+    return username
+
+  def clean_dataNascimento(self):
+    hoje = timezone.localdate()
+    data_minima = hoje - relativedelta(years=127)
+    dataNascimento = self.cleaned_data.get('dataNascimento')
+
+    if dataNascimento and dataNascimento > timezone.localdate():
+      raise forms.ValidationError(
+          'A data de nascimento não pode ser maior que a data atual.'
+      )
+    if dataNascimento < data_minima:
+      raise forms.ValidationError(
+          'A data limite é de 127 anos atrás.'
+      )  
+    return dataNascimento
+
+  def clean(self):
+    cleaned_data = super().clean()
+    senha = cleaned_data.get('senha')
+    confirmar_senha = cleaned_data.get('confirmar_senha')
+    if senha and confirmar_senha and senha != confirmar_senha:
+      self.add_error(
+          'confirmar_senha', 'As senhas não coincidem. Tente novamente.'
+      )
+    return cleaned_data
+
+  def save(self, commit=True):
+    user = User.objects.create_user(
+        username=self.cleaned_data['username'],
+        email=self.cleaned_data['email'],
+        password=self.cleaned_data['senha'],
+        first_name=self.cleaned_data['nome'],
+    )
+    usuario = super().save(commit=False)
+    usuario.user_django = user
+    if commit:
+      usuario.save()
+    return usuario
+
+
+# FORMULÁRIO 2: Não Obrigatório 
+class CadastroEtapa2Form(forms.ModelForm):
+
+  class Meta:
+    model = Usuario
+    fields = [
+        'telefone',
+        'formacao',
+        'empresa',
+        'cargo',
+        'fotoPerfil',
+        'biografia',
+    ]
+    widgets = {
+        'biografia': forms.Textarea(attrs={'rows': 3}),
+    }
+
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    # Torna todos os campos da etapa 2 opcionais
+    for field in self.fields.values():
+      field.required = False
+
+'''
 class CadastroUsuarioForm(forms.ModelForm):
 
     username = forms.CharField(max_length=150, label="Nome de Usuário")
@@ -119,7 +242,7 @@ class CadastroUsuarioForm(forms.ModelForm):
             self.initial['dataNascimento'] = (
             self.instance.dataNascimento.strftime('%Y-%m-%d')
         )
-
+'''
 # Create your LOGIN forms here.
 # -----------------------------------------------
 class UsuarioForm(UserCreationForm):

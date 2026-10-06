@@ -4,52 +4,53 @@
 
 {% block content %}
 <div class="container shadow rounded p-4 my-4" style="max-width: 650px;">
-  <h3 class="text-center mb-4">Criar Nova Conta</h3>
+  
+  <figure class="figure d-flex justify-content-center mb-3">
+    <img src="{% static 'images/images-default/icontransparent.png' %}" alt="logo do SEA" style="height: 10vh;" />
+  </figure>
+
+  <!-- Barra de progresso -->
+  <div class="progress mb-4" style="height: 6px;">
+    <div class="progress-bar bg-success" style="width: {% if etapa == 2 %}100%{% else %}50%{% endif %};"></div>
+  </div>
 
   <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
+    
+    <!-- CAMPO CHAVE: Identifica para a View qual etapa está sendo enviada -->
+    <input type="hidden" name="etapa" value="{{ etapa }}">
 
-    <!-- ETAPA 1 -->
-    <fieldset id="etapa-1">
-      <legend class="h5 text-primary border-bottom pb-2 mb-3">1. Dados Pessoais e de Acesso</legend>
-      {% for field in form.etapa1_fields %}
-        {% bootstrap_field field %}
-      {% endfor %}
-      
-      <div class="d-flex justify-content-between mt-4">
-        <a href="{% url 'app_login:urllogin' %}" class="btn btn-outline-secondary">Voltar</a>
-        <button type="button" class="btn btn-primary px-4" onclick="mudarEtapa(1, 2)">Próximo</button>
-      </div>
-    </fieldset>
+    {% if etapa == 1 %}
+      <!-- ================= ETAPA 1 ================= -->
+      <h4 class="text-center mb-1">Criar nova conta</h4>
+      <p class="text-center text-muted small mb-4">Passo 1 de 2: Dados obrigatórios</p>
 
-    <!-- ETAPA 2 -->
-    <fieldset id="etapa-2" class="d-none">
-      <legend class="h5 text-primary border-bottom pb-2 mb-3">2. Perfil Profissional</legend>
-      {% for field in form.etapa2_fields %}
-        {% bootstrap_field field %}
-      {% endfor %}
-      
+      {% bootstrap_form form %}
+
       <div class="d-flex justify-content-between mt-4">
-        <button type="button" class="btn btn-outline-secondary" onclick="mudarEtapa(2, 1)">Anterior</button>
-        <button type="submit" class="btn btn-success px-4">Concluir Cadastro</button>
+        <a href="{% url 'app_login:urllogin' %}" class="btn btn-outline-secondary">Voltar ao Login</a>
+        <button type="submit" class="btn btn-primary px-4">Cadastrar e Continuar</button>
       </div>
-    </fieldset>
+
+    {% elif etapa == 2 %}
+      <!-- ================= ETAPA 2 ================= -->
+      <h4 class="text-center mb-1">Completar Perfil</h4>
+      <p class="text-center text-muted small mb-4">Passo 2 de 2: Informações adicionais (Opcional)</p>
+
+      <div class="alert alert-success py-2 small mb-3">
+        <i class="bi bi-check-circle me-1"></i> Cadastro realizado com sucesso! Complete seu perfil se desejar.
+      </div>
+
+      {% bootstrap_form form %}
+
+      <div class="d-flex justify-content-between align-items-center mt-4">
+        <button type="submit" name="pular" value="1" class="btn btn-outline-secondary" formnovalidate>
+          Pular por enquanto
+        </button>
+        <button type="submit" class="btn btn-success px-4">Salvar Perfil</button>
+      </div>
+    {% endif %}
+
   </form>
 </div>
-
-<script>
-  function mudarEtapa(de, para) {
-    const atual = document.getElementById(`etapa-${de}`);
-    // Valida os campos antes de avançar
-    if (de < para && !Array.from(atual.querySelectorAll('input, select, textarea')).every(i => i.reportValidity())) return;
-    
-    atual.classList.add('d-none');
-    document.getElementById(`etapa-${para}`).classList.remove('d-none');
-  }
-
-  // Se o Django retornar erro nos campos da Etapa 2, abre ela automaticamente
-  {% if form.errors %}
-    if ({% for f in form.etapa2_fields %}{{ f.errors|yesno:"true,false" }} || {% endfor %} false) mudarEtapa(1, 2);
-  {% endif %}
-</script>
 {% endblock %}

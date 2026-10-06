@@ -17,9 +17,9 @@ from django.contrib.auth.models import User
 from .models import Usuario
 
 from .form import UsuarioForm, ParticipanteForm
-from .form import CadastroUsuarioForm, EditarPerfilForm
+from .form import  EditarPerfilForm #, CadastroUsuarioForm,
 
-
+from .form import CadastroEtapa1Form, CadastroEtapa2Form, EditarPerfilForm
 
 # Create your LOGIN views here.
 # -----------------------------------------------
@@ -32,6 +32,88 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
+def cadastrar_usuario(request):
+  # =========================================================================
+  # 1. QUANDO O FORMULÁRIO É ENVIADO (MÉTODO POST)
+  # =========================================================================
+  if request.method == 'POST':
+    etapa_enviada = request.POST.get('etapa')
+
+    # --- PROCESSAMENTO DA ETAPA 2 (UPDATE) ---
+    if etapa_enviada == '2' or 'pular' in request.POST:
+      if 'pular' in request.POST:
+        request.session.pop('novo_usuario_id', None)
+        return redirect('app_evento:urldis_evento')  # Redireciona para sua home
+
+      # Busca o perfil pelo ID da sessão ou pelo usuário autenticado
+      usuario_id = request.session.get('novo_usuario_id')
+      usuario = None
+
+      if usuario_id:
+        usuario = Usuario.objects.filter(pk=usuario_id).first()
+      elif request.user.is_authenticated:
+        usuario = getattr(request.user, 'participante', None) or getattr(
+            request.user, 'user_django', None
+        )
+
+      if usuario:
+        form2 = CadastroEtapa2Form(
+            request.POST, request.FILES, instance=usuario
+        )
+        if form2.is_valid():
+          form2.save()  # Executa apenas o UPDATE no banco
+          request.session.pop('novo_usuario_id', None)  # Limpa a sessão
+          return redirect('app_evento:urldis_evento')
+        else:
+          # Se houver algum erro de preenchimento na Etapa 2, mantém na Etapa 2
+          return render(
+              request,
+              'app_login/cadastrar_usuario.html',
+              {'form': form2, 'etapa': 2},
+          )
+
+    # --- PROCESSAMENTO DA ETAPA 1 (CREATE) ---
+    form1 = CadastroEtapa1Form(request.POST)
+    if form1.is_valid():
+      usuario = form1.save()  # Grava User e Usuario no Banco
+
+      # Autentica e loga o usuário definindo o backend explicitamente
+      login(
+          request,
+          usuario.user_django,
+          backend='django.contrib.auth.backends.ModelBackend',
+      )
+
+      # Guarda o ID na sessão para a Etapa 2 recuperar com segurança
+      request.session['novo_usuario_id'] = usuario.pk
+
+      # Prepara a Etapa 2 para renderizar no mesmo template
+      form2 = CadastroEtapa2Form(instance=usuario)
+      return render(
+          request, 'app_login/cadastrar_usuario.html', {'form': form2, 'etapa': 2}
+      )
+
+    # Se a Etapa 1 tiver erros de validação
+    return render(
+        request, 'app_login/cadastrar_usuario.html', {'form': form1, 'etapa': 1}
+    )
+
+  # =========================================================================
+  # 2. PRIMEIRO ACESSO À PÁGINA (MÉTODO GET)
+  # =========================================================================
+  if request.user.is_authenticated:
+    # Se já estiver logado, exibe direto a Etapa 2 para completar o perfil
+    usuario = getattr(request.user, 'participante', None) or getattr(
+        request.user, 'user_django', None
+    )
+    form2 = CadastroEtapa2Form(instance=usuario)
+    return render(
+        request, 'app_login/cadastrar_usuario.html', {'form': form2, 'etapa': 2}
+    )
+
+  form1 = CadastroEtapa1Form()
+  return render(request, 'app_login/cadastrar_usuario.html', {'form': form1, 'etapa': 1})
+'''
 def cadastrar_usuario(request):
     if request.method == 'POST':
         # request.FILES é necessário por causa da fotoPerfil (ImageField)
@@ -66,7 +148,7 @@ def cadastrar_usuario(request):
         form = CadastroUsuarioForm()
 
     return render(request, 'app_login/cadastrar_usuario.html', {'form': form})
-
+'''
 def login_participante(request):
     """Página de login/cadastro pelo crachá"""
     if request.method == 'POST':
