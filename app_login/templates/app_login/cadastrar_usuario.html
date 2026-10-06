@@ -2,42 +2,54 @@
 {% load bootstrap5 %}
 {% load static %}
 
-{% block title %}
-  Cadastro de Usuário - SEA
-{% endblock %}
-
 {% block content %}
-  <section class="py-4">
-    <!-- Container um pouco mais largo (max-width: 800px) para acomodar melhor os muitos campos -->
-    <div class="container shadow border border-1 rounded p-4 p-md-5" style="max-width: 800px;">
+<div class="container shadow rounded p-4 my-4" style="max-width: 650px;">
+  <h3 class="text-center mb-4">Criar Nova Conta</h3>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- ETAPA 1 -->
+    <fieldset id="etapa-1">
+      <legend class="h5 text-primary border-bottom pb-2 mb-3">1. Dados Pessoais e de Acesso</legend>
+      {% for field in form.etapa1_fields %}
+        {% bootstrap_field field %}
+      {% endfor %}
       
-      <!-- Logo do SEA -->
-      <figure class="figure d-flex justify-content-center mb-4">
-        <img src="{% static 'images/images-default/icontransparent.png' %}" alt="logo do SEA" style="height: 15vh;" />
-      </figure>
+      <div class="d-flex justify-content-between mt-4">
+        <a href="{% url 'app_login:urllogin' %}" class="btn btn-outline-secondary">Voltar</a>
+        <button type="button" class="btn btn-primary px-4" onclick="mudarEtapa(1, 2)">Próximo</button>
+      </div>
+    </fieldset>
 
-      <h3 class="text-center mb-4">Criar nova conta</h3>
+    <!-- ETAPA 2 -->
+    <fieldset id="etapa-2" class="d-none">
+      <legend class="h5 text-primary border-bottom pb-2 mb-3">2. Perfil Profissional</legend>
+      {% for field in form.etapa2_fields %}
+        {% bootstrap_field field %}
+      {% endfor %}
+      
+      <div class="d-flex justify-content-between mt-4">
+        <button type="button" class="btn btn-outline-secondary" onclick="mudarEtapa(2, 1)">Anterior</button>
+        <button type="submit" class="btn btn-success px-4">Concluir Cadastro</button>
+      </div>
+    </fieldset>
+  </form>
+</div>
 
-      <!-- O enctype="multipart/form-data" é OBRIGATÓRIO por causa da foto de perfil -->
-      <form action="" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
+<script>
+  function mudarEtapa(de, para) {
+    const atual = document.getElementById(`etapa-${de}`);
+    // Valida os campos antes de avançar
+    if (de < para && !Array.from(atual.querySelectorAll('input, select, textarea')).every(i => i.reportValidity())) return;
+    
+    atual.classList.add('d-none');
+    document.getElementById(`etapa-${para}`).classList.remove('d-none');
+  }
 
-        <!-- O bootstrap_form já renderiza e estiliza todos os campos e erros do form -->
-        {% bootstrap_form form %}
-        
-        <!-- Botões de ação -->
-        <div class="d-flex justify-content-center gap-3 mt-4">
-          <!-- Botão para voltar ao login (Ajuste o nome da url conforme seu projeto) -->
-          <a href="{% url 'app_login:urllogin' %}" class="btn btn-outline-secondary">
-            Voltar
-          </a>
-          
-          <button type="submit" class="btn btn-primary">
-            Cadastrar
-          </button>
-        </div>
-
-      </form>
-    </div>
-  </section>
+  // Se o Django retornar erro nos campos da Etapa 2, abre ela automaticamente
+  {% if form.errors %}
+    if ({% for f in form.etapa2_fields %}{{ f.errors|yesno:"true,false" }} || {% endfor %} false) mudarEtapa(1, 2);
+  {% endif %}
+</script>
 {% endblock %}

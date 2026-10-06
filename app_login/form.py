@@ -37,6 +37,37 @@ class CadastroUsuarioForm(forms.ModelForm):
             'biografia': forms.Textarea(attrs={'rows': 3}),
         }
 
+    
+    @property
+    def etapa1_fields(self):
+        """Retorna os campos da 1ª etapa"""
+        campos = [
+            'nome',
+            'username',
+            'cpf',
+            'dataNascimento',
+            'email',
+            'telefone',
+            'senha',
+            'confirmar_senha',
+            
+        ]
+        return [self[f] for f in campos if f in self.fields]
+    
+    @property
+    def etapa2_fields(self):
+        """Retorna os campos da 2ª etapa"""
+        campos = [
+            
+            'formacao',
+            'empresa',
+            'cargo',
+            'fotoPerfil',
+            'biografia',
+        ]
+        return [self[f] for f in campos if f in self.fields]
+    
+    
     # 2. Exemplo de validação individual para o CPF
     def clean_cpf(self):
         cpf = self.cleaned_data.get('cpf')
@@ -85,7 +116,9 @@ class CadastroUsuarioForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Formata a data existente para AAAA-MM-DD sem alterar a estrutura do formulário
         if self.instance and self.instance.pk and self.instance.dataNascimento:
-            self.initial['dataNascimento'] = self.instance.dataNascimento.strftime('%Y-%m-%d')
+            self.initial['dataNascimento'] = (
+            self.instance.dataNascimento.strftime('%Y-%m-%d')
+        )
 
 # Create your LOGIN forms here.
 # -----------------------------------------------
@@ -174,4 +207,6 @@ class EditarPerfilForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Formata a data existente para AAAA-MM-DD sem alterar a estrutura do formulário
         if self.instance and self.instance.pk and self.instance.dataNascimento:
-            self.initial['dataNascimento'] = self.instance.dataNascimento.strftime('%Y-%m-%d')
+            self.initial['dataNascimento'] = (
+            self.instance.dataNascimento.strftime('%Y-%m-%d')
+        )
