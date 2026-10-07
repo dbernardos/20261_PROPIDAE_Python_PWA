@@ -83,20 +83,15 @@
 
         console.log('header')
         if (dados.autorizado) {
+          // 1. Para a câmera imediatamente
           pararCameraSeAtiva()
 
-          resultadoDiv.textContent = `Acesso Liberado: ${dados.nome}: ${dados.cargo}: ${dados.empresa}`
-          resultadoDiv.className = 'autorizado'
-    
-          setTimeout(() => {
-            //window.location.href = `/sucesso/?nome=${encodeURIComponent(dados.nome)}&codigo=${encodeURIComponent(dados.codigo)}`
-            processando = false //evitar processamento desnecessário
-            const base_url = "{% url 'app_quiz:urlboas_vindas' cracha=0 %}".replace('0', dados.id)
-            window.location.href = base_url
-          }, 1500)
-          console.log('if autorizado ???????????????')
+          // 2. Redirecionamento IMEDIATO (sem exibir mensagem de sucesso na tela)
+          const base_url = "{% url 'app_quiz:urlboas_vindas' cracha=0 %}".replace('0', dados.id)
+          window.location.href = base_url
+
         } else {
-          console.log('else ???????????????')
+          console.log('Acesso Negado: ', dados.mensagem)
           resultadoDiv.textContent = `Acesso Negado: ${dados.mensagem}`
           resultadoDiv.className = 'negado'
     
@@ -168,7 +163,7 @@
 
     } catch (err) {
       console.error('Erro ao inicializar leitor QR Code: ', err)
-      resultado.Div.textContent = 'Digite o código para validar.'
+      resultadoDiv.textContent = 'Digite o código para validar.'
     }
     
   </script>

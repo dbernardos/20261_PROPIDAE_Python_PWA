@@ -29,35 +29,31 @@ def calcular_progresso_geral(participante):
         'porcentagem': porcentagem,
     }
 
-
-
 def boas_vindas(request, cracha):
-    """Página de boas-vindas com quadro de progresso"""
+    """Página de boas-vindas"""
     # Busca a inscrição no app_evento usando o crachá
     inscricao = get_object_or_404(Inscricao, cracha=cracha)
     # Extrai o participante (Usuário) a partir da inscrição
     participante = inscricao.usuario 
 
-    print(f">>>>> Inscrição encontrada: {inscricao}")
-    print(f">>>>> participante: {participante}")
+    print(f">>>>> Inscrição encontrada: {inscricao} participante: {participante}")
     # Obtém todos os quizzes ativos
     quizzes = Quiz.objects.filter(ativo=True)
     
-    # Calcula progresso para cada quiz
-    progresso_quizzes = []
-    for quiz in quizzes:
-        resposta = Resposta.objects.filter(
-            participa__inscricao=inscricao, 
-            quiz=quiz,
+    context = {
+        'cracha': cracha,
+        'participante': participante,
+        'inscricao': inscricao,
+        'quizzes': quizzes
+    }
+    
+    return render(request, 'app_quiz/boas_vindas.html', context)
 
-        ).first()
-        
-        progresso_quizzes.append({
-            'quiz': quiz,
-            'resposta': resposta,
-            'completo': resposta.completo if resposta else False,
-            
-        })
+def quizzes(request, cracha):
+    """Página que lista todos os quizzes disponíveis na atividade"""
+    inscricao = get_object_or_404(Inscricao, cracha=cracha)
+    participante = inscricao.usuario 
+    quizzes = Quiz.objects.filter(ativo=True)
     
     progresso_geral = calcular_progresso_geral(participante)
     
@@ -65,15 +61,11 @@ def boas_vindas(request, cracha):
         'cracha': cracha,
         'participante': participante,
         'inscricao': inscricao,
-        'progresso_quizzes': progresso_quizzes,
-        'progresso_geral': progresso_geral,
-        'quizzes_completos': progresso_geral['respondidos'],
-        'total_quizzes': progresso_geral['total'],
-        'porcentagem_conclusao': progresso_geral['porcentagem']
+        'quizzes': quizzes,
+        'progresso_geral': progresso_geral
     }
     
-    return render(request, 'app_quiz/boas_vindas.html', context)
-    
+    return render(request, 'app_quiz/quizzes.html', context)
 
 def leitor_qrcode(request):
     return render(request, 'app_quiz/leitor_qrcode.html')

@@ -8,15 +8,17 @@ from django.contrib.auth.models import User
 """Model da tabela Usuario"""
 class Usuario(models.Model):
     nome = models.CharField(max_length=200)
-    email = models.EmailField(max_length=200,unique=True)
-    biografia = models.CharField(max_length=500, blank=True, null=True)
-    fotoPerfil = models.ImageField(verbose_name="Foto de Perfil", upload_to='perfis/', blank=True, null=True)
     cpf = models.CharField(verbose_name="CPF", max_length=14, unique=True)
-    telefone = models.CharField(max_length=20, blank=True, null=True)
     dataNascimento = models.DateField(verbose_name="Data de Nascimento", blank=True, null=True)
-    cargo = models.CharField(max_length=45, blank=True, null=True)
+    email = models.EmailField(max_length=200,unique=True)
+    telefone = models.CharField(max_length=20, blank=True, null=True)
+    
     formacao = models.CharField(max_length=200, blank=True, null=True)
     empresa = models.CharField(max_length=45, blank=True, null=True)
+    cargo = models.CharField(max_length=45, blank=True, null=True)
+    fotoPerfil = models.ImageField(verbose_name="Foto de Perfil", upload_to='perfis/', blank=True, null=True)
+    biografia = models.CharField(max_length=500, blank=True, null=True)
+
     data_cadastro = models.DateTimeField(auto_now_add=True)
     ultimo_acesso = models.DateTimeField(auto_now=True)
     user_django = models.OneToOneField(User, on_delete=models.CASCADE, related_name='participante')

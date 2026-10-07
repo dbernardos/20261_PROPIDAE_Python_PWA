@@ -4,6 +4,7 @@ USUÁRIO:
 --------------------------------------------------------------------------
 - cadastro de novo usuário (foto?, nome de usuário, formato cpf, formacao?)
 - tratar username no template, trocar ordem, avaliar duas etapas
+- deslogar após um tempo de inatividade
 
 - foto do perfil ✅
 - editar perfil do usuário data nascimento arrumar✅
