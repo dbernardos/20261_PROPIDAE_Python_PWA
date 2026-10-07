@@ -10,6 +10,11 @@
   <link rel="stylesheet" href="{% static 'css/quiz.css' %}" />
 {% endblock %}
 
+{% block pre_script %}
+  <link rel="manifest" href="manifest.json" crossorigin="use-credentials" />
+  <meta http-equiv="refresh" content="10;url={% url 'app_quiz:urlleitor_qrcode' %}" />
+{% endblock %}
+
 {% block content %}
   <div class="container py-3">
     <!-- INICIO DESAFIO -->
@@ -57,12 +62,6 @@
             </p>
             <p class="mb-0 small">Faixa aceitável: {{ quiz.get_faixa_resposta }}</p>
           </div>
-          {% comment %}
-        {% elif resposta.tentativas > 0 %}
-          <div class="alert alert-warning mb-4">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            Você já tentou {{ resposta.tentativas }} vez(es). Continue tentando!
-          </div> {% endcomment %}
         {% endif %}
 
         <!-- Mensagens -->
@@ -86,12 +85,11 @@
             </div>
           </div>
         {% endif %}
-        {% comment %} <div class="feedback" id="feedback1"></div> {% endcomment %}
       </div>
     </div>
     <!-- Botão Voltar -->
     <div class="text-center mt-4">
-      <a href="{% url 'app_quiz:urlboas_vindas' cracha %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Voltar para Página Inicial</a>
+      <a href="{% url 'app_quiz:urlleitor_qrcode' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Voltar para Página Inicial</a>
     </div>
     <!-- FIM DESAFIO -->
   </div>

@@ -52,17 +52,16 @@ def boas_vindas(request, cracha):
 def quizzes(request, cracha):
     """Página que lista todos os quizzes disponíveis na atividade"""
     inscricao = get_object_or_404(Inscricao, cracha=cracha)
+    # quiz = get_object_or_404(Quiz, cracha=cracha)
     participante = inscricao.usuario 
-    quizzes = Quiz.objects.filter(ativo=True)
-    
-    progresso_geral = calcular_progresso_geral(participante)
+    # quizzes = Quiz.objects.filter(ativo=True)
+    quizzes = Quiz.objects.filter(atividade__participa__inscricao=inscricao)
     
     context = {
         'cracha': cracha,
         'participante': participante,
         'inscricao': inscricao,
-        'quizzes': quizzes,
-        'progresso_geral': progresso_geral
+        'quizzes': quizzes
     }
     
     return render(request, 'app_quiz/quizzes.html', context)
