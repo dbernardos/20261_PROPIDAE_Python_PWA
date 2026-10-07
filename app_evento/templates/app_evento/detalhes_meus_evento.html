@@ -93,6 +93,10 @@
                         <i class="bi bi-qr-code-scan me-1"></i> QR Code
                       </a>
                       
+                      <a href="{% url 'app_quiz:urlgerenciar_quizzes' atividade.id %}" class="btn btn-outline-primary btn-sm shadow-sm" title="Gerenciar Quizzes">
+                          <i class="bi bi-gear-fill me-1"></i> Quizzes
+                      </a>  
+                      
                       <!-- BOTÃO DO SORTEIO ATUALIZADO PASSANDO O ID DA ATIVIDADE -->
                       <a href="{% url 'app_evento:urlsorteio_atividade' atividade.id %}" class="btn btn-warning btn-sm shadow-sm">
                         <i class="bi bi-gift me-1"></i> Sorteio

@@ -52,7 +52,7 @@
           <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="{% url 'app_evento:urldis_evento' %}">Início</a>
+                <a class="nav-link" aria-current="page" href="{% url 'app_evento:urldis_evento' %}">Início</a>
               </li>
 
               {% comment '' %}MENUS APENAS PARA QUEM ESTÁ LOGADO{% endcomment %}
@@ -115,26 +115,26 @@
             <h5 class="text-white mb-4">Patrocinadores</h5>
           </div>
         </div>
-
-        <div class="row align-items-center mb-4">
+       
+        <div class="row align-items-center mb-4"> 
           <!-- Patrocinador Ouro -->
-          <div class="col-md-4 col-6 text-center mb-3">
+      <!--<div class="col-md-4 col-6 text-center mb-3">
             <div class="sponsor-card">
               <img src="{% static 'images/sponsor1.png' %}" alt="Patrocinador Ouro" class="img-fluid sponsor-logo" />
               <p class="text-white small mt-2">Patrocinador Ouro</p>
             </div>
           </div>
-
+      -->
           <!-- Patrocinador Prata -->
-          <div class="col-md-4 col-6 text-center mb-3">
+      <!--<div class="col-md-4 col-6 text-center mb-3">
             <div class="sponsor-card">
               <img src="{% static 'images/sponsor2.png' %}" alt="Patrocinador Prata" class="img-fluid sponsor-logo" />
               <p class="text-white small mt-2">Patrocinador Prata</p>
             </div>
           </div>
-
+      -->    
           <!-- Patrocinador Bronze -->
-          <div class="col-md-4 col-6 text-center mb-3">
+      <!--<div class="col-md-4 col-6 text-center mb-3">
             <div class="sponsor-card">
               <img src="{% static 'images/sponsor3.png' %}" alt="Patrocinador Bronze" class="img-fluid sponsor-logo" />
               <p class="text-white small mt-2">Patrocinador Bronze</p>
@@ -143,9 +143,9 @@
         </div>
 
         <hr class="border-secondary" />
-
+      -->  
         <!-- Informações de Contato e Links -->
-        <div class="row">
+      <!--   <div class="row">
           <div class="col-md-4 mb-3">
             <h6 class="text-white">XXIX Colóquio de Usinagem</h6>
             <p class="text-secondary small">
@@ -188,9 +188,9 @@
         </div>
 
         <hr class="border-secondary" />
-
+    -->    
         <!-- Copyright -->
-        <div class="row">
+    <!--     <div class="row">
           <div class="col-12 text-center">
             <p class="text-secondary small mb-0">
               &copy;{% now 'Y' %}XXIX Colóquio de Usinagem. Todos os direitos reservados.
@@ -200,6 +200,7 @@
       </div>
     </footer>
 
+      -->
     <!-- Bootstrap 5 JS Bundle -->
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 
@@ -229,6 +230,15 @@
           label.classList.add('required')
         }
       })
+    </script>
+
+    <script>
+       document.querySelectorAll('.nav-link').forEach(link => {
+    // Compara o caminho relativo da URL atual com o caminho do link
+        if (window.location.pathname === link.pathname) {
+              link.classList.add('active');
+          }
+      });
     </script>
   </body>
 </html>

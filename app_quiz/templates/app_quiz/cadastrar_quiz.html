@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load bootstrap5 %}
+
+{% block title %}
+  {% if editando %}Editar Quiz{% else %}Cadastrar Quiz{% endif %}
+{% endblock %}
+
+{% block content %}
+  <section class="py-5">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <h2 class="fw-bold text-verde-escuro mb-4">
+            {% if editando %}
+              ✏️ Editar Quiz:{{ quiz.atividade }}
+            {% else %}
+              📅 Cadastrar Novo Quiz em {{ quiz.atividade }}
+            {% endif %}
+          </h2>
+
+          <form method="POST" class="card p-4 shadow-sm bg-white">
+            {% csrf_token %}
+
+            {{ form_quiz.as_p }}
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <!-- Proteção para o botão Cancelar -->
+              {% if evento %}
+                <a href="{% url 'app_evento:urldet_myevento' evento.id %}" class="btn btn-outline-secondary">Cancelar</a>
+              {% else %}
+                <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-outline-secondary">Cancelar</a>
+              {% endif %}
+
+              <button type="submit" class="btn btn-success">
+                {% if editando %}Salvar Alterações{% else %}Salvar Quiz{% endif %}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

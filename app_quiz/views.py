@@ -5,8 +5,10 @@ import json
 from django.http import JsonResponse
 
 from .models import Quiz, Resposta
-from .form import RespostaQuizForm
+from .form import RespostaQuizForm, CadastroQuizForm
 from app_evento.models import Inscricao, Participa, Atividade 
+from django.contrib.auth.decorators import login_required
+from django.db.models import Prefetch
 
 
 # Views do Quiz.
@@ -49,13 +51,106 @@ def boas_vindas(request, cracha):
     
     return render(request, 'app_quiz/boas_vindas.html', context)
 
+def cadastrar_quiz(request, atividade_id=None, quiz_id=None):
+  """View para cadastrar ou editar um quiz vinculado a uma atividade"""
+  atividade = None
+  evento = None
+  quiz = None
+  editando = False
+
+  if quiz_id:
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    editando = True
+    atividade = quiz.atividade
+    evento = atividade.evento
+  elif atividade_id:
+    atividade = get_object_or_404(Atividade, id=atividade_id)
+    evento = atividade.evento
+
+  if request.method == 'POST':
+    form_quiz = CadastroQuizForm(request.POST, instance=quiz)
+    if form_quiz.is_valid():
+      quiz_salvo = form_quiz.save()
+      messages.success(
+          request,
+          f'Quiz {"atualizado" if editando else "cadastrado"} com sucesso!',
+      )
+      return redirect(
+          'app_evento:urldet_myevento',
+          evento_id=quiz_salvo.atividade.evento.id,
+      )
+  else:
+    initial_data = {}
+    if atividade:
+      initial_data['atividade'] = atividade
+
+    form_quiz = CadastroQuizForm(instance=quiz, initial=initial_data)
+
+  context = {
+      'form_quiz': form_quiz,
+      'editando': editando,
+      'quiz': quiz,
+      'atividade': atividade,
+      'evento': evento,  # Disponível para o botão Cancelar no template
+  }
+
+  return render(request, 'app_quiz/cadastrar_quiz.html', context)
+
+
+@login_required
+def gerenciar_quizzes(request, atividade_id):
+  """View centralizada para gerenciar, alternar status, excluir e listar respostas dos quizzes."""
+  atividade = get_object_or_404(Atividade, id=atividade_id)
+
+  # 1. Processamento de Ações via POST
+  if request.method == 'POST':
+    acao = request.POST.get('acao')
+    quiz_id = request.POST.get('quiz_id')
+    quiz = get_object_or_404(Quiz, id=quiz_id, atividade=atividade)
+
+    if acao == 'toggle_status':
+      quiz.ativo = not quiz.ativo
+      quiz.save()
+      status_txt = 'ativado' if quiz.ativo else 'desativado'
+      messages.success(request, f'Quiz "{quiz.titulo}" foi {status_txt}!')
+
+    elif acao == 'excluir':
+      quiz.delete()
+      messages.success(request, 'Quiz excluído com sucesso!')
+
+    return redirect('app_quiz:urlgerenciar_quizzes', atividade_id=atividade.id)
+
+  # 2. Identificação dinâmica do accessor ('respostas' ou 'resposta_set')
+  accessor = Resposta._meta.get_field('quiz').remote_field.get_accessor_name()
+
+  # 3. Busca dos Quizzes (Sempre executado no fluxo GET)
+  quizzes = Quiz.objects.filter(atividade=atividade).prefetch_related(
+      Prefetch(
+          accessor,
+          queryset=Resposta.objects.select_related(
+              'participa__inscricao__usuario'
+          ),
+      )
+  )
+
+  context = {
+      'atividade': atividade,
+      'evento': atividade.evento,
+      'quizzes': quizzes,
+  }
+  return render(request, 'app_quiz/gerenciar_quizzes.html', context)
+
 def quizzes(request, cracha):
     """Página que lista todos os quizzes disponíveis na atividade"""
     inscricao = get_object_or_404(Inscricao, cracha=cracha)
     # quiz = get_object_or_404(Quiz, cracha=cracha)
     participante = inscricao.usuario 
     # quizzes = Quiz.objects.filter(ativo=True)
-    quizzes = Quiz.objects.filter(atividade__participa__inscricao=inscricao)
+    
+    # Filtra apenas os quizzes vinculados à inscrição E que estejam ativos
+    quizzes = Quiz.objects.filter(
+      atividade__participa__inscricao=inscricao, ativo=True
+    )
     
     context = {
         'cracha': cracha,
@@ -69,13 +164,19 @@ def quizzes(request, cracha):
 def leitor_qrcode(request):
     return render(request, 'app_quiz/leitor_qrcode.html')
 
-def quiz_detail(request, cracha, quiz_numero):
+def quiz_detail(request, cracha, quiz_id):
     """Página detalhada do quiz"""
     # 1. Busca a inscrição pelo crachá e obtém o usuário associado
     inscricao = get_object_or_404(Inscricao, cracha=cracha)
     participante = inscricao.usuario 
-    quiz = get_object_or_404(Quiz, numero=quiz_numero, ativo=True)
+
+    quiz = get_object_or_404(Quiz, id=quiz_id, ativo=True)
     
+    if not quiz.ativo:
+        messages.warning(
+            request, 'Este desafio está temporariamente desativado pelo organizador.'
+        )
+        return redirect('app_quiz:urlquizzes', cracha=cracha)
     # 2. Obtém a relação Participa
     participa_obj = Participa.objects.filter(inscricao=inscricao).first()
     
@@ -119,7 +220,7 @@ def quiz_detail(request, cracha, quiz_numero):
             else:
                 messages.warning(request, 'Resposta incorreta. Tente novamente!')
             
-            return redirect('app_quiz:urlquiz_detail', cracha=cracha, quiz_numero=quiz_numero)
+            return redirect('app_quiz:urlquiz_detail', cracha=cracha, quiz_id=quiz.id)
              
     else:
         form = RespostaQuizForm(instance=resposta)
@@ -136,13 +237,13 @@ def quiz_detail(request, cracha, quiz_numero):
     
     return render(request, 'app_quiz/quiz_detail.html', context)
 
-def reset_quiz(request, cracha, quiz_numero):
+def reset_quiz(request, cracha, quiz_id):
     """Permite resetar um quiz para tentar novamente"""
 
     inscricao = get_object_or_404(Inscricao, cracha=cracha)
     participante = inscricao.usuario
     
-    quiz = get_object_or_404(Quiz, numero=quiz_numero)
+    quiz = get_object_or_404(Quiz, id=quiz_id)
     
     resposta = Resposta.objects.filter(
         participa__inscricao=inscricao,
@@ -154,7 +255,7 @@ def reset_quiz(request, cracha, quiz_numero):
         resposta.delete()
         messages.info(request, 'Quiz reiniciado. Boa sorte!')
     
-    return redirect('app_quiz:urlquiz_detail', cracha=cracha, quiz_numero=quiz_numero)
+    return redirect('app_quiz:urlquiz_detail', cracha=cracha, quiz_id=quiz.id)
 
 def identificar_funcionario(request):
     if request.method == 'POST':
