@@ -40,7 +40,9 @@ ATIVIDADE:
 
 QUIZ: 
 --------------------------------------------------------------------------
-- atrelar resposta ao dia ou atividade (pensar)
+- botão de ativar/desativar desafios da atividade
+- tela de cadastro de novos desafios para a atividade
 
+- mostrar os desafios disponíveis de acordo com o qrcode da inscricao ✅
 - progresso não faz sentido ✅
 - remover inicio, cadastrar novo participante ✅

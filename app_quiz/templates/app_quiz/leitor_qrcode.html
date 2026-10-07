@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/qrcode.css' %} " />
+  <link rel="stylesheet" href="{% static 'css/qrcode.css' %}" />
 {% endblock %}
 
 {% block content %}
@@ -24,17 +24,15 @@
   <div>
     <main class="principal">
       <div>
-        {% comment %} <h2>Leitor</h2> {% endcomment %}
         <div id="reader"></div>
-        {% comment %} <div id="resultado">Aguardando QR Code...</div> {% endcomment %}
         <div id="resultado" style="margin: 0; padding: 0; min-height: 0;"></div>
       </div>
 
-      {% comment %} <div class="container py-3"> {% endcomment %}
       <div>
         <form id="formManual" style="margin-bottom: 20px; text-align: center;">
-          <input type="text" id="codigoManual" placeholder="Digite o código se necessário" style="padding: 8px; width: 290px;" required>
-          <input type="submit" value="Validar Código" style="padding: 8px 15px; cursor: pointer;">
+          {% csrf_token %}
+          <input type="text" id="codigoManual" placeholder="Digite o código se necessário" style="padding: 8px; width: 290px;" required />
+          <input type="submit" value="Validar Código" style="padding: 8px 15px; cursor: pointer;" />
         </form>
       </div>
     </main>
@@ -52,7 +50,7 @@
     let processando = false
     let html5QrCode = null
     let cameraAtiva = false
-
+    
     document.getElementById('formManual').addEventListener('submit', function (event) {
       event.preventDefault()
       const codigoManual = document.getElementById('codigoManual').value.trim()
@@ -60,14 +58,14 @@
         validarNoServidor(codigoManual)
       }
     })
-
+    
     async function validarNoServidor(codigoLido) {
       // processando = true;
       if (processando) return // ISSO AQUI É O FREIO DE MÃO
       processando = true
-
+    
       console.log('processando = true')
-
+    
       try {
         const response = await fetch('/quiz/identificar/', {
           method: 'POST',
@@ -78,18 +76,17 @@
     
           body: JSON.stringify({ codigo: codigoLido })
         })
-
+    
         const dados = await response.json()
-
+    
         console.log('header')
         if (dados.autorizado) {
           // 1. Para a câmera imediatamente
           pararCameraSeAtiva()
-
+    
           // 2. Redirecionamento IMEDIATO (sem exibir mensagem de sucesso na tela)
           const base_url = "{% url 'app_quiz:urlboas_vindas' cracha=0 %}".replace('0', dados.id)
           window.location.href = base_url
-
         } else {
           console.log('Acesso Negado: ', dados.mensagem)
           resultadoDiv.textContent = `Acesso Negado: ${dados.mensagem}`
@@ -114,22 +111,21 @@
       }
     }
     
-    function pararCameraSeAtiva(){
-        if(html5QrCode && cameraAtiva) {
-          html5QrCode
-              .stop()
-              .then(() => {
-                cameraAtiva = false
-                console.log('Câmera desligada após sucesso.')
-              })
-              .catch((err) => {
-                console.error('Erro ao desligar:', err)
-                cameraAtiva = false
-              })          
-
-        }
+    function pararCameraSeAtiva() {
+      if (html5QrCode && cameraAtiva) {
+        html5QrCode
+          .stop()
+          .then(() => {
+            cameraAtiva = false
+            console.log('Câmera desligada após sucesso.')
+          })
+          .catch((err) => {
+            console.error('Erro ao desligar:', err)
+            cameraAtiva = false
+          })
+      }
     }
-
+    
     function onScanSuccess(decodedText) {
       if (!processando) {
         // processando = true; // Trava o leitor temporariamente
@@ -137,13 +133,13 @@
       }
     }
     
-    try{
+    try {
       const readerElem = document.getElementById('reader')
-      if(typeof Html5Qrcode !== 'undefined' && readerElem){
+      if (typeof Html5Qrcode !== 'undefined' && readerElem) {
         html5QrCode = new Html5Qrcode('reader')
         html5QrCode
           .start(
-            { facingMode: 'user' }, // Tenta usar a câmera traseira
+            { facingMode: 'user' }, // Tenta usar a câmera frontal
             { fps: 10, qrbox: { width: 250, height: 250 } },
             onScanSuccess
           )
@@ -155,16 +151,12 @@
             cameraAtiva = false
             resultadoDiv.textContent = 'Erro ao ligar a câmera ou sem permissão.'
           })
-    
       } else {
         resultadoDiv.textContent = 'Digite o código para validar'
       }
-
-
     } catch (err) {
       console.error('Erro ao inicializar leitor QR Code: ', err)
       resultadoDiv.textContent = 'Digite o código para validar.'
     }
-    
   </script>
 {% endblock %}
