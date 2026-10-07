@@ -9,19 +9,16 @@
     <img src="{% static 'images/images-default/icontransparent.png' %}" alt="logo do SEA" style="height: 10vh;" />
   </figure>
 
-  <!-- Barra de progresso -->
+  <!-- BARRA DE PROGRESSO DO CADASTRO -->
   <div class="progress mb-4" style="height: 6px;">
-    <div class="progress-bar bg-success" style="width: {% if etapa == 2 %}100%{% else %}50%{% endif %};"></div>
+    <div class="progress-bar bg-success" role="progressbar" style="width: {% if etapa == 2 %}100%{% else %}50%{% endif %};"></div>
   </div>
 
   <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
-    
-    <!-- CAMPO CHAVE: Identifica para a View qual etapa está sendo enviada -->
-    <input type="hidden" name="etapa" value="{{ etapa }}">
 
-    {% if etapa == 1 %}
-      <!-- ================= ETAPA 1 ================= -->
+    {% if etapa == 1 or not etapa %}
+      <!-- ==================== ETAPA 1: OBRIGATÓRIA ==================== -->
       <h4 class="text-center mb-1">Criar nova conta</h4>
       <p class="text-center text-muted small mb-4">Passo 1 de 2: Dados obrigatórios</p>
 
@@ -32,24 +29,41 @@
         <button type="submit" class="btn btn-primary px-4">Cadastrar e Continuar</button>
       </div>
 
-    {% elif etapa == 2 %}
-      <!-- ================= ETAPA 2 ================= -->
-      <h4 class="text-center mb-1">Completar Perfil</h4>
-      <p class="text-center text-muted small mb-4">Passo 2 de 2: Informações adicionais (Opcional)</p>
+    {% else %}
+      <!-- ==================== ETAPA 2 ==================== -->
+        <input type="hidden" name="usuario_id" value="{{ usuario_id }}">
 
-      <div class="alert alert-success py-2 small mb-3">
-        <i class="bi bi-check-circle me-1"></i> Cadastro realizado com sucesso! Complete seu perfil se desejar.
-      </div>
+        <h4 class="text-center mb-1">Completar Perfil</h4>
+        <p class="text-center text-muted small mb-4">Passo 2 de 2: Informações opcionais</p>
 
-      {% bootstrap_form form %}
+        <div class="alert alert-success py-2 small mb-3">
+          <i class="bi bi-check-circle me-1"></i> Conta criada com sucesso! Complete seu perfil se desejar.
+        </div>
 
-      <div class="d-flex justify-content-between align-items-center mt-4">
-        <button type="submit" name="pular" value="1" class="btn btn-outline-secondary" formnovalidate>
-          Pular por enquanto
-        </button>
-        <button type="submit" class="btn btn-success px-4">Salvar Perfil</button>
-      </div>
-    {% endif %}
+        {% bootstrap_form form %}
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+          <button type="submit" name="pular" value="1" class="btn btn-outline-secondary" formnovalidate>
+            Pular por enquanto
+          </button>
+          <button type="submit" class="btn btn-success px-4">Salvar Perfil</button>
+        </div>
+
+        <!-- SCRIPT ETAPA 2: LIMPA O HISTÓRICO POST E FORÇA DESLOGAR AO VOLTAR -->
+        <script>
+          (function () {
+            // 1. Substitui a requisição POST anterior por um estado limpo
+            history.replaceState({ etapa: 2 }, document.title, window.location.href);
+            // 2. Trava a navegação empurrando um novo estado
+            history.pushState({ etapa: 2_trava }, document.title, window.location.href);
+
+            // 3. Ao clicar em "Voltar", dispara o logout via URL
+            window.addEventListener('popstate', function () {
+              window.location.href = "{% url 'app_login:urlcad_usuario' %}?deslogar=1";
+            });
+          })();
+        </script>
+     {% endif %}
 
   </form>
 </div>

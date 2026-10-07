@@ -40,3 +40,16 @@
     </div>
   </section>
 {% endblock %}
+
+{% block scripts %}
+<script>
+  (function() {
+    // Se a página for restaurada da memória RAM (BFCache) ao clicar em 'Voltar'
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        window.location.reload(); // Re-consulta o Django, que redirecionará para eventos
+      }
+    });
+  })();
+</script>
+{% endblock %}

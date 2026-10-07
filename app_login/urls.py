@@ -7,6 +7,8 @@ from django.contrib.auth.views import LoginView, LogoutView
 
 from django.views.decorators.cache import cache_control
 from django.contrib.auth import views as auth_views
+from django.urls import path
+from django.views.decorators.cache import never_cache
 
 
 # Pode usar {% url %} nos templates
@@ -15,7 +17,7 @@ app_name = 'app_login'
 # Create your LOGIN urls here.
 # -----------------------------------------------
 urlpatterns = [
-    path('', LoginView.as_view(template_name='app_login/login.html'), name='urllogin'),
+    path('', never_cache(LoginView.as_view(template_name='app_login/login.html', redirect_authenticated_user=True)), name='urllogin'),
 
     path('logout/', LogoutView.as_view(), name='urllogout'),
     path('cadastrar/', views.cadastrar_usuario, name='urlcad_usuario'),

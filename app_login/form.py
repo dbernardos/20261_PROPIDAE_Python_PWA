@@ -66,18 +66,21 @@ class CadastroEtapa1Form(forms.ModelForm):
     return username
 
   def clean_dataNascimento(self):
-    hoje = timezone.localdate()
-    data_minima = hoje - relativedelta(years=127)
+    
     dataNascimento = self.cleaned_data.get('dataNascimento')
 
-    if dataNascimento and dataNascimento > timezone.localdate():
-      raise forms.ValidationError(
-          'A data de nascimento não pode ser maior que a data atual.'
-      )
-    if dataNascimento < data_minima:
-      raise forms.ValidationError(
-          'A data limite é de 127 anos atrás.'
-      )  
+    if dataNascimento:
+        hoje = timezone.localdate()
+        data_minima = hoje - relativedelta(years=127)
+    
+        if dataNascimento > hoje:
+            raise forms.ValidationError(
+                'A data de nascimento não pode ser maior que a data atual.'
+            )
+        if dataNascimento < data_minima:
+            raise forms.ValidationError(
+                'A data limite é de 127 anos atrás.'
+            )  
     return dataNascimento
 
   def clean(self):

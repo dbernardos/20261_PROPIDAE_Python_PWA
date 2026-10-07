@@ -163,3 +163,21 @@
     </div>
   </section>
 {% endblock %}
+
+{% block scripts %}
+<script>
+  (function() {
+    // 1. Substitui o histórico de login/cadastro pela própria URL de eventos
+    if (window.history.replaceState) {
+      window.history.replaceState(null, document.title, window.location.href);
+    }
+
+    // 2. Se o usuário tentar voltar pelo BFCache do celular/navegador, força atualização
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        window.location.reload();
+      }
+    });
+  })();
+</script>
+{% endblock %}
