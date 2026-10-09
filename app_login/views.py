@@ -201,4 +201,4 @@ def meu_usuario(request):
     return render(request, 'app_evento/meu_usuario.html', {
         'usuario': usuario,
         'form': form
-    })
+    })  
