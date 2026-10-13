@@ -20,8 +20,7 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                     <i class="bi bi-ticket-perforated me-2 text-verde-claro"></i>Minhas <span
                         class="text-verde-claro">Inscrições</span>
                 </h2>
-                <p class="text-muted mb-0">Gerencie suas participações, acompanhe horários e acesse seus comprovantes e
-                    crachá.</p>
+                <p class="text-muted mb-0">Gerencie suas participações, acompanhe horários e acesse seus comprovantes e crachá.</p>
             </div>
 
             <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-outline-success btn-lg shadow-sm">
@@ -47,35 +46,9 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                     <i class="bi bi-list-check"></i>
                 </div>
                 <div>
-                    <span class="resumo-valor" data-contador-atividades>0</span>
-                    <span class="resumo-label">Atividade{{ inscricoes|pluralize }} inscrita{{ inscricoes|pluralize }}</span>
+                    <span class="resumo-valor">{{ total_atividades }}</span>
+                    <span class="resumo-label">Atividade(s) inscrita(s)</span>
                 </div>
-            </div>
-
-            <div class="resumo-item">
-                <div class="resumo-icone">
-                    <i class="bi bi-clock-history"></i>
-                </div>
-                <div>
-                    <span class="resumo-valor" data-contador-proximas>0</span>
-                    <span class="resumo-label">Próxima{{ inscricoes|pluralize }} atividade{{ inscricoes|pluralize }}</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filtros e Busca -->
-        <div class="filtros-inscricoes mb-4">
-            <div class="filtros-botoes">
-                <button type="button" class="filtro-btn active" data-filtro="todos">Todas</button>
-                <button type="button" class="filtro-btn" data-filtro="proximas">Próximas</button>
-                <button type="button" class="filtro-btn" data-filtro="concluidas">Concluídas</button>
-                <button type="button" class="filtro-btn" data-filtro="canceladas">Canceladas</button>
-            </div>
-
-            <div class="campo-busca">
-                <i class="bi bi-search"></i>
-                <input type="search" id="buscaInscricoes" class="form-control"
-                    placeholder="Buscar evento ou atividade..." autocomplete="off" />
             </div>
         </div>
 
@@ -140,7 +113,7 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
 
                                     <div class="col-sm-6 col-lg-4">
                                         <i class="bi bi-list-check me-1 text-verde-claro"></i>
-                                        <strong>Atividades:</strong> <span data-contador-evento>0</span>
+                                        <strong>Atividades:</strong> {{ item.participa_set.all|length }}
                                     </div>
                                 </div>
                             </div>
@@ -155,7 +128,7 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                             </h5>
 
                             <span class="badge bg-success-subtle text-success atividade-total-badge px-3 py-2">
-                                <span data-contador-evento-badge>0</span> atividade(s)
+                                {{ item.participa_set.all|length }} atividade(s)
                             </span>
                         </div>
 
@@ -194,8 +167,8 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                                         <td>
                                             <div class="atividade-horario small">
                                                 <i class="bi bi-clock me-1 text-muted"></i>
-                                                <span>{{ participa.atividade.horaInicio|date:'d/m/Y H:i' }}</span>
-                                                <span class="text-muted">- {{ participa.atividade.horaFim|date:'H:i' }}</span>
+                                                <span>{{ participa.atividade.horaInicio|date:'d/m/Y H:i' }}</span> -
+                                                <span class="text-muted">{{ participa.atividade.horaFim|date:'H:i' }}</span>
                                             </div>
                                         </td>
 
@@ -227,8 +200,7 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                         </div>
                         {% else %}
                         <div class="alert alert-light border text-muted mb-0">
-                            <i class="bi bi-info-circle me-2"></i> Ainda não se inscreveu em nenhuma atividade
-                            específica deste evento.
+                            <i class="bi bi-info-circle me-2"></i> Ainda não se inscreveu em nenhuma atividade específica deste evento.
                         </div>
                         {% endif %}
                     </div>
@@ -236,25 +208,26 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                     <!-- Rodapé do Card -->
                     <div class="card-footer bg-light p-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
                         <!-- Código do Crachá -->
-                            <div class="row align-items-center bg-light  mb-4 text-center text-md-start flex-wrap">
-                                <div class="col-md-3 text-center p-0">
-                                    {% if item.qrcode_imagem %}
-                                    <img src="{{ item.qrcode_imagem.url }}" alt="QR Code {{ item.cracha }}"
-                                        class="img-fluid rounded shadow-sm qrcode-modal" />
-                                    {% else %}
-                                    <div class="qrcode-indisponivel p-3">
-                                        <i class="bi bi-qr-code fs-1 d-block mb-1 text-muted"></i>
-                                        <small class="text-muted">QR Code não disponível</small>
-                                    </div>
-                                    {% endif %}
+                        <div class="row align-items-center bg-light mb-4 text-center text-md-start flex-wrap">
+                            <div class="col-md-3 text-center p-0">
+                                {% if item.qrcode_imagem %}
+                                <img src="{{ item.qrcode_imagem.url }}" alt="QR Code {{ item.cracha }}"
+                                    class="img-fluid rounded shadow-sm qrcode-modal" />
+                                {% else %}
+                                <div class="qrcode-indisponivel p-3">
+                                    <i class="bi bi-qr-code fs-1 d-block mb-1 text-muted"></i>
+                                    <small class="text-muted">QR Code não disponível</small>
                                 </div>
-                                <div class="col-md-9">
-                                   <p class="small text-muted text-uppercase mb-1 fw-bold">Código de Acesso</p>
-                                    <p class="font-monospace fw-bold text-success mb-2 fs-4">{{ item.cracha|default:'---' }}</p>
-                                        <i class="bi bi-info-circle me-1"></i>Apresente este QR Code ou o código no balcão de credenciamento para registrar sua entrada no evento.
-                                    </p>
-                                </div>
+                                {% endif %}
                             </div>
+                            <div class="col-md-9">
+                                <p class="small text-muted text-uppercase mb-1 fw-bold">Código de Acesso</p>
+                                <p class="font-monospace fw-bold text-success mb-2 fs-4">{{ item.cracha|default:'---' }}</p>
+                                <p class="small text-muted mb-0">
+                                    <i class="bi bi-info-circle me-1"></i>Aproxime este QR Code da câmera do totem ou digite o código na tela para registrar sua entrada no evento.
+                                </p>
+                            </div>
+                        </div>
 
                         <!-- Ações -->
                         <div class="d-flex gap-2 flex-wrap">
@@ -314,14 +287,12 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                                     {% endif %}
                                 </div>
 
-                                <p class="small text-muted mb-0">Apresente este código ou QR Code no controle de acesso
-                                    do evento.</p>
+                                <p class="small text-muted mb-0">Apresente este código ou QR Code no controle de acesso do evento.</p>
                             </div>
 
                             <!-- Rodapé -->
                             <div class="modal-footer justify-content-center bg-light">
-                                <button type="button" class="btn btn-secondary btn-sm"
-                                    data-bs-dismiss="modal">Fechar</button>
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
 
                                 <a href="{% url 'app_evento:urlcomprovante_inscricao' item.evento.id %}"
                                     class="btn btn-outline-success btn-sm">
@@ -337,15 +308,6 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                 </div>
             </div>
             {% endfor %}
-        </div>
-
-        <!-- Sem Resultados de Busca -->
-        <div id="semResultadosBusca" class="text-center py-5 d-none">
-            <div class="empty-search-icon mb-3">
-                <i class="bi bi-search fs-1 text-muted"></i>
-            </div>
-            <h5 class="fw-bold text-secondary">Nenhuma inscrição encontrada</h5>
-            <p class="text-muted mb-0">Tente alterar o filtro ou o termo pesquisado.</p>
         </div>
         {% else %}
         <!-- Estado Sem Inscrições -->

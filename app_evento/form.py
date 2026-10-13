@@ -45,23 +45,22 @@ class EventoForm(forms.ModelForm):
         }
         
         widgets = {
-            'nome': forms.TextInput(attrs={'placeholder': 'digite o nome do evento', 'class': 'form-control mb-3'}),
-            'descricao': forms.Textarea(attrs={'placeholder': 'digite a descrição do evento', 'class': 'form-control mb-3', 'rows': 4}),
-            'emailContato': forms.EmailInput(attrs={'placeholder': 'digite o e-mail de contato', 'class': 'form-control mb-3'}),
-            'local': forms.TextInput(attrs={'placeholder': 'digite o local do evento', 'class': 'form-control mb-3'}),
+            'nome': forms.TextInput(attrs={'placeholder': 'Ex.: XXIX Colóquio de Usinagem', 'class': 'form-control mb-3'}),
+            'descricao': forms.Textarea(attrs={'placeholder': 'Ex.: Resumo dos objetivos e temas abordados...', 'class': 'form-control mb-3', 'rows': 4}),
+            'emailContato': forms.EmailInput(attrs={'placeholder': 'Ex.: contato@evento.com', 'class': 'form-control mb-3'}),
+            'local': forms.TextInput(attrs={'placeholder': 'Ex.: Auditório Principal - Bloco A', 'class': 'form-control mb-3'}),
             'imagemBanner': forms.FileInput(attrs={'class': 'form-control mb-3', 'accept': 'image/*'}),
             'dataInicio': forms.DateInput(
                 format='%Y-%m-%d',
-                attrs={'class': 'form-control', 'type': 'date'}
+                attrs={'class': 'form-control mb-3', 'type': 'date'}
             ),
-           'dataFim': forms.DateInput(
+            'dataFim': forms.DateInput(
                 format='%Y-%m-%d',
-                attrs={'class': 'form-control', 'type': 'date'}
+                attrs={'class': 'form-control mb-3', 'type': 'date'}
             ),
             'tipoEvento': forms.Select(attrs={'class': 'form-select mb-3'}),
             'eventoPublico': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
         }
-     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # CORREÇÃO: Sobrescreve 'self.initial['apoiadores']' com a string formatada.

@@ -451,8 +451,12 @@ def minhas_inscricoes(request):
         'participa_set__atividade'
     )
 
+    # Soma o total de atividades aproveitando a busca já feita pelo prefetch_related
+    total_atividades = sum(len(item.participa_set.all()) for item in inscricoes)
+
     return render(request, 'app_evento/minhas_inscricoes.html', {
-        'inscricoes': inscricoes
+        'inscricoes': inscricoes,
+        'total_atividades': total_atividades,
     })
 
 

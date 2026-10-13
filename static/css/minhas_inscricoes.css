@@ -13,11 +13,11 @@
 }
 
 /* ==========================================================================
-     RESUMO DE INSCRIÇÕES (CARDS SUPERIORES)
-     ========================================================================== */
+   RESUMO DE INSCRIÇÕES (CARDS SUPERIORES)
+   ========================================================================== */
 .inscricoes-resumo {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
 }
 
@@ -67,78 +67,8 @@
 }
 
 /* ==========================================================================
-     FILTROS E BUSCA
-     ========================================================================== */
-.filtros-inscricoes {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.75rem;
-    background: #ffffff;
-    border: 1px solid var(--cor-borda);
-    border-radius: 10px;
-}
-
-.filtros-botoes {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    flex-wrap: wrap;
-}
-
-.filtro-btn {
-    border: 0;
-    background: transparent;
-    color: var(--cor-muted);
-    font-size: 0.9rem;
-    font-weight: 500;
-    padding: 0.5rem 0.85rem;
-    border-radius: 7px;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.filtro-btn:hover {
-    background: #f1f3f5;
-    color: var(--cor-texto);
-}
-
-.filtro-btn.active {
-    background: rgba(25, 135, 84, 0.1);
-    color: var(--cor-principal);
-    font-weight: 600;
-}
-
-/* Campo de Busca */
-.campo-busca {
-    position: relative;
-    width: 280px;
-    flex-shrink: 0;
-}
-
-.campo-busca i {
-    position: absolute;
-    left: 0.85rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #adb5bd;
-    pointer-events: none;
-}
-
-.campo-busca input {
-    padding-left: 2.35rem;
-    border-radius: 7px;
-    border-color: #dee2e6;
-}
-
-.campo-busca input:focus {
-    border-color: var(--cor-principal);
-    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.12);
-}
-
-/* ==========================================================================
-     CARDS DE INSCRIÇÃO E EVENTO
-     ========================================================================== */
+   CARDS DE INSCRIÇÃO E EVENTO
+   ========================================================================== */
 .card-inscricao {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
@@ -186,8 +116,8 @@
 }
 
 /* ==========================================================================
-     TABELA DE ATIVIDADES
-     ========================================================================== */
+   TABELA DE ATIVIDADES
+   ========================================================================== */
 .tabela-atividades {
     border: 1px solid #e9ecef;
     border-radius: 8px;
@@ -231,8 +161,8 @@
 }
 
 /* ==========================================================================
-     CRACHÁ E QR CODE
-     ========================================================================== */
+   CRACHÁ E QR CODE
+   ========================================================================== */
 .cracha-resumo-icone {
     width: 40px;
     height: 40px;
@@ -278,33 +208,15 @@
 }
 
 /* ==========================================================================
-     ESTADOS VAZIOS E ANIMAÇÕES
-     ========================================================================== */
+   ESTADOS VAZIOS
+   ========================================================================== */
 .empty-state {
     border-color: #e9ecef !important;
 }
 
-.empty-search-icon {
-    width: 55px;
-    height: 55px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    border-radius: 50%;
-    background: #f1f3f5;
-    color: #adb5bd;
-    font-size: 1.4rem;
-}
-
-/* Animação para filtro do JS */
-.inscricao-item.filtro-oculto {
-    display: none !important;
-}
-
 /* ==========================================================================
-     MODAL DO CRACHÁ
-     ========================================================================== */
+   MODAL DO CRACHÁ
+   ========================================================================== */
 .modal-cracha .modal-content {
     border-radius: 12px;
     overflow: hidden;
@@ -319,23 +231,8 @@
 }
 
 /* ==========================================================================
-     RESPONSIVIDADE (MEDIA QUERIES)
-     ========================================================================== */
-@media (max-width: 991.98px) {
-    .inscricoes-resumo {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .filtros-inscricoes {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .campo-busca {
-        width: 100%;
-    }
-}
-
+   RESPONSIVIDADE (MEDIA QUERIES)
+   ========================================================================== */
 @media (max-width: 767.98px) {
     .inscricoes-resumo {
         grid-template-columns: 1fr;
@@ -357,23 +254,12 @@
         margin-bottom: 1.5rem !important;
     }
 
-    .filtros-botoes {
-        width: 100%;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        padding-bottom: 0.2rem;
-    }
-
-    .filtro-btn {
-        white-space: nowrap;
-    }
-
     .card-inscricao .card-footer {
         flex-direction: column;
         align-items: stretch !important;
     }
 
-    .card-inscricao .card-footer>div {
+    .card-inscricao .card-footer > div {
         width: 100%;
     }
 
@@ -392,8 +278,8 @@
 }
 
 /* ==========================================================================
-     ESTILOS DE IMPRESSÃO DO CRACHÁ
-     ========================================================================== */
+   ESTILOS DE IMPRESSÃO DO CRACHÁ
+   ========================================================================== */
 @media print {
     body * {
         visibility: hidden;

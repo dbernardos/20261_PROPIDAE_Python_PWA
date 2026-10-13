@@ -11,23 +11,63 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-lg-8">
-          <!-- Título Dinâmico -->
-          <h2 class="fw-bold text-verde-escuro mb-4">
+          <h2 class="fw-bold text-verde-escuro mb-4 d-flex align-items-center">
             {% if editando %}
-              ✏️ Editar Evento: {{ evento.nome }}
+              <i class="bi bi-pencil-square me-2 text-verde-claro"></i>Editar Evento: {{ evento.nome }}
             {% else %}
-              Cadastrar Novo Evento 📅
+              <i class="bi bi-calendar-plus me-2 text-verde-claro"></i>Cadastrar Novo Evento
             {% endif %}
           </h2>
 
-          <form method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm bg-white">
+          <form method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm bg-white border-0">
             {% csrf_token %}
 
-            {% bootstrap_form form_evento %}
+            <div class="row g-3">
+              <!-- Nome do Evento (Largura Total) -->
+              <div class="col-12">
+                {% bootstrap_field form_evento.nome %}
+              </div>
 
+              <!-- Descrição (Largura Total) -->
+              <div class="col-12">
+                {% bootstrap_field form_evento.descricao %}
+              </div>
+
+              <!-- E-mail e Local lado a lado -->
+              <div class="col-md-6">
+                {% bootstrap_field form_evento.emailContato %}
+              </div>
+              <div class="col-md-6">
+                {% bootstrap_field form_evento.local %}
+              </div>
+
+              <!-- Datas lado a lado -->
+              <div class="col-md-6">
+                {% bootstrap_field form_evento.dataInicio %}
+              </div>
+              <div class="col-md-6">
+                {% bootstrap_field form_evento.dataFim %}
+              </div>
+
+              <!-- Tipo de Evento e Checkbox Público lado a lado -->
+              <div class="col-md-6">
+                {% bootstrap_field form_evento.tipoEvento %}
+              </div>
+              <div class="col-md-6 d-flex align-items-center pt-3">
+                {% bootstrap_field form_evento.eventoPublico %}
+              </div>
+
+              <!-- Banner do Evento (Largura Total) -->
+              <div class="col-12">
+                {% bootstrap_field form_evento.imagemBanner %}
+              </div>
+            </div>
+
+            <!-- Botões de Ação -->
             <div class="d-flex justify-content-end gap-2 mt-4">
               <a href="{% url 'app_evento:urldis_myevento' %}" class="btn btn-outline-secondary">Cancelar</a>
               <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle me-1"></i>
                 {% if editando %}Salvar Alterações{% else %}Salvar Evento{% endif %}
               </button>
             </div>
