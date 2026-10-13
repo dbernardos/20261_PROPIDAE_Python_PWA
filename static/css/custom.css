@@ -211,3 +211,11 @@ main {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--verde-claro);
 }
+
+/* Personalização do estado de foco (clique) nos campos de formulário */
+.form-control:focus, 
+.form-select:focus, 
+.form-check-input:focus {
+    border-color: #198754 !important;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25) !important;
+}

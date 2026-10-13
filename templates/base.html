@@ -52,22 +52,22 @@
           <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
               <li class="nav-item">
-                <a class="nav-link" aria-current="page" href="{% url 'app_evento:urldis_evento' %}">Início</a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'urldis_evento' %}active{% endif %}" aria-current="page" href="{% url 'app_evento:urldis_evento' %}">Início</a>
               </li>
 
               {% comment '' %}MENUS APENAS PARA QUEM ESTÁ LOGADO{% endcomment %}
               {% if request.user.is_authenticated %}
                 {% if request.user.is_staff %}
                   <li class="nav-item">
-                    <a class="nav-link" href="{% url 'app_evento:urldis_myevento' %}">Meus Eventos</a>
+                    <a class="nav-link {% if 'myevento' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_evento:urldis_myevento' %}">Meus Eventos</a>
                   </li>
                 {% endif %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'app_evento:urlminhas_inscricoes' %}">Inscrições</a>
+                  <a class="nav-link {% if 'inscricoes' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_evento:urlminhas_inscricoes' %}">Inscrições</a>
                 </li>
 
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'app_login:urlmeu_usuario' %}">{{ user.first_name.split.0 }}</a>
+                  <a class="nav-link {% if 'usuario' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_login:urlmeu_usuario' %}">{{ user.first_name.split.0 }}</a>
                 </li>
 
                 <li class="nav-item">
@@ -78,7 +78,7 @@
                 </li>
               {% else %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'app_login:urllogin' %}">Entrar</a>
+                  <a class="nav-link {% if 'login' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_login:urllogin' %}">Entrar</a>
                 </li>
               {% endif %}
             </ul>
