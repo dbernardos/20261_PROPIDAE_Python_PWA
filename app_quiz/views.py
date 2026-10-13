@@ -45,6 +45,7 @@ def boas_vindas(request, cracha, atividade_id):
     
     return render(request, 'app_quiz/boas_vindas.html', context)
 
+@login_required
 def cadastrar_quiz(request, atividade_id=None, quiz_id=None):
   """View para cadastrar ou editar um quiz vinculado a uma atividade"""
   atividade = None
@@ -103,14 +104,15 @@ def cadastrar_quiz(request, atividade_id=None, quiz_id=None):
 def gerenciar_quizzes(request, atividade_id):
   """View centralizada para gerenciar, alternar status, excluir e listar respostas dos quizzes."""
   atividade = get_object_or_404(Atividade, id=atividade_id)
-
+    
 
   if request.method == 'POST':
     acao = request.POST.get('acao')
     quiz_id = request.POST.get('quiz_id')
     quiz = get_object_or_404(Quiz, id=quiz_id, atividade=atividade)
+    
 
-    if acao == 'toggle_status':
+    if acao == 'alternar_status':
       quiz.ativo = not quiz.ativo
       quiz.save()
       status_txt = 'ativado' if quiz.ativo else 'desativado'
@@ -122,13 +124,13 @@ def gerenciar_quizzes(request, atividade_id):
 
     return redirect('app_quiz:urlgerenciar_quizzes', atividade_id=atividade.id)
 
-  # Identificação dinâmica do accessor ('respostas' ou 'resposta_set')
-  accessor = Resposta._meta.get_field('quiz').remote_field.get_accessor_name()
+  # Identificação dinâmica do respostas
+  respostas = Resposta._meta.get_field('quiz').remote_field.get_accessor_name()
 
   # Busca dos Quizzes 
   quizzes = Quiz.objects.filter(atividade=atividade).prefetch_related(
       Prefetch(
-          accessor,
+          respostas,
           queryset=Resposta.objects.select_related(
               'participa__inscricao__usuario'
           ),
@@ -142,31 +144,7 @@ def gerenciar_quizzes(request, atividade_id):
   }
   return render(request, 'app_quiz/gerenciar_quizzes.html', context)
 
-'''
-def quizzes(request, cracha):
-    """Página que lista todos os quizzes disponíveis na atividade"""
-    inscricao = get_object_or_404(Inscricao, cracha=cracha)
-    # quiz = get_object_or_404(Quiz, cracha=cracha)
-    participante = inscricao.usuario 
-    # quizzes = Quiz.objects.filter(ativo=True)
-    
-    # Filtra apenas os quizzes vinculados à inscrição E que estejam ativos
-    quizzes = ( Quiz.objects.filter
-               (atividade__participa__inscricao=inscricao, ativo=True)
-               .order_by('numero').distinct()       
-    )
-    
-    context = {
-        'cracha': cracha,
-        'participante': participante,
-        'inscricao': inscricao,
-        'quizzes': quizzes
-    }
-    
-    return render(request, 'app_quiz/quizzes.html', context)
-'''
 
-#Talvez para substituir o Quizzes??
 def quizzes_atividade(request, cracha, atividade_id):
     """Página que lista apenas os quizzes da atividade em que foi feito o check-in"""
     inscricao = get_object_or_404(Inscricao, cracha=cracha)
@@ -210,8 +188,6 @@ def leitor_qrcode(request, codigo_leitor):
     }
     return render(request, 'app_quiz/leitor_qrcode.html', context)
 
-
-
 def quiz_detail(request, cracha, quiz_id):
     """Página detalhada do quiz"""
     # Busca a inscrição pelo crachá e obtém o usuário associado
@@ -237,8 +213,6 @@ def quiz_detail(request, cracha, quiz_id):
         quiz=quiz,
     )
     
-            
-
     if resposta.completo and request.method == 'POST':
         messages.warning(request, 'Você já respondeu a este desafio e não pode enviá-lo novamente.')
         return redirect('app_quiz:urlpagina_leitor', codigo_leitor=quiz.atividade.codigo_leitor)
@@ -267,8 +241,6 @@ def quiz_detail(request, cracha, quiz_id):
         'atividade': quiz.atividade,
         'resposta': resposta,
         'form': form,
-        
-
     }
     
     return render(request, 'app_quiz/quiz_detail.html', context)
