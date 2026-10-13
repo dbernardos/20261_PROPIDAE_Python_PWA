@@ -30,7 +30,6 @@
       <div class="card card-custom mb-4 border-0 shadow-sm">
           <div class="card-body p-4">
             
-            <!-- ATENÇÃO: Altere o 'app_evento:lista_eventos' para o nome correto da sua url de listagem -->
             <form method="GET" action="{% url 'app_evento:urldis_evento' %}">
               <div class="row g-3 align-items-end">
                 
@@ -59,17 +58,45 @@
                     </select>
                 </div>
 
-                <!-- Filtro por Status (Datas) -->
-                <div class="col-md-2">
-                  <label for="status" class="form-label fw-bold text-verde-escuro">Status</label>
-                  <select class="form-select bg-light" id="status" name="status">
+                <!-- Filtro de Período -->
+                <div class="col-lg-2 col-md-6">
+                  <label for="periodo" class="form-label fw-bold text-verde-escuro">Quando</label>
+                  <select class="form-select bg-light" id="periodo" name="periodo" onchange="toggleDatasPersonalizadas(this.value)">
                     <option value="">Qualquer data</option>
-                    <option value="futuros" {% if status_atual == 'futuros' %}selected{% endif %}>Próximos</option>
-                    <option value="passados" {% if status_atual == 'passados' %}selected{% endif %}>Encerrados</option>
+                    <option value="hoje" {% if periodo_atual == 'hoje' %}selected{% endif %}>Hoje</option>
+                    <option value="amanha" {% if periodo_atual == 'amanha' %}selected{% endif %}>Amanhã</option>
+                    <option value="fim_semana" {% if periodo_atual == 'fim_semana' %}selected{% endif %}>Este fim de semana</option>
+                    <option value="7_dias" {% if periodo_atual == '7_dias' %}selected{% endif %}>Próximos 7 dias</option>
+                    <option value="30_dias" {% if periodo_atual == '30_dias' %}selected{% endif %}>Próximos 30 dias</option>
+                    <option value="custom" {% if periodo_atual == 'custom' %}selected{% endif %}>Intervalo específico...</option>
                   </select>
                 </div>
 
-                <!-- Botões -->
+                <!-- Filtros de Datas Específicas -->
+                <div class="col-lg-3 col-md-6 {% if periodo_atual != 'custom' %}d-none{% endif %}" id="containerDatasCustom">
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <label for="data_inicio" class="form-label fw-bold text-verde-escuro small mb-1">De</label>
+                      <input type="date" class="form-control bg-light form-control-sm" id="data_inicio" name="data_inicio" value="{{ data_inicio_atual }}">
+                    </div>
+                    <div class="col-6">
+                      <label for="data_fim" class="form-label fw-bold text-verde-escuro small mb-1">Até</label>
+                      <input type="date" class="form-control bg-light form-control-sm" id="data_fim" name="data_fim" value="{{ data_fim_atual }}">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Filtro para Eventos Encerrados -->
+                <div class="col-lg-2 col-md-6 pb-2">
+                  <div class="form-check form-switch pt-2">
+                    <input class="form-check-input" type="checkbox" id="encerrados" name="encerrados" value="1" {% if encerrados_atual %}checked{% endif %}>
+                    <label class="form-check-label fw-bold text-verde-escuro small" for="encerrados">
+                      Eventos encerrados
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Botões de Limpar Filtro e Buscar -->
                 <div class="col-md-2 d-flex gap-2">
                   <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-outline-secondary w-50" title="Limpar Filtros">
                     <i class="bi bi-eraser"></i>
@@ -179,5 +206,16 @@
       }
     });
   })();
+</script>
+
+<script>
+  function toggleDatasPersonalizadas(valor) {
+    const container = document.getElementById('containerDatasCustom');
+    if (valor === 'custom') {
+      container.classList.remove('d-none');
+    } else {
+      container.classList.add('d-none');
+    }
+  }
 </script>
 {% endblock %}

@@ -7,6 +7,7 @@ from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
+from datetime import timedelta
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.middleware.csrf import rotate_token
 from django.db.models import Q
@@ -29,10 +30,19 @@ def eventos_disponiveis(request):
     """Exibe todos os eventos disponíveis no catálogo."""
     eventos = Evento.objects.all().order_by('dataInicio')
     
+    if request.user.is_authenticated:
+        eventos = eventos.exclude(administrador__user_django=request.user)
+    
     query_busca = request.GET.get('busca', '')
     query_tipo = request.GET.get('tipo', '')
     query_status = request.GET.get('status', '')
+    query_periodo = request.GET.get('periodo', '')
+    query_data_inicio = request.GET.get('data_inicio', '')
+    query_data_fim = request.GET.get('data_fim', '')
+    query_apenas_encerrados = request.GET.get('encerrados') == '1'
     
+    hoje = timezone.now().date()
+    # Faz a busca (com ou sem os filtros)
     if query_busca:
         eventos = eventos.filter(
             Q(nome__icontains=query_busca) | 
@@ -42,17 +52,54 @@ def eventos_disponiveis(request):
     if query_tipo:
         eventos = eventos.filter(tipoEvento=query_tipo)
 
-    if query_status == 'futuros':
-        eventos = eventos.filter(dataInicio__gte=timezone.now())
-    elif query_status == 'passados':
-        eventos = eventos.filter(dataFim__lt=timezone.now())
+    #Encerrados
+    if query_apenas_encerrados:
+         # Filtra  eventos com a data de fim que seja menor que hoje
+        eventos = eventos.filter(dataFim__lt=hoje)
+    else:
+        # Se não marcou  'encerrados', oculta os eventos passados
+        # a menos que o usuário defina um período 
+        if not (query_periodo or query_data_inicio or query_data_fim):
+            eventos = eventos.filter(dataFim__gte=hoje)
+    
+    # 4. Períodos Pré-definidos
+    if query_periodo == 'hoje':
+        eventos = eventos.filter(dataInicio__lte=hoje, dataFim__gte=hoje)
+
+    elif query_periodo == 'amanha':
+        amanha = hoje + timedelta(days=1)
+        eventos = eventos.filter(dataInicio__lte=amanha, dataFim__gte=amanha)
+
+    elif query_periodo == 'fim_semana':
+        sabado = hoje + timedelta(days=(5 - hoje.weekday()))
+        domingo = sabado + timedelta(days=1)
+        eventos = eventos.filter(
+            dataInicio__lte=domingo, dataFim__gte=sabado
+        )
+
+    elif query_periodo == '7_dias':
+        limite = hoje + timedelta(days=7)
+        eventos = eventos.filter(dataInicio__lte=limite, dataFim__gte=hoje)
+
+    elif query_periodo == '30_dias':
+        limite = hoje + timedelta(days=30)
+        eventos = eventos.filter(dataInicio__lte=limite, dataFim__gte=hoje)
+
+    elif query_periodo == 'custom':
+        if query_data_inicio:
+            eventos = eventos.filter(dataFim__gte=query_data_inicio)
+        if query_data_fim:
+            eventos = eventos.filter(dataInicio__lte=query_data_fim)
         
     context = {
         'eventos': eventos,
         'tipos_evento': tipoEvento.choices,
         'busca_atual': query_busca,
         'tipo_atual': query_tipo,
-        'status_atual': query_status,
+        'encerrados_atual': query_apenas_encerrados,
+        'periodo_atual': query_periodo,
+        'data_inicio_atual': query_data_inicio,
+        'data_fim_atual': query_data_fim,
     }
 
     return render(request, 'app_evento/eventos.html', context)
@@ -206,9 +253,14 @@ def meus_eventos_disponiveis(request):
     
     query_busca = request.GET.get('busca', '')
     query_tipo = request.GET.get('tipo', '')
-    query_status = request.GET.get('status', '')
+    query_periodo = request.GET.get('periodo', '')
+    query_data_inicio = request.GET.get('data_inicio', '')
+    query_data_fim = request.GET.get('data_fim', '')
+    query_apenas_encerrados = request.GET.get('encerrados') == '1'
 
-    # 2. Aplica os filtros sobre a lista do administrador
+    hoje = timezone.now().date()
+
+    # Faz a busca(com ou sem os filtros)
     if query_busca:
         eventos_do_usuario = eventos_do_usuario.filter(
             Q(nome__icontains=query_busca) | Q(descricao__icontains=query_busca)
@@ -217,22 +269,55 @@ def meus_eventos_disponiveis(request):
     if query_tipo:
         eventos_do_usuario = eventos_do_usuario.filter(tipoEvento=query_tipo)
 
-    if query_status == 'futuros':
+    # APENAS ENCERRADOS
+    if query_apenas_encerrados:
+        # Filtra  eventos com a data de fim que seja menor que hoje
+        eventos_do_usuario = eventos_do_usuario.filter(dataFim__lt=hoje)
+    else:
+        # Se não marcou  'encerrados', oculta os eventos passados
+        # a menos que o usuário defina um período 
+        if not (query_periodo or query_data_inicio or query_data_fim):
+            eventos_do_usuario = eventos_do_usuario.filter(dataFim__gte=hoje)
+
+    # 4. Períodos Pré-definidos
+    if query_periodo == 'hoje':
+        eventos_do_usuario = eventos_do_usuario.filter(dataInicio__lte=hoje, dataFim__gte=hoje)
+
+    elif query_periodo == 'amanha':
+        amanha = hoje + timedelta(days=1)
+        eventos_do_usuario = eventos_do_usuario.filter(dataInicio__lte=amanha, dataFim__gte=amanha)
+
+    elif query_periodo == 'fim_semana':
+        sabado = hoje + timedelta(days=(5 - hoje.weekday()))
+        domingo = sabado + timedelta(days=1)
         eventos_do_usuario = eventos_do_usuario.filter(
-            dataInicio__gte=timezone.now()
-        )
-    elif query_status == 'passados':
-        eventos_do_usuario = eventos_do_usuario.filter(
-            dataFim__lt=timezone.now()
+            dataInicio__lte=domingo, dataFim__gte=sabado
         )
 
-    # 3. Envia os dados filtrados e os estados da busca para o template
+    elif query_periodo == '7_dias':
+        limite = hoje + timedelta(days=7)
+        eventos_do_usuario = eventos_do_usuario.filter(dataInicio__lte=limite, dataFim__gte=hoje)
+
+    elif query_periodo == '30_dias':
+        limite = hoje + timedelta(days=30)
+        eventos_do_usuario = eventos_do_usuario.filter(dataInicio__lte=limite, dataFim__gte=hoje)
+
+    elif query_periodo == 'custom':
+        if query_data_inicio:
+            eventos_do_usuario = eventos_do_usuario.filter(dataFim__gte=query_data_inicio)
+        if query_data_fim:
+            eventos_do_usuario = eventos_do_usuario.filter(dataInicio__lte=query_data_fim)
+
     context = {
         'eventos': eventos_do_usuario,
-        'tipos_evento': (tipoEvento.choices),  # Se der NameError, use Evento.tipoEvento.choices
+        'tipos_evento': (tipoEvento.choices),  
         'busca_atual': query_busca,
         'tipo_atual': query_tipo,
-        'status_atual': query_status,
+        'periodo_atual': query_periodo,
+        'data_inicio_atual': query_data_inicio,
+        'data_fim_atual': query_data_fim,
+        'encerrados_atual': query_apenas_encerrados,
+        
     }
 
     return render(request, 'app_evento/meus_eventos.html', context)

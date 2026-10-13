@@ -9,7 +9,7 @@ class Quiz(models.Model):
     ## CORRIGIR FALTA DE INTEGRIDADE NAS ATIVIDADES (remover blank=True, null=True)
     atividade = models.ForeignKey('app_evento.Atividade', on_delete=models.CASCADE, blank=True, null=True)
     titulo = models.CharField(max_length=200)
-    numero = models.PositiveIntegerField(unique=True, help_text="Número do desafio")
+    numero = models.PositiveIntegerField(blank=True, null=True, editable=False)
     subtitulo = models.CharField(max_length=300, blank=True, null=True)
    
     
@@ -29,7 +29,8 @@ class Quiz(models.Model):
     class Meta:
         verbose_name = "Quiz/Desafio"
         verbose_name_plural = "Quizzes/Desafios"
-        ordering = ['numero']
+        unique_together = ('atividade', 'numero')
+        ordering = ['atividade', 'numero']
     
     def __str__(self):
         return f"Desafio {self.numero}: {self.titulo}"
@@ -38,6 +39,18 @@ class Quiz(models.Model):
         """Retorna a faixa de resposta formatada"""
         return f"{self.valor_minimo} a {self.valor_maximo} {self.unidade_medida}"
 
+    def save(self, *args, **kwargs):
+        # Faz a verificação ee é um Quiz novo e não tem número definido
+        if not self.pk and not self.numero:
+            # Pega o último número cadastrado NESTA atividade
+            ultimo_quiz = Quiz.objects.filter(atividade=self.atividade).order_by('-numero').first()
+            if ultimo_quiz and ultimo_quiz.numero:
+                self.numero = ultimo_quiz.numero + 1
+            else:
+                self.numero = 1 
+                
+        super().save(*args, **kwargs)
+    
 """Model da tabela Resposta"""
 class Resposta(models.Model):
     participa = models.ForeignKey("app_evento.Participa", on_delete=models.CASCADE, related_name='respostas')

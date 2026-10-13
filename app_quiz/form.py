@@ -20,7 +20,8 @@ class CadastroQuizForm(forms.ModelForm):
     """Form para cadastro do quiz"""
     class Meta:
         model = Quiz
-        fields = ['atividade', 'titulo', 'numero', 'subtitulo', 'pergunta', 'dica', 'unidade_medida', 'valor_minimo', 'valor_maximo', 'valor_ideal', 'icone', 'ativo']
+        fields = ['titulo', 'subtitulo', 'pergunta', 'dica', 'unidade_medida', 'valor_minimo', 'valor_maximo', 'valor_ideal', 'icone', 'ativo']
+               
         widgets = {
             'atividade': forms.Select(attrs={'class': 'form-select'}),
             'titulo': forms.TextInput(attrs={'class': 'form-control'}),

@@ -10,35 +10,27 @@ from app_evento.models import Inscricao, Participa, Atividade
 from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch
 
+from django.utils import timezone
+from django.db import models  
+from django.db.models import Max
+from django.urls import reverse
+
 
 # Views do Quiz.
 # -----------------------------------------------
 
-def calcular_progresso_geral(participante):
-    total = Quiz.objects.filter(ativo=True).count()
-    
-    respondidos = Resposta.objects.filter(
-        participa__inscricao__usuario=participante,
-        quiz__ativo=True,
-        completo=True
-    ).count()
-    
-    porcentagem = round((respondidos / total) * 100, 2) if total > 0 else 0
-    
-    return {
-        'total': total,
-        'respondidos': respondidos,
-        'porcentagem': porcentagem,
-    }
 
-def boas_vindas(request, cracha):
+def boas_vindas(request, cracha, atividade_id):
     """Página de boas-vindas"""
     # Busca a inscrição no app_evento usando o crachá
     inscricao = get_object_or_404(Inscricao, cracha=cracha)
+    
     # Extrai o participante (Usuário) a partir da inscrição
     participante = inscricao.usuario 
-
+    atividade = get_object_or_404(Atividade, id=atividade_id)
+    
     print(f">>>>> Inscrição encontrada: {inscricao} participante: {participante}")
+    
     # Obtém todos os quizzes ativos
     quizzes = Quiz.objects.filter(ativo=True)
     
@@ -46,7 +38,9 @@ def boas_vindas(request, cracha):
         'cracha': cracha,
         'participante': participante,
         'inscricao': inscricao,
-        'quizzes': quizzes
+        'atividade': atividade,
+        'quizzes': quizzes,
+        'evento': atividade.evento,
     }
     
     return render(request, 'app_quiz/boas_vindas.html', context)
@@ -70,7 +64,15 @@ def cadastrar_quiz(request, atividade_id=None, quiz_id=None):
   if request.method == 'POST':
     form_quiz = CadastroQuizForm(request.POST, instance=quiz)
     if form_quiz.is_valid():
-      quiz_salvo = form_quiz.save()
+      quiz_salvo = form_quiz.save(commit=False)
+      quiz_salvo.atividade = atividade
+      
+      if not editando:
+          # Define o número do quiz como o próximo número disponível na atividade
+          ultimo_numero = Quiz.objects.filter(atividade=atividade).aggregate(max_numero=models.Max('numero'))['max_numero'] or 0
+          quiz_salvo.numero = ultimo_numero + 1
+      
+      quiz_salvo.save()
       messages.success(
           request,
           f'Quiz {"atualizado" if editando else "cadastrado"} com sucesso!',
@@ -91,7 +93,7 @@ def cadastrar_quiz(request, atividade_id=None, quiz_id=None):
       'editando': editando,
       'quiz': quiz,
       'atividade': atividade,
-      'evento': evento,  # Disponível para o botão Cancelar no template
+      'evento': evento,  
   }
 
   return render(request, 'app_quiz/cadastrar_quiz.html', context)
@@ -102,7 +104,7 @@ def gerenciar_quizzes(request, atividade_id):
   """View centralizada para gerenciar, alternar status, excluir e listar respostas dos quizzes."""
   atividade = get_object_or_404(Atividade, id=atividade_id)
 
-  # 1. Processamento de Ações via POST
+
   if request.method == 'POST':
     acao = request.POST.get('acao')
     quiz_id = request.POST.get('quiz_id')
@@ -120,10 +122,10 @@ def gerenciar_quizzes(request, atividade_id):
 
     return redirect('app_quiz:urlgerenciar_quizzes', atividade_id=atividade.id)
 
-  # 2. Identificação dinâmica do accessor ('respostas' ou 'resposta_set')
+  # Identificação dinâmica do accessor ('respostas' ou 'resposta_set')
   accessor = Resposta._meta.get_field('quiz').remote_field.get_accessor_name()
 
-  # 3. Busca dos Quizzes (Sempre executado no fluxo GET)
+  # Busca dos Quizzes 
   quizzes = Quiz.objects.filter(atividade=atividade).prefetch_related(
       Prefetch(
           accessor,
@@ -140,6 +142,7 @@ def gerenciar_quizzes(request, atividade_id):
   }
   return render(request, 'app_quiz/gerenciar_quizzes.html', context)
 
+'''
 def quizzes(request, cracha):
     """Página que lista todos os quizzes disponíveis na atividade"""
     inscricao = get_object_or_404(Inscricao, cracha=cracha)
@@ -148,8 +151,9 @@ def quizzes(request, cracha):
     # quizzes = Quiz.objects.filter(ativo=True)
     
     # Filtra apenas os quizzes vinculados à inscrição E que estejam ativos
-    quizzes = Quiz.objects.filter(
-      atividade__participa__inscricao=inscricao, ativo=True
+    quizzes = ( Quiz.objects.filter
+               (atividade__participa__inscricao=inscricao, ativo=True)
+               .order_by('numero').distinct()       
     )
     
     context = {
@@ -160,13 +164,57 @@ def quizzes(request, cracha):
     }
     
     return render(request, 'app_quiz/quizzes.html', context)
+'''
 
-def leitor_qrcode(request):
-    return render(request, 'app_quiz/leitor_qrcode.html')
+#Talvez para substituir o Quizzes??
+def quizzes_atividade(request, cracha, atividade_id):
+    """Página que lista apenas os quizzes da atividade em que foi feito o check-in"""
+    inscricao = get_object_or_404(Inscricao, cracha=cracha)
+    participante = inscricao.usuario 
+    atividade = get_object_or_404(Atividade, id=atividade_id)
+    
+    # Garante que ele só veja os quizzes se a presença estiver como True
+    participacao = get_object_or_404(Participa, inscricao=inscricao, atividade=atividade)
+    if not participacao.presente:
+        messages.error(request, "Você precisa registrar presença pelo Leitor QR Code primeiro.")
+        return redirect('app_quiz:urlboas_vindas', cracha=cracha)
+
+    # Filtra APENAS os quizzes vinculados a ESTA atividade E que estejam ativos
+    quizzes = Quiz.objects.filter(
+        atividade=atividade, 
+        ativo=True
+    ).order_by('numero').distinct()
+    
+    quizzes_respondidos = Resposta.objects.filter(
+        participa=participacao,
+        completo=True
+    ).values_list('quiz_id', flat=True)
+    
+    context = {
+        'cracha': cracha,
+        'participante': participante,
+        'inscricao': inscricao,
+        'atividade': atividade,
+        'quizzes': quizzes,
+        'quizzes_respondidos': quizzes_respondidos,
+    }
+    
+    return render(request, 'app_quiz/quizzes.html', context)
+
+
+def leitor_qrcode(request, codigo_leitor):
+    atividade = get_object_or_404(Atividade, codigo_leitor=codigo_leitor)
+    
+    context = {
+        'atividade': atividade,
+    }
+    return render(request, 'app_quiz/leitor_qrcode.html', context)
+
+
 
 def quiz_detail(request, cracha, quiz_id):
     """Página detalhada do quiz"""
-    # 1. Busca a inscrição pelo crachá e obtém o usuário associado
+    # Busca a inscrição pelo crachá e obtém o usuário associado
     inscricao = get_object_or_404(Inscricao, cracha=cracha)
     participante = inscricao.usuario 
 
@@ -176,52 +224,38 @@ def quiz_detail(request, cracha, quiz_id):
         messages.warning(
             request, 'Este desafio está temporariamente desativado pelo organizador.'
         )
-        return redirect('app_quiz:urlquizzes', cracha=cracha)
-    # 2. Obtém a relação Participa
-    participa_obj = Participa.objects.filter(inscricao=inscricao).first()
+        return redirect('app_quiz:urlquizzes_atividade', cracha=cracha)
     
-    if not participa_obj:
-        atividade = Atividade.objects.filter(evento=inscricao.evento).first()
-        if not atividade:
-            atividade = Atividade.objects.create(
-            evento=inscricao.evento,
-            nome="Quiz/Desafio",
-            descricao="Atividade gerada para vincular ao Quiz"
-            )
-            
-        participa_obj = Participa.objects.create(
-            inscricao=inscricao,
-            atividade=atividade,
-            
-        )
-            
+    # Obtém a relação Participa
+    participa_obj, created = Participa.objects.get_or_create(
+      inscricao=inscricao,
+      atividade=quiz.atividade,
+    )
+    
     resposta, created = Resposta.objects.get_or_create(
         participa=participa_obj,
         quiz=quiz,
     )
+    
             
-    # 3. Processa o formulário de resposta
+
+    if resposta.completo and request.method == 'POST':
+        messages.warning(request, 'Você já respondeu a este desafio e não pode enviá-lo novamente.')
+        return redirect('app_quiz:urlpagina_leitor', codigo_leitor=quiz.atividade.codigo_leitor)
+        
     if request.method == 'POST':
         form = RespostaQuizForm(request.POST, instance=resposta)
         if form.is_valid():
             resposta = form.save(commit=False)
-            
-            if hasattr(resposta, 'tentativas'):
-                resposta.tentativas += 1
-                
-            if hasattr(resposta, 'verificar_resposta'):
-                resposta.verificar_resposta()
-            else:
-                resposta.correto = (quiz.valor_minimo <= resposta.valor_resposta <= quiz.valor_maximo)
+        
+            resposta.correto = (quiz.valor_minimo <= resposta.valor_resposta <= quiz.valor_maximo)
+            resposta.completo = True 
             resposta.save()
-            
-            if getattr(resposta, 'correto', False):
-                messages.success(request, 'Parabéns! Sua resposta está correta!')
-            else:
-                messages.warning(request, 'Resposta incorreta. Tente novamente!')
-            
-            return redirect('app_quiz:urlquiz_detail', cracha=cracha, quiz_id=quiz.id)
-             
+                
+            messages.success(request, f'Resposta do Desafio {quiz.numero} registrada com sucesso!')
+                
+            return redirect('app_quiz:urlpagina_leitor', codigo_leitor=quiz.atividade.codigo_leitor)
+                
     else:
         form = RespostaQuizForm(instance=resposta)
     
@@ -230,9 +264,11 @@ def quiz_detail(request, cracha, quiz_id):
         'participante': participante,
         'inscricao': inscricao,
         'quiz': quiz,
+        'atividade': quiz.atividade,
         'resposta': resposta,
         'form': form,
-        'progresso_geral': calcular_progresso_geral(participante)
+        
+
     }
     
     return render(request, 'app_quiz/quiz_detail.html', context)
@@ -257,38 +293,62 @@ def reset_quiz(request, cracha, quiz_id):
     
     return redirect('app_quiz:urlquiz_detail', cracha=cracha, quiz_id=quiz.id)
 
-def identificar_funcionario(request):
+def leitor_identificar(request):
     if request.method == 'POST':
         try:
             # Pega o JSON enviado pelo JavaScript
             dados_recebidos = json.loads(request.body)
             codigo = dados_recebidos.get('codigo', '').strip()
+            atividade_param = str(dados_recebidos.get('atividade_id', '')).strip()
+
+            if not atividade_param:
+                 return JsonResponse(
+                     {'autorizado': False, 'mensagem': 'Atividade não identificada.'}
+                  )
 
             try:
-                inscricao = Inscricao.objects.select_related('usuario').get(cracha=codigo)
-                usuario = inscricao.usuario
-                
-                return JsonResponse({
-                    "autorizado": True,
-                    "id": codigo,
-                    "nome": getattr(usuario, 'nome', 'Nome não cadastrado'),
-                    "cargo": getattr(usuario, 'cargo', 'Cargo não cadastrado'),
-                    "empresa": getattr(usuario, 'empresa', 'Empresa não cadastrada'),
-                    "mensagem": "ACESSO LIBERADO"  
-                })                    
-            
-            # Verifica se o código de inscrição existe
+                inscricao = Inscricao.objects.get(cracha=codigo)
             except Inscricao.DoesNotExist:
-                print(f"DEBUG - Inscrição não encontrada para o código: '{codigo}'")
+                return JsonResponse({
+                    'autorizado': False, 'mensagem': 'QR Code não cadastrado.'} 
+                )
+            try:
+                if atividade_param.isdigit():
+                    participacao = Participa.objects.get(
+                        inscricao=inscricao, atividade_id=int(atividade_param)
+                    )
+                    
+                else:
+                    participacao = Participa.objects.get(inscricao=inscricao, atividade_id=atividade_id)
+                    participacao.presente = True
+            except Participa.DoesNotExist:
                 return JsonResponse({
                     "autorizado": False,
-                    "id": codigo,
-                    "mensagem": "ACESSO NEGADO"
-                })
+                    "mensagem": "Acesso negado. Este participante não está inscrito nesta atividade."  
+                })   
+             
+            
+            agora = timezone.now()
+            participacao.presente = True
+            participacao.data_hora_presenca = agora
+            participacao.save()
+            
+            url_destino = reverse('app_quiz:urlboas_vindas', kwargs={
+                'cracha': codigo,
+                'atividade_id': participacao.atividade_id,
+            })
+                                  
+            return JsonResponse({
+                "autorizado": True,
+                "id": codigo,
+                "mensagem": f'Presença confirmada às ({agora.strftime("%H:%M:%S")})',
+                "redirect_url": url_destino
+            })      
                 
         except json.JSONDecodeError:
-            return JsonResponse({"mensagem": "Erro nos dados enviados"}, status=400)
+            return JsonResponse({"mensagem": "Dados Inválidos"}, status=400)
 
     return JsonResponse({"mensagem": "Método não permitido"}, status=405)  
 
 from django.shortcuts import render, redirect
+

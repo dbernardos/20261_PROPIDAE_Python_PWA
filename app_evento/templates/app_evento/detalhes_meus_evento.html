@@ -55,7 +55,7 @@
                 <i class="bi bi-calendar-event me-1 text-verde-claro"></i> <strong>Período:</strong> {{ evento.dataInicio|date:'d/m/Y' }} a {{ evento.dataFim|date:'d/m/Y' }}
               </div>
               <div>
-                <i class="bi bi-geo-alt me-1 text-vermelho"></i> <strong>Local:</strong> {{ evento.local|default:'A definir' }}
+                <i class="bi bi-geo-alt me-1 text-vermelho"></i> <strong>Endereço:</strong> {{ evento.local|default:'A definir' }}
               </div>
               {% if evento.emailContato %}
                 <div>
@@ -89,10 +89,9 @@
                     <!-- Botões da Atividade (Inscrição, Scanner e Ações Admin) -->
                     <div class="d-flex flex-wrap gap-2 align-items-center">
 
-                      <a href="{% url 'app_quiz:urlleitor_qrcode' %}" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-qr-code-scan me-1"></i> QR Code
+                      <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}" class="btn btn-primary btn-sm shadow-sm">
+                          <i class="bi bi-qr-code me-1"></i> QR Code
                       </a>
-                      
                       <a href="{% url 'app_quiz:urlgerenciar_quizzes' atividade.id %}" class="btn btn-outline-primary btn-sm shadow-sm" title="Gerenciar Quizzes">
                           <i class="bi bi-gear-fill me-1"></i> Quizzes
                       </a>  
@@ -140,7 +139,7 @@
                         <div>
                           <span class="text-muted d-block small">Término</span>
                           <strong class="text-dark small">
-                            {{ atividade.horaFim|date:'H:i' }}
+                            {{ atividade.horaFim|date:'d/m/Y  H:i' }}
                           </strong>
                         </div>
                       </div>
@@ -150,7 +149,7 @@
                       <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-geo-alt text-vermelho fs-5"></i>
                         <div>
-                          <span class="text-muted d-block small">Complemento do Local</span>
+                          <span class="text-muted d-block small">Local:</span>
                           <strong class="text-dark small">{{ atividade.complementoLocal|default:'A definir' }}</strong>
                         </div>
                       </div>

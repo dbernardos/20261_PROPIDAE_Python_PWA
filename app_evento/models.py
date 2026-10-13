@@ -4,6 +4,7 @@ from django.core.files.base import ContentFile
 
 from django.db import models
 from django.utils import timezone
+from django.utils.timezone import localtime 
 from nanoid import generate
 from django.contrib.auth.models import User
 from smart_selects.db_fields import ChainedForeignKey
@@ -62,12 +63,13 @@ class Evento(models.Model):
 
     def __str__(self):
         return self.nome
+    
 
 # -----------------------------------------------
 # MODELS DE INSCRIÇÃO E PARTICIPAÇÃO
 # -----------------------------------------------
 
-def gerar_codigo_cracha():
+def gerar_codigo():
     alfabeto = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
     parte1 = generate(alfabeto, size=3)
     parte2 = generate(alfabeto, size=3)
@@ -79,7 +81,7 @@ class Inscricao(models.Model):
     evento = models.ForeignKey('Evento', on_delete=models.CASCADE)
 
     dataHora = models.DateTimeField(auto_now_add=True)
-    cracha = models.CharField(max_length=7, unique=True, default=gerar_codigo_cracha)
+    cracha = models.CharField(max_length=7, unique=True, default=gerar_codigo)
     qrcode_imagem = models.ImageField(upload_to='qrcodes/', blank=True, null=True)  
 
     def save(self, *args, **kwargs):
@@ -132,13 +134,17 @@ class Participa(models.Model):
     )
     
     funcao = models.CharField('Funcao', choices=StatusParticipa.choices, max_length=20, default=StatusParticipa.PARTICIPANTE)
-    data_hora = models.DateTimeField(auto_now_add=True)
-    data_hora_presenca = models.DateTimeField(auto_now=True)
+    data_hora = models.DateTimeField('Data de Inscrição', auto_now_add=True)
+    presente = models.BooleanField('Presente', default=False)
+    data_hora_presenca = models.DateTimeField('Data/Hora da Validação pelo QR Code', null=True, blank=True)
+    
+    
     
     class Meta:
         verbose_name = "Participa"
         verbose_name_plural = "Participam"
         ordering = ['funcao']
+        unique_together = ('inscricao', 'atividade')
 
     def clean(self):
         super().clean()
@@ -150,12 +156,27 @@ class Participa(models.Model):
                     )
                 })
 
+        # Validação de consistência do Check-in
+        if self.presente and not self.data_hora_presenca:
+            # Atribui o horário atual a presenca caso não tenha
+            self.data_hora_presenca = timezone.now()
+        elif not self.presente and self.data_hora_presenca:
+            # Limpa a data se o registro for resetado para não presente
+            self.data_hora_presenca = None
+    
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.inscricao} ; {self.atividade} ; {self.funcao}"
+        status = (
+            f'Presente em {localtime(self.data_hora_presenca).strftime("%d/%m/%Y %H:%M")}'
+            if self.presente and self.data_hora_presenca
+                else 'Ausente'
+        )
+        return (
+            f'{self.inscricao} | {self.atividade} | {self.funcao} | Status: {status}'
+        )
 
 
 # -----------------------------------------------
@@ -186,6 +207,8 @@ class Atividade(models.Model):
     horaFim = models.DateTimeField(verbose_name="Hora de Término")
     limitePessoas = models.PositiveIntegerField(verbose_name="Limite de Pessoas", blank=True, null=True)
 
+    codigo_leitor = models.CharField(max_length=7, unique=True, default=gerar_codigo, editable=False)
+    
     def __str__(self):
         return f"{self.nome} - {self.evento.nome}"
 

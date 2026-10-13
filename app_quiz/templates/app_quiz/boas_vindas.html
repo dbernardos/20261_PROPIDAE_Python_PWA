@@ -7,8 +7,7 @@
 
 {% block pre_script %}
   <link rel="manifest" href="manifest.json" crossorigin="use-credentials" />
-  {% comment %} <meta http-equiv="refresh" content="5;url={% url 'app_quiz:urlleitor_qrcode' %}" /> {% endcomment %}
-  <meta http-equiv="refresh" content="1;url={% url 'app_quiz:urlquizzes' cracha %}" />
+  <meta http-equiv="refresh" content="2;url={% url 'app_quiz:urlquizzes_atividade' cracha=cracha atividade_id=atividade.id %}" />
 {% endblock %}
 
 {% block content %}
@@ -19,14 +18,17 @@
         <div class="card bg-gradient text-white border-0 shadow-lg" style="background: linear-gradient(135deg, #1b5e3a 0%, #8cc63f 100%);">
           <div class="card-body p-3">
             <div class="row align-items-center">
+
               <div class="col-md-8" style="color: black;">
+    
                 <h1 class="display-4 fw-bold mb-3">
                   <i class="bi bi-hand-thumbs-up-fill me-2"></i>
-                  Olá, {{ participante.nome|default:'Participante' }}!
+                 Olá, {% firstof participante.nome participante.get_full_name participante.first_name participante.username 'Participante' %}!
                 </h1>
                 <p class="lead mb-0">
-                  <i class="bi bi-card-list me-2"></i>Crachá: {{ cracha }}<br />
-                  <i class="bi bi-calendar-check me-2"></i>Bem-vindo ao XXIX Colóquio de Usinagem
+                  <i class="bi bi-card-list me-2"></i>Crachá: <strong>{{ cracha }}</strong><br>
+                  <i class="bi bi-check-circle-fill me-2"></i>Presença confirmada em: <strong>{{ atividade.nome }}</strong><br>
+                  <i class="bi bi-calendar-event me-1 text-success"></i> {{ evento.nome }}
                 </p>
               </div>
               <div class="col-md-4 text-center">

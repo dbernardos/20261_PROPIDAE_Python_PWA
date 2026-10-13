@@ -10,7 +10,7 @@ class EventoAdmin(admin.ModelAdmin):
     
 @admin.register(Atividade)
 class AtividadeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nome', 'descricao', 'tipoAtividade', 'complementoLocal', 'horaInicio', 'horaFim', 'limitePessoas')
+    list_display = ('id', 'nome', 'descricao', 'tipoAtividade', 'complementoLocal', 'horaInicio', 'horaFim', 'limitePessoas', 'codigo_leitor')
     list_display_links = ('id', 'nome')
     
 @admin.register(Inscricao)
@@ -20,7 +20,7 @@ class InscricaoAdmin(admin.ModelAdmin):
     
 @admin.register(Participa)
 class ParticipaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'inscricao', 'atividade', 'funcao', 'data_hora', 'data_hora_presenca')
+    list_display = ('id', 'inscricao', 'atividade', 'funcao', 'data_hora', 'data_hora', 'data_hora_presenca')
     list_display_links = ('id', 'inscricao')
     
 @admin.register(Apoiador)    
