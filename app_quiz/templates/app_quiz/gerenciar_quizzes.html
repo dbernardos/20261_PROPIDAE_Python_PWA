@@ -31,13 +31,13 @@
     {% if quizzes %}
       <div class="accordion" id="accordionQuizzes">
       {% for quiz in quizzes %}
-        <!-- ITEM DO ACCORDION / CARD DO QUIZ -->
+        <!-- ITEM-->
         <div class="accordion-item border-0 mb-4 card-custom rounded overflow-hidden">
           
           <!-- Cabeçalho do Quiz -->
           <div class="accordion-header bg-white p-3 d-flex flex-wrap align-items-center justify-content-between gap-3">
             
-            <!-- Lado Esquerdo: Clique para abrir o accordion (data-bs-toggle="collapse" fica APENAS aqui) -->
+            <!-- Lado Esquerdo: Clique para abrir o accordion -->
             <div class="d-flex align-items-center gap-3" data-bs-toggle="collapse" data-bs-target="#collapseQuiz{{ quiz.id }}" style="cursor: pointer;">
               <span class="badge bg-verde-claro rounded-circle p-3 fs-6 shadow-sm d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
                 #{{ quiz.numero }}
@@ -65,7 +65,7 @@
               <form method="POST" action="{% url 'app_quiz:urlgerenciar_quizzes' atividade.id %}" class="d-inline">
                 {% csrf_token %}
                 <input type="hidden" name="quiz_id" value="{{ quiz.id }}">
-                <input type="hidden" name="acao" value="toggle_status">
+                <input type="hidden" name="acao" value="alternar_status">
                 <button type="submit" class="btn btn-sm {% if quiz.ativo %}btn-outline-secondary{% else %}btn-primary-custom{% endif %}" title="Alternar Status">
                   <i class="bi {% if quiz.ativo %}bi-pause-fill{% else %}bi-play-fill{% endif %}"></i>
                 </button>
@@ -91,7 +91,62 @@
           <!-- Respostas -->
           <div id="collapseQuiz{{ quiz.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionQuizzes">
             <div class="accordion-body bg-light border-top">
-              <!-- Tabela de respostas aqui... -->
+                 
+              <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle bg-white rounded shadow-sm overflow-hidden mb-0">
+                  <thead class="table-light text-verde-escuro">
+                    <tr>
+                      <th class="ps-3">Nome do Participante</th>
+                      <th>Resposta Enviada</th>
+                      <th>Status</th>
+                      <th class="pe-3">Data da Resposta</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for resposta in quiz.respostas.all %}
+                      <tr>
+                        <!-- Nome do Participante -->
+                        <td class="fw-semibold ps-3 text-dark">
+                          {% if resposta.participa.usuario.get_full_name %}
+                            {{ resposta.participa.usuario.get_full_name }}
+                          {% else %}
+                            {{ resposta.participa.usuario.username }}
+                          {% endif %}
+                        </td>
+                        
+                        <!-- Resposta enviada -->
+                        <td>
+                          <span class="badge bg-light text-dark border px-2 py-1 fs-6 fw-normal">
+                            {{ resposta.valor_resposta }} <small class="text-muted">{{ quiz.unidade_medida }}</small>
+                          </span>
+                        </td>
+                        
+                        <!-- Acertou / Errou -->
+                        <td>
+                          {% if resposta.correto %}
+                            <span class="badge bg-verde-claro px-3 py-2 rounded-pill shadow-sm"><i class="bi bi-check-circle-fill me-1"></i> Acertou</span>
+                          {% else %}
+                            <span class="badge bg-danger px-3 py-2 rounded-pill shadow-sm"><i class="bi bi-x-circle-fill me-1"></i> Errou</span>
+                          {% endif %}
+                        </td>
+                        
+                        <!-- Data Formatada -->
+                        <td class="text-muted pe-3">
+                          <i class="bi bi-calendar3 me-1"></i> {{ resposta.data_resposta|date:"d/m/Y H:i" }}
+                        </td>
+                      </tr>
+                    {% empty %}
+                      <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">
+                          <i class="bi bi-chat-square-dots d-block fs-3 mb-2 text-muted opacity-50"></i>
+                          Nenhum participante respondeu a este quiz ainda.
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+
             </div>
           </div>
 

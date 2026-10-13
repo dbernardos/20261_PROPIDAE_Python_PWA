@@ -377,7 +377,7 @@ def editar_atividade(request, atividade_id):
 
     return render(request, 'app_evento/cadastrar_atividade.html', context)
 
-
+@login_required
 def excluir_atividade(request, atividade_id):
     atividade = get_object_or_404(Atividade, pk=atividade_id)
     evento_id = atividade.evento.id
@@ -464,22 +464,38 @@ def minhas_inscricoes(request):
     })
 
 
+@never_cache
+@login_required
+def comprovante_inscricao(request, evento_id):
+    """Exibe o comprovante e o crachá do participante no evento"""
+    try:
+        usuario_perfil = Usuario.objects.get(user_django=request.user)
+    except Usuario.DoesNotExist:
+        messages.warning(request, 'Você precisa completar seu perfil de usuário.')
+        return redirect('app_login:urlcad_usuario')
+
+    evento = get_object_or_404(Evento, id=evento_id)
+    inscricao = get_object_or_404(
+        Inscricao,
+        usuario=usuario_perfil,
+        evento=evento
+    )
+
+    participacoes = Participa.objects.filter(
+        inscricao=inscricao
+    ).select_related('atividade')
+
+    context = {
+        'evento': evento,
+        'inscricao': inscricao,
+        'participacoes': participacoes,
+        'usuario': usuario_perfil,
+    }
+
+    return render(request, 'app_evento/comprovante.html', context)
 # -----------------------------------------------
 # OUTRAS VIEWS E SORTEIO
 # -----------------------------------------------
-@never_cache
-def dados(request):
-    template = 'app_evento/dados.html'
-    eventos = Evento.objects.all()
-    atividades = Atividade.objects.all()
-
-    contexto = {
-        'eventos': eventos,
-        'atividades': atividades,
-    }
-
-    return render(request, template, contexto)
-
 
 @never_cache
 @login_required
@@ -589,33 +605,3 @@ def sorteio(request, atividade_id=None):
 
     return render(request, 'app_evento/sorteio.html', context)
 
-
-@never_cache
-@login_required
-def comprovante_inscricao(request, evento_id):
-    """Exibe o comprovante e o crachá do participante no evento"""
-    try:
-        usuario_perfil = Usuario.objects.get(user_django=request.user)
-    except Usuario.DoesNotExist:
-        messages.warning(request, 'Você precisa completar seu perfil de usuário.')
-        return redirect('app_login:urlcad_usuario')
-
-    evento = get_object_or_404(Evento, id=evento_id)
-    inscricao = get_object_or_404(
-        Inscricao,
-        usuario=usuario_perfil,
-        evento=evento
-    )
-
-    participacoes = Participa.objects.filter(
-        inscricao=inscricao
-    ).select_related('atividade')
-
-    context = {
-        'evento': evento,
-        'inscricao': inscricao,
-        'participacoes': participacoes,
-        'usuario': usuario_perfil,
-    }
-
-    return render(request, 'app_evento/comprovante.html', context)
