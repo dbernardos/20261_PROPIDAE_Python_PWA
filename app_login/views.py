@@ -193,7 +193,6 @@ def meu_usuario(request):
             messages.success(request, 'Perfil atualizado com sucesso no banco de dados!')
             return redirect('app_login:urlmeu_usuario') # Ajuste com o seu name da URL
         else:
-            # Alerta se houver erro de validação
             messages.error(request, 'Não foi possível salvar. Verifique os erros no formulário.')
     else:
         form = EditarPerfilForm(instance=usuario)

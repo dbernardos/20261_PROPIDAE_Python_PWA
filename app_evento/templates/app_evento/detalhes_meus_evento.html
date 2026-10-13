@@ -51,18 +51,41 @@
             {% endif %}
 
             <div class="d-flex flex-wrap gap-4 text-muted small">
+               
+              <!-- Período -->
               <div>
                 <i class="bi bi-calendar-event me-1 text-verde-claro"></i> <strong>Período:</strong> {{ evento.dataInicio|date:'d/m/Y' }} a {{ evento.dataFim|date:'d/m/Y' }}
               </div>
+
+               <!-- Endereço -->
               <div>
                 <i class="bi bi-geo-alt me-1 text-vermelho"></i> <strong>Endereço:</strong> {{ evento.local|default:'A definir' }}
               </div>
+
+               <!-- Email -->
               {% if evento.emailContato %}
                 <div>
                   <i class="bi bi-envelope me-1 text-primary"></i> <strong>Contato:</strong> {{ evento.emailContato }}
                 </div>
               {% endif %}
             </div>
+
+            <!-- Apoiadores -->
+            {% if evento.apoiadores.all %}
+              <div class="pt-3 border-top mt-3">
+                <span class="text-muted small fw-bold d-block mb-2">
+                  <i class="bi bi-award-fill text-warning me-1"></i> Apoiadores e Patrocinadores:
+                </span>
+                <div class="d-flex flex-wrap gap-2">
+                  {% for apoiador in evento.apoiadores.all %}
+                    <span class="badge bg-light text-dark border fw-normal py-1 px-3 rounded-pill d-inline-flex align-items-center gap-1">
+                       {{ apoiador.nome }}
+                    </span>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+
           </div>
         </div>
       </div>
@@ -96,7 +119,6 @@
                           <i class="bi bi-gear-fill me-1"></i> Quizzes
                       </a>  
                       
-                      <!-- BOTÃO DO SORTEIO ATUALIZADO PASSANDO O ID DA ATIVIDADE -->
                       <a href="{% url 'app_evento:urlsorteio_atividade' atividade.id %}" class="btn btn-warning btn-sm shadow-sm">
                         <i class="bi bi-gift me-1"></i> Sorteio
                       </a>
