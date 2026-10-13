@@ -329,22 +329,26 @@ def meus_eventos_disponiveis(request):
 @login_required
 def cadastrar_atividade(request, evento_id):
     evento_atual = get_object_or_404(Evento, id=evento_id)
+    
     if request.method == 'POST':
         form = AtividadeForm(request.POST)
-
         if form.is_valid():
             atividade = form.save(commit=False)
             atividade.evento = evento_atual
             atividade.save()
             
-            messages.success(request, '🎉 Atividade cadastrada com sucesso!')
-            return redirect('app_evento:urldet_myevento', evento_id=evento_atual.id) 
+            messages.success(request, 'Atividade cadastrada com sucesso!')
+            return redirect('app_evento:urldet_myevento', evento_id=evento_atual.id)
+        else:
+            messages.error(request, 'Por favor, corrija os erros destacados no formulário.')
     else:
         form = AtividadeForm()
-        context = {
-            'form_atividade': form,
-            'evento': evento_atual
-        }
+
+    # Dicionário de contexto fora do if/else para atender tanto GET quanto POST inválido
+    context = {
+        'form_atividade': form,
+        'evento': evento_atual
+    }
 
     return render(request, 'app_evento/cadastrar_atividade.html', context)
 
