@@ -28,7 +28,7 @@ def home(request):
 @never_cache
 def eventos_disponiveis(request):
     """Exibe todos os eventos disponíveis no catálogo."""
-    eventos = Evento.objects.all().order_by('dataInicio')
+    eventos = Evento.objects.filter(eventoPublico=True).order_by('dataInicio')
     
     if request.user.is_authenticated:
         eventos = eventos.exclude(administrador__user_django=request.user)
@@ -184,7 +184,7 @@ def excluir_evento(request, evento_id):
 def detalhes_evento(request, evento_id):
     """Exibe os detalhes de um evento e indica em quais atividades o usuário está inscrito"""
     evento = get_object_or_404(Evento, id=evento_id)
-    atividades = Atividade.objects.filter(evento=evento)
+    atividades = Atividade.objects.filter(evento=evento).order_by('horaInicio')
 
     atividades_inscritas_ids = []
     esta_inscrito_no_evento = False
@@ -229,7 +229,7 @@ def detalhes_meus_evento(request, evento_id):
         raise PermissionDenied("Você precisa completar seu perfil de usuário para acessar esta página.")
     
     evento = get_object_or_404(Evento, id=evento_id, administrador=usuario_perfil)
-    atividades = Atividade.objects.filter(evento=evento)
+    atividades = Atividade.objects.filter(evento=evento).order_by('horaInicio')
 
     total_inscritos = Participa.objects.filter(atividade__evento=evento).count()
 
@@ -247,7 +247,7 @@ def detalhes_meus_evento(request, evento_id):
 def meus_eventos_disponiveis(request):
     try:
         usuario_perfil = Usuario.objects.get(user_django=request.user)
-        eventos_do_usuario = Evento.objects.filter(administrador=usuario_perfil)
+        eventos_do_usuario = Evento.objects.filter(administrador=usuario_perfil).order_by('dataInicio')
     except Usuario.DoesNotExist:
         eventos_do_usuario = Evento.objects.none()
     
@@ -274,8 +274,7 @@ def meus_eventos_disponiveis(request):
         # Filtra  eventos com a data de fim que seja menor que hoje
         eventos_do_usuario = eventos_do_usuario.filter(dataFim__lt=hoje)
     else:
-        # Se não marcou  'encerrados', oculta os eventos passados
-        # a menos que o usuário defina um período 
+        # Se não marcou  'encerrados', oculta os eventos passados a menos que o usuário defina um período 
         if not (query_periodo or query_data_inicio or query_data_fim):
             eventos_do_usuario = eventos_do_usuario.filter(dataFim__gte=hoje)
 
