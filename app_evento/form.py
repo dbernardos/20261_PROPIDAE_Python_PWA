@@ -118,6 +118,11 @@ class EventoForm(forms.ModelForm):
 
 
 
+from datetime import datetime
+from django import forms
+from .models import Atividade
+
+
 class AtividadeForm(forms.ModelForm):
     class Meta:
         model = Atividade
@@ -134,36 +139,46 @@ class AtividadeForm(forms.ModelForm):
         labels = {
             'nome': 'Nome da Atividade',
             'descricao': 'Descrição',
-            'tipoAtividade': 'Tipo de atividade',
+            'tipoAtividade': 'Tipo de Atividade',
             'complementoLocal': 'Complemento do Local',
             'horaInicio': 'Hora de Início',
             'horaFim': 'Hora de Término',
             'limitePessoas': 'Limite de Participantes',
         }
-        
+
         widgets = {
-            'nome': forms.TextInput(attrs={'placeholder': 'digite o nome da atividade', 'class': 'form-control mb-3'}),
-            'descricao': forms.Textarea(attrs={'placeholder': 'digite a descrição da atividade', 'class': 'form-control mb-3', 'rows': 4}),
-            'tipoAtividade': forms.Select(attrs={'class': 'form-select mb-3'}),
-            'complementoLocal': forms.TextInput(attrs={'placeholder': 'digite o complemento do local', 'class': 'form-control mb-3'}),
+            'nome': forms.TextInput(
+                attrs={'placeholder': 'Ex.: Workshop de Gestão de Projetos'}
+            ),
+            'descricao': forms.Textarea(
+                attrs={
+                    'placeholder': 'Ex.: Tópicos abordados, dinâmicas e objetivos da atividade...',
+                    'rows': 4,
+                }
+            ),
+            'tipoAtividade': forms.Select(),
+            'complementoLocal': forms.TextInput(
+                attrs={'placeholder': 'Ex.: Sala 204 - Bloco B'}
+            ),
             'horaInicio': forms.DateTimeInput(
-                format='%Y-%m-%dT%H:%M',
-                attrs={'class': 'form-control mb-3', 'type': 'datetime-local'}
+                format='%Y-%m-%dT%H:%M', attrs={'type': 'datetime-local'}
             ),
             'horaFim': forms.DateTimeInput(
-                format='%Y-%m-%dT%H:%M',
-                attrs={'class': 'form-control mb-3', 'type': 'datetime-local'}
+                format='%Y-%m-%dT%H:%M', attrs={'type': 'datetime-local'}
             ),
-            'limitePessoas': forms.NumberInput(attrs={'placeholder': 'digite o limite de participantes', 'class': 'form-control mb-3', 'type': 'number'}),
+            'limitePessoas': forms.NumberInput(
+                attrs={'placeholder': 'Ex.: 50'}
+            ),
         }
-
 
     def clean(self):
         cleaned_data = super().clean()
         horaInicio = cleaned_data.get('horaInicio')
         horaFim = cleaned_data.get('horaFim')
 
-        evento = cleaned_data.get('evento') or getattr(self.instance, 'evento', None)
+        evento = cleaned_data.get('evento') or getattr(
+            self.instance, 'evento', None
+        )
 
         # 1. Checagem de ordem simples (término < início)
         if horaInicio and horaFim and horaFim < horaInicio:
@@ -176,9 +191,13 @@ class AtividadeForm(forms.ModelForm):
         if evento and horaInicio and horaFim:
             # Converte para .date() para comparação segura se houver mistura de date/datetime
             dt_atv_inicio = (
-                horaInicio.date() if isinstance(horaInicio, datetime) else horaInicio
+                horaInicio.date()
+                if isinstance(horaInicio, datetime)
+                else horaInicio
             )
-            dt_atv_fim = horaFim.date() if isinstance(horaFim, datetime) else horaFim
+            dt_atv_fim = (
+                horaFim.date() if isinstance(horaFim, datetime) else horaFim
+            )
 
             dt_ev_inicio = (
                 evento.dataInicio.date()
@@ -215,19 +234,21 @@ class AtividadeForm(forms.ModelForm):
             if dt_atv_fim > dt_ev_fim:
                 self.add_error(
                     'horaFim',
-                    f'A atividade não pode terminar após o encerramento do evento'
-                    f' ({fim_fmt}).',
+                    f'A atividade não pode terminar após o encerramento do evento ({fim_fmt}).',
                 )
 
         return cleaned_data
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
+
         if self.instance and self.instance.pk:
-          
             if self.instance.horaInicio:
-                self.initial['horaInicio'] = self.instance.horaInicio.strftime('%Y-%m-%dT%H:%M')
-            
+                self.initial['horaInicio'] = self.instance.horaInicio.strftime(
+                    '%Y-%m-%dT%H:%M'
+                )
+
             if self.instance.horaFim:
-                self.initial['horaFim'] = self.instance.horaFim.strftime('%Y-%m-%dT%H:%M')
+                self.initial['horaFim'] = self.instance.horaFim.strftime(
+                    '%Y-%m-%dT%H:%M'
+                )

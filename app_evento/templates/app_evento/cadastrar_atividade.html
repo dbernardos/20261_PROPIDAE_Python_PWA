@@ -11,22 +11,57 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-lg-8">
-          <h2 class="fw-bold text-verde-escuro mb-4">
+          <!-- Título Dinâmico -->
+          <h2 class="fw-bold text-verde-escuro mb-4 d-flex align-items-center">
             {% if editando %}
-              ✏️ Editar Atividade: {{ atividade.nome }}
+              <i class="bi bi-pencil-square me-2 text-verde-claro"></i>Editar Atividade: {{ atividade.nome }}
             {% else %}
-              📅 Cadastrar Nova Atividade em {{ evento.nome }}
+              <i class="bi bi-calendar-plus me-2 text-verde-claro"></i>Cadastrar Nova Atividade em {{ evento.nome }}
             {% endif %}
           </h2>
 
-          <form method="POST" class="card p-4 shadow-sm bg-white">
+          <!-- Cartão do Formulário -->
+          <form method="POST" class="card p-4 shadow-sm bg-white border-0">
             {% csrf_token %}
 
-            {{ form_atividade.as_p }}
+            <div class="row g-3">
+              <!-- Nome da Atividade (Largura Total) -->
+              <div class="col-12">
+                {% bootstrap_field form_atividade.nome %}
+              </div>
 
+              <!-- Descrição (Largura Total) -->
+              <div class="col-12">
+                {% bootstrap_field form_atividade.descricao %}
+              </div>
+
+              <!-- Tipo de Atividade e Complemento do Local -->
+              <div class="col-md-6">
+                {% bootstrap_field form_atividade.tipoAtividade %}
+              </div>
+              <div class="col-md-6">
+                {% bootstrap_field form_atividade.complementoLocal %}
+              </div>
+
+              <!-- Horário de Início e Fim -->
+              <div class="col-md-6">
+                {% bootstrap_field form_atividade.horaInicio %}
+              </div>
+              <div class="col-md-6">
+                {% bootstrap_field form_atividade.horaFim %}
+              </div>
+
+              <!-- Limite de Pessoas -->
+              <div class="col-md-6">
+                {% bootstrap_field form_atividade.limitePessoas %}
+              </div>
+            </div>
+
+            <!-- Botões de Ação -->
             <div class="d-flex justify-content-end gap-2 mt-4">
               <a href="{% url 'app_evento:urldet_myevento' evento.id %}" class="btn btn-outline-secondary">Cancelar</a>
               <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle me-1"></i>
                 {% if editando %}Salvar Alterações{% else %}Salvar Atividade{% endif %}
               </button>
             </div>
