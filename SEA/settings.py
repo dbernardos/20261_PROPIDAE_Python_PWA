@@ -147,3 +147,7 @@ SESSION_COOKIE_SECURE = True
 # Garante que o navegador no celular aceite o cookie de origem cruzada/túnel
 CSRF_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SAMESITE = 'None'
+
+SESSION_COOKIE_AGE = 1800  # Expira após 1800 segundos (que são 30 min de inatividade)
+SESSION_SAVE_EVERY_REQUEST = True  # Recomeça o tempo a cada clique
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Desloga se fechar o navegador

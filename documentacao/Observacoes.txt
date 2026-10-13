@@ -3,8 +3,8 @@ OBSERVAÇÕES 24/09
 USUÁRIO:
 --------------------------------------------------------------------------
 - cadastro de novo usuário (foto?, nome de usuário, formato cpf, formacao?)
-- tratar username no template, trocar ordem, avaliar duas etapas
-- deslogar após um tempo de inatividade
+- tratar username no template, trocar ordem, avaliar duas etapas ✅
+- deslogar após um tempo de inatividade ✅
 
 - foto do perfil ✅
 - editar perfil do usuário data nascimento arrumar✅
@@ -40,8 +40,8 @@ ATIVIDADE:
 
 QUIZ: 
 --------------------------------------------------------------------------
-- botão de ativar/desativar desafios da atividade
-- tela de cadastro de novos desafios para a atividade
+- botão de ativar/desativar desafios da atividade ✅
+- tela de cadastro de novos desafios para a atividade ✅
 
 - mostrar os desafios disponíveis de acordo com o qrcode da inscricao ✅
 - progresso não faz sentido ✅
