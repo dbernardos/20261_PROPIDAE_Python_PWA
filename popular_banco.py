@@ -10,12 +10,6 @@ django.setup()
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 
-# TODO: Ajuste as importações de acordo com os nomes dos seus apps
-# Exemplo se forem apps separados:
-# from app_login.models import Usuario
-# from app_evento.models import Apoiador, Evento, Atividade, Inscricao, Participa, tipoEvento, tipoAtividade, StatusParticipa
-# from app_quiz.models import Quiz, Resposta
-
 from app_login.models import (
     Usuario,
 )
@@ -35,6 +29,7 @@ from app_quiz.models import (
     Quiz,
     Resposta
 )
+
 
 User = get_user_model()
 
