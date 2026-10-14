@@ -281,32 +281,90 @@
    ESTILOS DE IMPRESSÃO DO CRACHÁ
    ========================================================================== */
 @media print {
-    body * {
-        visibility: hidden;
+
+    /* Trava o tamanho da folha A4 e desativa margens físicas */
+    @page {
+        size: A4;
+        margin: 0;
     }
 
+    /* Força o corpo do site a ocupar estritamente apenas UMA folha*/
+    html, body {
+        width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+    }
+
+    body * {
+        visibility: hidden !important;
+    }
+
+    /* Reexibe o modal e o crachá ativo */
+    .modal.show,
+    .modal.show .modal-dialog,
+    .modal.show .modal-content,
     .modal.show .cracha-printable,
     .modal.show .cracha-printable * {
-        visibility: visible;
+        visibility: visible !important;
     }
 
-    .modal.show .cracha-printable {
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        max-width: 400px;
-        border: 1px solid #dee2e6;
-        padding: 24px;
-        border-radius: 12px;
-        background-color: #ffffff;
+    /* zera os blocos do Bootstrap*/
+    .modal.show, 
+    .modal.show .modal-dialog, 
+    .modal.show .modal-content {
+        display: block !important;
+        position: static !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
         box-shadow: none !important;
+        transform: none !important;
+        max-width: none !important;
+        width: 100% !important;
+        height: auto !important;
+        background: transparent !important;
     }
 
-    .modal-backdrop,
-    .btn-close,
-    .modal-footer {
+    /* Posiciona o crachá na folha */
+    .modal.show .cracha-printable {
+        display: block !important;
+        position: absolute !important;
+        top: 60px !important; 
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        
+        
+        width: 90% !important;
+        max-width: 400px !important;
+        padding: 24px !important;
+        
+        
+        border: 2px solid #000000 !important;
+        border-radius: 12px !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+
+    /* Transforma  as cores de texto em preto*/
+    .modal.show .cracha-printable *,
+    .text-success, .text-dark, .text-muted, h4, p {
+        color: #000000 !important;
+    }
+
+    /* Caixa do QR Code */
+    .cracha-box {
+        background-color: #f6f6f6 !important;
+        border: 1px solid #000000 !important;
+        print-color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+
+    /* Remove o que não deve ser impresso */
+    .modal-backdrop, .modal-header, .modal-footer, .btn-close {
         display: none !important;
     }
 }
