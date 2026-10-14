@@ -11,7 +11,6 @@ app_name = 'app_quiz'
 # Create your QUIZ urls here.
 # -----------------------------------------------
 urlpatterns = [
-    path('', views.leitor_identificar, name='urlidentificar'),
     path('identificar/', views.leitor_identificar, name='urlidentificar'), 
     path('leitor/atividade/<str:codigo_leitor>/', views.leitor_qrcode, name='urlpagina_leitor'),
     
