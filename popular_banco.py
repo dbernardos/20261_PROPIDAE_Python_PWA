@@ -457,6 +457,8 @@ def popular_banco():
     # -------------------------------------------------------------
     # 7. QUIZZES / DESAFIOS
     # -------------------------------------------------------------
+    Quiz.objects.all().delete()
+
     quiz_1, _ = Quiz.objects.get_or_create(
         numero=1,
         defaults={
