@@ -376,6 +376,18 @@ def popular_banco():
     # 5. INSCRIÇÕES
     # -------------------------------------------------------------
 
+    
+    #inscrição de admins
+    inscricao_admin, _ = Inscricao.objects.get_or_create(
+        usuario_id=usuario_admin.id,
+        evento=evento2
+    )
+
+    inscricao_admin2, _ = Inscricao.objects.get_or_create(
+            usuario_id=usuario_admin2.id,
+            evento=evento
+    )
+    
     #inscrição de palestrantes
     inscricao_palestrante, _ = Inscricao.objects.get_or_create(
         usuario_id=usuario_palestrante.id,
@@ -414,6 +426,19 @@ def popular_banco():
     # -------------------------------------------------------------
     # 6. PARTICIPAÇÕES NAS ATIVIDADES
     # -------------------------------------------------------------
+
+    #Participações de Admins
+    Participa.objects.get_or_create(
+        inscricao=inscricao_admin,
+        atividade=atividade_palestra2,
+        defaults={"funcao": StatusParticipa.PALESTRANTE}
+    )
+    
+    Participa.objects.get_or_create(
+        inscricao=inscricao_admin2,
+        atividade=atividade_palestra,
+        defaults={"funcao": StatusParticipa.PARTICIPANTE}
+    )
 
     #Participações de Palestrantes
     Participa.objects.get_or_create(
