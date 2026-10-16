@@ -344,7 +344,7 @@ def cadastrar_atividade(request, evento_id):
     else:
         form = AtividadeForm()
 
-    # Dicionário de contexto fora do if/else para atender tanto GET quanto POST inválido
+    
     context = {
         'form_atividade': form,
         'evento': evento_atual
@@ -414,7 +414,15 @@ def alternar_participacao_atividade(request, atividade_id):
 
     if participacao:
         participacao.delete()
-        messages.warning(request, f'Você se desinscreveu da atividade "{atividade.nome}".')
+        
+        atividades_restantes = Participa.objects.filter(inscricao=inscricao).count()
+        if atividades_restantes == 0:
+            inscricao.ativa = False  # Desativa para ocultar o card no template
+            inscricao.save()         # O save do model vai cuidar de apagar a imagem física do QR Code
+            messages.warning(request, f'Sua inscrição no evento "{evento.nome}" foi desativada porque você removeu todas as atividades.')
+        else:
+            messages.warning(request, f'Você se desinscreveu da atividade "{atividade.nome}".')
+
         return redirect('app_evento:urldet_evento', evento_id=evento.id)
 
     if atividade.limitePessoas:
@@ -424,6 +432,10 @@ def alternar_participacao_atividade(request, atividade_id):
             messages.error(request, f'A atividade "{atividade.nome}" está com as vagas esgotadas.')
             return redirect('app_evento:urldet_evento', evento_id=evento.id)
 
+    if not inscricao.ativa:
+        inscricao.ativa = True
+        inscricao.save()
+    
     Participa.objects.create(
         inscricao=inscricao,
         atividade=atividade,
@@ -448,13 +460,19 @@ def minhas_inscricoes(request):
         return redirect('app_login:urlcad_usuario')
 
     inscricoes = Inscricao.objects.filter(
-        usuario=usuario
+        usuario=usuario,
+        ativa=True
     ).select_related(
         'evento'
     ).prefetch_related(
         'participa_set__atividade'
     )
 
+    for inscricao in inscricoes:
+        if inscricao.qrcode_imagem:
+            if not inscricao.qrcode_imagem.storage.exists(inscricao.qrcode_imagem.name):
+                inscricao.save() 
+    
     # Soma o total de atividades aproveitando a busca já feita pelo prefetch_related
     total_atividades = sum(len(item.participa_set.all()) for item in inscricoes)
 

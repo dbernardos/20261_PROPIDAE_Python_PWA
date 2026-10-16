@@ -84,24 +84,43 @@ class Inscricao(models.Model):
     cracha = models.CharField(max_length=7, unique=True, default=gerar_codigo)
     qrcode_imagem = models.ImageField(upload_to='qrcodes/', blank=True, null=True)  
 
+    ativa = models.BooleanField(default=True)
+    
     def save(self, *args, **kwargs):
-        if not self.qrcode_imagem and self.cracha:
-            qr = qrcode.QRCode(
-                version=1,
-                error_correction=qrcode.constants.ERROR_CORRECT_L,
-                box_size=10,    
-                border=4,
-            )
-            qr.add_data(self.cracha)
-            qr.make(fit=True)
+        
+        if not self.cracha:
+            self.cracha = gerar_codigo()
+        
+        
+    def save(self, *args, **kwargs):
+        if not self.cracha:
+            self.cracha = gerar_codigo()
+        
+        # Só processa e verifica o QR Code se a inscrição estiver ATIVA
+        if self.ativa:
+            if self.qrcode_imagem and self.qrcode_imagem.name:
+                arquivo_existe = self.qrcode_imagem.storage.exists(self.qrcode_imagem.name)
+                if not arquivo_existe:
+                    self.qrcode_imagem = None
             
-            img = qr.make_image(fill_color="black", back_color="white")
-            buffer = BytesIO()
-            img.save(buffer, format='PNG')
-            buffer.seek(0)
-            
-            nome_arquivo = f'qrcode_{self.cracha}.png'
-            self.qrcode_imagem.save(nome_arquivo, ContentFile(buffer.read()), save=False)
+            # Gera o QR Code apenas se o campo estiver vazio/resetado
+            if not self.qrcode_imagem and self.cracha:
+                qr = qrcode.QRCode(
+                    version=1,
+                    error_correction=qrcode.constants.ERROR_CORRECT_L,
+                    box_size=10,    
+                    border=4,
+                )
+                qr.add_data(self.cracha)
+                qr.make(fit=True)
+                
+                img = qr.make_image(fill_color="black", back_color="white")
+                buffer = BytesIO()
+                img.save(buffer, format='PNG')
+                buffer.seek(0)
+                
+                nome_arquivo = f'qrcode_{self.cracha}.png'
+                self.qrcode_imagem.save(nome_arquivo, ContentFile(buffer.read()), save=False)
 
         super().save(*args, **kwargs)
 
@@ -137,8 +156,6 @@ class Participa(models.Model):
     data_hora = models.DateTimeField('Data de Inscrição', auto_now_add=True)
     presente = models.BooleanField('Presente', default=False)
     data_hora_presenca = models.DateTimeField('Data/Hora da Validação pelo QR Code', null=True, blank=True)
-    
-    
     
     class Meta:
         verbose_name = "Participa"

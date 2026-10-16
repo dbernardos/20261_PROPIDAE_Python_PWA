@@ -20,11 +20,12 @@ staticfiles/
 static_collected/
 static_root/
 
-banners/*
-!banners/.gitkeep
 
-perfis/*
-!perfis/.gitkeep
+media/banners/*
+!media/banners/.gitkeep
 
-qrcodes/*
-!qrcodes/.gitkeep
+media/perfis/*
+!media/perfis/.gitkeep
+
+media/qrcodes/*
+!media/qrcodes/.gitkeep
