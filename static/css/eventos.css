@@ -1,0 +1,584 @@
+
+/* ==========================================================================
+   CATÁLOGO DE EVENTOS — SEA
+   Estilos isolados para não afetar outras telas do sistema.
+   ========================================================================== */
+
+.pagina-eventos {
+    --eventos-verde: #1b5e3a;
+    --eventos-verde-hover: #154a2d;
+    --eventos-verde-suave: #edf5ef;
+    --eventos-texto: #26352d;
+    --eventos-texto-secundario: #68756d;
+    --eventos-borda: #e3eae5;
+    --eventos-fundo: #f7f9f7;
+
+    min-height: 100%;
+    padding: clamp(1.75rem, 3vw, 3rem) 0;
+    color: var(--eventos-texto);
+    background: #f8faf8;
+}
+
+.pagina-eventos .eventos-container {
+    max-width: 1320px;
+}
+
+.pagina-eventos .eventos-cabecalho {
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.pagina-eventos .eventos-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: .7rem;
+    color: var(--eventos-verde);
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+}
+
+.pagina-eventos .eventos-titulo {
+    margin: 0 0 .65rem;
+    color: var(--eventos-texto);
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -.045em;
+    line-height: 1.1;
+}
+
+.pagina-eventos .eventos-titulo span {
+    color: var(--eventos-verde);
+}
+
+.pagina-eventos .eventos-subtitulo {
+    max-width: 680px;
+    color: var(--eventos-texto-secundario);
+    font-size: .98rem;
+    line-height: 1.7;
+}
+
+.pagina-eventos .eventos-admin-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+    border-radius: .75rem;
+    padding: .8rem 1.1rem;
+    white-space: nowrap;
+}
+
+.pagina-eventos .eventos-filtros {
+    margin-bottom: 2.25rem;
+    overflow: hidden;
+    border: 1px solid var(--eventos-borda) !important;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 8px 28px rgba(24, 55, 36, .055);
+}
+
+.pagina-eventos .eventos-filtros .card-body {
+    padding: clamp(1.1rem, 2vw, 1.75rem);
+}
+
+.pagina-eventos .eventos-filtros-cabecalho {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    margin-bottom: 1.4rem;
+}
+
+.pagina-eventos .eventos-filtros-cabecalho h2 {
+    color: var(--eventos-texto);
+    font-weight: 750;
+}
+
+.pagina-eventos .eventos-filtros-icone {
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex: 0 0 2.75rem;
+    place-items: center;
+    border-radius: .8rem;
+    background: var(--eventos-verde-suave);
+    color: var(--eventos-verde);
+    font-size: 1.15rem;
+}
+
+.pagina-eventos .form-label {
+    margin-bottom: .45rem;
+    color: #34463a;
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.pagina-eventos .form-control,
+.pagina-eventos .form-select,
+.pagina-eventos .input-group-text {
+    min-height: 2.85rem;
+    border-color: #dce5de;
+    border-radius: .65rem;
+    background-color: #fbfcfb;
+    color: var(--eventos-texto);
+    font-size: .88rem;
+}
+
+.pagina-eventos .input-group > .input-group-text {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    background: var(--eventos-fundo);
+    color: var(--eventos-verde);
+}
+
+.pagina-eventos .input-group > .form-control {
+    min-width: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.pagina-eventos .form-control:focus,
+.pagina-eventos .form-select:focus {
+    border-color: #5e9872;
+    background-color: #fff;
+    box-shadow: 0 0 0 .2rem rgba(27, 94, 58, .12);
+}
+
+.pagina-eventos .eventos-encerrados {
+    display: flex;
+    min-height: 2.85rem;
+    align-items: center;
+    gap: .55rem;
+    margin: 0;
+    padding: .4rem .65rem;
+    border: 1px solid var(--eventos-borda);
+    border-radius: .65rem;
+    background: var(--eventos-fundo);
+}
+
+.pagina-eventos .eventos-encerrados .form-check-input {
+    margin: 0;
+    float: none;
+    flex: 0 0 auto;
+    cursor: pointer;
+}
+
+.pagina-eventos .eventos-encerrados .form-check-input:checked {
+    border-color: var(--eventos-verde);
+    background-color: var(--eventos-verde);
+}
+
+.pagina-eventos .eventos-encerrados .form-check-label {
+    color: #405247;
+    font-size: .78rem;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.pagina-eventos .eventos-acoes-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .65rem;
+    padding-top: .25rem;
+}
+
+.pagina-eventos .eventos-btn-limpar,
+.pagina-eventos .eventos-btn-buscar {
+    display: inline-flex;
+    min-height: 2.8rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: .65rem;
+    padding: .7rem 1rem;
+    font-size: .86rem;
+    font-weight: 700;
+}
+
+.pagina-eventos .eventos-btn-buscar,
+.pagina-eventos .eventos-detalhes-btn {
+    background: var(--eventos-verde);
+    border-color: var(--eventos-verde);
+}
+
+.pagina-eventos .eventos-btn-buscar:hover,
+.pagina-eventos .eventos-detalhes-btn:hover {
+    background: var(--eventos-verde-hover);
+    border-color: var(--eventos-verde-hover);
+}
+
+.pagina-eventos .eventos-btn-limpar:hover {
+    background-color: #f2f5f3;
+}
+
+.pagina-eventos .eventos-ajuda-filtro {
+    max-width: 48rem;
+    line-height: 1.5;
+}
+
+.pagina-eventos .eventos-listagem {
+    margin-top: .25rem;
+}
+
+.pagina-eventos .eventos-lista-cabecalho {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.pagina-eventos .eventos-lista-cabecalho h2 {
+    color: var(--eventos-texto);
+    font-weight: 800;
+    letter-spacing: -.025em;
+}
+
+.pagina-eventos .eventos-total {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    border: 1px solid #dce8df;
+    border-radius: 999px;
+    padding: .4rem .75rem;
+    background: #fff;
+    color: var(--eventos-verde);
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.pagina-eventos .eventos-card {
+    overflow: hidden;
+    border: 1px solid var(--eventos-borda) !important;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 4px 18px rgba(24, 55, 36, .045);
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.pagina-eventos .eventos-card:hover {
+    transform: translateY(-2px);
+    border-color: #c9dbce !important;
+    box-shadow: 0 12px 28px rgba(24, 55, 36, .09);
+}
+
+.pagina-eventos .eventos-banner {
+    min-height: 235px;
+    background: var(--eventos-fundo);
+}
+
+.pagina-eventos .eventos-banner-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 235px;
+    object-fit: cover;
+}
+
+.pagina-eventos .eventos-banner-vazio {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-height: 235px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    padding: 1.5rem;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(27, 94, 58, .06), transparent 38%),
+        var(--eventos-fundo);
+    color: #849188;
+    font-size: .82rem;
+    text-align: center;
+}
+
+.pagina-eventos .eventos-banner-vazio i {
+    color: #7c9c85;
+    font-size: 2.6rem;
+}
+
+.pagina-eventos .eventos-card-conteudo {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    padding: 1.4rem;
+}
+
+.pagina-eventos .eventos-card-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .9rem;
+}
+
+.pagina-eventos .eventos-card-identificacao {
+    min-width: 0;
+}
+
+.pagina-eventos .eventos-card-etiqueta {
+    color: var(--eventos-verde);
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.pagina-eventos .eventos-card-titulo {
+    color: var(--eventos-texto);
+    font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+    font-weight: 800;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.pagina-eventos .eventos-tipo-badge {
+    flex: 0 0 auto;
+    max-width: 45%;
+    border: 1px solid #d9e8dd;
+    border-radius: 999px;
+    padding: .45rem .7rem;
+    background: var(--eventos-verde-suave);
+    color: var(--eventos-verde);
+    font-size: .73rem;
+    font-weight: 750;
+    white-space: normal;
+    text-align: center;
+}
+
+.pagina-eventos .eventos-descricao {
+    margin-bottom: 1.1rem;
+    color: var(--eventos-texto-secundario);
+    font-size: .9rem;
+    line-height: 1.65;
+}
+
+.pagina-eventos .eventos-descricao-vazia {
+    font-style: italic;
+}
+
+.pagina-eventos .eventos-metadados {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.5rem;
+    margin: .2rem 0 1rem;
+}
+
+.pagina-eventos .eventos-metadado {
+    display: flex;
+    min-width: 0;
+    align-items: flex-start;
+    gap: .65rem;
+}
+
+.pagina-eventos .eventos-metadado > i {
+    flex: 0 0 auto;
+    margin-top: .15rem;
+    color: var(--eventos-verde);
+    font-size: 1.05rem;
+}
+
+.pagina-eventos .eventos-metadado > div {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: .18rem;
+}
+
+.pagina-eventos .eventos-metadado span {
+    color: var(--eventos-texto-secundario);
+    font-size: .72rem;
+    font-weight: 650;
+}
+
+.pagina-eventos .eventos-metadado strong {
+    color: #34463a;
+    font-size: .82rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.pagina-eventos .eventos-card-rodape {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #edf1ee;
+}
+
+.pagina-eventos .eventos-detalhes-btn {
+    display: inline-flex;
+    min-height: 2.65rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: .65rem;
+    padding: .65rem .9rem;
+    font-size: .85rem;
+    font-weight: 750;
+}
+
+.pagina-eventos .eventos-vazio {
+    padding: clamp(2rem, 5vw, 4rem) 1.25rem;
+    border: 1px dashed #cddbd0;
+    border-radius: 1rem;
+    background: #fff;
+}
+
+.pagina-eventos .eventos-vazio-icone {
+    display: grid;
+    width: 4.25rem;
+    height: 4.25rem;
+    margin: 0 auto 1.25rem;
+    place-items: center;
+    border-radius: 1.2rem;
+    background: var(--eventos-verde-suave);
+    color: var(--eventos-verde);
+    font-size: 1.8rem;
+}
+
+.pagina-eventos .eventos-vazio h3 {
+    color: var(--eventos-texto);
+    font-weight: 800;
+}
+
+.pagina-eventos .eventos-vazio p {
+    max-width: 35rem;
+    margin: 0 auto 1.25rem;
+    color: var(--eventos-texto-secundario);
+    line-height: 1.65;
+}
+
+.pagina-eventos .eventos-metadado a {
+    color: var(--eventos-verde);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+}
+
+.pagina-eventos .eventos-metadado a:hover {
+    color: var(--eventos-verde-hover);
+}
+
+.pagina-eventos a:focus-visible,
+.pagina-eventos button:focus-visible,
+.pagina-eventos input:focus-visible,
+.pagina-eventos select:focus-visible {
+    outline: 3px solid #8cc63f;
+    outline-offset: 3px;
+}
+
+.pagina-eventos .form-check-input:focus {
+    border-color: #5e9872;
+    box-shadow: 0 0 0 .2rem rgba(27, 94, 58, .14);
+}
+
+@media (min-width: 1200px) {
+    .pagina-eventos .eventos-card-conteudo {
+        padding: 1.6rem 1.8rem;
+    }
+
+    .pagina-eventos .eventos-banner,
+    .pagina-eventos .eventos-banner-img,
+    .pagina-eventos .eventos-banner-vazio {
+        min-height: 250px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .pagina-eventos .eventos-cabecalho {
+        margin-bottom: 1.5rem;
+    }
+
+    .pagina-eventos .eventos-banner {
+        min-height: 190px;
+        max-height: 240px;
+    }
+
+    .pagina-eventos .eventos-banner-img {
+        height: 220px;
+        min-height: 220px;
+    }
+
+    .pagina-eventos .eventos-banner-vazio {
+        min-height: 190px;
+        max-height: 240px;
+    }
+
+    .pagina-eventos .eventos-card-conteudo {
+        padding: 1.15rem;
+    }
+
+    .pagina-eventos .eventos-metadados {
+        grid-template-columns: 1fr;
+        gap: .8rem;
+    }
+
+    .pagina-eventos .eventos-card-rodape,
+    .pagina-eventos .eventos-detalhes-btn {
+        width: 100%;
+    }
+
+    .pagina-eventos .eventos-lista-cabecalho {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .pagina-eventos .eventos-titulo {
+        letter-spacing: -.035em;
+    }
+
+    .pagina-eventos .eventos-admin-btn,
+    .pagina-eventos .eventos-btn-limpar,
+    .pagina-eventos .eventos-btn-buscar {
+        width: 100%;
+    }
+
+    .pagina-eventos .eventos-acoes-filtros {
+        flex-direction: column-reverse;
+    }
+
+    .pagina-eventos .eventos-card-topo {
+        flex-direction: column;
+    }
+
+    .pagina-eventos .eventos-tipo-badge {
+        max-width: 100%;
+    }
+
+    .pagina-eventos .eventos-lista-cabecalho {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pagina-eventos .eventos-card {
+        transition: none;
+    }
+
+    .pagina-eventos .eventos-card:hover {
+        transform: none;
+    }
+}
+
+/* Contador de eventos encontrados */
+.pagina-eventos .eventos-contador {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    padding: .4rem .7rem;
+    border: 1px solid var(--eventos-borda);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--eventos-verde);
+    font-size: .78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+@media (min-width: 576px) {
+    .pagina-eventos .eventos-contador {
+        align-self: auto;
+    }
+}
