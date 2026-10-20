@@ -2,6 +2,9 @@ import os
 import django
 from datetime import date, timedelta
 from decimal import Decimal
+from django.core.files import File
+from django.conf import settings
+import shutil
 
 # Configura o ambiente Django com a settings do seu projeto
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'SEA.settings')
@@ -30,6 +33,27 @@ from app_quiz.models import (
     Resposta
 )
 
+def atribuir_imagem_do_disco(instancia, nome_campo, caminho_origem, pasta_destino):
+    if not os.path.exists(caminho_origem):
+        print(f"Aviso: Imagem de origem não encontrada em '{caminho_origem}'")
+        return
+
+    nome_arquivo = os.path.basename(caminho_origem)
+    pasta_destino_completa = os.path.join(settings.MEDIA_ROOT, pasta_destino)
+    caminho_destino_completo = os.path.join(pasta_destino_completa, nome_arquivo)
+    caminho_relativo_banco = f"{pasta_destino}/{nome_arquivo}"
+
+    os.makedirs(pasta_destino_completa, exist_ok=True)
+
+    if not os.path.exists(caminho_destino_completo):
+        shutil.copy2(caminho_origem, caminho_destino_completo)
+        print(f"Novo arquivo copiado para {pasta_destino}/: {nome_arquivo}")
+    else:
+        print(f"Arquivo já existe em {pasta_destino}/: {nome_arquivo} (cópia ignorada)")
+
+    setattr(instancia, nome_campo, caminho_relativo_banco)
+    instancia.save(update_fields=[nome_campo])
+        
 
 User = get_user_model()
 
@@ -39,6 +63,7 @@ def popular_banco():
     # -------------------------------------------------------------
     # 1. USUÁRIOS E PERFIS (User + Usuario)
     # -------------------------------------------------------------
+    
     # Administrador 1
     user_admin, created_admin = User.objects.get_or_create(
         username="admin_eventos",
@@ -68,6 +93,8 @@ def popular_banco():
             "biografia": "Gestor principal do sistema de eventos."
         }
     )
+    
+    atribuir_imagem_do_disco(usuario_admin, 'fotoPerfil', 'media/popular_iniciais/perfis/admin.png', 'perfis')
 
     # Administrador 2
     user_admin2, created_admin2 = User.objects.get_or_create(
@@ -98,7 +125,7 @@ def popular_banco():
             "biografia": "Gestor do sistema de eventos."
         }
     )
-
+    atribuir_imagem_do_disco(usuario_admin2, 'fotoPerfil', 'media/popular_iniciais/perfis/admin2.png', 'perfis')
     # Administrador 3
     user_admin3, created_admin3 = User.objects.get_or_create(
         username="admin_eventos3",
@@ -128,7 +155,7 @@ def popular_banco():
             "biografia": "Gestor do sistema de eventos."
         }
     )
-
+    atribuir_imagem_do_disco(usuario_admin3, 'fotoPerfil', 'media/popular_iniciais/perfis/admin3.png', 'perfis')
 
 
     # Palestrante 1
@@ -159,7 +186,9 @@ def popular_banco():
             "biografia": "Entusiasta de Inteligência Artificial e Engenharia de Software."
         }
     )
-
+    atribuir_imagem_do_disco(usuario_palestrante, 'fotoPerfil', 'media/popular_iniciais/perfis/palestrante1.png', 'perfis')
+    
+    
     # Palestrante 2
     user_palestrante2, created_palestrante2 = User.objects.get_or_create(
         username="joao_docente",
@@ -188,7 +217,9 @@ def popular_banco():
                 "biografia": "Entusiasta de Inteligência Artificial e Análise de Dados."
             }
         )
-
+    atribuir_imagem_do_disco(usuario_palestrante2, 'fotoPerfil', 'media/popular_iniciais/perfis/palestrante2.png', 'perfis')
+    
+    
     # Participante / Aluno 1 
     user_aluno, created_aluno = User.objects.get_or_create(
         username="lucas_aluno",
@@ -217,7 +248,9 @@ def popular_banco():
             "biografia": "Estudante apaixonado por testes de código e automação."
         }
     )
-
+    atribuir_imagem_do_disco(usuario_aluno, 'fotoPerfil', 'media/popular_iniciais/perfis/aluno1.png', 'perfis')
+    
+    
     # Participante / Aluno 2
     user_aluno2, created_aluno2 = User.objects.get_or_create(
         username="joana_aluno",
@@ -246,7 +279,7 @@ def popular_banco():
             "biografia": "Estudante."
         }
     )
-
+    atribuir_imagem_do_disco(usuario_aluno2, 'fotoPerfil', 'media/popular_iniciais/perfis/aluno2.png', 'perfis')
     # -------------------------------------------------------------
     # 2. APOIADORES
     # -------------------------------------------------------------
@@ -275,7 +308,7 @@ def popular_banco():
         }
     )
     evento.apoiadores.add(apoiador_1, apoiador_2)
-
+    atribuir_imagem_do_disco(evento, 'imagemBanner', 'media/popular_iniciais/banners/evento1.png', 'banners')
     
     #evento 2
     hoje = date.today()
@@ -293,7 +326,8 @@ def popular_banco():
         }
     )
     evento2.apoiadores.add(apoiador_3)
-
+    atribuir_imagem_do_disco(evento2, 'imagemBanner', 'media/popular_iniciais/banners/evento2.png', 'banners')
+    
     #evento 3
     hoje = date.today()
     evento3, _ = Evento.objects.get_or_create(
@@ -310,6 +344,7 @@ def popular_banco():
         }
     )
     evento3.apoiadores.add(apoiador_1, apoiador_2, apoiador_3)
+    atribuir_imagem_do_disco(evento3, 'imagemBanner', 'media/popular_iniciais/banners/evento3.png', 'banners')
 
     # -------------------------------------------------------------
     # 4. ATIVIDADES
@@ -419,9 +454,6 @@ def popular_banco():
         usuario_id=usuario_aluno2.id,
         evento=evento2
     )
-
-
-
 
     # -------------------------------------------------------------
     # 6. PARTICIPAÇÕES NAS ATIVIDADES
