@@ -63,21 +63,21 @@
                 </div>
               {% endif %}
             </div>
-
-            <!-- Apoiadores -->
-            {% if evento.apoiadores.all %}
-              <div class="pt-3 border-top mt-3">
-                <span class="text-muted small fw-bold d-block mb-2">
-                  <i class="bi bi-award-fill text-warning me-1"></i> Apoiadores e Patrocinadores:
-                </span>
-                <div class="d-flex flex-wrap gap-2">
-                  {% for apoiador in evento.apoiadores.all %}
-                    <span class="badge bg-light text-dark border fw-normal py-1 px-3 rounded-pill d-inline-flex align-items-center gap-1">
-                       {{ apoiador.nome }}
-                    </span>
-                  {% endfor %}
-                </div>
-              </div>
+            
+            <!-- Apoiadores --> 
+            {% if evento.apoiadores.all %} 
+            <div class="pt-4 border-top mt-4"> 
+                <span class="text-muted fs-6 fw-bold d-block mb-3"> 
+                    <i class="bi bi-award-fill text-warning me-1"></i> Apoiadores e Patrocinadores: 
+                </span> 
+                <div class="d-flex flex-wrap gap-2 gap-sm-3"> 
+                    {% for apoiador in evento.apoiadores.all %} 
+                    <span class="badge bg-light text-dark border fw-medium fs-6 py-2 px-3 rounded-pill d-inline-flex align-items-center column-gap-2"> 
+                        {{ apoiador.nome }} 
+                    </span> 
+                    {% endfor %} 
+                </div> 
+            </div> 
             {% endif %}
 
           </div>
