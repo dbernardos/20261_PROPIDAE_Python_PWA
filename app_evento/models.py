@@ -15,6 +15,12 @@ from django.conf import settings
 # -----------------------------------------------
 # MODELS DO EVENTO
 # -----------------------------------------------
+def gerar_codigo():
+    alfabeto = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
+    parte1 = generate(alfabeto, size=3)
+    parte2 = generate(alfabeto, size=3)
+    return f"{parte1}-{parte2}"
+
 
 class Apoiador(models.Model):
     nome = models.CharField(max_length=255, unique=True)
@@ -52,6 +58,9 @@ class Evento(models.Model):
     tipoEvento = models.CharField(verbose_name="Tipo de Evento", choices=tipoEvento.choices, max_length=20, default=tipoEvento.SEMANA)
 
     eventoPublico = models.BooleanField(default=True)
+    
+    codigo_leitor = models.CharField(max_length=7, unique=True, default=gerar_codigo, editable=False)
+
 
     def clean(self):
         super().clean()
@@ -68,12 +77,6 @@ class Evento(models.Model):
 # -----------------------------------------------
 # MODELS DE INSCRIÇÃO E PARTICIPAÇÃO
 # -----------------------------------------------
-
-def gerar_codigo():
-    alfabeto = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
-    parte1 = generate(alfabeto, size=3)
-    parte2 = generate(alfabeto, size=3)
-    return f"{parte1}-{parte2}"
 
 
 class Inscricao(models.Model):

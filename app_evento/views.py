@@ -12,6 +12,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.middleware.csrf import rotate_token
 from django.db.models import Q
+import re
 
 from .models import (
     Evento,
@@ -26,9 +27,34 @@ from app_login.models import Usuario
 from .form import EventoForm, AtividadeForm
 
 
+
 # ==========================================================
 # FUNÇÕES AUXILIARES
 # ==========================================================
+def home_root(request):
+
+    user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
+    padrao_mobile = r'android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini'
+    is_mobile = bool(re.search(padrao_mobile, user_agent))
+
+    if is_mobile:
+        return redirect('app_evento:pwa_home')
+    else:
+        return redirect('app_login:urllogin')
+
+def busca_evento_pwa(request):
+    """Tela inicial do PWA para buscar evento pelo código."""
+    if request.method == 'POST':
+        codigo = request.POST.get('codigo_evento')
+        
+        try:
+            evento = Evento.objects.get(codigo_evento=codigo)
+           
+            return redirect('app_evento:pwa_atividades_evento', evento_id=evento.id)
+        except Evento.DoesNotExist:
+            messages.error(request, "Evento não encontrado. Verifique o código.")
+            
+    return render(request, 'app_evento/pwa_home.html')
 
 def filtrar_eventos_por_parametros(eventos, request):
     """

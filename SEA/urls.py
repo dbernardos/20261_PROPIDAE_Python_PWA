@@ -7,6 +7,8 @@ from django.conf import settings
 from django.views.static import serve
 from django.conf.urls.static import static
 
+from app_evento.views import home_root
+
 def service_worker(request):
         response = HttpResponse(open('service-worker.js').read(), content_type="application/javascript")
         response['Cache-Control'] = 'no-cache'
@@ -15,6 +17,7 @@ def service_worker(request):
 urlpatterns = [
     
     # path('', include('app_login.urls')),
+    path('', home_root, name='home_root'),
      
     path('admin/', admin.site.urls),
 
