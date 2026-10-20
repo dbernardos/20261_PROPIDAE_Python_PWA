@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'app_login',
     'app_evento',
     'app_quiz',
-    'bootstrap5',
+    'django_bootstrap5',
     'pwa',
     'django_extensions',
     'smart_selects',
