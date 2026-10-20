@@ -41,12 +41,23 @@
     <header class="site-header">
       <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-          <a class="navbar-brand" href="{% url 'app_evento:urldis_evento' %}">
-            {% block navbar_imagem %}
-              <!-- Imagem Padrão (Estática) -->
-              <img src="{% static 'images/images-default/Icontransparent.png' %}" alt="SEA EVENTS- SISTEMA DE EVENTOS ACADEMICOS" height="60" />
-            {% endblock %}
-          </a>
+
+          <div class="d-flex align-items-center">
+          
+            <a class="navbar-brand me-3" href="{% url 'app_evento:urldis_evento' %}">
+              {% block navbar_imagem %}
+                <!-- Imagem Padrão (Estática) -->
+                <img src="{% static 'images/images-default/Icontransparent.png' %}" alt="SEA EVENTS- SISTEMA DE EVENTOS ACADEMICOS" height="60" />
+              {% endblock %}
+            </a>
+
+            {% if request.user.is_authenticated %}
+            <div class="nav-greeting">
+              <p class="m-0">Olá, {{ user.first_name.split.0 }}!</p>
+            </div>
+            {% endif %}
+          </div>
+
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
 
           <div class="collapse navbar-collapse" id="navbarMain">
@@ -67,7 +78,7 @@
                 </li>
 
                 <li class="nav-item">
-                  <a class="nav-link {% if 'usuario' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_login:urlmeu_usuario' %}">{{ user.first_name.split.0 }}</a>
+                  <a class="nav-link {% if 'usuario' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_login:urlmeu_usuario' %}">Meu Perfil</a>
                 </li>
 
                 <li class="nav-item">

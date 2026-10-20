@@ -247,3 +247,20 @@ textarea:focus-visible {
     outline: 3px solid #8cc63f;
     outline-offset: 2px;
 }
+
+/*saudação do navBar*/
+.nav-greeting {
+    color: var(--branco);
+    font-weight: 500;
+    font-size: 1rem;
+
+    display: flex;
+    align-items: center; 
+  }
+  
+  /* Ajuste de tamanho para telas de celular */
+@media (max-width: 768px) {
+    .nav-greeting {
+      font-size: 0.9rem;
+    }
+}

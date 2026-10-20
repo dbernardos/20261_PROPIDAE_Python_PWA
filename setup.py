@@ -4,8 +4,12 @@ import subprocess
 import venv
 
 # Caminhos
-python_venv = os.path.join("venv", "Scripts", "python.exe")
-pip_venv = os.path.join("venv", "Scripts", "pip.exe")
+if sys.platform == "win32":
+    python_venv = os.path.join("venv", "Scripts", "python.exe")
+    pip_venv = os.path.join("venv", "Scripts", "pip.exe")
+else:
+    python_venv = os.path.join("venv", "bin", "python")
+    pip_venv = os.path.join("venv", "bin", "pip")
 
 def executar(comando):
     print("Processo de configuração e inicialização iniciando...")
@@ -17,7 +21,7 @@ def executar(comando):
         sys.exit(1)
 
 def main():
-    # 1. Cria o ambiente virtua
+    # 1. Cria o ambiente virtual
     if not os.path.exists("venv"):
         print("Criando o ambiente virtual...")
         venv.create("venv", with_pip=True)
@@ -43,5 +47,6 @@ def main():
 
 
     print("Processo de configuração e inicialização concluída com sucesso!")
+
 if __name__ == "__main__":
     main()

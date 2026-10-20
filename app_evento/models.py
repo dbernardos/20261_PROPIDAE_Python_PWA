@@ -59,8 +59,12 @@ class Evento(models.Model):
 
     eventoPublico = models.BooleanField(default=True)
     
-    codigo_leitor = models.CharField(max_length=7, unique=True, default=gerar_codigo, editable=False)
+    codigo_evento = models.CharField(max_length=7, unique=True, default=gerar_codigo, editable=False)
 
+    def save(self, *args, **kwargs):
+        
+        if not self.codigo_evento:
+            self.codigo_evento = gerar_codigo()        
 
     def clean(self):
         super().clean()
@@ -84,7 +88,7 @@ class Inscricao(models.Model):
     evento = models.ForeignKey('Evento', on_delete=models.CASCADE)
 
     dataHora = models.DateTimeField(auto_now_add=True)
-    cracha = models.CharField(max_length=7, unique=True, default=gerar_codigo)
+    cracha = models.CharField(max_length=7, unique=True, default=gerar_codigo, editable=False)
     qrcode_imagem = models.ImageField(upload_to='qrcodes/', blank=True, null=True)  
 
     ativa = models.BooleanField(default=True)
@@ -229,6 +233,12 @@ class Atividade(models.Model):
 
     codigo_leitor = models.CharField(max_length=7, unique=True, default=gerar_codigo, editable=False)
     
+    def save(self, *args, **kwargs):
+        
+        if not self.codigo_leitor:
+            self.codigo_leitor = gerar_codigo()    
+    
+
     def __str__(self):
         return f"{self.nome} - {self.evento.nome}"
 
