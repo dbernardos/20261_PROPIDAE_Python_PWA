@@ -47,8 +47,13 @@ Siga os passos abaixo para configurar o ambiente de desenvolvimento localmente:
 
 ### 0. Execute todos os processos abaixo de uma vez
 ```bash
+.\iniciar.bat
+```
+### 0. Execute todos os processos abaixo de uma vez (se já estiver dentro do venv)
+```bash
 python setup.py
 ```
+
 ### Se quiser fazer manualmente, execute os códigos passo a passo abaixo
 
 ### 1. Crie o ambiente virtual

@@ -21,6 +21,7 @@ def executar(comando):
         sys.exit(1)
 
 def main():
+    
     # 1. Cria o ambiente virtual
     if not os.path.exists("venv"):
         print("Criando o ambiente virtual...")
@@ -29,22 +30,22 @@ def main():
         print("Ambiente virtual 'venv' já existe.")
 
     # 4. Instala as dependências listadas
-    executar([pip_venv, "install", "-r", "requirements.txt"])
+    if os.path.exists("requirements.txt"):
+        executar([pip_venv, "install", "-r", "requirements.txt"])
+    else:
+        print("[Aviso] requirements.txt não encontrado. Instalando Django básico...")
+        executar([pip_venv, "install", "django"])
 
     # aplica as migrações do Django
     executar([python_venv, "manage.py", "makemigrations"])
     executar([python_venv, "manage.py", "migrate"])
 
     # 5. Popula o banco de dados
-    executar([python_venv, "popular_banco.py"])
+    if os.path.exists("popular_banco.py"):
+        executar([python_venv, "popular_banco.py"])
 
     # 6. Colete os arquivos estáticos (com --noinput para não travar no terminal)
     executar([python_venv, "manage.py", "collectstatic", "--noinput"])
-
-    # 7. Execute o servidor de desenvolvimento na porta 8080
-    print("\nIniciando o servidor de desenvolvimento na porta 8080...")
-    subprocess.run([python_venv, "manage.py", "runserver", "8080"])
-
 
     print("Processo de configuração e inicialização concluída com sucesso!")
 
