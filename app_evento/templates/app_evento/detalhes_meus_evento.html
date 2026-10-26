@@ -7,7 +7,7 @@
 
 {% block navbar_imagem %}
   {% if evento.imagemBanner %}
-    <!-- Imagem Dinâmica do Banco de Dados (Media) -->
+    <!-- Imagem Dinâmica do Banco de Dados -->
     <img src="{{ evento.imagemBanner.url }}" alt="Banner do {{ evento.nome }}" height="60" class="img-fluid" style="max-height: 60px; object-fit: contain;" />
   {% else %}
     <!-- Fallback: Usa a estática se o evento não tiver imagem cadastrada -->
@@ -27,6 +27,7 @@
 
         <div class="d-flex gap-2">
           {% if user.is_staff or user.is_superuser %}
+            
             <a href="{% url 'app_evento:urlcad_atividade' evento.id %}" class="btn btn-success shadow-sm">
               <i class="bi bi-plus-lg me-1"></i> Nova Atividade
             </a>

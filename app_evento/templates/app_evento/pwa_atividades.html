@@ -1,0 +1,90 @@
+{% extends 'basepwa.html' %}
+
+{% block content %}
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+
+<div class="d-flex flex-column px-3 py-4" style="min-height: 100vh; background-color: #f8f9fa;">
+    
+    <!-- Cabeçalho com botão de voltar -->
+    <div class="d-flex align-items-center mb-4">
+        <a href="{% url 'app_evento:pwa_home' %}" class="btn btn-outline-secondary rounded-circle me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+            <i class="bi bi-arrow-left fs-5"></i>
+        </a>
+        <div>
+            <h5 class="mb-0 fw-bold" style="color: #1b5e3a;">{{ evento.nome }}</h5>
+            <small class="text-muted">Selecione a atividade para check-in</small>
+        </div>
+    </div>
+
+    <!-- Lista de Atividades -->
+    <div class="d-flex flex-column gap-3 mb-5">
+        {% for item in atividades_info %}
+            
+           {% if item.status == 'ativa' %}
+            <!-- ATIVIDADE LIBERADA: Aponta direto para o leitor no app_quiz -->
+            <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=item.obj.id %}">
+                <div class="card border-0 shadow-sm" style="border-left: 5px solid #1b5e3a !important; border-radius: 10px;">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1 text-dark">{{ item.obj.nome }}</h6>
+                            <div class="text-muted small">
+                                <i class="bi bi-clock me-1"></i> {{ item.obj.horaInicio|time:"H:i" }} às {{ item.obj.horaFim|time:"H:i" }}
+                                <br>
+                                <i class="bi bi-geo-alt me-1"></i> {{ item.obj.local }}
+                            </div>
+                        </div>
+                        <div class="text-center" style="color: #1b5e3a;">
+                            <i class="bi bi-qr-code-scan fs-3"></i>
+                            <div style="font-size: 0.7rem; font-weight: bold;">LER QR CODE</div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        
+
+            {% elif item.status == 'futura' %}
+                <!-- ATIVIDADE FUTURA (Bloqueada) -->
+                <div class="card border-0 bg-light text-muted" style="border-left: 5px solid #adb5bd !important; border-radius: 10px; opacity: 0.7;">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1">{{ item.obj.nome }}</h6>
+                            <div class="small">
+                                <i class="bi bi-clock me-1"></i> {{ item.obj.horaInicio|time:"H:i" }} (Em breve)
+                            </div>
+                        </div>
+                        <i class="bi bi-lock-fill fs-4 text-secondary"></i>
+                    </div>
+                </div>
+
+            {% else %}
+                <!-- ATIVIDADE ENCERRADA (Bloqueada) -->
+                <div class="card border-0 bg-light text-muted" style="border-left: 5px solid #dc3545 !important; border-radius: 10px; opacity: 0.6;">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold mb-1 text-decoration-line-through">{{ item.obj.nome }}</h6>
+                            <div class="small text-danger">
+                                <i class="bi bi-clock-history me-1"></i> Encerrada às {{ item.obj.horaFim|time:"H:i" }}
+                            </div>
+                        </div>
+                        <i class="bi bi-check-circle-fill fs-4 text-danger"></i>
+                    </div>
+                </div>
+            {% endif %}
+            
+        {% empty %}
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-calendar-x fs-1 mb-2"></i>
+                <p>Nenhuma atividade cadastrada para este evento.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<style>
+    /* Esconde barra de navegação principal do desktop */
+    header, footer, .navbar {
+        display: none !important;
+    }
+</style>
+{% endblock %}
