@@ -62,9 +62,10 @@ class Evento(models.Model):
     codigo_evento = models.CharField(max_length=7, unique=True, default=gerar_codigo, editable=False)
 
     def save(self, *args, **kwargs):
-        
         if not self.codigo_evento:
-            self.codigo_evento = gerar_codigo()        
+            self.codigo_evento = gerar_codigo()
+
+        super().save(*args, **kwargs)
 
     def clean(self):
         super().clean()
@@ -93,12 +94,6 @@ class Inscricao(models.Model):
 
     ativa = models.BooleanField(default=True)
     
-    def save(self, *args, **kwargs):
-        
-        if not self.cracha:
-            self.cracha = gerar_codigo()
-        
-        
     def save(self, *args, **kwargs):
         if not self.cracha:
             self.cracha = gerar_codigo()
@@ -234,10 +229,10 @@ class Atividade(models.Model):
     codigo_leitor = models.CharField(max_length=7, unique=True, default=gerar_codigo, editable=False)
     
     def save(self, *args, **kwargs):
-        
         if not self.codigo_leitor:
-            self.codigo_leitor = gerar_codigo()    
-    
+            self.codigo_leitor = gerar_codigo()
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.nome} - {self.evento.nome}"
