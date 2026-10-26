@@ -1,225 +1,426 @@
 /* ==========================================================================
-   MINHAS INSCRIÇÕES - ESTILOS PRINCIPAIS
+   MINHAS INSCRIÇÕES — SEA
    ========================================================================== */
 
-/* Variáveis de Tema Escopadas */
-.pagina-inscricoes {
-    --cor-principal: #198754;
-    --cor-principal-hover: #157347;
-    --cor-texto: #212529;
-    --cor-muted: #6c757d;
-    --cor-borda: #e9ecef;
-    --cor-fundo: #f8f9fa;
+/* ==========================================================================
+   1. Variáveis Globais do Módulo
+   ========================================================================== */
+   .pagina-minhas-inscricoes {
+    --inscricoes-verde: #1b5e3a;
+    --inscricoes-verde-hover: #154a2d;
+    --inscricoes-verde-claro: #8cc63f;
+    --inscricoes-verde-suave: #edf5ef;
+    --inscricoes-texto: #26352d;
+    --inscricoes-texto-secundario: #68756d;
+    --inscricoes-borda: #e3eae5;
+    --inscricoes-fundo: #f7f9f7;
+
+    min-height: 100%;
+    padding: clamp(1.75rem, 3vw, 3rem) 0;
+    color: var(--inscricoes-texto);
+    background: #f8faf8;
+}
+
+.pagina-minhas-inscricoes .inscricoes-container {
+    max-width: 1320px;
 }
 
 /* ==========================================================================
-   RESUMO DE INSCRIÇÕES (CARDS SUPERIORES)
+   2. Cabeçalho & Cards de Resumo no Topo
    ========================================================================== */
-.inscricoes-resumo {
+.pagina-minhas-inscricoes .inscricoes-cabecalho {
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.pagina-minhas-inscricoes .inscricoes-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: .7rem;
+    color: var(--inscricoes-verde);
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+}
+
+.pagina-minhas-inscricoes .inscricoes-titulo {
+    margin: 0 0 .65rem;
+    color: var(--inscricoes-texto);
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -.045em;
+    line-height: 1.1;
+}
+
+.pagina-minhas-inscricoes .inscricoes-titulo span {
+    color: var(--inscricoes-verde);
+}
+
+.pagina-minhas-inscricoes .inscricoes-subtitulo {
+    max-width: 680px;
+    color: var(--inscricoes-texto-secundario);
+    font-size: .98rem;
+    line-height: 1.7;
+}
+
+/* Cards de Estatísticas/Resumo */
+.pagina-minhas-inscricoes .inscricoes-resumo {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
 }
 
-.resumo-item {
+.pagina-minhas-inscricoes .resumo-item {
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: #ffffff;
-    border: 1px solid var(--cor-borda);
-    border-radius: 12px;
     padding: 1.1rem 1.25rem;
-    box-shadow: 0 0.125rem 0.35rem rgba(0, 0, 0, 0.035);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid var(--inscricoes-borda);
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow: 0 4px 18px rgba(24, 55, 36, .045);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.resumo-item:hover {
+.pagina-minhas-inscricoes .resumo-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0.35rem 0.9rem rgba(0, 0, 0, 0.07);
+    border-color: #c9dbce;
+    box-shadow: 0 12px 28px rgba(24, 55, 36, .09);
 }
 
-.resumo-icone {
+.pagina-minhas-inscricoes .resumo-icone {
+    display: flex;
     width: 44px;
     height: 44px;
-    display: flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    border-radius: 10px;
-    background: rgba(25, 135, 84, 0.1);
-    color: var(--cor-principal);
+    border-radius: .8rem;
+    background: var(--inscricoes-verde-suave);
+    color: var(--inscricoes-verde);
     font-size: 1.25rem;
 }
 
-.resumo-valor {
+.pagina-minhas-inscricoes .resumo-valor {
     display: block;
+    color: var(--inscricoes-texto);
     font-size: 1.4rem;
-    font-weight: 700;
+    font-weight: 800;
     line-height: 1.1;
-    color: var(--cor-texto);
 }
 
-.resumo-label {
+.pagina-minhas-inscricoes .resumo-label {
     display: block;
     margin-top: 0.2rem;
+    color: var(--inscricoes-texto-secundario);
     font-size: 0.8rem;
-    color: var(--cor-muted);
+    font-weight: 650;
 }
 
 /* ==========================================================================
-   CARDS DE INSCRIÇÃO E EVENTO
+   3. Formulário & Filtros
    ========================================================================== */
-.card-inscricao {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+.pagina-minhas-inscricoes .inscricoes-filtros {
+    margin-bottom: 2.25rem;
+    overflow: hidden;
+    border: 1px solid var(--inscricoes-borda);
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 8px 28px rgba(24, 55, 36, .055);
 }
 
-.card-inscricao:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+.pagina-minhas-inscricoes .inscricoes-filtros .card-body {
+    padding: clamp(1.1rem, 2vw, 1.75rem);
 }
 
-.card-inscricao .card-header {
+.pagina-minhas-inscricoes .form-label {
+    margin-bottom: .45rem;
+    color: #34463a;
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.pagina-minhas-inscricoes .form-control,
+.pagina-minhas-inscricoes .form-select,
+.pagina-minhas-inscricoes .input-group-text {
+    min-height: 2.85rem;
+    border-color: #dce5de;
+    border-radius: .65rem;
+    background-color: #fbfcfb;
+    color: var(--inscricoes-texto);
+    font-size: .88rem;
+}
+
+.pagina-minhas-inscricoes .input-group > .input-group-text {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    background: var(--inscricoes-fundo);
+    color: var(--inscricoes-verde);
+}
+
+.pagina-minhas-inscricoes .input-group > .form-control {
+    min-width: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.pagina-minhas-inscricoes .form-control:focus,
+.pagina-minhas-inscricoes .form-select:focus {
+    border-color: #5e9872;
+    background-color: #fff;
+    box-shadow: 0 0 0 .2rem rgba(27, 94, 58, .12);
+}
+
+/* ==========================================================================
+   4. Cards de Inscrição & Banners
+   ========================================================================== */
+.pagina-minhas-inscricoes .card-inscricao {
+    overflow: hidden;
+    border: 1px solid var(--inscricoes-borda);
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow: 0 4px 18px rgba(24, 55, 36, .045);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.pagina-minhas-inscricoes .card-inscricao:hover {
+    transform: translateY(-2px);
+    border-color: #c9dbce;
+    box-shadow: 0 12px 28px rgba(24, 55, 36, .09);
+}
+
+.pagina-minhas-inscricoes .card-inscricao .card-header {
+    background: var(--inscricoes-verde);
+    color: #ffffff;
     border-bottom: 0;
+    padding: 1.1rem 1.4rem;
 }
 
-.card-inscricao .card-footer {
-    border-top: 1px solid #e9ecef;
+.pagina-minhas-inscricoes .badge-tipo-topo {
+    border-radius: 999px;
+    padding: .45rem .85rem;
+    background: #ffffff;
+    color: var(--inscricoes-verde);
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .03em;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
-/* Banner da Inscrição */
-.banner-evento-img {
+.pagina-minhas-inscricoes .card-inscricao .card-footer {
+    background: transparent;
+    border-top: 1px solid #edf1ee;
+    padding: 1.25rem 1.4rem;
+}
+
+.pagina-minhas-inscricoes .banner-evento-container {
+    overflow: hidden;
+    border-radius: .65rem;
+    background: var(--inscricoes-fundo);
+}
+
+.pagina-minhas-inscricoes .banner-evento-img {
+    display: block;
+    width: 100%;
     height: 160px;
     max-height: 160px;
     object-fit: cover;
-    border-radius: 0.375rem;
     transition: transform 0.25s ease;
 }
 
-.card-inscricao:hover .banner-evento-img {
-    transform: scale(1.015);
+.pagina-minhas-inscricoes .card-inscricao:hover .banner-evento-img {
+    transform: scale(1.02);
 }
 
-/* Status e Badges */
-.evento-status {
+.pagina-minhas-inscricoes .evento-status {
     display: inline-flex;
     align-items: center;
-    background: #ffffff;
-    color: #212529;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 50rem;
-    padding: 0.35rem 0.65rem;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
     font-size: 0.75rem;
+    font-weight: 750;
+}
+
+.pagina-minhas-inscricoes .atividade-total-badge {
     font-weight: 600;
 }
 
-.atividade-total-badge {
-    font-weight: 500;
-}
-
 /* ==========================================================================
-   TABELA DE ATIVIDADES
+   5. Tabela Interna de Atividades
    ========================================================================== */
-.tabela-atividades {
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    overflow: hidden;
+.pagina-minhas-inscricoes .tabela-atividades {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--inscricoes-borda);
+    border-radius: .75rem;
+    background: #ffffff;
+    margin-bottom: 1rem;
 }
 
-.tabela-atividades table {
+.pagina-minhas-inscricoes .tabela-atividades table {
+    width: 100%;
     margin-bottom: 0;
 }
 
-.tabela-atividades th {
+.pagina-minhas-inscricoes .tabela-atividades th {
+    padding: 0.75rem 1rem;
+    color: var(--inscricoes-texto-secundario);
     font-size: 0.75rem;
+    font-weight: 750;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    letter-spacing: 0.45px;
-    color: #6c757d;
     white-space: nowrap;
-    font-weight: 600;
 }
 
-.tabela-atividades td {
-    font-size: 0.9rem;
+.pagina-minhas-inscricoes .tabela-atividades td {
+    padding: 0.85rem 1rem;
+    color: var(--inscricoes-texto);
+    font-size: 0.88rem;
 }
 
-.tabela-atividades tbody tr {
+.pagina-minhas-inscricoes .tabela-atividades tbody tr {
     transition: background-color 0.15s ease;
 }
 
-.atividade-nome {
-    display: flex;
-    align-items: center;
-    min-width: 220px;
-    font-weight: 600;
+.pagina-minhas-inscricoes .tabela-atividades tbody tr:hover {
+    background-color: var(--inscricoes-fundo);
 }
 
-.atividade-horario {
+.pagina-minhas-inscricoes .atividade-nome {
+    display: flex;
+    min-width: 200px;
+    align-items: center;
+    font-weight: 700;
+}
+
+.pagina-minhas-inscricoes .atividade-horario {
     white-space: nowrap;
 }
 
-.atividade-tipo {
-    font-size: 0.7rem;
+.pagina-minhas-inscricoes .atividade-tipo {
+    font-size: 0.72rem;
 }
 
 /* ==========================================================================
-   CRACHÁ E QR CODE
+   6. Componentes de Crachá & QR Code (Harmonia Visual em Largura Total)
    ========================================================================== */
-.cracha-resumo-icone {
+
+.pagina-minhas-inscricoes .cracha-resumo-icone {
+    display: flex;
     width: 40px;
     height: 40px;
-    display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(25, 135, 84, 0.1);
-    color: var(--cor-principal);
-    border-radius: 8px;
+    border-radius: .65rem;
+    background: var(--inscricoes-verde-suave);
+    color: var(--inscricoes-verde);
     font-size: 1.15rem;
 }
 
-.cracha-codigo {
-    letter-spacing: 0.5px;
-    font-size: 0.95rem;
+.pagina-minhas-inscricoes .cracha-codigo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: var(--inscricoes-verde);
 }
 
-.cracha-box {
-    max-width: 280px;
-    margin: 0 auto;
-}
-
-.qrcode-thumb {
-    max-height: 80px;
-    width: auto;
-}
-
-.qrcode-modal {
-    max-width: 180px;
-    height: auto;
-}
-
-.qrcode-indisponivel {
-    width: 180px;
-    min-height: 180px;
-    margin: 0 auto;
+/* Wrapper principal do rodapé */
+.pagina-minhas-inscricoes .area-qrcode-wrapper {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2.5rem;
+    width: 100%;
+    margin-bottom: 1.25rem;
+}
+
+/* Moldura e Destaque do QR Code */
+.pagina-minhas-inscricoes .qrcode-container-destaque {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+    border: 1px solid var(--inscricoes-borda);
+    border-radius: 0.85rem;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(24, 55, 36, 0.05);
+    flex-shrink: 0;
+}
+
+/* Tamanho Proporcional do QR Code */
+.pagina-minhas-inscricoes .qrcode-thumb {
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+    display: block;
+}
+
+/* Container do Texto ocupando o espaço restante até o final do cartão */
+.pagina-minhas-inscricoes .qrcode-info-container {
+    flex: 1;
+    max-width: 100%;
+}
+
+.pagina-minhas-inscricoes .cracha-box {
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+.pagina-minhas-inscricoes .qrcode-modal {
+    width: 200px;
+    height: 200px;
+    max-width: 200px;
+    object-fit: contain;
+}
+
+.pagina-minhas-inscricoes .qrcode-indisponivel {
+    display: flex;
+    width: 140px;
+    height: 140px;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    color: #adb5bd;
+    margin: 0 auto;
+    color: var(--inscricoes-texto-secundario);
 }
 
-/* ==========================================================================
-   ESTADOS VAZIOS
-   ========================================================================== */
-.empty-state {
-    border-color: #e9ecef !important;
+/* Botões do Módulo */
+.pagina-minhas-inscricoes .btn {
+    border-radius: .65rem;
+    font-weight: 700;
+    transition: background-color .2s ease, border-color .2s ease,
+                box-shadow .2s ease, transform .2s ease;
 }
 
-/* ==========================================================================
-   MODAL DO CRACHÁ
-   ========================================================================== */
+.pagina-minhas-inscricoes .btn-success {
+    border-color: var(--inscricoes-verde);
+    background: var(--inscricoes-verde);
+    color: #fff;
+}
+
+.pagina-minhas-inscricoes .btn-success:hover {
+    border-color: var(--inscricoes-verde-hover);
+    background: var(--inscricoes-verde-hover);
+}
+
+.pagina-minhas-inscricoes .btn:focus-visible,
+.pagina-minhas-inscricoes a:focus-visible,
+.pagina-minhas-inscricoes input:focus-visible {
+    outline: 3px solid var(--inscricoes-verde-claro);
+    outline-offset: 3px;
+    box-shadow: none;
+}
+
+/* Modal do Crachá */
 .modal-cracha .modal-content {
-    border-radius: 12px;
     overflow: hidden;
+    border: 1px solid var(--inscricoes-borda);
+    border-radius: 1rem;
 }
 
 .modal-cracha .modal-header {
@@ -227,144 +428,143 @@
 }
 
 .modal-cracha .modal-footer {
-    border-top: 1px solid #e9ecef;
+    border-top: 1px solid #edf1ee;
 }
 
 /* ==========================================================================
-   RESPONSIVIDADE (MEDIA QUERIES)
+   7. Responsividade e Media Queries
    ========================================================================== */
 @media (max-width: 767.98px) {
-    .inscricoes-resumo {
+    .pagina-minhas-inscricoes .inscricoes-resumo {
         grid-template-columns: 1fr;
     }
 
-    .banner-evento-img {
+    .pagina-minhas-inscricoes .banner-evento-img {
         height: 180px;
         max-height: 180px;
     }
 
-    .atividade-nome {
-        min-width: 180px;
+    .pagina-minhas-inscricoes .atividade-nome {
+        min-width: 160px;
+    }
+
+    .pagina-minhas-inscricoes .area-qrcode-wrapper {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1.25rem;
     }
 }
 
-@media (max-width: 576px) {
-    .pagina-inscricoes {
-        margin-top: 1.5rem !important;
-        margin-bottom: 1.5rem !important;
-    }
-
-    .card-inscricao .card-footer {
+@media (max-width: 575.98px) {
+    .pagina-minhas-inscricoes .card-inscricao .card-footer {
         flex-direction: column;
-        align-items: stretch !important;
+        align-items: stretch;
     }
 
-    .card-inscricao .card-footer > div {
+    .pagina-minhas-inscricoes .card-inscricao .card-footer > div {
         width: 100%;
     }
 
-    .card-inscricao .card-footer .d-flex.gap-2 {
+    .pagina-minhas-inscricoes .card-inscricao .card-footer .d-flex {
         justify-content: center;
     }
 
-    .cracha-resumo-icone {
+    .pagina-minhas-inscricoes .cracha-resumo-icone {
         width: 36px;
         height: 36px;
     }
+}
 
-    .tabela-atividades {
-        border-radius: 6px;
+@media (prefers-reduced-motion: reduce) {
+    .pagina-minhas-inscricoes .card-inscricao,
+    .pagina-minhas-inscricoes .resumo-item,
+    .pagina-minhas-inscricoes .banner-evento-img {
+        transition: none;
+    }
+
+    .pagina-minhas-inscricoes .card-inscricao:hover,
+    .pagina-minhas-inscricoes .resumo-item:hover,
+    .pagina-minhas-inscricoes .card-inscricao:hover .banner-evento-img {
+        transform: none;
     }
 }
 
 /* ==========================================================================
-   ESTILOS DE IMPRESSÃO DO CRACHÁ
+   8. Estilos de Impressão do Crachá (@media print)
    ========================================================================== */
 @media print {
-
-    /* Trava o tamanho da folha A4 e desativa margens físicas */
     @page {
         size: A4;
         margin: 0;
     }
 
-    /* Força o corpo do site a ocupar estritamente apenas UMA folha*/
     html, body {
-        width: 100% !important;
-        height: 100vh !important;
-        max-height: 100vh !important;
-        overflow: hidden !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: #ffffff !important;
+        width: 100%;
+        height: 100vh;
+        max-height: 100vh;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: #ffffff;
     }
 
     body * {
-        visibility: hidden !important;
+        visibility: hidden;
     }
 
-    /* Reexibe o modal e o crachá ativo */
     .modal.show,
     .modal.show .modal-dialog,
     .modal.show .modal-content,
     .modal.show .cracha-printable,
     .modal.show .cracha-printable * {
-        visibility: visible !important;
+        visibility: visible;
     }
 
-    /* zera os blocos do Bootstrap*/
     .modal.show, 
     .modal.show .modal-dialog, 
     .modal.show .modal-content {
-        display: block !important;
-        position: static !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border: none !important;
-        box-shadow: none !important;
-        transform: none !important;
-        max-width: none !important;
-        width: 100% !important;
-        height: auto !important;
-        background: transparent !important;
+        display: block;
+        position: static;
+        width: 100%;
+        height: auto;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        transform: none;
+        max-width: none;
     }
 
-    /* Posiciona o crachá na folha */
     .modal.show .cracha-printable {
-        display: block !important;
-        position: absolute !important;
-        top: 60px !important; 
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        
-        
-        width: 90% !important;
-        max-width: 400px !important;
-        padding: 24px !important;
-        
-        
-        border: 2px solid #000000 !important;
-        border-radius: 12px !important;
-        background: #ffffff !important;
-        color: #000000 !important;
+        display: block;
+        position: absolute;
+        top: 60px; 
+        left: 50%;
+        width: 90%;
+        max-width: 400px;
+        padding: 24px;
+        border: 2px solid #000000;
+        border-radius: 12px;
+        background: #ffffff;
+        color: #000000;
+        transform: translateX(-50%);
     }
 
-    /* Transforma  as cores de texto em preto*/
     .modal.show .cracha-printable *,
     .text-success, .text-dark, .text-muted, h4, p {
-        color: #000000 !important;
+        color: #000000;
     }
 
-    /* Caixa do QR Code */
     .cracha-box {
-        background-color: #f6f6f6 !important;
-        border: 1px solid #000000 !important;
-        print-color-adjust: exact !important;
-        -webkit-print-color-adjust: exact !important;
+        border: 1px solid #000000;
+        background-color: #f6f6f6;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
     }
 
-    /* Remove o que não deve ser impresso */
     .modal-backdrop, .modal-header, .modal-footer, .btn-close {
-        display: none !important;
+        display: none;
     }
 }

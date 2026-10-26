@@ -1,0 +1,444 @@
+/* ==========================================================================
+   MEUS EVENTOS — SEA
+   Estilos alinhados com o padrão de eventos.css e minhas_inscricoes.css.
+   ========================================================================== */
+
+/* ==========================================================================
+   1. Variáveis Globais do Módulo
+   ========================================================================== */
+   .pagina-meus-eventos {
+    --meus-verde: #1b5e3a;
+    --meus-verde-hover: #154a2d;
+    --meus-verde-claro: #8cc63f;
+    --meus-verde-suave: #edf5ef;
+    --meus-texto: #26352d;
+    --meus-texto-secundario: #68756d;
+    --meus-borda: #e3eae5;
+    --meus-fundo: #f7f9f7;
+
+    min-height: 100%;
+    padding: clamp(1.75rem, 3vw, 3rem) 0;
+    color: var(--meus-texto);
+    background: #f8faf8;
+}
+
+.pagina-meus-eventos .meus-eventos-container {
+    max-width: 1320px;
+}
+
+/* ==========================================================================
+   2. Cabeçalho da Página
+   ========================================================================== */
+.pagina-meus-eventos .meus-eventos-cabecalho {
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.pagina-meus-eventos .meus-eventos-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: .7rem;
+    color: var(--meus-verde);
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+}
+
+.pagina-meus-eventos .meus-eventos-titulo {
+    margin: 0 0 .65rem;
+    color: var(--meus-texto);
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -.045em;
+    line-height: 1.1;
+}
+
+.pagina-meus-eventos .meus-eventos-titulo span {
+    color: var(--meus-verde);
+}
+
+.pagina-meus-eventos .meus-eventos-subtitulo {
+    max-width: 680px;
+    color: var(--meus-texto-secundario);
+    font-size: .98rem;
+    line-height: 1.7;
+}
+
+.pagina-meus-eventos .meus-eventos-criar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+    border: 1px solid var(--meus-verde);
+    border-radius: .75rem;
+    padding: .8rem 1.1rem;
+    background: var(--meus-verde);
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(24, 55, 36, .08);
+    transition: background-color .2s ease, border-color .2s ease,
+                transform .2s ease, box-shadow .2s ease;
+}
+
+.pagina-meus-eventos .meus-eventos-criar-btn:hover {
+    border-color: var(--meus-verde-hover);
+    background: var(--meus-verde-hover);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   3. Formulários e Filtros
+   ========================================================================== */
+.pagina-meus-eventos .meus-eventos-filtros {
+    margin-bottom: 2.25rem;
+    overflow: hidden;
+    border: 1px solid var(--meus-borda);
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 8px 28px rgba(24, 55, 36, .055);
+}
+
+.pagina-meus-eventos .meus-eventos-filtros .card-body {
+    padding: clamp(1.1rem, 2vw, 1.75rem);
+}
+
+.pagina-meus-eventos .form-label {
+    margin-bottom: .45rem;
+    color: #34463a;
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.pagina-meus-eventos .form-control,
+.pagina-meus-eventos .form-select,
+.pagina-meus-eventos .input-group-text {
+    min-height: 2.85rem;
+    border-color: #dce5de;
+    border-radius: .65rem;
+    background-color: #fbfcfb;
+    color: var(--meus-texto);
+    font-size: .88rem;
+}
+
+.pagina-meus-eventos .input-group > .input-group-text {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    background: var(--meus-fundo);
+    color: var(--meus-verde);
+}
+
+.pagina-meus-eventos .input-group > .form-control {
+    min-width: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.pagina-meus-eventos .form-control:focus,
+.pagina-meus-eventos .form-select:focus {
+    border-color: #5e9872;
+    background-color: #fff;
+    box-shadow: 0 0 0 .2rem rgba(27, 94, 58, .12);
+}
+
+.pagina-meus-eventos .form-check-input {
+    cursor: pointer;
+}
+
+.pagina-meus-eventos .form-check-input:checked {
+    border-color: var(--meus-verde);
+    background-color: var(--meus-verde);
+}
+
+.pagina-meus-eventos .form-check-label {
+    color: #405247;
+    font-size: .78rem;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   4. Cartões de Eventos (Cards Horizontais)
+   ========================================================================== */
+.pagina-meus-eventos .meus-eventos-grid {
+    row-gap: 1.25rem;
+}
+
+.pagina-meus-eventos .meus-eventos-card {
+    overflow: hidden;
+    border: 1px solid var(--meus-borda);
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 4px 18px rgba(24, 55, 36, .045);
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.pagina-meus-eventos .meus-eventos-card:hover {
+    transform: translateY(-2px);
+    border-color: #c9dbce;
+    box-shadow: 0 12px 28px rgba(24, 55, 36, .09);
+}
+
+.pagina-meus-eventos .meus-eventos-banner {
+    min-height: 235px;
+    background: var(--meus-fundo);
+}
+
+.pagina-meus-eventos .meus-eventos-banner-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 235px;
+    object-fit: cover;
+}
+
+.pagina-meus-eventos .meus-eventos-banner-vazio {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-height: 235px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    padding: 1.5rem;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(27, 94, 58, .06), transparent 38%),
+        var(--meus-fundo);
+    color: #849188;
+    font-size: .82rem;
+    text-align: center;
+}
+
+.pagina-meus-eventos .meus-eventos-banner-vazio i {
+    color: #7c9c85;
+    font-size: 2.6rem;
+}
+
+.pagina-meus-eventos .meus-eventos-card-conteudo {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    padding: 1.4rem;
+}
+
+.pagina-meus-eventos .meus-eventos-card-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .9rem;
+}
+
+.pagina-meus-eventos .meus-eventos-card-titulo {
+    color: var(--meus-texto);
+    font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+    font-weight: 800;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.pagina-meus-eventos .meus-eventos-tipo-badge {
+    flex: 0 0 auto;
+    max-width: 45%;
+    border: 1px solid #d9e8dd;
+    border-radius: 999px;
+    padding: .45rem .7rem;
+    background: var(--meus-verde-suave);
+    color: var(--meus-verde);
+    font-size: .73rem;
+    font-weight: 750;
+    white-space: normal;
+    text-align: center;
+}
+
+.pagina-meus-eventos .meus-eventos-descricao {
+    margin-bottom: 1.1rem;
+    color: var(--meus-texto-secundario);
+    font-size: .9rem;
+    line-height: 1.65;
+}
+
+.pagina-meus-eventos .meus-eventos-metadados {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.5rem;
+    margin: .2rem 0 1rem;
+    color: var(--meus-texto-secundario);
+    font-size: .82rem;
+    line-height: 1.5;
+}
+
+.pagina-meus-eventos .meus-eventos-metadados strong {
+    color: #34463a;
+    font-weight: 700;
+}
+
+.pagina-meus-eventos .meus-eventos-card-rodape {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #edf1ee;
+}
+
+/* ==========================================================================
+   5. Botões de Ação Específicos
+   ========================================================================== */
+.pagina-meus-eventos .btn {
+    border-radius: .65rem;
+    font-weight: 700;
+    transition: background-color .2s ease, border-color .2s ease,
+                box-shadow .2s ease, transform .2s ease;
+}
+
+.pagina-meus-eventos .btn-success {
+    border-color: var(--meus-verde);
+    background: var(--meus-verde);
+    color: #fff;
+}
+
+.pagina-meus-eventos .btn-success:hover {
+    border-color: var(--meus-verde-hover);
+    background: var(--meus-verde-hover);
+}
+
+.pagina-meus-eventos .btn-outline-secondary {
+    border-color: #aab7ae;
+    color: #536258;
+}
+
+.pagina-meus-eventos .btn-outline-secondary:hover {
+    background: #f2f5f3;
+    color: var(--meus-texto);
+}
+
+.pagina-meus-eventos .btn-warning {
+    border-color: #e4ad22;
+    background: #f4c542;
+    color: #33270a;
+}
+
+.pagina-meus-eventos .btn-danger {
+    border-color: #dc3545;
+    background: #dc3545;
+    color: #fff;
+}
+
+.pagina-meus-eventos .btn:focus-visible,
+.pagina-meus-eventos a:focus-visible,
+.pagina-meus-eventos input:focus-visible,
+.pagina-meus-eventos select:focus-visible {
+    outline: 3px solid var(--meus-verde-claro);
+    outline-offset: 3px;
+    box-shadow: none;
+}
+
+/* ==========================================================================
+   6. Estado Vazio / Mensagens
+   ========================================================================== */
+.pagina-meus-eventos .meus-eventos-vazio {
+    padding: clamp(2rem, 5vw, 4rem) 1.25rem;
+    border: 1px dashed #cddbd0;
+    border-radius: 1rem;
+    background: #fff;
+    text-align: center;
+}
+
+.pagina-meus-eventos .meus-eventos-vazio h4,
+.pagina-meus-eventos .meus-eventos-vazio h3 {
+    color: var(--meus-texto);
+    font-weight: 800;
+}
+
+/* Utilitários de texto específicos */
+.pagina-meus-eventos .text-verde-escuro { color: var(--meus-verde) !important; }
+.pagina-meus-eventos .text-verde-claro { color: var(--meus-verde) !important; }
+.pagina-meus-eventos .text-vermelho { color: #c83b3b !important; }
+
+/* ==========================================================================
+   7. Responsividade e Media Queries
+   ========================================================================== */
+@media (min-width: 1200px) {
+    .pagina-meus-eventos .meus-eventos-banner,
+    .pagina-meus-eventos .meus-eventos-banner-img,
+    .pagina-meus-eventos .meus-eventos-banner-vazio {
+        min-height: 250px;
+    }
+
+    .pagina-meus-eventos .meus-eventos-card-conteudo {
+        padding: 1.6rem 1.8rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .pagina-meus-eventos .meus-eventos-cabecalho {
+        margin-bottom: 1.5rem;
+    }
+
+    .pagina-meus-eventos .meus-eventos-banner,
+    .pagina-meus-eventos .meus-eventos-banner-vazio {
+        min-height: 190px;
+        max-height: 240px;
+    }
+
+    .pagina-meus-eventos .meus-eventos-banner-img {
+        height: 220px;
+        min-height: 220px;
+    }
+
+    .pagina-meus-eventos .meus-eventos-card-conteudo {
+        padding: 1.15rem;
+    }
+
+    .pagina-meus-eventos .meus-eventos-metadados {
+        grid-template-columns: 1fr;
+        gap: .8rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .pagina-meus-eventos .meus-eventos-titulo {
+        font-size: clamp(1.8rem, 8vw, 2.3rem);
+        letter-spacing: -.035em;
+    }
+
+    .pagina-meus-eventos .meus-eventos-criar-btn {
+        width: 100%;
+    }
+
+    .pagina-meus-eventos .meus-eventos-card-topo {
+        flex-direction: column;
+    }
+
+    .pagina-meus-eventos .meus-eventos-tipo-badge {
+        max-width: 100%;
+    }
+
+    .pagina-meus-eventos .meus-eventos-card-rodape {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pagina-meus-eventos .meus-eventos-card-rodape .btn {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pagina-meus-eventos .meus-eventos-card,
+    .pagina-meus-eventos .meus-eventos-criar-btn {
+        transition: none;
+    }
+
+    .pagina-meus-eventos .meus-eventos-card:hover,
+    .pagina-meus-eventos .meus-eventos-criar-btn:hover {
+        transform: none;
+    }
+}
