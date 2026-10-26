@@ -42,7 +42,8 @@ def home_root(request):
     else:
         return redirect('app_login:urllogin')
 
-def busca_evento_pwa(request):
+
+def pwa_home(request):
     """Tela inicial do PWA para buscar evento pelo código."""
     if request.method == 'POST':
         codigo = request.POST.get('codigo_evento')
@@ -55,6 +56,47 @@ def busca_evento_pwa(request):
             messages.error(request, "Evento não encontrado. Verifique o código.")
             
     return render(request, 'app_evento/pwa_home.html')
+
+def pwa_atividades_evento(request, evento_id):
+    """Lista as atividades do evento no PWA, bloqueando as fora do horário."""
+    evento = get_object_or_404(Evento, id=evento_id)
+    
+    # Ordena diretamente por horaInicio (sem usar o campo 'data')
+    atividades = evento.atividade_set.all().order_by('horaInicio')
+    
+    agora = timezone.now()
+    atividades_info = []
+    
+    for ativ in atividades:
+        try:
+            # Se horaInicio/horaFim forem DateTimeField (data + hora juntos)
+            if ativ.horaFim and ativ.horaFim < agora:
+                status = 'encerrada'
+            elif ativ.horaInicio and ativ.horaInicio > agora:
+                status = 'futura'
+            else:
+                status = 'ativa'
+        except TypeError:
+            # Fallback caso horaInicio/horaFim sejam apenas TimeField
+            hora_atual = agora.time()
+            if ativ.horaFim < hora_atual:
+                status = 'encerrada'
+            elif ativ.horaInicio > hora_atual:
+                status = 'futura'
+            else:
+                status = 'ativa'
+            
+        atividades_info.append({
+            'obj': ativ,
+            'status': status
+        })
+
+    context = {
+        'evento': evento,
+        'atividades_info': atividades_info,
+    }
+    
+    return render(request, 'app_evento/pwa_atividades.html', context)
 
 def filtrar_eventos_por_parametros(eventos, request):
     """
