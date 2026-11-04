@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'app_evento',
     'app_quiz',
     'django_bootstrap5',
-    'pwa',
+   # 'pwa',
     'django_extensions',
     'smart_selects',
     'django_user_agents'
@@ -143,12 +143,12 @@ CSRF_USE_SESSIONS = True
 
 
 # Ative estas configurações se estiver navegando pela URL HTTPS do Ngrok
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True  # Defina como True se estiver usando HTTPS no Ngrok
+SESSION_COOKIE_SECURE = True  # Defina como True se estiver usando HTTPS no Ngrok
 
 # Garante que o navegador no celular aceite o cookie de origem cruzada/túnel
-CSRF_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 SESSION_COOKIE_AGE = 1800  # Expira após 1800 segundos (que são 30 min de inatividade)
 SESSION_SAVE_EVERY_REQUEST = True  # Recomeça o tempo a cada clique

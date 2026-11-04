@@ -3,12 +3,17 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0A0302" />
     <meta name="description" content="Meu App Django PWA" />
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="{% static 'manifest.json' %}" crossorigin="use-credentials" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Event Sea">
 
     <!-- Icons -->
     <link rel="apple-touch-icon" href="{% static 'icons/icon-192.png' %}" />
@@ -30,6 +35,7 @@
 
     {% block extra_css %}
     {% endblock %}
+
     {% block pre_script %}
     {% endblock %}
   </head>
@@ -172,26 +178,13 @@
     -->
     <!-- Bootstrap 5 JS Bundle -->
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/sw-registro.js' %}"></script>
 
     {% block extra_js %}
 
     {% endblock %}
 
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker
-            .register('/{% url "service_worker" %}')
-            .then((registration) => {
-              console.log('Service-worker registrado com sucesso:', registration.scope)
-            })
-            .catch((error) => {
-              console.log('Falha ao registrar Service Worker:', error)
-            })
-        })
-      } else {
-        console.log('Service Worker não é suportado neste navegador.')
-      }
-    </script>
+    
+
   </body>
 </html>

@@ -12,8 +12,8 @@ app_name = 'app_evento'
 urlpatterns = [
     path('', views.eventos_disponiveis, name="urldis_evento"), 
     
-    path('pwa_home/', views.pwa_home, name='pwa_home'),
-    path('pwa/evento/<int:evento_id>/atividades/', views.pwa_atividades_evento, name='pwa_atividades_evento'),
+    path('pwa_home/', views.pwa_home, name='urlpwa_home'),
+    path('pwa/evento/<int:evento_id>/atividades/', views.pwa_atividades_evento, name='urlpwa_atividades_evento'),
     
     path('cadastrar_evento/', views.cadastrar_evento, name='urlcad_evento'),
     path('editar_evento/<int:evento_id>/', views.editar_evento, name='urledt_evento'),

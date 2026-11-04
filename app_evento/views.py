@@ -31,18 +31,24 @@ from .form import EventoForm, AtividadeForm
 # ==========================================================
 # FUNÇÕES AUXILIARES
 # ==========================================================
+
+@never_cache
 def home_root(request):
 
-    user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
-    padrao_mobile = r'android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini'
-    is_mobile = bool(re.search(padrao_mobile, user_agent))
+    #user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
+    #padrao_mobile = r'android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini'
+   # is_mobile = bool(re.search(padrao_mobile, user_agent))
 
-    if is_mobile:
+    #if is_mobile:
+    if request.user_agent.is_mobile or request.user_agent.is_tablet:        
         return redirect('app_evento:pwa_home')
+    if request.user.is_authenticated:
+        return redirect('app_evento:urldis_evento')
+    
     else:
         return redirect('app_login:urllogin')
 
-
+@never_cache
 def pwa_home(request):
     """Tela inicial do PWA para buscar evento pelo código."""
     if request.method == 'POST':

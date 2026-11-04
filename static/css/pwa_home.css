@@ -1,0 +1,60 @@
+
+  /* Container flexível em tela cheia com altura dinâmica (evita pulos na barra de navegação mobile) */
+  .pwa-screen-container {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: #f8f9fa;
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  /* Input otimizado para digitação touch e destaque visual */
+  .custom-pwa-input {
+    font-size: 1.4rem !important;
+    letter-spacing: 3px;
+    height: 64px;
+    border: 2px solid #dee2e6;
+    border-radius: 16px !important;
+    background-color: #ffffff;
+    color: #1b5e3a;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .custom-pwa-input:focus {
+    border-color: #1b5e3a !important;
+    box-shadow: 0 0 0 0.25rem rgba(27, 94, 58, 0.18) !important;
+    outline: none;
+  }
+
+  .custom-pwa-input::placeholder {
+    letter-spacing: 1px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #adb5bd;
+  }
+
+  /* Botão principal com resposta tátil (micro-interação ao pressionar) */
+  .btn-pwa-primary {
+    background-color: #1b5e3a;
+    color: #ffffff;
+    border: none;
+    border-radius: 16px;
+    font-size: 1.05rem;
+    height: 56px;
+    transition: transform 0.1s ease, background-color 0.2s ease;
+  }
+
+  .btn-pwa-primary:active {
+    transform: scale(0.98);
+    background-color: #14472c !important;
+  }
+
+  .btn-pwa-primary:hover {
+    background-color: #154c2e;
+    color: #ffffff;
+  }
+
+  /* Oculta barras de navegação tradicionais do Desktop caso estejam no basepwa.html */
+  header, footer, .navbar {
+    display: none !important;
+  }

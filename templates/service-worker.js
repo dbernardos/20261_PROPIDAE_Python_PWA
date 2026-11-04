@@ -46,6 +46,15 @@
         return url.href
     }
 
+
+    /**
+     *  @Lifecycle Install
+     *  Força o Service Worker a se instalar imediatamente
+     */
+    self.addEventListener('install', event => {
+        self.skipWaiting();
+    });
+
     /**
      *  @Lifecycle Activate
      *  New one activated when old isnt being used.
@@ -71,7 +80,8 @@
         const url = new URL(event.request.url);
 
         // 1. ROTAS DE AUTENTICAÇÃO E ADMIN: Ignora o Service Worker completamente
-        if (url.pathname.startsWith('/admin/')    || 
+        if(url.pathname === '/'||
+            url.pathname.startsWith('/admin/')    || 
             url.pathname.startsWith('/login/')    || 
             url.pathname.startsWith('/chaining/') || 
             url.pathname.startsWith('/logout/')) {

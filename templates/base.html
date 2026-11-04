@@ -11,6 +11,11 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="{% static 'manifest.json' %}" crossorigin="use-credentials" />
 
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Event Sea">
+
     <!-- Icons -->
     <link rel="apple-touch-icon" href="{% static 'icons/icon-192.png' %}" />
     <link rel="icon" type="image/png" sizes="192x192" href="{% static 'icons/icon-192.png' %}" />
@@ -90,6 +95,9 @@
               {% else %}
                 <li class="nav-item">
                   <a class="nav-link {% if 'login' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_login:urllogin' %}">Entrar</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link {% if 'pwa_home' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_evento:urlpwa_home' %}">Encontrar Evento</a>
                 </li>
               {% endif %}
             </ul>
@@ -212,26 +220,11 @@
     </footer>
 
       -->
-    <!-- Bootstrap 5 JS Bundle -->
+   
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker
-            .register('/{% url "service_worker" %}')
-            .then((registration) => {
-              console.log('Service-worker registrado com sucesso:', registration.scope)
-            })
-            .catch((error) => {
-              console.log('Falha ao registrar Service Worker:', error)
-            })
-        })
-      } else {
-        console.log('Service Worker não é suportado neste navegador.')
-      }
-    </script>
-
+    <script src="{% static 'js/sw-registro.js' %}"></script>
+    
     <script>
       //procura campos obrigatórios para por asterisco
       document.querySelectorAll('input[required], select[required], textarea[required]').forEach((input) => {
@@ -245,7 +238,7 @@
 
     <script>
        document.querySelectorAll('.nav-link').forEach(link => {
-    // Compara o caminho relativo da URL atual com o caminho do link
+    
         if (window.location.pathname === link.pathname) {
               link.classList.add('active');
           }

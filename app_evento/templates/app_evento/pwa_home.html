@@ -1,46 +1,81 @@
 {% extends 'basepwa.html' %}
+{% load static %}
 {% load django_bootstrap5 %}
 
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pwa_home.css' %}">
+{% endblock %}
+
 {% block content %}
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
-<div class="d-flex flex-column justify-content-center align-items-center px-4"
-  style="min-height: 100vh; background-color: #f8f9fa;">
+<div class="pwa-screen-container d-flex flex-column justify-content-between align-items-center px-4">
+  
+  <!-- Identificador da Aplicação PWA -->
+  <div class="text-center pt-3">
+    <span class="badge rounded-pill px-3 py-2 fw-semibold text-uppercase" style="background-color: #e8f5e9; color: #1b5e3a; letter-spacing: 1px; font-size: 0.75rem;">
+      SEA Eventos PWA
+    </span>
+  </div>
 
-  <div class="text-center mb-4">
+  <!-- Cartão Central de Busca -->
+  <div class="w-100 my-auto py-3" style="max-width: 400px;">
+    
+    <!-- Ícone e Título -->
+    <div class="text-center mb-4">
+      <div class="icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center shadow-sm"
+           style="width: 84px; height: 84px; background-color: #e8f5e9; border-radius: 50%;">
+        <i class="bi bi-qr-code-scan" style="font-size: 2.5rem; color: #1b5e3a;"></i>
+      </div>
+      <h1 class="h3 fw-bold mb-2" style="color: #1b5e3a;">Acessar Evento</h1>
+      <p class="text-muted small px-2 mb-0" style="font-size: 0.95rem; line-height: 1.4;">
+        Digite o código do evento para acessar a programação e registrar sua presença nas atividades.
+      </p>
+    </div>
+
+    <!-- Mensagens de Alerta (Erro / Validação) -->
+    {% if messages %}
     <div class="mb-3">
-      <i class="bi bi-qr-code-scan" style="font-size: 4rem; color: #1b5e3a;"></i>
+      {% for message in messages %}
+      <div class="alert alert-danger alert-dismissible fade show text-center border-0 shadow-sm rounded-4 small py-3" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ message }}
+        <button type="button" class="btn-close small" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      </div>
+      {% endfor %}
     </div>
-    <h1 class="h3 fw-bold" style="color: #1b5e3a;">Acessar Evento</h1>
-    <p class="text-muted">Digite o código do evento para visualizar a programação e acessar o leitor de QR-CODE</p>
+    {% endif %}
+
+    <!-- Formulário de Código -->
+    <form method="POST" action="{% url 'app_evento:urlpwa_home' %}" autocomplete="off">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <input type="text" 
+               id="codigo_evento"
+               name="codigo_evento" 
+               class="form-control form-control-lg text-center fw-bold custom-pwa-input shadow-sm"
+               placeholder="CÓDIGO DO EVENTO" 
+               required 
+               autocapitalize="characters" 
+               autocomplete="off"
+               enterkeyhint="search"
+               oninput="this.value = this.value.toUpperCase()"
+               maxlength="20">
+      </div>
+
+      <button type="submit" class="btn btn-pwa-primary w-100 py-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
+        <i class="bi bi-search fs-5"></i>
+        <span>Buscar Evento</span>
+      </button>
+    </form>
   </div>
 
-  {% if messages %}
-  <div class="w-100 mb-3" style="max-width: 400px;">
-    {% for message in messages %}
-    <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
-      <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-    </div>
-    {% endfor %}
+  <!-- Rodapé Informativo -->
+  <div class="text-center pb-3">
+    <small class="text-muted" style="font-size: 0.75rem;">
+      <i class="bi bi-info-circle me-1"></i> Insira o código disponibilizado pela organização.
+    </small>
   </div>
-  {% endif %}
-
-  <form method="POST" action="{% url 'app_evento:pwa_home' %}" class="w-100" style="max-width: 400px;">
-    {% csrf_token %}
-
-    <div class="mb-4">
-      <input type="text" name="codigo_evento" class="form-control form-control-lg text-center fw-bold"
-        placeholder="CÓDIGO DO EVENTO" required autocapitalize="characters" autocomplete="off"
-        oninput="this.value = this.value.toUpperCase()"
-        style="font-size: 1.5rem; letter-spacing: 2px; height: 65px; border: 2px solid #ced4da; border-radius: 12px; text-transform: uppercase;">
-    </div>
-
-    <button type="submit" class="btn btn-lg w-100 py-3 fw-bold text-white shadow-sm"
-      style="background-color: #1b5e3a; border-radius: 12px; font-size: 1.1rem;">
-      <i class="bi bi-search me-2"></i> Buscar Evento
-    </button>
-  </form>
 
 </div>
 
