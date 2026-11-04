@@ -5,7 +5,7 @@
 /* ==========================================================================
    1. Variáveis Globais do Módulo
    ========================================================================== */
-   .pagina-minhas-inscricoes {
+.pagina-minhas-inscricoes {
     --inscricoes-verde: #1b5e3a;
     --inscricoes-verde-hover: #154a2d;
     --inscricoes-verde-claro: #8cc63f;
@@ -62,6 +62,36 @@
     color: var(--inscricoes-texto-secundario);
     font-size: .98rem;
     line-height: 1.7;
+}
+
+/* Botão Explorar Novos Eventos no Cabeçalho */
+.pagina-minhas-inscricoes .inscricoes-cabecalho .btn,
+.pagina-minhas-inscricoes .inscricoes-explorar-btn,
+.pagina-minhas-inscricoes .btn-outline-success {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+    border: 1px solid var(--inscricoes-verde-claro);
+    border-radius: .75rem;
+    padding: .8rem 1.1rem;
+    background: var(--inscricoes-verde-claro);
+    color: var(--inscricoes-verde);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(24, 55, 36, .08);
+    transition: background-color .2s ease, border-color .2s ease,
+                transform .2s ease, box-shadow .2s ease;
+}
+
+.pagina-minhas-inscricoes .inscricoes-cabecalho .btn:hover,
+.pagina-minhas-inscricoes .inscricoes-explorar-btn:hover,
+.pagina-minhas-inscricoes .btn-outline-success:hover {
+    border-color: var(--inscricoes-verde-claro);
+    background: var(--inscricoes-verde-claro);
+    color: #fff;
+    transform: translateY(-1px);
 }
 
 /* Cards de Estatísticas/Resumo */
@@ -391,6 +421,10 @@
 
 /* Botões do Módulo */
 .pagina-minhas-inscricoes .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
     border-radius: .65rem;
     font-weight: 700;
     transition: background-color .2s ease, border-color .2s ease,
@@ -406,6 +440,67 @@
 .pagina-minhas-inscricoes .btn-success:hover {
     border-color: var(--inscricoes-verde-hover);
     background: var(--inscricoes-verde-hover);
+}
+
+/* Botão Detalhes Alinhado & Padronizado */
+.pagina-minhas-inscricoes .btn-detalhes,
+.pagina-minhas-inscricoes .detalhes-btn,
+.pagina-minhas-inscricoes .btn-outline-secondary,
+.pagina-minhas-inscricoes .btn-outline-primary {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: .45rem !important;
+    background: var(--inscricoes-verde);
+    border-color: var(--inscricoes-verde);
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+.pagina-minhas-inscricoes .btn-detalhes:hover,
+.pagina-minhas-inscricoes .detalhes-btn:hover,
+.pagina-minhas-inscricoes .btn-outline-secondary:hover,
+.pagina-minhas-inscricoes .btn-outline-primary:hover {
+    background: var(--inscricoes-verde-hover);
+    border-color: var(--inscricoes-verde-hover);
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+/* Botão Vermelho / Cancelar / Excluir (Sólido) */
+.pagina-minhas-inscricoes .btn-danger,
+.pagina-minhas-inscricoes .btn-outline-danger,
+.pagina-minhas-inscricoes .btn-cancelar,
+.pagina-minhas-inscricoes .btn-excluir {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: .45rem !important;
+    border: 1.5px solid #e03131 !important;
+    background: #e03131 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+.pagina-minhas-inscricoes .btn-danger:hover,
+.pagina-minhas-inscricoes .btn-outline-danger:hover,
+.pagina-minhas-inscricoes .btn-cancelar:hover,
+.pagina-minhas-inscricoes .btn-excluir:hover {
+    border-color: #c92a2a !important;
+    background: #c92a2a !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+.pagina-minhas-inscricoes .btn-danger i,
+.pagina-minhas-inscricoes .btn-danger svg,
+.pagina-minhas-inscricoes .btn-outline-danger i,
+.pagina-minhas-inscricoes .btn-outline-danger svg,
+.pagina-minhas-inscricoes .btn-cancelar i,
+.pagina-minhas-inscricoes .btn-cancelar svg,
+.pagina-minhas-inscricoes .btn-excluir i,
+.pagina-minhas-inscricoes .btn-excluir svg {
+    color: #ffffff !important;
 }
 
 .pagina-minhas-inscricoes .btn:focus-visible,

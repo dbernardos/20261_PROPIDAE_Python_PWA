@@ -1,4 +1,3 @@
-
 /* ==========================================================================
    CATÁLOGO DE EVENTOS — SEA
    Estilos isolados para não afetar outras telas do sistema.
@@ -189,26 +188,56 @@
     min-height: 2.8rem;
     align-items: center;
     justify-content: center;
+    gap: .45rem;
     border-radius: .65rem;
-    padding: .7rem 1rem;
+    padding: .7rem 1.1rem;
     font-size: .86rem;
     font-weight: 700;
+    transition: all .2s ease;
 }
 
+/* Botão Limpar Filtros Destacado (Sobrescreve o Bootstrap btn-outline-secondary) */
+.pagina-eventos .eventos-btn-limpar,
+.pagina-eventos .eventos-acoes-filtros .eventos-btn-limpar,
+.pagina-eventos a.eventos-btn-limpar,
+.pagina-eventos .btn-outline-secondary.eventos-btn-limpar {
+    background-color: #ffffff !important;
+    border: 2px solid var(--eventos-verde) !important;
+    color: var(--eventos-verde) !important;
+    font-weight: 800 !important;
+    box-shadow: 0 2px 6px rgba(27, 94, 58, 0.1) !important;
+    text-decoration: none !important;
+}
+
+.pagina-eventos .eventos-btn-limpar:hover,
+.pagina-eventos .eventos-acoes-filtros .eventos-btn-limpar:hover,
+.pagina-eventos a.eventos-btn-limpar:hover,
+.pagina-eventos .btn-outline-secondary.eventos-btn-limpar:hover {
+    background-color: var(--eventos-verde-suave) !important;
+    border-color: var(--eventos-verde-hover) !important;
+    color: var(--eventos-verde-hover) !important;
+    transform: translateY(-1px);
+}
+
+.pagina-eventos .eventos-btn-limpar i,
+.pagina-eventos .eventos-btn-limpar svg {
+    color: var(--eventos-verde) !important;
+}
+
+/* Botão Buscar Eventos */
 .pagina-eventos .eventos-btn-buscar,
 .pagina-eventos .eventos-detalhes-btn {
     background: var(--eventos-verde);
-    border-color: var(--eventos-verde);
+    border: 1.5px solid var(--eventos-verde);
+    color: #ffffff;
 }
 
 .pagina-eventos .eventos-btn-buscar:hover,
 .pagina-eventos .eventos-detalhes-btn:hover {
     background: var(--eventos-verde-hover);
     border-color: var(--eventos-verde-hover);
-}
-
-.pagina-eventos .eventos-btn-limpar:hover {
-    background-color: #f2f5f3;
+    color: #ffffff;
+    transform: translateY(-1px);
 }
 
 .pagina-eventos .eventos-ajuda-filtro {

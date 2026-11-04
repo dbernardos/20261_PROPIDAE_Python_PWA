@@ -70,11 +70,11 @@
     align-items: center;
     justify-content: center;
     align-self: flex-start;
-    border: 1px solid var(--meus-verde);
+    border: 1px solid var(--meus-verde-claro);
     border-radius: .75rem;
     padding: .8rem 1.1rem;
-    background: var(--meus-verde);
-    color: #fff;
+    background: var(--meus-verde-claro);
+    color: var(--meus-verde);
     font-weight: 700;
     text-decoration: none;
     white-space: nowrap;
@@ -84,8 +84,8 @@
 }
 
 .pagina-meus-eventos .meus-eventos-criar-btn:hover {
-    border-color: var(--meus-verde-hover);
-    background: var(--meus-verde-hover);
+    border-color: var(--meus-verde-claro);
+    background: var(--meus-verde-claro);
     color: #fff;
     transform: translateY(-1px);
 }
