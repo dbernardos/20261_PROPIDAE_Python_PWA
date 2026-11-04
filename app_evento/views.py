@@ -41,7 +41,7 @@ def home_root(request):
 
     #if is_mobile:
     if request.user_agent.is_mobile or request.user_agent.is_tablet:        
-        return redirect('app_evento:pwa_home')
+        return redirect('app_evento:urlpwa_home')
     if request.user.is_authenticated:
         return redirect('app_evento:urldis_evento')
     
@@ -57,7 +57,7 @@ def pwa_home(request):
         try:
             evento = Evento.objects.get(codigo_evento=codigo)
            
-            return redirect('app_evento:pwa_atividades_evento', evento_id=evento.id)
+            return redirect('app_evento:urlpwa_atividades_evento', evento_id=evento.id)
         except Evento.DoesNotExist:
             messages.error(request, "Evento não encontrado. Verifique o código.")
             
