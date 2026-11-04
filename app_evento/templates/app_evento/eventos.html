@@ -4,7 +4,7 @@
 {% block title %}Catálogo de Eventos | SEA{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/eventos.css' %}">
+<link rel="stylesheet" href="{% static 'css/eventos.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
@@ -36,9 +36,7 @@
             {% endif %}
         </header>
 
-        <section class="eventos-filtros card border-0"
-                 aria-labelledby="titulo-filtros">
-
+        <section class="eventos-filtros card border-0" aria-labelledby="titulo-filtros">
             <div class="card-body">
                 <div class="eventos-filtros-cabecalho">
                     <div class="eventos-filtros-icone" aria-hidden="true">
@@ -186,8 +184,7 @@
                             </div>
 
                             <p class="eventos-ajuda-filtro small text-muted mt-2 mb-0">
-                                Serão exibidos eventos que ocorram, total ou parcialmente,
-                                dentro do intervalo.
+                                Serão exibidos eventos que ocorram, total ou parcialmente, dentro do intervalo.
                             </p>
                         </div>
 
@@ -198,8 +195,7 @@
                                     Limpar filtros
                                 </a>
 
-                                <button type="submit"
-                                        class="btn btn-success eventos-btn-buscar">
+                                <button type="submit" class="btn btn-success eventos-btn-buscar">
                                     <i class="bi bi-search me-2" aria-hidden="true"></i>
                                     Buscar eventos
                                 </button>
@@ -245,8 +241,7 @@
                                         <div class="eventos-banner-vazio"
                                              role="img"
                                              aria-label="Este evento não possui banner">
-                                            <i class="bi bi-calendar2-event"
-                                               aria-hidden="true"></i>
+                                            <i class="bi bi-calendar2-event" aria-hidden="true"></i>
                                             <span>Banner não disponível</span>
                                         </div>
                                     {% endif %}
@@ -277,17 +272,14 @@
                                             </p>
                                         {% else %}
                                             <p class="eventos-descricao eventos-descricao-vazia">
-                                                Mais informações sobre este evento estão disponíveis
-                                                na página de detalhes.
+                                                Mais informações sobre este evento estão disponíveis na página de detalhes.
                                             </p>
                                         {% endif %}
 
                                         <div class="eventos-metadados">
 
                                             <div class="eventos-metadado">
-                                                <i class="bi bi-calendar-event"
-                                                   aria-hidden="true"></i>
-
+                                                <i class="bi bi-calendar-event" aria-hidden="true"></i>
                                                 <div>
                                                     <span>Data de início</span>
                                                     <strong>{{ item.dataInicio|date:'d/m/Y' }}</strong>
@@ -295,9 +287,7 @@
                                             </div>
 
                                             <div class="eventos-metadado">
-                                                <i class="bi bi-calendar-check"
-                                                   aria-hidden="true"></i>
-
+                                                <i class="bi bi-calendar-check" aria-hidden="true"></i>
                                                 <div>
                                                     <span>Data de término</span>
                                                     <strong>{{ item.dataFim|date:'d/m/Y' }}</strong>
@@ -305,9 +295,7 @@
                                             </div>
 
                                             <div class="eventos-metadado eventos-metadado-local">
-                                                <i class="bi bi-geo-alt"
-                                                   aria-hidden="true"></i>
-
+                                                <i class="bi bi-geo-alt" aria-hidden="true"></i>
                                                 <div>
                                                     <span>Local</span>
                                                     <strong>{{ item.local|default:"A definir" }}</strong>
@@ -320,8 +308,7 @@
                                             <a href="{% url 'app_evento:urldet_evento' item.id %}"
                                                class="btn btn-success eventos-detalhes-btn">
                                                 Ver detalhes
-                                                <i class="bi bi-arrow-right ms-2"
-                                                   aria-hidden="true"></i>
+                                                <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i>
                                             </a>
                                         </div>
 
@@ -343,14 +330,11 @@
                             <h3>Nenhum evento encontrado</h3>
 
                             <p>
-                                Não encontramos eventos com os filtros selecionados.
-                                Experimente alterar a pesquisa ou limpar os filtros.
+                                Não encontramos eventos com os filtros selecionados. Experimente alterar a pesquisa ou limpar os filtros.
                             </p>
 
-                            <a href="{% url 'app_evento:urldis_evento' %}"
-                               class="btn btn-outline-success">
-                                <i class="bi bi-arrow-counterclockwise me-2"
-                                   aria-hidden="true"></i>
+                            <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-outline-success">
+                                <i class="bi bi-arrow-counterclockwise me-2" aria-hidden="true"></i>
                                 Limpar filtros
                             </a>
 
@@ -366,8 +350,9 @@
 {% endblock %}
 
 {% block scripts %}
+{% block extra_js %}
 <script>
-(function () {
+document.addEventListener('DOMContentLoaded', function () {
     const periodo = document.getElementById('periodo');
     const containerDatas = document.getElementById('containerDatasCustom');
     const dataInicio = document.getElementById('data_inicio');
@@ -391,17 +376,14 @@
     }
 
     function validarIntervaloDatas() {
-        if (!dataInicio || !dataFim) {
+        if (!dataInicio || !dataFim || !periodo || periodo.value !== 'custom') {
             return true;
         }
 
         dataFim.setCustomValidity('');
 
-        if (dataInicio.value && dataFim.value &&
-            dataInicio.value > dataFim.value) {
-            dataFim.setCustomValidity(
-                'A data final deve ser igual ou posterior à data inicial.'
-            );
+        if (dataInicio.value && dataFim.value && dataInicio.value > dataFim.value) {
+            dataFim.setCustomValidity('A data final deve ser igual ou posterior à data inicial.');
             dataFim.reportValidity();
             return false;
         }
@@ -410,7 +392,12 @@
     }
 
     if (periodo) {
-        periodo.addEventListener('change', atualizarDatasPersonalizadas);
+        periodo.addEventListener('change', function () {
+            atualizarDatasPersonalizadas();
+            if (periodo.value === 'custom') {
+                validarIntervaloDatas();
+            }
+        });
         atualizarDatasPersonalizadas();
     }
 
@@ -430,10 +417,18 @@
         formulario.addEventListener('submit', function (evento) {
             if (!validarIntervaloDatas()) {
                 evento.preventDefault();
+                evento.stopPropagation();
+                return false;
+            }
+
+            const btnBuscar = formulario.querySelector('.eventos-btn-buscar');
+            if (btnBuscar) {
+                btnBuscar.disabled = true;
+                btnBuscar.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Buscando...';
             }
         });
     }
-})();
+});
 </script>
 {% endblock %}
-```
+{% endblock %}

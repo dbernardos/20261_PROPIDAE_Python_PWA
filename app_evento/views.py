@@ -1,6 +1,6 @@
 import json
 import random
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
@@ -25,7 +25,6 @@ from .models import (
 )
 from app_login.models import Usuario
 from .form import EventoForm, AtividadeForm
-
 
 
 # ==========================================================
@@ -56,6 +55,7 @@ def pwa_home(request):
             messages.error(request, "Evento não encontrado. Verifique o código.")
             
     return render(request, 'app_evento/pwa_home.html')
+
 
 def pwa_atividades_evento(request, evento_id):
     """Lista as atividades do evento no PWA, bloqueando as fora do horário."""
@@ -98,10 +98,21 @@ def pwa_atividades_evento(request, evento_id):
     
     return render(request, 'app_evento/pwa_atividades.html', context)
 
+
+def parse_data_segura(data_str):
+    """Converte uma string YYYY-MM-DD em objeto date. Retorna None se for inválida."""
+    if not data_str:
+        return None
+    try:
+        return datetime.strptime(data_str, '%Y-%m-%d').date()
+    except (ValueError, TypeError):
+        return None
+
+
 def filtrar_eventos_por_parametros(eventos, request):
     """
     Aplica os filtros de busca, tipo, período e encerramento
-    a um queryset de eventos.
+    a um queryset de eventos de forma segura.
     """
 
     hoje = timezone.localdate()
@@ -181,16 +192,19 @@ def filtrar_eventos_por_parametros(eventos, request):
         )
 
     elif query_periodo == 'custom':
-        # O evento precisa coincidir com o intervalo informado.
-        if query_data_inicio:
-            eventos = eventos.filter(
-                dataFim__gte=query_data_inicio
-            )
+        # Conversão segura para evitar Erro 500 com textos inválidos na URL
+        dt_inicio = parse_data_segura(query_data_inicio)
+        dt_fim = parse_data_segura(query_data_fim)
 
-        if query_data_fim:
-            eventos = eventos.filter(
-                dataInicio__lte=query_data_fim
-            )
+        # Alerta se o utilizador selecionar a data inicial maior que a final
+        if dt_inicio and dt_fim and dt_inicio > dt_fim:
+            messages.warning(request, "A data inicial não pode ser posterior à data final.")
+            eventos = eventos.none()
+        else:
+            if dt_inicio:
+                eventos = eventos.filter(dataFim__gte=dt_inicio)
+            if dt_fim:
+                eventos = eventos.filter(dataInicio__lte=dt_fim)
 
     return eventos, {
         'busca_atual': query_busca,
