@@ -12,6 +12,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.middleware.csrf import rotate_token
 from django.db.models import Q
+from django.views.decorators.http import require_POST
 import re
 
 from .models import (
@@ -658,7 +659,9 @@ def excluir_atividade(request, atividade_id):
 
 @never_cache
 @login_required
+@require_POST
 def alternar_participacao_atividade(request, atividade_id):
+    # ... resto do código ...
     """Inscreve ou cancela a inscrição do usuário em uma atividade."""
 
     atividade = get_object_or_404(
