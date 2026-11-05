@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-  Início - XXIX Colóquio de Usinagem
+  Validação de Presença - XXIX Colóquio de Usinagem
 {% endblock %}
 
 {% block pre_script %}
@@ -10,152 +10,54 @@
 {% endblock %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/qrcode.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/leitor_qrcode.css' %}" />
 {% endblock %}
 
 {% block content %}
-  <div>
-    <nav class="navbar">
-      <div>
-        <!-- <h1>Evento IFSC</h1> -->
-      </div>
-    </nav>
-  </div>
-  <div>
-    <main class="principal">
-      <div>
-        <div id="reader"></div>
-        <div id="resultado" style="margin: 0; padding: 0; min-height: 0;"></div>
-      </div>
+<main class="pwa-screen-container">
+  <div class="qr-content-wrapper">
+    
+    <div class="text-center cabecalho-pwa">
+      <h2>Validação de Presença</h2>
+      <p>Aponte a câmera para o QR Code ou digite o código</p>
+    </div>
 
-      <div>
-        <form id="formManual" style="margin-bottom: 20px; text-align: center;">
-          {% csrf_token %}
-          <input type="text" id="codigoManual" placeholder="Digite o código se necessário" style="padding: 8px; width: 290px;" required />
-          <input type="submit" value="Validar Código" style="padding: 8px 15px; cursor: pointer;" />
-        </form>
-      </div>
-    </main>
+    <!-- Área da Câmera -->
+    <div class="qr-reader-container shadow-sm">
+      <div id="reader"></div>
+    </div>
+
+    <!-- Área de Alertas -->
+    <div id="resultado" class="resultado-box"></div>
+
+    <!-- Formulário de Código Manual -->
+    <form id="formManual" class="form-manual" autocomplete="off">
+      {% csrf_token %}
+      <input type="text" 
+             id="codigoManual" 
+             class="custom-pwa-input shadow-sm" 
+             placeholder="DIGITE O CÓDIGO" 
+             required 
+             autocapitalize="characters"
+             oninput="this.value = this.value.toUpperCase()" />
+      
+      <button type="submit" class="btn-pwa-primary shadow-sm">
+        Validar Código
+      </button>
+    </form>
+
   </div>
-  <div>
-    <footer class="rodape">
-      <div></div>
-    </footer>
-  </div>
+</main>
 {% endblock %}
 
 {% block extra_js %}
-<script>
-  const resultadoDiv = document.getElementById('resultado');
-  let processando = false;
-  let html5QrCode = null;
-  let cameraAtiva = false;
-  
+  <script>
 
-  const atividadeIdAtual = "{{ atividade.id|default:'' }}"; 
-  const codigoLeitorAtual = "{{ atividade.codigo_leitor|default:'' }}";
-
-  const idAtividadeParaEnvio = atividadeIdAtual || codigoLeitorAtual
-  console.log("ID da Atividade Carregada:", atividadeIdAtual);
-  console.log("Código do Leitor Carregado:", codigoLeitorAtual);
-
-  document.getElementById('formManual').addEventListener('submit', function (event) {
-    event.preventDefault();
-    const codigoManual = document.getElementById('codigoManual').value.trim();
-    if (codigoManual) validarNoServidor(codigoManual);
-  });
-  
-  async function validarNoServidor(codigoLido) {
-    if (processando) return;
-    processando = true;
-  
-    // Aviso de Erro: Falha na renderização do Template
-    if (!idAtividadeParaEnvio || idAtividadeParaEnvio === "None") {
-        exibirErro('🚨 Erro do Sistema', 'A página não carregou os dados da atividade. Atualize a página.');
-        return;
-    }
-
-    resultadoDiv.innerHTML = '<span class="text-warning">⏳ Validando...</span>';
-    resultadoDiv.className = 'processando';
-
-    try {
-      const response = await fetch("{% url 'app_quiz:urlidentificar' %}", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({ 
-            codigo: codigoLido, 
-            atividade_id: idAtividadeParaEnvio 
-        })
-      });
-  
-      // Aviso de Erro 2: Erro 500 do Django (Servidor quebrou)
-      if (!response.ok) {
-          throw new Error(`HTTP Error ${response.status}`);
-      }
-
-      const dados = await response.json();
-  
-      if (dados.autorizado) {
-        
-        resultadoDiv.innerHTML = `<span class="text-success">✅ ${dados.mensagem} Redirecionando...</span>`;
-        pararCameraSeAtiva();
-        window.location.href = dados.redirect_url;
-      } else {
-        // Aviso de Erro 3: Erros de Regra de Negócio (ex: Sem inscrição, QR Code inválido)
-        // O JS simplesmente mostra o que a view "identificar_funcionario" enviou em dados.mensagem
-        exibirErro('⛔ Acesso Negado', dados.mensagem);
-      }
-      
-    } catch (err) {
-      // Aviso de Erro 4: Falha de conexão com a Internet ou queda do servidor
-      console.error('Erro na requisição:', err);
-      exibirErro('📡 Sem Conexão', 'Não foi possível conectar ao servidor. Verifique a internet e tente novamente.');
-    }
-  }
-  
-  // Função auxiliar para padronizar a exibição dos erros na tela e liberar a câmera
-  function exibirErro(titulo, mensagem) {
-    resultadoDiv.innerHTML = `<strong>${titulo}</strong><br><small>${mensagem}</small>`;
-    resultadoDiv.className = 'negado alert alert-danger mt-3'; // Ajuste as classes CSS conforme seu layout
-  
-    setTimeout(() => {
-      resultadoDiv.textContent = '';
-      resultadoDiv.className = '';
-      processando = false; // Libera o leitor para o próximo crachá
-    }, 4000);
-  }
-
-  function pararCameraSeAtiva() {
-    if (html5QrCode && cameraAtiva) {
-      html5QrCode.stop().then(() => cameraAtiva = false).catch(console.error);
-    }
-  }
-  
-  function onScanSuccess(decodedText) {
-    if (!processando) validarNoServidor(decodedText);
-  }
-  
-  try {
-    const readerElem = document.getElementById('reader');
-    if (typeof Html5Qrcode !== 'undefined' && readerElem) {
-      html5QrCode = new Html5Qrcode('reader');
-      html5QrCode
-        .start(
-          { facingMode: 'environment' },
-          { fps: 10, qrbox: { width: 250, height: 250 } },
-          onScanSuccess
-        )
-        .then(() => cameraAtiva = true)
-        .catch((err) => {
-          console.error(err);
-          exibirErro('Erro na Câmera', 'Permissão negada ou câmera indisponível.');
-        });
-    }
-  } catch (err) {
-    exibirErro('Erro Crítico', 'Falha ao carregar o leitor de QR Code.');
-  }
-</script>
+    window.ConfigAtividade = {
+      idAtividadeParaEnvio: "{{ atividade.id|default:'' }}" || "{{ atividade.codigo_leitor|default:'' }}",
+      urlIdentificar: "{% url 'app_quiz:urlidentificar' %}",
+      csrfToken: "{{ csrf_token }}"
+    };
+  </script>
+  <script src="{% static 'js/leitor_qrcode.js' %}"></script>
 {% endblock %}

@@ -7,53 +7,49 @@
 {% endblock %}
 
 {% block content %}
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
-<div class="pwa-screen-container d-flex flex-column justify-content-between align-items-center px-4">
+<main class="pwa-screen-container">
   
-  <!-- Identificador da Aplicação PWA -->
-  <div class="text-center pt-3">
-    <span class="badge rounded-pill px-3 py-2 fw-semibold text-uppercase" style="background-color: #e8f5e9; color: #1b5e3a; letter-spacing: 1px; font-size: 0.75rem;">
-      SEA Eventos PWA
-    </span>
-  </div>
-
-  <!-- Cartão Central de Busca -->
-  <div class="w-100 my-auto py-3" style="max-width: 400px;">
+  <div class="pwa-card-wrapper">
     
-    <!-- Ícone e Título -->
-    <div class="text-center mb-4">
-      <div class="icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center shadow-sm"
-           style="width: 84px; height: 84px; background-color: #e8f5e9; border-radius: 50%;">
-        <i class="bi bi-qr-code-scan" style="font-size: 2.5rem; color: #1b5e3a;"></i>
+    <!-- Cabeçalho -->
+    <div class="text-center">
+      <div class="icon-circle-pwa shadow-sm">
+        <i class="bi bi-qr-code-scan" style="font-size: 2.1rem; color: #1b5e3a;"></i>
       </div>
-      <h1 class="h3 fw-bold mb-2" style="color: #1b5e3a;">Acessar Evento</h1>
-      <p class="text-muted small px-2 mb-0" style="font-size: 0.95rem; line-height: 1.4;">
-        Digite o código do evento para acessar a programação e registrar sua presença nas atividades.
+      <h1 class="h4 fw-bold mb-1" style="color: #1b5e3a;">Acessar Evento</h1>
+      <p class="text-muted small px-1 mb-0" style="font-size: 0.88rem; line-height: 1.3;">
+        Digite o código do evento para acessar a programação e registrar sua presença.
       </p>
     </div>
 
-    <!-- Mensagens de Alerta (Erro / Validação) -->
+    >
     {% if messages %}
-    <div class="mb-3">
+    <div>
       {% for message in messages %}
-      <div class="alert alert-danger alert-dismissible fade show text-center border-0 shadow-sm rounded-4 small py-3" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ message }}
-        <button type="button" class="btn-close small" data-bs-dismiss="alert" aria-label="Fechar"></button>
+      <div class="alert alert-danger fade show text-center border-0 shadow-sm rounded-3 small py-2 px-4 position-relative mb-0" role="alert">
+      
+        <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ message }}
+        
+       
+        <button type="button" 
+                class="btn-close position-absolute top-50 end-0 translate-middle-y me-2" 
+                data-bs-dismiss="alert" 
+                aria-label="Fechar"
+                style="font-size: 0.65rem;"></button>
       </div>
       {% endfor %}
     </div>
     {% endif %}
 
-    <!-- Formulário de Código -->
-    <form method="POST" action="{% url 'app_evento:urlpwa_home' %}" autocomplete="off">
+    <!-- Form com busca -->
+    <form method="POST" action="{% url 'app_evento:urlpwa_home' %}" autocomplete="off" class="d-flex flex-column gap-2">
       {% csrf_token %}
 
-      <div class="mb-3">
+      <div>
         <input type="text" 
                id="codigo_evento"
                name="codigo_evento" 
-               class="form-control form-control-lg text-center fw-bold custom-pwa-input shadow-sm"
+               class="form-control custom-pwa-input shadow-sm"
                placeholder="CÓDIGO DO EVENTO" 
                required 
                autocapitalize="characters" 
@@ -63,20 +59,33 @@
                maxlength="20">
       </div>
 
-      <button type="submit" class="btn btn-pwa-primary w-100 py-3 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2">
+      <button type="submit" class="btn-pwa-primary shadow-sm gap-2">
         <i class="bi bi-search fs-5"></i>
         <span>Buscar Evento</span>
       </button>
     </form>
   </div>
 
-  <!-- Rodapé Informativo -->
-  <div class="text-center pb-3">
-    <small class="text-muted" style="font-size: 0.75rem;">
-      <i class="bi bi-info-circle me-1"></i> Insira o código disponibilizado pela organização.
-    </small>
-  </div>
 
-</div>
 
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function (alert) {
+      setTimeout(function () {
+        alert.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        alert.style.opacity = '0';
+        alert.style.transform = 'translateY(-6px)';
+        
+        setTimeout(function () {
+          alert.remove();
+        }, 400); // Remove do DOM após a animação
+      }, 4000); // Mantém visível por 4 segundos
+    });
+  });
+</script>
 {% endblock %}

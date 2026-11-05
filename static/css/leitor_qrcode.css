@@ -1,0 +1,147 @@
+/* Container Mobile: Cravado na altura exata da tela visível (Sem rolagem) */
+.pwa-screen-container {
+  height: 100vh;
+  height: 100dvh;
+  width: 100%;
+  background-color: #f8f9fa;
+  padding: max(0.75rem, env(safe-area-inset-top)) 1rem max(0.75rem, env(safe-area-inset-bottom)) 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.qr-content-wrapper {
+  width: 100%;
+  max-width: 400px;
+  height: auto; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center; 
+  gap: clamp(0.35rem, 1.2vh, 0.65rem); 
+  padding: 0.25rem 0;
+  box-sizing: border-box;
+}
+
+.cabecalho-pwa {
+  text-align: center;
+}
+
+.cabecalho-pwa h2 {
+  color: #1b5e3a;
+  font-weight: 700;
+  font-size: clamp(1.2rem, 2.8vh, 1.5rem);
+  margin-bottom: 0.2rem;
+}
+
+.cabecalho-pwa p {
+  color: #6c757d;
+  font-size: clamp(0.8rem, 1.8vh, 0.9rem);
+  margin: 0;
+}
+
+/* Área do Vídeo da Câmera */
+.qr-reader-container {
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: #000000;
+  border: 2px solid #dee2e6;
+  width: 100%;
+  min-height: 220px;
+  max-height: 40vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#reader {
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+}
+
+#reader video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+/* Caixa de Resultados / Alertas */
+.resultado-box {
+  min-height: 32px;
+  text-align: center;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.9rem;
+}
+
+.form-manual {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.custom-pwa-input {
+  font-size: 1.2rem !important;
+  letter-spacing: 2px;
+  height: 50px;
+  border: 2px solid #dee2e6;
+  border-radius: 14px !important;
+  background-color: #ffffff;
+  color: #1b5e3a;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.custom-pwa-input:focus {
+  border-color: #1b5e3a !important;
+  box-shadow: 0 0 0 0.25rem rgba(27, 94, 58, 0.18) !important;
+  outline: none;
+}
+
+.btn-pwa-primary {
+  background-color: #1b5e3a;
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  font-weight: bold;
+  font-size: 1.05rem;
+  height: 50px;
+  width: 100%;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.2s ease;
+}
+
+.btn-pwa-primary:active {
+  transform: scale(0.98);
+  background-color: #14472c !important;
+}
+
+header, footer, .navbar {
+  display: none !important;
+}
+
+/* ==========================================================================
+   Ajustes para Computador / Desktop (Telas >= 768px)
+   ========================================================================== */
+@media (min-width: 768px) {
+  .qr-content-wrapper {
+    max-width: 480px;
+    height: auto;
+    gap: 1.25rem;
+  }
+
+  .cabecalho-pwa h2 { font-size: 1.8rem; }
+  .cabecalho-pwa p { font-size: 0.95rem; }
+  .qr-reader-container { min-height: 290px; max-height: 330px; }
+  .custom-pwa-input { height: 58px; font-size: 1.3rem !important; }
+  .btn-pwa-primary { height: 58px; font-size: 1.1rem; }
+}
