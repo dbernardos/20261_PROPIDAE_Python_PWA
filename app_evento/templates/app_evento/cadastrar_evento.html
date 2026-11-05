@@ -23,17 +23,17 @@
             {% csrf_token %}
 
             <div class="row g-3">
-              <!-- Nome do Evento (Largura Total) -->
+              <!-- Nome do Evento -->
               <div class="col-12">
                 {% bootstrap_field form_evento.nome %}
               </div>
 
-              <!-- Descrição (Largura Total) -->
+              <!-- Descrição -->
               <div class="col-12">
                 {% bootstrap_field form_evento.descricao %}
               </div>
 
-              <!-- E-mail e Local lado a lado -->
+              <!-- E-mail e Local-->
               <div class="col-md-6">
                 {% bootstrap_field form_evento.emailContato %}
               </div>
@@ -41,7 +41,7 @@
                 {% bootstrap_field form_evento.local %}
               </div>
 
-              <!-- Datas lado a lado -->
+              <!-- Datas -->
               <div class="col-md-6">
                 {% bootstrap_field form_evento.dataInicio %}
               </div>
@@ -49,7 +49,7 @@
                 {% bootstrap_field form_evento.dataFim %}
               </div>
 
-              <!-- Tipo de Evento e Checkbox Público lado a lado -->
+              <!-- Tipo de Evento e Checkbox Público -->
               <div class="col-md-6">
                 {% bootstrap_field form_evento.tipoEvento %}
               </div>
@@ -57,7 +57,7 @@
                 {% bootstrap_field form_evento.eventoPublico %}
               </div>
 
-              <!-- Banner do Evento (Largura Total) -->
+              <!-- Banner do Evento -->
               <div class="col-12">
                 {% bootstrap_field form_evento.imagemBanner %}
               </div>

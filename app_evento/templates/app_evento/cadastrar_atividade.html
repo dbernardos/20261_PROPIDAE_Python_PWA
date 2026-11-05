@@ -11,7 +11,6 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-lg-8">
-          <!-- Título Dinâmico -->
           <h2 class="fw-bold text-verde-escuro mb-4 d-flex align-items-center">
             {% if editando %}
               <i class="bi bi-pencil-square me-2 text-verde-claro"></i>Editar Atividade: {{ atividade.nome }}
@@ -20,17 +19,17 @@
             {% endif %}
           </h2>
 
-          <!-- Cartão do Formulário -->
+          <!-- Formulário -->
           <form method="POST" class="card p-4 shadow-sm bg-white border-0">
             {% csrf_token %}
 
             <div class="row g-3">
-              <!-- Nome da Atividade (Largura Total) -->
+              <!-- Nome da Atividade-->
               <div class="col-12">
                 {% bootstrap_field form_atividade.nome %}
               </div>
 
-              <!-- Descrição (Largura Total) -->
+              <!-- Descrição -->
               <div class="col-12">
                 {% bootstrap_field form_atividade.descricao %}
               </div>

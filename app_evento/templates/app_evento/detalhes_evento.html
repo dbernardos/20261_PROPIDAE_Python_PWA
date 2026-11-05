@@ -8,10 +8,10 @@
 
 {% block navbar_imagem %}
   {% if evento.imagemBanner %}
-    <!-- Imagem Dinâmica do Banco de Dados (Media) -->
+    <!-- Imagem Dinâmica do Banco de Dados -->
     <img src="{{ evento.imagemBanner.url }}" alt="Banner do {{ evento.nome }}" height="60" class="img-fluid" style="max-height: 60px; object-fit: contain;" />
   {% else %}
-    <!-- Fallback: Usa a estática se o evento não tiver imagem cadastrada -->
+    <!-- Fallback: Usa aimagem estática se o evento não tiver imagem cadastrada -->
     <img src="{% static 'images/images-default/Icontransparent.png' %}" alt="SEA EVENTS- SISTEMA DE EVENTOS ACADEMICOS" height="60" />
   {% endif %}
 {% endblock %}

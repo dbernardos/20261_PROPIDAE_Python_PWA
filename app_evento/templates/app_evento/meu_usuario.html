@@ -20,7 +20,7 @@
         {% endfor %}
       {% endif %}
 
-      <!-- CARTÃO DE EXIBIÇÃO DOS DADOS -->
+      <!-- Card do Perfil -->
       <div class="card card-custom mb-4">
         <div class="card-header card-header-custom py-3 text-center">
           <h4 class="mb-0">Meu Perfil</h4>
@@ -96,7 +96,7 @@
             </div>
           </div>
 
-          <!-- BOTÃO PARA ABRIR EDIÇÃO -->
+          <!-- Botão de Edição -->
           <div class="text-end mt-4">
             <button class="btn btn-primary-custom px-4" type="button" data-bs-toggle="collapse" data-bs-target="#formEdicao" aria-expanded="false" aria-controls="formEdicao">
               Editar Perfil
@@ -106,7 +106,7 @@
         </div>
       </div>
 
-      <!-- ÁREA DO FORMULÁRIO DE EDIÇÃO-->
+      <!-- Formulário de Edição -->
       <div class="collapse {% if form.errors %}show{% endif %}" id="formEdicao">
         <div class="card card-custom border">
           <div class="card-header bg-verde-escuro text-white py-3">
