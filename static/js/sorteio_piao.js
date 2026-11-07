@@ -1,9 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // 1. Obter dados enviados pelo Django (no contexto global do HTML)
     let participantes = window.participantesData || [];
     let premiosOriginais = window.premiosData || [];
 
-    // Monta o pool expandido de prêmios de acordo com as quantidades cadastradas
     let poolPremios = [];
     premiosOriginais.forEach(p => {
         const qtd = parseInt(p.quantidade, 10) || 1;
@@ -12,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // 2. Mapeamento de Elementos do DOM
     const btnSorteio = document.getElementById('btnSorteio');
     const btnFullscreen = document.getElementById('btnFullscreen');
     const btnReiniciar = document.getElementById('btnReiniciar');
@@ -26,21 +23,33 @@ document.addEventListener('DOMContentLoaded', function () {
     const nomePremioAtualEl = document.getElementById('nomePremioAtual');
 
     let estaRodando = false;
-    let contadorSorteios = 0;
     let premioSorteadoAtual = null;
     let intervalEmbaralharPremio = null;
 
-    // Retorna a largura total dos cards ajustada para Tela Cheia (420px + 20px de margem)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
     function getItemTotalWidth() {
-    const isFS = document.fullscreenElement !== null;
-    return (isFS ? 700 : 280) + 20; // 700px de largura + 20px de margem em ecrã inteiro
-}
+        const isFS = document.fullscreenElement !== null;
+        return (isFS ? 700 : 280) + 20;
+    }
 
     if (totalParticipantesEl) {
         totalParticipantesEl.innerText = participantes.length;
     }
 
-    // 3. Efeitos Sonoros via Web Audio API
     let audioCtx;
     function getAudioContext() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -87,7 +96,6 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (e) {}
     }
 
-    // 4. Construção da Esteira de Participantes
     let listaEsteira = [];
     function construirEsteira() {
         if (!track) return;
@@ -124,17 +132,37 @@ document.addEventListener('DOMContentLoaded', function () {
         track.style.transform = `translateX(${targetX}px)`;
     }
 
-    // 5. Atualização Dinâmica do Painel Flutuante de Prêmios (Tela Cheia)
     function atualizarListasPremiosUI() {
         const contagem = {};
         poolPremios.forEach(nome => {
             contagem[nome] = (contagem[nome] || 0) + 1;
         });
 
+        const nomes = Object.keys(contagem);
+
+        // 1. Atualiza a lista da coluna da esquerda
+        const listaEsquerda = document.getElementById('listaPremiosEsquerda');
+        if (listaEsquerda) {
+            listaEsquerda.innerHTML = '';
+            if (nomes.length === 0) {
+                listaEsquerda.innerHTML = '<li class="list-group-item text-muted px-0 py-3 text-center">Todos os prêmios foram sorteados!</li>';
+            } else {
+                nomes.forEach(nome => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item d-flex justify-content-between align-items-center px-0';
+                    li.innerHTML = `
+                        🎁 ${nome}
+                        <span class="badge bg-success rounded-pill">${contagem[nome]} unidade(s)</span>
+                    `;
+                    listaEsquerda.appendChild(li);
+                });
+            }
+        }
+
+        // 2. Atualiza o painel de tela cheia
         const floatPanelList = document.querySelector('.fullscreen-prizes-panel ul');
         if (floatPanelList) {
             floatPanelList.innerHTML = '';
-            const nomes = Object.keys(contagem);
             if (nomes.length === 0) {
                 floatPanelList.innerHTML = '<li class="text-white-50 py-2">Todos os prêmios foram sorteados!</li>';
             } else {
@@ -151,28 +179,38 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // 6. Animação de Giro do Sorteio
+    function adicionarAoHistorico(ganhador, premio) {
+        if (msgVazio) msgVazio.style.display = 'none';
+        if (listaHistorico) {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.innerHTML = `
+                <span><strong>👤 ${ganhador}</strong></span>
+                <span class="badge bg-warning text-dark">🎁 ${premio}</span>
+            `;
+            listaHistorico.insertBefore(li, listaHistorico.firstChild);
+        }
+    }
+
     function rodarPiaoHorizontal() {
         if (estaRodando) return;
 
         if (participantes.length === 0) {
-            alert("Todos os participantes já foram sorteados!");
+            alert("Todos os participantes elegíveis já foram sorteados!");
+            return;
+        }
+
+        if (poolPremios.length === 0) {
+            alert("Todos os prêmios cadastrados já foram sorteados!");
             return;
         }
 
         estaRodando = true;
         if (btnSorteio) btnSorteio.disabled = true;
 
-        // Escolhe o prêmio do sorteio
-        let indexPremioSorteado = -1;
-        if (poolPremios.length > 0) {
-            indexPremioSorteado = Math.floor(Math.random() * poolPremios.length);
-            premioSorteadoAtual = poolPremios[indexPremioSorteado];
-        } else {
-            premioSorteadoAtual = "Brinde Surpresa";
-        }
+        const indexPremioSorteado = Math.floor(Math.random() * poolPremios.length);
+        premioSorteadoAtual = poolPremios[indexPremioSorteado];
 
-        // Animação visual de troca dos prêmios no título
         if (nomePremioAtualEl) {
             intervalEmbaralharPremio = setInterval(() => {
                 if (poolPremios.length > 0) {
@@ -191,151 +229,120 @@ document.addEventListener('DOMContentLoaded', function () {
         const ganhadorNome = participantes[ganhadorIndexOriginal];
 
         const itemTotalWidth = getItemTotalWidth();
-        const minIndiceParada = Math.min(40, listaEsteira.length - participantes.length);
-        let targetIndex = -1;
+        const minRepeticoes = 5;
+        const targetIndexInTrack = (participantes.length * minRepeticoes) + ganhadorIndexOriginal;
 
-        for (let i = minIndiceParada; i < listaEsteira.length; i++) {
-            if (listaEsteira[i] === ganhadorNome) {
-                targetIndex = i;
-                break;
-            }
-        }
-
-        if (targetIndex === -1) targetIndex = ganhadorIndexOriginal;
-
-        const wrapperWidth = wrapper.offsetWidth;
+        const wrapperWidth = wrapper ? wrapper.offsetWidth : 800;
         const centroWrapper = wrapperWidth / 2;
-        const targetPos = centroWrapper - ((targetIndex * itemTotalWidth) + (itemTotalWidth / 2));
+        const offsetTarget = (targetIndexInTrack * itemTotalWidth) + (itemTotalWidth / 2);
+        const finalX = centroWrapper - offsetTarget;
 
-        let currentX = centroWrapper - (itemTotalWidth / 2);
-        let duracaoTotal = 5500;
-        let startTime = null;
-        let ultimoItemIndexTick = -1;
+        track.style.transition = 'none';
+        track.style.transform = 'translateX(0px)';
+        track.offsetHeight;
 
-        function animar(timestamp) {
-            if (!startTime) startTime = timestamp;
-            let progresso = (timestamp - startTime) / duracaoTotal;
+        track.style.transition = 'transform 6s cubic-bezier(0.15, 0.90, 0.25, 1.00)';
+        track.style.transform = `translateX(${finalX}px)`;
 
-            if (progresso > 1) progresso = 1;
+        let tickInterval = setInterval(() => {
+            tocarTick();
+        }, 120);
 
-            let ease = 1 - Math.pow(1 - progresso, 3);
-            let posX = currentX + (targetPos - currentX) * ease;
+        setTimeout(() => {
+            clearInterval(tickInterval);
+        }, 4500);
 
-            track.style.transform = `translateX(${posX}px)`;
-
-            let itemAtualNoCentro = Math.floor((centroWrapper - posX) / itemTotalWidth);
-            if (itemAtualNoCentro !== ultimoItemIndexTick && itemAtualNoCentro >= 0) {
-                tocarTick();
-                ultimoItemIndexTick = itemAtualNoCentro;
-            }
-
-            if (progresso < 1) {
-                requestAnimationFrame(animar);
-            } else {
-                finalizarSorteio(ganhadorIndexOriginal, targetIndex, indexPremioSorteado);
-            }
-        }
-
-        requestAnimationFrame(animar);
-    }
-
-    // 7. Finalização e Apresentação do Vencedor
-    function finalizarSorteio(originalIndex, targetIndex, indexPremioSorteado) {
-        if (intervalEmbaralharPremio) {
+        setTimeout(() => {
             clearInterval(intervalEmbaralharPremio);
-        }
+            if (nomePremioAtualEl) {
+                nomePremioAtualEl.innerHTML = `🎁 <span class="text-warning fw-bold">${premioSorteadoAtual}</span>`;
+            }
 
-        if (nomePremioAtualEl) {
-            nomePremioAtualEl.innerHTML = `🎁 <span class="text-warning fw-bold fs-4">${premioSorteadoAtual}</span>`;
-        }
+            const itemElement = track.querySelector(`[data-index="${targetIndexInTrack}"]`);
+            if (itemElement) itemElement.classList.add('vencedor');
 
-        const ganhador = participantes[originalIndex];
+            if (statusText) {
+                statusText.innerText = `🎉 GANHADOR(A): ${ganhadorNome.toUpperCase()}!`;
+            }
 
-        const cardSorteado = track.children[targetIndex];
-        if (cardSorteado) cardSorteado.classList.add('vencedor');
+            tocarFanfarra();
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            }
 
-        // Atualiza a lista de elegíveis
-        participantes.splice(originalIndex, 1);
-        if (totalParticipantesEl) totalParticipantesEl.innerText = participantes.length;
-
-        // Atualiza os prêmios disponíveis
-        if (indexPremioSorteado >= 0 && poolPremios.length > 0) {
+            // 1. Remove da memória local do navegador
+            participantes.splice(ganhadorIndexOriginal, 1);
             poolPremios.splice(indexPremioSorteado, 1);
+
+            // 2. Atualiza os elementos da interface visual
+            if (totalParticipantesEl) {
+                totalParticipantesEl.innerText = participantes.length;
+            }
             atualizarListasPremiosUI();
-        }
+            adicionarAoHistorico(ganhadorNome, premioSorteadoAtual);
 
-        estaRodando = false;
-        if (btnSorteio) btnSorteio.disabled = false;
+            // 3. Envia baixa para o Banco de Dados (Django) via URL gerada pelo template
+            const pathSegs = window.location.pathname.split('/').filter(Boolean);
+            const atividadeId = window.atividadeId || pathSegs[pathSegs.length - 2] || pathSegs[pathSegs.length - 1];
+            const urlBaixa = window.urlBaixaSorteio || `/eventos/atividade/${atividadeId}/sorteio/baixa/`;
 
-        if (statusText) {
-            statusText.innerHTML = `GANHADOR(A): <strong class="text-white fs-2 d-block mt-1">${ganhador.toUpperCase()}</strong>`;
-        }
-        tocarFanfarra();
+            fetch(urlBaixa, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    ganhador_nome: ganhadorNome,
+                    premio_nome: premioSorteadoAtual
+                })
+            })
+            .then(res => {
+                if (!res.ok) console.error("Erro na resposta da baixa:", res.statusText);
+            })
+            .catch(err => console.error("Erro ao dar baixa no banco de dados:", err));
 
-        if (typeof confetti === 'function') {
-            confetti({ particleCount: 150, spread: 100, origin: { y: 0.5 } });
-        }
+            // 4. Reconstrói a esteira sem o ganhador após 2.5 segundos
+            setTimeout(() => {
+                construirEsteira();
+                estaRodando = false;
 
-        contadorSorteios++;
-        if (msgVazio) msgVazio.classList.add('d-none');
+                if (participantes.length === 0 || poolPremios.length === 0) {
+                    if (btnSorteio) btnSorteio.disabled = true;
+                    if (statusText) {
+                        statusText.innerText = poolPremios.length === 0 
+                            ? "🏆 TODOS OS PRÊMIOS FORAM SORTEADOS!" 
+                            : "⚠️ TODOS OS PARTICIPANTES FORAM SORTEADOS!";
+                    }
+                } else {
+                    if (btnSorteio) btnSorteio.disabled = false;
+                    if (statusText) statusText.innerText = "PRONTO PARA O PRÓXIMO SORTEIO!";
+                }
+            }, 2500);
 
-        if (listaHistorico) {
-            const itemLista = document.createElement('li');
-            itemLista.className = 'list-group-item d-flex justify-content-between align-items-center py-3';
-            itemLista.innerHTML = `
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-trophy-fill text-warning fs-3 me-3"></i>
-                    <div>
-                        <strong class="text-dark d-block fs-5">${ganhador}</strong>
-                        <small class="text-muted">Prêmio Ganho: <strong class="text-success">${premioSorteadoAtual}</strong></small>
-                    </div>
-                </div>
-                <span class="badge bg-success border px-3 py-2">${contadorSorteios}º Sorteio</span>
-            `;
-            listaHistorico.prepend(itemLista);
-        }
+        }, 6000);
     }
 
-    // 8. Ativação da Tela Cheia Exclusiva no #piaoCard
+    construirEsteira();
+    atualizarListasPremiosUI();
+
+    if (btnSorteio) {
+        btnSorteio.addEventListener('click', rodarPiaoHorizontal);
+    }
+
     if (btnFullscreen && piaoCard) {
         btnFullscreen.addEventListener('click', function () {
             if (!document.fullscreenElement) {
-                if (piaoCard.requestFullscreen) {
-                    piaoCard.requestFullscreen();
-                } else if (piaoCard.webkitRequestFullscreen) {
-                    piaoCard.webkitRequestFullscreen();
-                } else if (piaoCard.msRequestFullscreen) {
-                    piaoCard.msRequestFullscreen();
-                }
+                piaoCard.requestFullscreen().catch(err => alert(`Erro: ${err.message}`));
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
+                document.exitFullscreen();
             }
         });
     }
-
-    // Recalcula o posicionamento da esteira quando entra/sai do modo Tela Cheia
-    document.addEventListener('fullscreenchange', function () {
-        if (!estaRodando) {
-            posicionarNoItem(0);
-        }
-    });
-
-    // 9. Inicialização Geral
-    construirEsteira();
-
-    if (btnSorteio) btnSorteio.addEventListener('click', rodarPiaoHorizontal);
 
     if (btnReiniciar) {
         btnReiniciar.addEventListener('click', function () {
-            if (confirm("Deseja reiniciar a tela de sorteio?")) {
-                window.location.reload();
-            }
+            location.reload();
         });
     }
-
-    window.addEventListener('resize', function () {
-        if (!estaRodando) posicionarNoItem(0);
-    });
 });

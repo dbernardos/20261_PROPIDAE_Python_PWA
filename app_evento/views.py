@@ -1,53 +1,68 @@
 import json
 import random
+import re
 import unicodedata
 from datetime import datetime, timedelta
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, JsonResponse
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.cache import never_cache
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
-from django.middleware.csrf import rotate_token
 from django.db.models import Q
+from django.http import HttpResponse, JsonResponse
+from django.middleware.csrf import rotate_token
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
-import re
 
+from app_login.models import Usuario
+
+from .form import AtividadeForm, EventoForm
 from .models import (
-    Evento,
-    Atividade,
-    Inscricao,
     Apoiador,
+    Atividade,
+    Evento,
+    Inscricao,
     Participa,
     StatusParticipa,
     tipoEvento,
 )
-from app_login.models import Usuario
-from .form import EventoForm, AtividadeForm
 
 
 # ==========================================================
 # FUNÇÕES AUXILIARES
 # ==========================================================
 
+def sem_acento(texto):
+    """Remove acentos e converte texto para minúsculas."""
+    if not texto:
+        return ""
+    return ''.join(
+        c for c in unicodedata.normalize('NFD', str(texto))
+        if unicodedata.category(c) != 'Mn'
+    ).lower()
+
+
+def parse_data_segura(val):
+    """Converte string de data no formato YYYY-MM-DD com tratamento de erro."""
+    if not val:
+        return None
+    try:
+        return datetime.strptime(val, '%Y-%m-%d').date()
+    except ValueError:
+        return None
+
+
 @never_cache
 def home_root(request):
-
-    #user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
-    #padrao_mobile = r'android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini'
-   # is_mobile = bool(re.search(padrao_mobile, user_agent))
-
-    #if is_mobile:
     if request.user_agent.is_mobile or request.user_agent.is_tablet:        
         return redirect('app_evento:urlpwa_home')
     if request.user.is_authenticated:
         return redirect('app_evento:urldis_evento')
-    
     else:
         return redirect('app_login:urllogin')
+
 
 @never_cache
 def pwa_home(request):
@@ -57,7 +72,6 @@ def pwa_home(request):
         
         try:
             evento = Evento.objects.get(codigo_evento=codigo)
-           
             return redirect('app_evento:urlpwa_atividades_evento', evento_id=evento.id)
         except Evento.DoesNotExist:
             messages.error(request, "Evento não encontrado. Verifique o código.")
@@ -69,15 +83,12 @@ def pwa_atividades_evento(request, evento_id):
     """Lista as atividades do evento no PWA, bloqueando as fora do horário."""
     evento = get_object_or_404(Evento, id=evento_id)
     
-    # Ordena diretamente por horaInicio (sem usar o campo 'data')
     atividades = evento.atividade_set.all().order_by('horaInicio')
-    
     agora = timezone.now()
     atividades_info = []
     
     for ativ in atividades:
         try:
-            # Se horaInicio/horaFim forem DateTimeField (data + hora juntos)
             if ativ.horaFim and ativ.horaFim < agora:
                 status = 'encerrada'
             elif ativ.horaInicio and ativ.horaInicio > agora:
@@ -85,7 +96,6 @@ def pwa_atividades_evento(request, evento_id):
             else:
                 status = 'ativa'
         except TypeError:
-            # Fallback caso horaInicio/horaFim sejam apenas TimeField
             hora_atual = agora.time()
             if ativ.horaFim < hora_atual:
                 status = 'encerrada'
@@ -107,39 +117,11 @@ def pwa_atividades_evento(request, evento_id):
     return render(request, 'app_evento/pwa_atividades.html', context)
 
 
-def parse_data_segura(data_str):
-    """Converte uma string YYYY-MM-DD em objeto date. Retorna None se for inválida."""
-def sem_acento(texto):
-    """Minúsculas e sem acentos, para comparar textos na busca."""
-    texto = unicodedata.normalize('NFD', texto or '')
-    return ''.join(
-        c for c in texto if unicodedata.category(c) != 'Mn'
-    ).casefold()
-
-
-def parse_data_segura(data_str):
-    """Converte uma string YYYY-MM-DD em objeto date. Retorna None se for inválida."""
-    if not data_str:
-        return None
-    try:
-        return datetime.strptime(data_str, '%Y-%m-%d').date()
-    except (ValueError, TypeError):
-        return None
-
-
-def sem_acento(texto):
-    """Minúsculas e sem acentos, para comparar textos na busca."""
-    texto = unicodedata.normalize('NFD', texto or '')
-    letras = [c for c in texto if unicodedata.category(c) != 'Mn']
-    return ''.join(letras).casefold()
-
-
 def filtrar_eventos_por_parametros(eventos, request):
     """
     Aplica os filtros de busca, tipo, período e encerramento
     a um queryset de eventos de forma segura.
     """
-
     hoje = timezone.localdate()
 
     query_busca = request.GET.get('busca', '').strip()
@@ -188,14 +170,12 @@ def filtrar_eventos_por_parametros(eventos, request):
 
     elif query_periodo == 'amanha':
         amanha = hoje + timedelta(days=1)
-
         eventos = eventos.filter(
             dataInicio__lte=amanha,
             dataFim__gte=amanha,
         )
 
     elif query_periodo == 'fim_semana':
-        # Encontra o próximo sábado, considerando o dia atual.
         dias_ate_sabado = (5 - hoje.weekday()) % 7
         sabado = hoje + timedelta(days=dias_ate_sabado)
         domingo = sabado + timedelta(days=1)
@@ -207,7 +187,6 @@ def filtrar_eventos_por_parametros(eventos, request):
 
     elif query_periodo == '7_dias':
         limite = hoje + timedelta(days=7)
-
         eventos = eventos.filter(
             dataInicio__lte=limite,
             dataFim__gte=hoje,
@@ -215,18 +194,15 @@ def filtrar_eventos_por_parametros(eventos, request):
 
     elif query_periodo == '30_dias':
         limite = hoje + timedelta(days=30)
-
         eventos = eventos.filter(
             dataInicio__lte=limite,
             dataFim__gte=hoje,
         )
 
     elif query_periodo == 'custom':
-        # Conversão segura para evitar Erro 500 com textos inválidos na URL
         dt_inicio = parse_data_segura(query_data_inicio)
         dt_fim = parse_data_segura(query_data_fim)
 
-        # Alerta se o utilizador selecionar a data inicial maior que a final
         if dt_inicio and dt_fim and dt_inicio > dt_fim:
             messages.warning(request, "A data inicial não pode ser posterior à data final.")
             eventos = eventos.none()
@@ -259,14 +235,12 @@ def home(request):
 @never_cache
 def eventos_disponiveis(request):
     """Exibe os eventos públicos disponíveis no catálogo."""
-
     eventos = Evento.objects.filter(
         eventoPublico=True
     ).exclude(
         dataFim__isnull=True
     ).order_by('dataInicio')
 
-    # Não exibe os próprios eventos do usuário no catálogo público.
     if request.user.is_authenticated:
         eventos = eventos.exclude(
             administrador__user_django=request.user
@@ -294,7 +268,6 @@ def eventos_disponiveis(request):
 @login_required
 def cadastrar_evento(request):
     """Cadastra um evento para o administrador autenticado."""
-
     try:
         usuario_perfil = Usuario.objects.get(
             user_django=request.user
@@ -318,7 +291,6 @@ def cadastrar_evento(request):
 
             if nomes_apoiadores:
                 objetos_apoiadores = []
-
                 for nome in nomes_apoiadores:
                     apoiador_obj, criado = Apoiador.objects.get_or_create(
                         nome=nome
@@ -350,7 +322,6 @@ def cadastrar_evento(request):
 @login_required
 def editar_evento(request, evento_id):
     """Edita um evento existente."""
-
     evento = get_object_or_404(
         Evento,
         id=evento_id,
@@ -409,7 +380,6 @@ def editar_evento(request, evento_id):
 @login_required
 def excluir_evento(request, evento_id):
     """Exclui um evento após uma solicitação POST."""
-
     evento = get_object_or_404(
         Evento,
         id=evento_id,
@@ -432,7 +402,6 @@ def detalhes_evento(request, evento_id):
     Exibe os detalhes de um evento e identifica as atividades
     nas quais o usuário está inscrito.
     """
-
     evento = get_object_or_404(
         Evento,
         id=evento_id,
@@ -479,10 +448,9 @@ def detalhes_evento(request, evento_id):
     context = {
         'evento': evento,
         'atividades': atividades,
-        'atividades_inscritas_ids': list(
-            atividades_inscritas_ids
-        ),
+        'atividades_inscritas_ids': list(atividades_inscritas_ids),
         'esta_inscrito_no_evento': esta_inscrito_no_evento,
+        'agora': timezone.now(),  # <--- Linha necessária para validar os horários no HTML
     }
 
     return render(
@@ -496,7 +464,6 @@ def detalhes_evento(request, evento_id):
 @login_required
 def detalhes_meus_evento(request, evento_id):
     """Exibe os detalhes de um evento administrado pelo usuário."""
-
     try:
         usuario_perfil = Usuario.objects.get(
             user_django=request.user
@@ -537,7 +504,6 @@ def detalhes_meus_evento(request, evento_id):
 @never_cache
 def meus_eventos_disponiveis(request):
     """Exibe e filtra os eventos administrados pelo usuário."""
-
     try:
         usuario_perfil = Usuario.objects.get(
             user_django=request.user
@@ -576,7 +542,6 @@ def meus_eventos_disponiveis(request):
 @login_required
 def cadastrar_atividade(request, evento_id):
     """Cadastra uma atividade vinculada a um evento."""
-
     evento_atual = get_object_or_404(
         Evento,
         id=evento_id,
@@ -623,7 +588,6 @@ def cadastrar_atividade(request, evento_id):
 @login_required
 def editar_atividade(request, atividade_id):
     """Edita uma atividade existente."""
-
     atividade = get_object_or_404(
         Atividade,
         pk=atividade_id,
@@ -669,7 +633,6 @@ def editar_atividade(request, atividade_id):
 @login_required
 def excluir_atividade(request, atividade_id):
     """Exclui uma atividade mediante solicitação POST."""
-
     atividade = get_object_or_404(
         Atividade,
         pk=atividade_id,
@@ -690,15 +653,14 @@ def excluir_atividade(request, atividade_id):
 @login_required
 @require_POST
 def alternar_participacao_atividade(request, atividade_id):
-    # ... resto do código ...
-    """Inscreve ou cancela a inscrição do usuário em uma atividade."""
-
-    atividade = get_object_or_404(
-        Atividade,
-        id=atividade_id,
-    )
-
+    atividade = get_object_or_404(Atividade, id=atividade_id)
     evento = atividade.evento
+    agora = timezone.now()
+
+    # Bloqueia inscrições se o evento ou a atividade específica já encerrou
+    if (evento.dataFim and evento.dataFim < timezone.localdate()) or (atividade.horaFim and atividade.horaFim < agora):
+        messages.error(request, f'A atividade "{atividade.nome}" já foi encerrada.')
+        return redirect('app_evento:urldet_evento', evento_id=evento.id)
 
     try:
         usuario_perfil = Usuario.objects.get(
@@ -790,7 +752,6 @@ def alternar_participacao_atividade(request, atividade_id):
 @login_required
 def minhas_inscricoes(request):
     """Exibe todas as inscrições ativas do usuário autenticado."""
-
     try:
         usuario = Usuario.objects.get(
             user_django=request.user
@@ -811,7 +772,6 @@ def minhas_inscricoes(request):
         'participa_set__atividade',
     )
 
-    # Regenera os dados da inscrição caso o arquivo do QR Code não exista.
     for inscricao in inscricoes:
         if inscricao.qrcode_imagem:
             if not inscricao.qrcode_imagem.storage.exists(
@@ -824,21 +784,18 @@ def minhas_inscricoes(request):
         for inscricao in inscricoes
     )
 
-    return render(
-        request,
-        'app_evento/minhas_inscricoes.html',
-        {
-            'inscricoes': inscricoes,
-            'total_atividades': total_atividades,
-        },
-    )
+    return render(request, 'app_evento/minhas_inscricoes.html', {
+        'inscricoes': inscricoes,
+        'total_atividades': total_atividades,
+        'agora': timezone.now(),        # Para validar horário de término das Atividades
+        'hoje': timezone.localdate(),   # Para validar a data de encerramento dos Eventos
+    })
 
 
 @never_cache
 @login_required
 def comprovante_inscricao(request, evento_id):
     """Exibe o comprovante e o crachá do participante."""
-
     try:
         usuario_perfil = Usuario.objects.get(
             user_django=request.user
@@ -872,6 +829,7 @@ def comprovante_inscricao(request, evento_id):
         'inscricao': inscricao,
         'participacoes': participacoes,
         'usuario': usuario_perfil,
+        'agora': timezone.now(),  # <--- Adicionado para separar ativas de concluídas no comprovante
     }
 
     return render(
@@ -889,7 +847,6 @@ def comprovante_inscricao(request, evento_id):
 @login_required
 def sorteio(request, atividade_id=None):
     """Gerencia os prêmios e os participantes de uma atividade."""
-
     if not atividade_id:
         messages.warning(
             request,

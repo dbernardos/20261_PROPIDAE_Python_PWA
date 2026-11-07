@@ -14,21 +14,31 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
 <section class="pagina-minhas-inscricoes">
     <div class="container inscricoes-container">
         
-        <!-- Cabeçalho da Página -->
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center inscricoes-cabecalho">
+        <!-- Mensagens de Feedback -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-4" role="alert">
+                    <i class="bi bi-info-circle-fill me-2"></i>{{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Cabeçalho -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center inscricoes-cabecalho mb-4">
             <div>
                 <span class="inscricoes-eyebrow">Participação</span>
                 <h2 class="inscricoes-titulo">Minhas <span>Inscrições</span></h2>
-                <p class="inscricoes-subtitulo">Gerencie suas participações, acompanhe horários e acesse seus comprovantes e crachá.</p>
+                <p class="inscricoes-subtitulo mb-0">Gerencie suas participações, acompanhe horários e acesse seus comprovantes e crachá.</p>
             </div>
 
-            <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-outline-success">
+            <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-outline-success mt-3 mt-md-0">
                 <i class="bi bi-compass me-1"></i> Explorar Novos Eventos
             </a>
         </div>
 
         {% if inscricoes %}
-        <!-- Resumo das Inscrições (Cards Topo) -->
+        <!-- Cards de Resumo -->
         <div class="inscricoes-resumo mb-4">
             <div class="resumo-item">
                 <div class="resumo-icone">
@@ -54,21 +64,25 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
         <!-- Lista de Inscrições -->
         <div class="row g-4" id="listaInscricoes">
             {% for item in inscricoes %}
-            <div class="col-12 inscricao-item" data-inscricao data-status="{{ item.status|default:''|lower }}">
-                <div class="card card-inscricao">
+            <div class="col-12 inscricao-item">
+                <div class="card card-inscricao {% if item.evento.dataFim and item.evento.dataFim < hoje %}border-secondary border-opacity-50{% endif %}">
                     
-                    <!-- Topo do Card -->
+                    <!-- Cabeçalho do Card -->
                     <div class="card-header d-flex justify-content-between align-items-center py-3 flex-wrap gap-2">
                         <div class="d-flex align-items-center gap-2 flex-wrap">
                             <span class="badge-tipo-topo text-uppercase">
                                 {{ item.evento.get_tipoEvento_display|default:item.evento.tipoEvento }}
                             </span>
 
-                            {% if item.status %}
-                            <span class="evento-status">
-                                <i class="bi bi-check-circle-fill me-1"></i>
-                                {{ item.status }}
-                            </span>
+                            {% if item.evento.dataFim and item.evento.dataFim < hoje %}
+                                <span class="badge bg-secondary text-white px-2 py-1">
+                                    <i class="bi bi-clock-history me-1"></i> Evento Encerrado
+                                </span>
+                            {% elif item.status %}
+                                <span class="evento-status">
+                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                    {{ item.status }}
+                                </span>
                             {% endif %}
                         </div>
 
@@ -79,19 +93,17 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
 
                     <!-- Corpo do Card -->
                     <div class="card-body p-4">
-                        <!-- Informações do Evento -->
                         <div class="row align-items-center mb-4">
                             {% if item.evento.imagemBanner %}
                             <div class="col-lg-3 col-md-4 mb-3 mb-md-0">
                                 <div class="banner-evento-container">
-                                    <img src="{{ item.evento.imagemBanner.url }}" alt="{{ item.evento.nome }}"
-                                        class="banner-evento-img" />
+                                    <img src="{{ item.evento.imagemBanner.url }}" alt="{{ item.evento.nome }}" class="banner-evento-img" />
                                 </div>
                             </div>
                             {% endif %}
 
                             <div class="{% if item.evento.imagemBanner %}col-lg-9 col-md-8{% else %}col-12{% endif %}">
-                                <h3 class="card-title fw-bold text-verde-escuro mb-2 busca-conteudo">
+                                <h3 class="card-title fw-bold text-verde-escuro mb-2">
                                     {{ item.evento.nome }}
                                 </h3>
 
@@ -99,7 +111,6 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                                     {{ item.evento.descricao|default:'Sem descrição informada.' }}
                                 </p>
 
-                                <!-- Informações Rápidas -->
                                 <div class="row g-3 text-secondary small">
                                     <div class="col-sm-6 col-lg-4">
                                         <i class="bi bi-calendar-event me-1 text-verde-claro"></i>
@@ -121,7 +132,7 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
 
                         <hr class="my-4 text-muted" />
 
-                        <!-- Atividades Inscritas -->
+                        <!-- Tabela de Atividades -->
                         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                             <h5 class="fw-bold mb-0 text-verde-escuro">
                                 <i class="bi bi-list-check me-2 text-verde-claro"></i>Atividades Inscritas
@@ -138,7 +149,7 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                                 <thead>
                                     <tr>
                                         <th>Atividade</th>
-                                        <th>Tipo</th>
+                                        <th class="text-center">Tipo</th>
                                         <th>Horário</th>
                                         <th>Local / Complemento</th>
                                         <th class="text-center">Função</th>
@@ -147,24 +158,22 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                                 </thead>
                                 <tbody>
                                     {% for participa in item.participa_set.all %}
-                                    <tr class="atividade-linha" data-atividade
-                                        data-nome="{{ participa.atividade.nome|lower }}"
-                                        data-status="{{ item.status|default:''|lower }}"
-                                        data-inicio="{{ participa.atividade.horaInicio|date:'Y-m-d\TH:i:s' }}">
-                                        <td>
+                                    <tr class="atividade-linha">
+                                        <td class="align-middle">
                                             <div class="atividade-nome">
                                                 <i class="bi bi-calendar2-event text-success me-2"></i>
                                                 <span>{{ participa.atividade.nome }}</span>
                                             </div>
                                         </td>
 
-                                        <td>
-                                            <span class="badge bg-secondary atividade-tipo">
-                                                {{ participa.atividade.get_tipoAtividade_display|default:participa.atividade.tipoAtividade }}
+                                        <!-- COLUNA TIPO (PADRONIZADA EM TAMANHO E COM ÍCONE HARMONIZADO) -->
+                                        <td class="text-center align-middle">
+                                            <span class="badge bg-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
+                                                <i class="bi bi-tag-fill me-1"></i> {{ participa.atividade.get_tipoAtividade_display|default:participa.atividade.tipoAtividade }}
                                             </span>
                                         </td>
 
-                                        <td>
+                                        <td class="align-middle">
                                             <div class="atividade-horario small">
                                                 <i class="bi bi-clock me-1 text-muted"></i>
                                                 <span>{{ participa.atividade.horaInicio|date:'d/m/Y H:i' }}</span> -
@@ -172,26 +181,48 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                                             </div>
                                         </td>
 
-                                        <td>
+                                        <td class="align-middle">
                                             <span class="text-secondary small">
                                                 <i class="bi bi-geo-alt me-1 text-muted"></i>
                                                 {{ participa.atividade.complementoLocal|default:item.evento.local }}
                                             </span>
                                         </td>
 
-                                        <td class="text-center">
-                                            <span
-                                                class="badge {% if participa.funcao == 'Palestrante' %}bg-success{% elif participa.funcao == 'Organizador' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} px-2 py-1">
-                                                {{ participa.get_funcao_display|default:participa.funcao }}
-                                            </span>
+                                        <!-- COLUNA FUNÇÃO (PADRONIZADA) -->
+                                        <td class="text-center align-middle">
+                                            {% if participa.funcao == 'Palestrante' %}
+                                                <span class="badge bg-success text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
+                                                    <i class="bi bi-mic-fill me-1"></i> Palestrante
+                                                </span>
+                                            {% elif participa.funcao == 'Organizador' %}
+                                                <span class="badge bg-warning text-dark px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
+                                                    <i class="bi bi-star-fill me-1"></i> Organizador
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-info text-dark px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
+                                                    <i class="bi bi-person-fill me-1"></i> {{ participa.get_funcao_display|default:participa.funcao|default:'Participante' }}
+                                                </span>
+                                            {% endif %}
                                         </td>
 
-                                        <td class="text-center">
-                                            <a href="{% url 'app_evento:urlparticipar_atividade' participa.atividade.id %}"
-                                                class="btn btn-outline-danger btn-sm btn-cancelar-atividade"
-                                                title="Cancelar participação">
-                                                <i class="bi bi-x-circle me-1"></i> Cancelar
-                                            </a>
+                                        <!-- COLUNA AÇÕES (PADRONIZADA) -->
+                                        <td class="text-center align-middle">
+                                            {% if participa.atividade.horaFim and participa.atividade.horaFim < agora %}
+                                                <span class="badge bg-success text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
+                                                    <i class="bi bi-check-circle-fill me-1"></i> Concluída
+                                                </span>
+                                            {% elif participa.atividade.horaInicio and participa.atividade.horaInicio <= agora and participa.atividade.horaFim >= agora %}
+                                                <span class="badge bg-primary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
+                                                    <i class="bi bi-broadcast me-1"></i> Participando
+                                                </span>
+                                            {% else %}
+                                                <form action="{% url 'app_evento:urlparticipar_atividade' participa.atividade.id %}" method="POST" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm px-3 py-1.5 fs-6 fw-semibold d-inline-flex align-items-center" title="Cancelar participação">
+                                                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                                                    </button>
+                                                </form>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -205,11 +236,9 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                         {% endif %}
                     </div>
 
-                    <!-- Rodapé do Card: QR Code + Código de Acesso Harmônico -->
+                    <!-- Rodapé do Card -->
                     <div class="card-footer bg-light p-4">
                         <div class="area-qrcode-wrapper">
-                            
-                            <!-- QR Code na Esquerda com Destaque -->
                             {% if item.qrcode_imagem %}
                             <div class="qrcode-container-destaque">
                                 <img src="{{ item.qrcode_imagem.url }}" alt="QR Code {{ item.cracha }}" class="qrcode-thumb" />
@@ -221,7 +250,6 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                             </div>
                             {% endif %}
 
-                            <!-- Bloco de Texto Expandido para a Direita -->
                             <div class="qrcode-info-container">
                                 <span class="badge bg-success-subtle text-success fw-bold text-uppercase px-2 py-1 mb-2 d-inline-block">
                                     Credenciamento
@@ -232,10 +260,8 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                                     <i class="bi bi-info-circle me-1 text-verde-escuro"></i>Aproxime este QR Code da câmera do totem de credenciamento ou digite o código alfanumérico para registrar sua entrada no evento.
                                 </p>
                             </div>
-
                         </div>
 
-                        <!-- Botões de Ação alinhados à direita -->
                         <div class="d-flex gap-2 flex-wrap justify-content-end pt-3 border-top">
                             <a href="{% url 'app_evento:urldet_evento' item.evento.id %}" class="btn btn-outline-secondary btn-sm">
                                 <i class="bi bi-eye me-1"></i> Detalhes
@@ -252,20 +278,17 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                     </div>
                 </div>
 
-                <!-- Modal do Crachá -->
+                <!-- Modal Crachá -->
                 <div class="modal fade modal-cracha" id="modalCracha{{ item.id }}" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content text-center border-0 shadow">
-                            <!-- Cabeçalho -->
                             <div class="modal-header bg-success text-white">
                                 <h5 class="modal-title fw-bold">
                                     <i class="bi bi-person-badge me-2"></i> Crachá de Acesso
                                 </h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                    aria-label="Fechar"></button>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
                             </div>
 
-                            <!-- Corpo -->
                             <div class="modal-body p-4 cracha-printable">
                                 <h4 class="fw-bold text-dark mb-1">
                                     {{ item.usuario.nome|default:request.user.get_full_name|default:request.user.username }}
@@ -280,8 +303,7 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                                     <p class="font-monospace fw-bold text-success mb-2 fs-4">{{ item.cracha|default:'---' }}</p>
 
                                     {% if item.qrcode_imagem %}
-                                    <img src="{{ item.qrcode_imagem.url }}" alt="QR Code {{ item.cracha }}"
-                                        class="img-fluid rounded shadow-sm qrcode-modal" />
+                                    <img src="{{ item.qrcode_imagem.url }}" alt="QR Code {{ item.cracha }}" class="img-fluid rounded shadow-sm qrcode-modal" />
                                     {% else %}
                                     <div class="qrcode-indisponivel p-3">
                                         <i class="bi bi-qr-code fs-1 d-block mb-1 text-muted"></i>
@@ -293,16 +315,14 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
                                 <p class="small text-muted mb-0">Apresente este código ou QR Code no controle de acesso do evento.</p>
                             </div>
 
-                            <!-- Rodapé -->
                             <div class="modal-footer justify-content-center bg-light">
                                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
 
-                                <a href="{% url 'app_evento:urlcomprovante_inscricao' item.evento.id %}"
-                                    class="btn btn-outline-success btn-sm">
+                                <a href="{% url 'app_evento:urlcomprovante_inscricao' item.evento.id %}" class="btn btn-outline-success btn-sm">
                                     <i class="bi bi-file-earmark-text me-1"></i> Ver Comprovante
                                 </a>
 
-                                <button type="button" class="btn btn-success btn-sm btn-imprimir-cracha">
+                                <button type="button" class="btn btn-success btn-sm btn-imprimir-cracha" onclick="window.print();">
                                     <i class="bi bi-printer me-1"></i> Imprimir
                                 </button>
                             </div>
@@ -313,7 +333,6 @@ Minhas Inscrições - XXIX Colóquio de Usinagem
             {% endfor %}
         </div>
         {% else %}
-        <!-- Estado Sem Inscrições -->
         <div class="card card-inscricao p-5 text-center text-muted my-4">
             <i class="bi bi-calendar-x display-3 mb-3 text-secondary d-block"></i>
             <h4 class="text-secondary fw-semibold">Ainda não possui inscrições.</h4>

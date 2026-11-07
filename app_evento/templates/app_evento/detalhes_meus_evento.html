@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-  {{ evento.nome }} - Atividades
+  {{ evento.nome }} - Gerenciar Atividades | SEA
 {% endblock %}
 
 {% block navbar_imagem %}
@@ -10,8 +10,8 @@
     <!-- Imagem Dinâmica do Banco de Dados -->
     <img src="{{ evento.imagemBanner.url }}" alt="Banner do {{ evento.nome }}" height="60" class="img-fluid" style="max-height: 60px; object-fit: contain;" />
   {% else %}
-    <!-- Fallback: Usa aimagem estática se o evento não tiver imagem cadastrada -->
-    <img src="{% static 'images/images-default/Icontransparent.png' %}" alt="SEA EVENTS- SISTEMA DE EVENTOS ACADEMICOS" height="60" />
+    <!-- Fallback: Usa a imagem estática se o evento não tiver imagem cadastrada -->
+    <img src="{% static 'images/images-default/Icontransparent.png' %}" alt="SEA EVENTS - SISTEMA DE EVENTOS ACADEMICOS" height="60" />
   {% endif %}
 {% endblock %}
 
@@ -21,14 +21,13 @@
       
       <!-- Navegação Superior -->
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <a href="{% url 'app_evento:urldis_myevento' %}" class="btn btn-outline-secondary">
+        <a href="{% url 'app_evento:urldis_myevento' %}" class="btn btn-secondary text-white">
           <i class="bi bi-arrow-left me-1"></i> Voltar para Eventos
         </a>
 
         <div class="d-flex gap-2">
           {% if user.is_staff or user.is_superuser %}
-            
-            <a href="{% url 'app_evento:urlcad_atividade' evento.id %}" class="btn btn-success shadow-sm">
+            <a href="{% url 'app_evento:urlcad_atividade' evento.id %}" class="btn btn-success text-white shadow-sm px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
               <i class="bi bi-plus-lg me-1"></i> Nova Atividade
             </a>
           {% endif %}
@@ -46,18 +45,17 @@
             {% endif %}
 
             <div class="d-flex flex-wrap gap-4 text-muted small">
-               
               <!-- Período -->
               <div>
                 <i class="bi bi-calendar-event me-1 text-verde-claro"></i> <strong>Período:</strong> {{ evento.dataInicio|date:'d/m/Y' }} a {{ evento.dataFim|date:'d/m/Y' }}
               </div>
 
-               <!-- Endereço -->
+              <!-- Endereço -->
               <div>
                 <i class="bi bi-geo-alt me-1 text-vermelho"></i> <strong>Endereço:</strong> {{ evento.local|default:'A definir' }}
               </div>
 
-               <!-- Email -->
+              <!-- Email -->
               {% if evento.emailContato %}
                 <div>
                   <i class="bi bi-envelope me-1 text-primary"></i> <strong>Contato:</strong> {{ evento.emailContato }}
@@ -99,33 +97,37 @@
             <div class="col-12">
               <div class="card card-custom shadow-sm border-0 border-start border-4 border-success overflow-hidden">
                 <div class="card-body p-4">
+                  
                   <!-- Cabeçalho da Atividade -->
-                  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-3 pb-3 border-bottom">
+                  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3 pb-3 border-bottom">
                     <div>
-                      <span class="badge bg-success px-3 py-1 mb-2">{% firstof atividade.get_tipoAtividade_display atividade.tipoAtividade 'Atividade' %}</span>
+                      <span class="badge bg-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center mb-2">
+                        <i class="bi bi-tag-fill me-1"></i> {% firstof atividade.get_tipoAtividade_display atividade.tipoAtividade 'Atividade' %}
+                      </span>
                       <h4 class="h4 fw-bold text-verde-escuro mb-0">{{ atividade.nome }}</h4>
                     </div>
 
-                    <!-- Botões da Atividade (Ações Auxiliares + Gestão) -->
+                    <!-- Botões com Cores Sólidas e Letras/Ícones em Branco -->
                     <div class="d-flex flex-wrap gap-2 align-items-center">
-                      <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}" class="btn btn-outline-primary btn-sm">
-                        <i class="bi bi-qr-code me-1"></i> QR Code
-                      </a>
-                      <a href="{% url 'app_quiz:urlgerenciar_quizzes' atividade.id %}" class="btn btn-outline-info btn-sm" title="Gerenciar Quizzes">
-                        <i class="bi bi-controller me-1"></i> Quizzes
-                      </a>  
-                      <a href="{% url 'app_evento:urlsorteio_atividade' atividade.id %}" class="btn btn-outline-warning text-dark btn-sm">
-                        <i class="bi bi-gift me-1"></i> Sorteio
+                      <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}" class="btn btn-primary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm">
+                        <i class="bi bi-qr-code-scan me-1"></i> QR Code
                       </a>
                       
-                      <div class="btn-group btn-group-sm ms-md-2" role="group">
-                        <a href="{% url 'app_evento:urleditar_atividade' atividade.id %}" class="btn btn-outline-secondary" title="Editar Atividade">
-                          <i class="bi bi-pencil me-1"></i> Editar
-                        </a>
-                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluirAtividade{{ atividade.id }}" title="Excluir Atividade">
-                          <i class="bi bi-trash me-1"></i> Excluir
-                        </button>
-                      </div>
+                      <a href="{% url 'app_quiz:urlgerenciar_quizzes' atividade.id %}" class="btn btn-info text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm" title="Gerenciar Quizzes">
+                        <i class="bi bi-controller me-1"></i> Quizzes
+                      </a>  
+                      
+                      <a href="{% url 'app_evento:urlsorteio_atividade' atividade.id %}" class="btn btn-warning text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm">
+                        <i class="bi bi-gift-fill me-1"></i> Sorteio
+                      </a>
+                      
+                      <a href="{% url 'app_evento:urleditar_atividade' atividade.id %}" class="btn btn-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm" title="Editar Atividade">
+                        <i class="bi bi-pencil-square me-1"></i> Editar
+                      </a>
+
+                      <button type="button" class="btn btn-danger text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm" data-bs-toggle="modal" data-bs-target="#modalExcluirAtividade{{ atividade.id }}" title="Excluir Atividade">
+                        <i class="bi bi-trash-fill me-1"></i> Excluir
+                      </button>
                     </div>
                   </div>
 
@@ -203,7 +205,7 @@
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
                     <form method="POST" action="{% url 'app_evento:urlexcluir_atividade' atividade.id %}" class="d-inline">
                       {% csrf_token %}
-                      <button type="submit" class="btn btn-danger btn-sm fw-bold">Excluir Atividade</button>
+                      <button type="submit" class="btn btn-danger btn-sm fw-bold text-white">Excluir Atividade</button>
                     </form>
                   </div>
                 </div>
