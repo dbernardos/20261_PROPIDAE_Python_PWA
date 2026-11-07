@@ -1,5 +1,6 @@
 import json
 import random
+import unicodedata
 from datetime import datetime, timedelta
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -108,12 +109,29 @@ def pwa_atividades_evento(request, evento_id):
 
 def parse_data_segura(data_str):
     """Converte uma string YYYY-MM-DD em objeto date. Retorna None se for inválida."""
+def sem_acento(texto):
+    """Minúsculas e sem acentos, para comparar textos na busca."""
+    texto = unicodedata.normalize('NFD', texto or '')
+    return ''.join(
+        c for c in texto if unicodedata.category(c) != 'Mn'
+    ).casefold()
+
+
+def parse_data_segura(data_str):
+    """Converte uma string YYYY-MM-DD em objeto date. Retorna None se for inválida."""
     if not data_str:
         return None
     try:
         return datetime.strptime(data_str, '%Y-%m-%d').date()
     except (ValueError, TypeError):
         return None
+
+
+def sem_acento(texto):
+    """Minúsculas e sem acentos, para comparar textos na busca."""
+    texto = unicodedata.normalize('NFD', texto or '')
+    letras = [c for c in texto if unicodedata.category(c) != 'Mn']
+    return ''.join(letras).casefold()
 
 
 def filtrar_eventos_por_parametros(eventos, request):
@@ -131,12 +149,17 @@ def filtrar_eventos_por_parametros(eventos, request):
     query_data_fim = request.GET.get('data_fim', '').strip()
     query_apenas_encerrados = request.GET.get('encerrados') == '1'
 
-    # Busca pelo nome ou pela descrição.
+    # Busca pelo nome ou pela descrição, ignorando acentos e maiúsculas.
     if query_busca:
-        eventos = eventos.filter(
-            Q(nome__icontains=query_busca)
-            | Q(descricao__icontains=query_busca)
-        )
+        termo = sem_acento(query_busca)
+        ids_encontrados = [
+            pk
+            for pk, nome, descricao in eventos.values_list(
+                'id', 'nome', 'descricao'
+            )
+            if termo in sem_acento(nome) or termo in sem_acento(descricao)
+        ]
+        eventos = eventos.filter(id__in=ids_encontrados)
 
     # Aceita somente os tipos definidos no modelo.
     tipos_validos = {
