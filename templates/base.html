@@ -50,10 +50,7 @@
           <div class="d-flex align-items-center">
           
             <a class="navbar-brand me-3" href="{% url 'app_evento:urldis_evento' %}">
-              {% block navbar_imagem %}
-                <!-- Imagem Padrão (Estática) -->
                 <img src="{% static 'images/images-default/Icontransparent.png' %}" alt="SEA EVENTS- SISTEMA DE EVENTOS ACADEMICOS" height="60" />
-              {% endblock %}
             </a>
 
             {% if request.user.is_authenticated %}
@@ -125,101 +122,95 @@
       {% endblock %}
     </main>
 
-    <!-- Rodapé com Patrocinadores -->
-    <footer class="site-footer mt-auto">
+    <footer class="site-footer mt-auto py-3 text-center">
       <div class="container">
-        <!-- Seção de Patrocinadores -->
-        <div class="row mb-4">
-          <div class="col-12 text-center">
-            <h5 class="text-white mb-4">Patrocinadores</h5>
-          </div>
-        </div>
-       
-        <div class="row align-items-center mb-4"> 
-          <!-- Patrocinador Ouro -->
-      <!--<div class="col-md-4 col-6 text-center mb-3">
-            <div class="sponsor-card">
-              <img src="{% static 'images/sponsor1.png' %}" alt="Patrocinador Ouro" class="img-fluid sponsor-logo" />
-              <p class="text-white small mt-2">Patrocinador Ouro</p>
-            </div>
-          </div>
-      -->
-          <!-- Patrocinador Prata -->
-      <!--<div class="col-md-4 col-6 text-center mb-3">
-            <div class="sponsor-card">
-              <img src="{% static 'images/sponsor2.png' %}" alt="Patrocinador Prata" class="img-fluid sponsor-logo" />
-              <p class="text-white small mt-2">Patrocinador Prata</p>
-            </div>
-          </div>
-      -->    
-          <!-- Patrocinador Bronze -->
-      <!--<div class="col-md-4 col-6 text-center mb-3">
-            <div class="sponsor-card">
-              <img src="{% static 'images/sponsor3.png' %}" alt="Patrocinador Bronze" class="img-fluid sponsor-logo" />
-              <p class="text-white small mt-2">Patrocinador Bronze</p>
-            </div>
-          </div>
-        </div>
-
-        <hr class="border-secondary" />
-      -->  
-        <!-- Informações de Contato e Links -->
-      <!--   <div class="row">
-          <div class="col-md-4 mb-3">
-            <h6 class="text-white">XXIX Colóquio de Usinagem</h6>
-            <p class="text-secondary small">
-              <i class="bi bi-geo-alt-fill me-2"></i>Local do Evento<br />
-              <i class="bi bi-calendar-event me-2"></i>Data do Evento<br />
-              <i class="bi bi-envelope-fill me-2"></i>contato@colouiquousinagem.com.br
+        <div class="row g-3 mb-2"> 
+          <!-- Informações de Contato -->
+          <div class="col-md-4 mb-2 mb-md-0">
+            <h6 class="text-white mb-1">Sea Eventos Acadêmicos</h6>
+            <p class="text-secondary small mb-0">
+              <i class="bi bi-geo-alt-fill me-1"></i>IFSC - RAU | <i class="bi bi-calendar-event me-1"></i>2026<br />
+              <i class="bi bi-envelope-fill me-1"></i>daniel.ma09@aluno.ifsc.edu.br<br />
+              <i class="bi bi-envelope-fill me-1"></i>izaque.cr@aluno.ifsc.edu.br
             </p>
           </div>
 
-          <div class="col-md-4 mb-3">
-            <h6 class="text-white">Links Rápidos</h6>
+          <!-- Links Rápidos -->
+          <div class="col-md-4 mb-2 mb-md-0">
+            <h6 class="text-white mb-1">Links Rápidos</h6>
             <ul class="list-unstyled">
-              <li>
-                <a href="{% url 'app_evento:urldis_evento' %}" class="text-secondary text-decoration-none">Início</a>
-              </li>
-              <li>
-                <a href="{% url 'app_evento:urlcad_evento' %}" class="text-secondary text-decoration-none">Eventos</a>
-              </li>
-              <li>
-                <a href="#" class="text-secondary text-decoration-none">Programação</a>
-              </li>
-              <li>
-                <a href="#" class="text-secondary text-decoration-none">Inscrições</a>
-              </li>
-              <li>
-                <a href="#" class="text-secondary text-decoration-none">Contato</a>
-              </li>
+
+              {% if request.user.is_authenticated %}
+                  {% if request.user.is_staff %}
+                    
+                    <li>
+                      <a href="{% url 'app_evento:urldis_myevento' %}" class="text-secondary text-decoration-none">Meus Eventos</a>
+                    </li>
+                    <li>
+                      <a href="{% url 'app_evento:urlcad_evento' %}" class="text-secondary text-decoration-none">Novo Evento</a>
+                    </li>
+
+                  {% endif %}
+                    
+                    <li>
+                      <a href="{% url 'app_evento:urlminhas_inscricoes' %}" class="text-secondary text-decoration-none">Inscrições</a>
+                    </li>
+
+                    <li>
+                      <a href="{% url 'app_login:urlmeu_usuario' %}" class="text-secondary text-decoration-none">Meu Perfil</a>
+                    </li>
+
+                    
+                    <form method="POST" action="{% url 'app_login:urllogout' %}" autocomplete="off">
+                      {% csrf_token %}
+                      <li>
+                        <button type="submit" class="btn btn-link text-secondary text-decoration-none p-0 m-0">Sair</button>
+                      </li>
+                    </form>
+                   
+                  
+              {% else %}  
+                <li>
+                  <a href="{% url 'app_evento:urldis_evento' %}" class="text-secondary text-decoration-none">Início</a>
+                </li>
+
+                <li>
+                  <a href="{% url 'app_login:urllogin' %}" class="text-secondary text-decoration-none">Entrar</a>
+                 </li>
+
+                <li>
+                  <a href="{% url 'app_evento:urlpwa_home' %}" class="text-secondary text-decoration-none">Encontrar Evento</a>
+                </li>
+              {% endif %}
+
             </ul>
           </div>
 
-          <div class="col-md-4 mb-3">
-            <h6 class="text-white">Redes Sociais</h6>
-            <div class="social-links">
-              <a href="#" class="text-white me-3"><i class="bi bi-facebook fs-5"></i></a>
-              <a href="#" class="text-white me-3"><i class="bi bi-instagram fs-5"></i></a>
-              <a href="#" class="text-white me-3"><i class="bi bi-linkedin fs-5"></i></a>
-              <a href="#" class="text-white"><i class="bi bi-youtube fs-5"></i></a>
+          <!-- Redes Sociais -->
+          <div class="col-md-4">
+            <h6 class="text-white mb-1">Redes Sociais</h6>
+            <div class="social-links d-flex justify-content-center align-items-center gap-3">
+              <a href="https://www.facebook.com/seaeventosacademicos/" class="text-white"><i class="bi bi-facebook fs-6"></i></a>
+              <a href="https://www.instagram.com/seaeventosacademicos" class="text-white"><i class="bi bi-instagram fs-6"></i></a>
+              <a href="https://www.youtube.com/seaeventosacademicos" class="text-white"><i class="bi bi-youtube fs-6"></i></a>
             </div>
           </div>
         </div>
 
-        <hr class="border-secondary" />
-    -->    
+        <hr class="border-secondary my-2" />
+
         <!-- Copyright -->
-    <!--     <div class="row">
-          <div class="col-12 text-center">
+        <div class="row">
+          <div class="col-12">
             <p class="text-secondary small mb-0">
-              &copy;{% now 'Y' %}XXIX Colóquio de Usinagem. Todos os direitos reservados.
+              &copy;{% now 'Y' %} Sea Eventos. Sistema de Eventos Acadêmicos. [Projeto Acadêmico - Sem Fins Lucrativos]
             </p>
           </div>
         </div>
       </div>
     </footer>
 
-      -->
+      
    
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 

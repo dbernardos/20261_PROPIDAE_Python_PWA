@@ -47,6 +47,7 @@ class EventoForm(forms.ModelForm):
         widgets = {
             'nome': forms.TextInput(attrs={'placeholder': 'Ex.: XXIX Colóquio de Usinagem', 'class': 'form-control mb-3'}),
             'descricao': forms.Textarea(attrs={'placeholder': 'Ex.: Resumo dos objetivos e temas abordados...', 'class': 'form-control mb-3', 'rows': 4}),
+            'apoiadores': forms.TextInput(attrs={'placeholder': 'Ex.: Google, Microsoft, Ambev', 'class': 'form-control mb-3'}),
             'emailContato': forms.EmailInput(attrs={'placeholder': 'Ex.: contato@evento.com', 'class': 'form-control mb-3'}),
             'local': forms.TextInput(attrs={'placeholder': 'Ex.: Auditório Principal - Bloco A', 'class': 'form-control mb-3'}),
             'imagemBanner': forms.FileInput(attrs={'class': 'form-control mb-3', 'accept': 'image/*'}),
