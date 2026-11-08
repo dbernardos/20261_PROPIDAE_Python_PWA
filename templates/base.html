@@ -14,7 +14,7 @@
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Event Sea">
+    <meta name="apple-mobile-web-app-title" content="Portal SEA Eventos">
 
     <!-- Icons -->
     <link rel="apple-touch-icon" href="{% static 'icons/icon-192.png' %}" />
@@ -50,7 +50,7 @@
           <div class="d-flex align-items-center">
           
             <a class="navbar-brand me-3" href="{% url 'app_evento:urldis_evento' %}">
-                <img src="{% static 'images/images-default/Icontransparent.png' %}" alt="SEA EVENTS- SISTEMA DE EVENTOS ACADEMICOS" height="60" />
+                <img src="{% static 'images/images-default/Icontransparent.png' %}" alt=" PORTAL SEA EVENTOS- SISTEMA DE EVENTOS ACADEMICOS" height="60" />
             </a>
 
             {% if request.user.is_authenticated %}
@@ -127,11 +127,11 @@
         <div class="row g-3 mb-2"> 
           <!-- Informações de Contato -->
           <div class="col-md-4 mb-2 mb-md-0">
-            <h6 class="text-white mb-1">Sea Eventos Acadêmicos</h6>
+            <h6 class="text-white mb-1">Portal SEA Eventos - Sistema de Eventos Acadêmicos</h6>
             <p class="text-secondary small mb-0">
               <i class="bi bi-geo-alt-fill me-1"></i>IFSC - RAU | <i class="bi bi-calendar-event me-1"></i>2026<br />
-              <i class="bi bi-envelope-fill me-1"></i>daniel.ma09@aluno.ifsc.edu.br<br />
-              <i class="bi bi-envelope-fill me-1"></i>izaque.cr@aluno.ifsc.edu.br
+              <i class="bi bi-envelope-fill me-1"></i>contato@portalseaeventos.com.br<br />
+              <i class="bi bi-telephone-fill me-1"></i>(48) 99999-9999
             </p>
           </div>
 
@@ -190,9 +190,9 @@
           <div class="col-md-4">
             <h6 class="text-white mb-1">Redes Sociais</h6>
             <div class="social-links d-flex justify-content-center align-items-center gap-3">
-              <a href="https://www.facebook.com/seaeventosacademicos/" class="text-white"><i class="bi bi-facebook fs-6"></i></a>
-              <a href="https://www.instagram.com/seaeventosacademicos" class="text-white"><i class="bi bi-instagram fs-6"></i></a>
-              <a href="https://www.youtube.com/seaeventosacademicos" class="text-white"><i class="bi bi-youtube fs-6"></i></a>
+              <a href="https://www.facebook.com/portalseaeventos/" class="text-white"><i class="bi bi-facebook fs-6"></i></a>
+              <a href="https://www.instagram.com/portalseaeventos/" class="text-white"><i class="bi bi-instagram fs-6"></i></a>
+              <a href="https://www.youtube.com/portalseaeventos/" class="text-white"><i class="bi bi-youtube fs-6"></i></a>
             </div>
           </div>
         </div>
@@ -203,7 +203,7 @@
         <div class="row">
           <div class="col-12">
             <p class="text-secondary small mb-0">
-              &copy;{% now 'Y' %} Sea Eventos. Sistema de Eventos Acadêmicos. [Projeto Acadêmico - Sem Fins Lucrativos]
+              &copy;{% now 'Y' %} Portal SEA Eventos. Sistema de Eventos Acadêmicos. [Projeto Acadêmico - Sem Fins Lucrativos]
             </p>
           </div>
         </div>

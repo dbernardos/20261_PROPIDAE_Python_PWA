@@ -26,16 +26,14 @@
 
       <!-- Banner e Detalhes Principais do Evento -->
       <div class="card card-custom shadow-sm mb-5 border-0 overflow-hidden">
-          <div class="row g-0 align-items-center">
+          <div class="row g-0 h-100">
               {% if evento.imagemBanner %}
-                <div class="col-12 col-md-5 col-lg-4 eventos-banner">
-                
+                <div class="col-12 col-xl-4 eventos-banner">              
                     <img src="{{ evento.imagemBanner.url }}" 
                         alt="Banner do {{ evento.nome }}" 
                         class="img-fluid eventos-banner-img w-100 h-100" 
                         style="object-fit: cover; min-height: 200px;" 
-                        loading="lazy" />
-                  
+                        loading="lazy" />                 
                </div> 
               {% endif %}
               <div class="col-12 col-md-7 col-lg-8 p-4">

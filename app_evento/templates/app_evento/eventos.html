@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Catálogo de Eventos | SEA{% endblock %}
+{% block title %}Catálogo de Eventos | PORTAL SEA EVENTOS{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/eventos.css' %}?v=2">
@@ -301,7 +301,12 @@
                                                     <strong>{{ item.local|default:"A definir" }}</strong>
                                                 </div>
                                             </div>
-
+                                            {% if item.emailContato %}
+                                                <div>
+                                                <i class="bi bi-envelope" aria-hidden="true"></i>
+                                                <strong>Contato:</strong> {{ item.emailContato }}
+                                                </div>
+                                            {% endif %}
                                         </div>
 
                                         <div class="eventos-card-rodape">
