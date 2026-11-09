@@ -11,7 +11,7 @@ from django.urls import path
 from django.views.decorators.cache import never_cache
 
 
-# Pode usar {% url %} nos templates
+
 app_name = 'app_login'
 
 # Create your LOGIN urls here.

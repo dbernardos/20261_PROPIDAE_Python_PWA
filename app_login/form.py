@@ -120,6 +120,11 @@ class CadastroEtapa2Form(forms.ModelForm):
         'fotoPerfil',
         'biografia',
     ]
+    
+    labels = {
+        'fotoPerfil': 'Foto de Perfil (Máx. 2MB)',
+    }
+    
     widgets = {
         'biografia': forms.Textarea(attrs={'rows': 3}),
     }
@@ -130,122 +135,6 @@ class CadastroEtapa2Form(forms.ModelForm):
     for field in self.fields.values():
       field.required = False
 
-'''
-class CadastroUsuarioForm(forms.ModelForm):
-
-    username = forms.CharField(max_length=150, label="Nome de Usuário")
-
-    # Criamos campos extras que não estão no model Usuario, mas são necessários para o login
-    senha = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Digite sua senha'}),
-        label='Senha'
-    )
-    confirmar_senha = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirme sua senha'}),
-        label='Confirmar Senha'
-    )
-
-    class Meta:
-        model = Usuario
-        # Campos do seu model que aparecerão na tela para o usuário preencher
-        fields = [
-            'nome', 'cpf', 'email', 'telefone', 'dataNascimento',
-            'formacao',  'empresa',  'cargo',  'fotoPerfil',  'biografia', 
-        ]
-        
-        # Ajustando os widgets para melhor usabilidade no HTML
-        widgets = {
-           'dataNascimento': forms.DateInput(
-                format='%Y-%m-%d',
-                attrs={'class': 'form-control', 'type': 'date', 'max': timezone.localdate().isoformat()}
-            ),
-            'cpf': forms.TextInput(attrs={'placeholder': '000.000.000-00', 'required': 'required'}),
-            'biografia': forms.Textarea(attrs={'rows': 3}),
-        }
-
-    
-    @property
-    def etapa1_fields(self):
-        """Retorna os campos da 1ª etapa"""
-        campos = [
-            'nome',
-            'username',
-            'cpf',
-            'dataNascimento',
-            'email',
-            'telefone',
-            'senha',
-            'confirmar_senha',
-            
-        ]
-        return [self[f] for f in campos if f in self.fields]
-    
-    @property
-    def etapa2_fields(self):
-        """Retorna os campos da 2ª etapa"""
-        campos = [
-            
-            'formacao',
-            'empresa',
-            'cargo',
-            'fotoPerfil',
-            'biografia',
-        ]
-        return [self[f] for f in campos if f in self.fields]
-    
-    
-    # 2. Exemplo de validação individual para o CPF
-    def clean_cpf(self):
-        cpf = self.cleaned_data.get('cpf')
-        # Remove pontos e traços para validar apenas os números
-        cpf_limio = re.sub(r'\D', '', cpf)
-        if len(cpf_limio) != 11:
-            raise forms.ValidationError("Insira um CPF válido com 11 dígitos.")
-        return cpf
-
-    # Validação para verificar se as senhas são iguais
-    def clean(self):
-        cleaned_data = super().clean()
-        senha = cleaned_data.get('senha')
-        confirmar_senha = cleaned_data.get('confirmar_senha')
-
-        if senha and confirmar_senha and senha != confirmar_senha:
-            self.add_error('confirmar_senha', 'As senhas não coincidem. Tente novamente.')
-        
-        return cleaned_data
-
-    # Validação para garantir que o email não está sendo usado no User do Django
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if User.objects.filter(email=email).exists():
-            raise forms.ValidationError("Este e-mail já está em uso por outro usuário.")
-        return email
-    
-    def clean_dataNascimento(self):
-        dataNascimento = self.cleaned_data.get('dataNascimento')
-        
-        # Compara a data inserida com a data de hoje
-        if dataNascimento and dataNascimento > timezone.localdate():
-            raise forms.ValidationError("A data de nascimento não pode ser maior que a data atual.")
-            
-        return dataNascimento
-    
-    def clean_username(self):
-        username = self.cleaned_data.get('username')
-        # Nota: Se o seu sistema usa o 'email' ou 'cpf' como username, 
-        # mude 'username=nome' para 'username=email' ou 'username=cpf' abaixo:
-        if User.objects.filter(username=username).exists():
-            raise forms.ValidationError("Este nome já está cadastrado em nosso sistema.")
-        return username
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Formata a data existente para AAAA-MM-DD sem alterar a estrutura do formulário
-        if self.instance and self.instance.pk and self.instance.dataNascimento:
-            self.initial['dataNascimento'] = (
-            self.instance.dataNascimento.strftime('%Y-%m-%d')
-        )
-'''
 # Create your LOGIN forms here.
 # -----------------------------------------------
 class UsuarioForm(UserCreationForm):
@@ -309,7 +198,7 @@ class EditarPerfilForm(forms.ModelForm):
             'formacao': 'Formação Acadêmica',
             'empresa': 'Empresa / Instituição',
             'cargo': 'Cargo',
-            'fotoPerfil': 'Foto de Perfil',
+            'fotoPerfil': 'Foto de Perfil (Máx. 2MB)',
             'biografia': 'Biografia',
         }
         
@@ -331,7 +220,7 @@ class EditarPerfilForm(forms.ModelForm):
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Formata a data existente para AAAA-MM-DD sem alterar a estrutura do formulário
+        # Formata a data existente para AAAA-MM-DD 
         if self.instance and self.instance.pk and self.instance.dataNascimento:
             self.initial['dataNascimento'] = (
             self.instance.dataNascimento.strftime('%Y-%m-%d')

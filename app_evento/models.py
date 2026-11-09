@@ -42,7 +42,11 @@ class tipoEvento(models.TextChoices):
     CONGRESSO = 'Congresso', 'Congresso'
     OUTRO = 'Outro', 'Outro'
 
-
+def validar_tamanho_banner(imagem):
+    limite_mb = 4  # Limite de 2 MegaBytes por imagem
+    if imagem.size > limite_mb * 1024 * 1024:
+        raise ValidationError(f"O banner não pode exceder {limite_mb}MB. Escolha um arquivo menor.")
+    
 class Evento(models.Model):
     administrador = models.ForeignKey('app_login.Usuario', on_delete=models.CASCADE, related_name='administrador')
     nome = models.CharField(max_length=200)
@@ -50,7 +54,7 @@ class Evento(models.Model):
     emailContato = models.EmailField(verbose_name="Email de Contato", max_length=50, blank=True, null=True)
     apoiadores = models.ManyToManyField(Apoiador, related_name='apoiadores', blank=True)
     local = models.CharField(max_length=45, blank=True, null=True)
-    imagemBanner = models.ImageField(verbose_name="Banner", upload_to='banners/', blank=True, null=True)
+    imagemBanner = models.ImageField(verbose_name="Banner", upload_to='banners/', validators=[validar_tamanho_banner], blank=True, null=True)
 
     dataInicio = models.DateField(verbose_name="Data de Início")
     dataFim = models.DateField(verbose_name="Data de Término")

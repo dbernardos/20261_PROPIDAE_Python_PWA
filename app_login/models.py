@@ -5,6 +5,11 @@ from django.contrib.auth.models import User
 
 # Create your LOGIN models here.
 # -----------------------------------------------
+def validar_tamanho_usuario(imagem):
+    limite_mb = 2  # Limite de 1 MegaByte por imagem
+    if imagem.size > limite_mb * 1024 * 1024:
+        raise ValidationError(f"A foto de perfil não pode exceder {limite_mb}MB. Escolha um arquivo menor.")
+
 """Model da tabela Usuario"""
 class Usuario(models.Model):
     nome = models.CharField(max_length=200)
@@ -16,7 +21,7 @@ class Usuario(models.Model):
     formacao = models.CharField(max_length=200, blank=True, null=True)
     empresa = models.CharField(max_length=45, blank=True, null=True)
     cargo = models.CharField(max_length=45, blank=True, null=True)
-    fotoPerfil = models.ImageField(verbose_name="Foto de Perfil", upload_to='perfis/', blank=True, null=True)
+    fotoPerfil = models.ImageField(verbose_name="Foto de Perfil", upload_to='perfis/', validators=[validar_tamanho_usuario], blank=True, null=True)
     biografia = models.CharField(max_length=500, blank=True, null=True)
 
     data_cadastro = models.DateTimeField(auto_now_add=True)

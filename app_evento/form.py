@@ -6,7 +6,7 @@ from datetime import date, datetime
 # -----------------------------------------------
 class EventoForm(forms.ModelForm):
 
-    # Campo de apoiadores como CharField para entrada de texto
+    # Campo de apoiadores 
     apoiadores = forms.CharField(
         required=False,
         label='Apoiadores / Patrocinadores (separe por vírgulas)',
@@ -37,7 +37,7 @@ class EventoForm(forms.ModelForm):
             'emailContato': 'E-mail de Contato',
             'apoiadores': 'Apoiadores / Patrocinadores',
             'local': 'Local do Evento',
-            'imagemBanner': 'Imagem do Banner',
+            'imagemBanner': 'Imagem do Banner (Máx. 4MB)',
             'dataInicio': 'Data de Início',
             'dataFim': 'Data de Término',
             'tipoEvento': 'Tipo do Evento',
@@ -47,9 +47,9 @@ class EventoForm(forms.ModelForm):
         widgets = {
             'nome': forms.TextInput(attrs={'placeholder': 'Ex.: XXIX Colóquio de Usinagem', 'class': 'form-control mb-3'}),
             'descricao': forms.Textarea(attrs={'placeholder': 'Ex.: Resumo dos objetivos e temas abordados...', 'class': 'form-control mb-3', 'rows': 4}),
-            'apoiadores': forms.TextInput(attrs={'placeholder': 'Ex.: Google, Microsoft, Ambev', 'class': 'form-control mb-3'}),
+            'apoiadores': forms.TextInput(attrs={'placeholder': 'Ex.: Weg, Embrapa, Marissol', 'class': 'form-control mb-3'}),
             'emailContato': forms.EmailInput(attrs={'placeholder': 'Ex.: contato@evento.com', 'class': 'form-control mb-3'}),
-            'local': forms.TextInput(attrs={'placeholder': 'Ex.: Auditório Principal - Bloco A', 'class': 'form-control mb-3'}),
+            'local': forms.TextInput(attrs={'placeholder': 'Ex.:Rua dos Imigrantes, 445, Rau, Jaraguá do Sul - SC, CEP 89254-430', 'class': 'form-control mb-3'}),
             'imagemBanner': forms.FileInput(attrs={'class': 'form-control mb-3', 'accept': 'image/*'}),
             'dataInicio': forms.DateInput(
                 format='%Y-%m-%d',
@@ -64,8 +64,6 @@ class EventoForm(forms.ModelForm):
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # CORREÇÃO: Sobrescreve 'self.initial['apoiadores']' com a string formatada.
-        # Se alterarmos apenas 'self.fields[...].initial', o Django ignora e mantêm o QuerySet em 'self.initial'.
         if self.instance and self.instance.pk:
             nomes_apoiadores = [ap.nome for ap in self.instance.apoiadores.all()]
             self.initial['apoiadores'] = ', '.join(nomes_apoiadores)

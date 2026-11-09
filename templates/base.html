@@ -190,9 +190,9 @@
           <div class="col-md-4">
             <h6 class="text-white mb-1">Redes Sociais</h6>
             <div class="social-links d-flex justify-content-center align-items-center gap-3">
-              <a href="https://www.facebook.com/portalseaeventos/" class="text-white"><i class="bi bi-facebook fs-6"></i></a>
-              <a href="https://www.instagram.com/portalseaeventos/" class="text-white"><i class="bi bi-instagram fs-6"></i></a>
-              <a href="https://www.youtube.com/portalseaeventos/" class="text-white"><i class="bi bi-youtube fs-6"></i></a>
+              <a href="https://www.facebook.com/portalseaeventos/" class="text-white" target="_blank"><i class="bi bi-facebook fs-6"></i></a>
+              <a href="https://www.instagram.com/portalseaeventos/" class="text-white" target="_blank"><i class="bi bi-instagram fs-6"></i></a>
+              <a href="https://www.youtube.com/@portalseaeventos/" class="text-white" target="_blank"><i class="bi bi-youtube fs-6"></i></a>
             </div>
           </div>
         </div>
@@ -215,7 +215,30 @@
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 
     <script src="{% static 'js/sw-registro.js' %}"></script>
+
+    {% if user.is_authenticated %}
+      <script>   
+          const tempoLimite = {{ SESSION_COOKIE_AGE }} * 1000; 
+
+          setTimeout(function() {
+              alert("Sua sessão expirou após inatividade. Faça login novamente.");
+              window.location.href = "{% url 'app_login:urllogin' %}?expirado=1";
+          }, tempoLimite);
+      </script>
+    {% endif %}
     
+    {% if user.is_authenticated %}
+      <script>
+          const tempoLimite = {{ SESSION_COOKIE_AGE }} * 1000; 
+
+          setTimeout(function() {
+              alert("Sua sessão expirou após inatividade. Faça login novamente.");
+              window.location.replace("{% url 'app_login:urllogin' %}?expirado=1&t=" + new Date().getTime());
+          }, tempoLimite);
+      </script>
+    {% endif %}
+
+
     <script>
       //procura campos obrigatórios para por asterisco
       document.querySelectorAll('input[required], select[required], textarea[required]').forEach((input) => {
