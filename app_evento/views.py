@@ -235,11 +235,7 @@ def home(request):
 @never_cache
 def eventos_disponiveis(request):
     """Exibe os eventos públicos disponíveis no catálogo."""
-    eventos = Evento.objects.filter(
-        eventoPublico=True
-    ).exclude(
-        dataFim__isnull=True
-    ).order_by('dataInicio')
+
 
     if request.user.is_authenticated:
         eventos = eventos.exclude(

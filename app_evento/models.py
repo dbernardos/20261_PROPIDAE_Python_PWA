@@ -61,7 +61,6 @@ class Evento(models.Model):
 
     tipoEvento = models.CharField(verbose_name="Tipo de Evento", choices=tipoEvento.choices, max_length=20, default=tipoEvento.SEMANA)
 
-    eventoPublico = models.BooleanField(default=True)
     
     codigo_evento = models.CharField(max_length=7, unique=True, default=gerar_codigo, editable=False)
 

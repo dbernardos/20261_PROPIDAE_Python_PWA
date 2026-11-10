@@ -28,7 +28,7 @@ class EventoForm(forms.ModelForm):
             'dataInicio',
             'dataFim',
             'tipoEvento',
-            'eventoPublico'
+            
         ]
 
         labels = {
@@ -41,7 +41,7 @@ class EventoForm(forms.ModelForm):
             'dataInicio': 'Data de Início',
             'dataFim': 'Data de Término',
             'tipoEvento': 'Tipo do Evento',
-            'eventoPublico': 'Evento Público?',
+            
         }
         
         widgets = {
@@ -60,7 +60,7 @@ class EventoForm(forms.ModelForm):
                 attrs={'class': 'form-control mb-3', 'type': 'date'}
             ),
             'tipoEvento': forms.Select(attrs={'class': 'form-select mb-3'}),
-            'eventoPublico': forms.CheckboxInput(attrs={'class': 'form-check-input mb-3'}),
+            
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
