@@ -7,6 +7,10 @@ import re
 from django.utils import timezone
 
 
+
+# FORMS do LOGIN.
+# -----------------------------------------------
+
 # FORMULÁRIO 1: OBRIGATÓRIO (CRIA O USUÁRIO NO BANCO)
 class CadastroEtapa1Form(forms.ModelForm):
   username = forms.CharField(max_length=150, label='Nome de Usuário')

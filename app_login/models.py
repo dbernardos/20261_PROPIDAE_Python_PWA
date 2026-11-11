@@ -3,7 +3,7 @@ from django.utils import timezone
 import uuid
 from django.contrib.auth.models import User
 
-# Create your LOGIN models here.
+# MODELS do LOGIN.
 # -----------------------------------------------
 def validar_tamanho_usuario(imagem):
     limite_mb = 2  # Limite de 1 MegaByte por imagem
@@ -31,8 +31,21 @@ class Usuario(models.Model):
     
     def __str__(self):
         return self.nome 
-
-
+'''
+    @property
+    def pontos_totais(self):
+        """Soma todos os pontos de quizzes acertados em todos os eventos e atividades"""
+        from app_quiz.models import Resposta
+        
+        resultado = Resposta.objects.filter(
+            participa__perfil=self,  # Ajuste conforme seu relacionamento no Participa
+            correto=True
+        ).aggregate(
+            total=Sum('quiz__pontos')
+        )
+        
+        return resultado['total'] or 0
+'''
 '''
 class LogAcesso(models.Model):
     """Model para registrar acessos dos participantes"""

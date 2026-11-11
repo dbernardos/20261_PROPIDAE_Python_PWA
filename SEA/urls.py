@@ -9,6 +9,10 @@ from django.conf.urls.static import static
 
 from app_evento.views import home_root
 
+
+# URL dos QUIZ.
+# -----------------------------------------------
+
 def service_worker(request):
         response = HttpResponse(open('service-worker.js').read(), content_type="application/javascript")
         response['Cache-Control'] = 'no-cache'

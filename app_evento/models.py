@@ -12,9 +12,9 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 
 
+# MODELS do EVENTO.
 # -----------------------------------------------
-# MODELS DO EVENTO
-# -----------------------------------------------
+
 def gerar_codigo():
     alfabeto = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
     parte1 = generate(alfabeto, size=3)

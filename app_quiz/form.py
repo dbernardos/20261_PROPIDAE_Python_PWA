@@ -1,7 +1,7 @@
 from django import forms
 from .models import Resposta, Quiz
 
-# Create your QUIZ forms here.
+# FORMS do QUIZ.
 # -----------------------------------------------
 class RespostaQuizForm(forms.ModelForm):
     """Form para resposta do quiz"""
@@ -20,8 +20,18 @@ class CadastroQuizForm(forms.ModelForm):
     """Form para cadastro do quiz"""
     class Meta:
         model = Quiz
-        fields = ['titulo', 'subtitulo', 'pergunta', 'dica', 'unidade_medida', 'valor_minimo', 'valor_maximo', 'valor_ideal', 'icone', 'ativo']
-               
+        fields = [
+            'titulo', 
+            'subtitulo', 
+            'pergunta', 
+            'dica', 
+            'unidade_medida', 
+            'valor_minimo', 
+            'valor_maximo', 
+            'valor_ideal',
+            #'icone',  
+            'ativo'
+        ]       
         widgets = {
             'atividade': forms.Select(attrs={'class': 'form-select'}),
             'titulo': forms.TextInput(attrs={'class': 'form-control'}),
@@ -33,6 +43,6 @@ class CadastroQuizForm(forms.ModelForm):
             'valor_minimo': forms.NumberInput(attrs={'class': 'form-control'}),
             'valor_maximo': forms.NumberInput(attrs={'class': 'form-control'}),
             'valor_ideal': forms.NumberInput(attrs={'class': 'form-control'}),
-            'icone': forms.TextInput(attrs={'class': 'form-control'}),
+            #'icone': forms.TextInput(attrs={'class': 'form-control'}),
             'ativo': forms.CheckboxInput(attrs={'class': 'form-check-input'})
         }

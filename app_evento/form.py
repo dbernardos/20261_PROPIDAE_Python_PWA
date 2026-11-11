@@ -2,7 +2,7 @@ from django import forms
 from .models import Evento, Atividade, Apoiador
 from datetime import date, datetime
 
-# Create your EVENTO forms here.
+# FORMS do EVENTO.
 # -----------------------------------------------
 class EventoForm(forms.ModelForm):
 

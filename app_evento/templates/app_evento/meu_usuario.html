@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load django_bootstrap5 %}
 
 {% block title %}
   Meu Perfil - {{ usuario.nome }}
@@ -95,6 +96,7 @@
               </p>
             </div>
           </div>
+          <br>
 
           <!-- Botão de Edição -->
           <div class="text-end mt-4">

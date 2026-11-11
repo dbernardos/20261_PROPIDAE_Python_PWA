@@ -29,6 +29,8 @@ from .models import (
     tipoEvento,
 )
 
+# Views do EVENTO.
+# -----------------------------------------------
 
 # ==========================================================
 # FUNÇÕES AUXILIARES
@@ -235,7 +237,7 @@ def home(request):
 @never_cache
 def eventos_disponiveis(request):
     """Exibe os eventos públicos disponíveis no catálogo."""
-
+    eventos = Evento.objects.all()
 
     if request.user.is_authenticated:
         eventos = eventos.exclude(

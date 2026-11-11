@@ -4,11 +4,11 @@ from django.conf.urls.static import static
 from django.conf import settings
 from . import views
 
-# Pode usar {% url %} nos templates
 app_name = 'app_evento'
 
-# Create your EVENTO urls here.
+# URL dos EVENTOS.
 # -----------------------------------------------
+
 urlpatterns = [
     path('', views.eventos_disponiveis, name="urldis_evento"), 
     

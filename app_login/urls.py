@@ -10,12 +10,11 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 from django.views.decorators.cache import never_cache
 
-
-
 app_name = 'app_login'
 
-# Create your LOGIN urls here.
+# URL do LOGIN.
 # -----------------------------------------------
+
 urlpatterns = [
     path('', never_cache(LoginView.as_view(template_name='app_login/login.html', redirect_authenticated_user=True)), name='urllogin'),
 

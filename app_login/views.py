@@ -21,8 +21,9 @@ from .form import  EditarPerfilForm #, CadastroUsuarioForm,
 
 from .form import CadastroEtapa1Form, CadastroEtapa2Form, EditarPerfilForm
 
-# Create your LOGIN views here.
+# Views do LOGIN.
 # -----------------------------------------------
+
 def get_client_ip(request):
     """Obtém o IP do cliente"""
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')

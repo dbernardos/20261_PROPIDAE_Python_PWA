@@ -2,7 +2,7 @@ from django.db import models
 
 
 
-# Create your QUIZ models here.
+# MODELS do QUIZ.
 # -----------------------------------------------
 class Quiz(models.Model):
     """Model para os desafios/quiz"""
@@ -20,7 +20,7 @@ class Quiz(models.Model):
     valor_minimo = models.DecimalField(verbose_name="Valor Mínimo", max_digits=10, decimal_places=2, help_text="Valor mínimo aceitável")
     valor_maximo = models.DecimalField(verbose_name="Valor Máximo", max_digits=10, decimal_places=2, help_text="Valor máximo aceitável")
     valor_ideal = models.DecimalField(verbose_name="Valor Ideal", max_digits=10, decimal_places=2, blank=True, null=True, help_text="Valor ideal/resposta correta")
-    icone = models.CharField(max_length=50, default="bi-trophy", help_text="Classe do Bootstrap Icon")
+    #icone = models.CharField(max_length=50, default="bi-trophy", help_text="Classe do Bootstrap Icon")
 
     # Controle
     data_criacao = models.DateTimeField(auto_now_add=True)
