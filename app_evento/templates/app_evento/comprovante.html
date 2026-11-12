@@ -1,10 +1,43 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<style>
+    /* Isola o card do comprovante na impressão */
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        .comprovante-printable,
+        .comprovante-printable * {
+            visibility: visible;
+        }
+        .comprovante-printable {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            box-shadow: none !important;
+            border: 1px solid #ccc !important;
+        }
+        .comprovante-printable img {
+            max-height: 120px !important;
+            width: auto !important;
+            box-shadow: none !important;
+            display: block !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+        .btn, nav, footer, header {
+            display: none !important;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container my-5">
-    
-    <!-- Cabeçalho da Página -->
+
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
             <h1 class="h3 fw-bold mb-1">
@@ -22,10 +55,9 @@
         </div>
     </div>
 
-    <!-- Card Principal do Comprovante -->
+    <!-- Comprovante -->
     <div class="card border-0 shadow-sm rounded-3 overflow-hidden comprovante-printable">
-        
-        <!-- Topo do Card -->
+
         <div class="card-header bg-success text-white d-flex justify-content-between align-items-center py-3">
             <span class="badge bg-light text-success fw-bold text-uppercase px-3 py-2 fs-6">
                 {{ evento.get_tipoEvento_display|default:evento.tipoEvento }}
@@ -36,20 +68,19 @@
         </div>
 
         <div class="card-body p-4">
-            
-            <!-- Dados do Participante e Evento -->
+
+            <!-- Dados do evento e participante -->
             <div class="row align-items-center mb-4">
                 {% if evento.imagemBanner %}
                     <div class="col-lg-3 col-md-4 mb-3 mb-md-0">
                         <img src="{{ evento.imagemBanner.url }}" alt="{{ evento.nome }}" class="img-fluid rounded shadow-sm w-100" style="max-height: 160px; object-fit: cover;">
                     </div>
                 {% endif %}
-                
+
                 <div class="{% if evento.imagemBanner %}col-lg-9 col-md-8{% else %}col-12{% endif %}">
                     <h3 class="card-title fw-bold text-dark mb-2">{{ evento.nome }}</h3>
                     <p class="card-text text-muted mb-3">{{ evento.descricao|default:"Sem descrição informada." }}</p>
 
-                    <!-- Informações Rápidas -->
                     <div class="row g-3 text-secondary">
                         <div class="col-sm-6">
                             <i class="bi bi-person-circle me-2 text-success"></i>
@@ -73,7 +104,7 @@
 
             <hr class="my-4 text-muted">
 
-            <!-- Seção de QR Code e Código do Crachá -->
+            <!-- Credenciamento / QR Code -->
             <div class="row g-4 align-items-center bg-light p-3 rounded-3 border mb-4 text-center text-md-start">
                 <div class="col-md-3 text-center">
                     {% if inscricao.qrcode_imagem %}
@@ -95,8 +126,8 @@
             </div>
 
             {% if participacoes %}
-                
-                <!-- 1. ATIVIDADES INSCRITAS / FUTURAS OU EM ANDAMENTO -->
+
+                <!-- Atividades pendentes ou em andamento -->
                 <div class="mb-4">
                     <h5 class="fw-bold mb-3 text-dark">
                         <i class="bi bi-calendar-check me-2 text-success"></i>Atividades Confirmadas / Em Andamento
@@ -181,7 +212,7 @@
                     </div>
                 </div>
 
-                <!-- 2. ATIVIDADES CONCLUÍDAS -->
+                <!-- Atividades concluídas -->
                 <div class="mt-5">
                     <h5 class="fw-bold mb-3 text-dark">
                         <i class="bi bi-check-circle-fill me-2 text-success"></i>Atividades Concluídas
@@ -268,7 +299,6 @@
 
         </div>
 
-        <!-- Rodapé do Card -->
         <div class="card-footer bg-light p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
             <small class="text-muted">SEA - Sistema de Eventos Acadêmicos</small>
             <small class="text-muted">Gerado em {% now "d/m/Y H:i" %}</small>
@@ -276,36 +306,4 @@
 
     </div>
 </div>
-
-<!-- Estilo para Impressão -->
-<style>
-@media print {
-    body * {
-        visibility: hidden;
-    }
-    .comprovante-printable, .comprovante-printable * {
-        visibility: visible;
-    }
-    .comprovante-printable {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        box-shadow: none !important;
-        border: 1px solid #ccc !important;
-    }
-    .comprovante-printable img {
-        max-height: 120px !important; 
-        width: auto !important;      
-        box-shadow: none !important;  
-    
-        display: block !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-    }
-    .btn, nav, footer, header {
-        display: none !important;
-    }
-}
-</style>
 {% endblock %}

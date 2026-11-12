@@ -1,21 +1,18 @@
+from datetime import datetime
 from django import forms
-from .models import Evento, Atividade, Apoiador
-from datetime import date, datetime
+from .models import Apoiador, Atividade, Evento
 
-# FORMS do EVENTO.
-# -----------------------------------------------
+
 class EventoForm(forms.ModelForm):
-
-    # Campo de apoiadores 
     apoiadores = forms.CharField(
         required=False,
         label='Apoiadores / Patrocinadores (separe por vírgulas)',
         widget=forms.TextInput(attrs={
-            'placeholder': 'Ex: Google, Microsoft, Ambev', 
-            'class': 'form-control mb-3'
-        })
+            'placeholder': 'Ex: Google, Microsoft, Ambev',
+            'class': 'form-control mb-3',
+        }),
     )
-    
+
     class Meta:
         model = Evento
         fields = [
@@ -29,7 +26,6 @@ class EventoForm(forms.ModelForm):
             'dataFim',
             'tipoEvento',
         ]
-
         labels = {
             'nome': 'Nome do Evento',
             'descricao': 'Descrição',
@@ -41,21 +37,35 @@ class EventoForm(forms.ModelForm):
             'dataFim': 'Data de Término',
             'tipoEvento': 'Tipo do Evento',
         }
-        
         widgets = {
-            'nome': forms.TextInput(attrs={'placeholder': 'Ex.: XXIX Colóquio de Usinagem', 'class': 'form-control mb-3'}),
-            'descricao': forms.Textarea(attrs={'placeholder': 'Ex.: Resumo dos objetivos e temas abordados...', 'class': 'form-control mb-3', 'rows': 4}),
-            'apoiadores': forms.TextInput(attrs={'placeholder': 'Ex.: Weg, Embrapa, Marissol', 'class': 'form-control mb-3'}),
-            'emailContato': forms.EmailInput(attrs={'placeholder': 'Ex.: contato@evento.com', 'class': 'form-control mb-3'}),
-            'local': forms.TextInput(attrs={'placeholder': 'Ex.: Rua dos Imigrantes, 445, Rau, Jaraguá do Sul - SC, CEP 89254-430', 'class': 'form-control mb-3'}),
-            'imagemBanner': forms.FileInput(attrs={'class': 'form-control mb-3', 'accept': 'image/*'}),
+            'nome': forms.TextInput(attrs={
+                'placeholder': 'Ex.: XXIX Colóquio de Usinagem',
+                'class': 'form-control mb-3',
+            }),
+            'descricao': forms.Textarea(attrs={
+                'placeholder': 'Ex.: Resumo dos objetivos e temas abordados...',
+                'class': 'form-control mb-3',
+                'rows': 4,
+            }),
+            'emailContato': forms.EmailInput(attrs={
+                'placeholder': 'Ex.: contato@evento.com',
+                'class': 'form-control mb-3',
+            }),
+            'local': forms.TextInput(attrs={
+                'placeholder': 'Ex.: Rua dos Imigrantes, 445, Rau, Jaraguá do Sul - SC, CEP 89254-430',
+                'class': 'form-control mb-3',
+            }),
+            'imagemBanner': forms.FileInput(attrs={
+                'class': 'form-control mb-3',
+                'accept': 'image/*',
+            }),
             'dataInicio': forms.DateInput(
                 format='%Y-%m-%d',
-                attrs={'class': 'form-control mb-3', 'type': 'date'}
+                attrs={'class': 'form-control mb-3', 'type': 'date'},
             ),
             'dataFim': forms.DateInput(
                 format='%Y-%m-%d',
-                attrs={'class': 'form-control mb-3', 'type': 'date'}
+                attrs={'class': 'form-control mb-3', 'type': 'date'},
             ),
             'tipoEvento': forms.Select(attrs={'class': 'form-select mb-3'}),
         }
@@ -65,19 +75,16 @@ class EventoForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             nomes_apoiadores = [ap.nome for ap in self.instance.apoiadores.all()]
             self.initial['apoiadores'] = ', '.join(nomes_apoiadores)
-            
-        if self.instance and self.instance.pk and self.instance.dataInicio:
-            self.initial['dataInicio'] = self.instance.dataInicio.strftime('%Y-%m-%d')
-        if self.instance and self.instance.pk and self.instance.dataFim:
-            self.initial['dataFim'] = self.instance.dataFim.strftime('%Y-%m-%d')
+
+            if self.instance.dataInicio:
+                self.initial['dataInicio'] = self.instance.dataInicio.strftime('%Y-%m-%d')
+            if self.instance.dataFim:
+                self.initial['dataFim'] = self.instance.dataFim.strftime('%Y-%m-%d')
 
     def clean_apoiadores(self):
-        """Transforma a string digitada em uma lista de nomes limpos"""
         texto_apoiadores = self.cleaned_data.get('apoiadores', '')
         if not texto_apoiadores:
             return []
-        
-        # Divide por vírgula e remove espaços extras de cada nome
         return [nome.strip() for nome in texto_apoiadores.split(',') if nome.strip()]
 
     def clean(self):
@@ -91,19 +98,14 @@ class EventoForm(forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
-        # Salva o evento sem commitar no banco por enquanto
         evento = super().save(commit=False)
-
         nomes_apoiadores = self.cleaned_data.get('apoiadores', [])
 
         def save_m2m():
-            objetos_apoiadores = []
-            for nome in nomes_apoiadores:
-                # Busca se o apoiador já existe pelo nome ou cria um novo no banco
-                apoiador_obj, _ = Apoiador.objects.get_or_create(nome=nome)
-                objetos_apoiadores.append(apoiador_obj)
-            
-            # Associa a lista de objetos Apoiador ao evento
+            objetos_apoiadores = [
+                Apoiador.objects.get_or_create(nome=nome)[0]
+                for nome in nomes_apoiadores
+            ]
             evento.apoiadores.set(objetos_apoiadores)
 
         if commit:
@@ -113,11 +115,6 @@ class EventoForm(forms.ModelForm):
             self.save_m2m = save_m2m
 
         return evento
-        
-
-from datetime import datetime
-from django import forms
-from .models import Atividade
 
 
 class AtividadeForm(forms.ModelForm):
@@ -132,7 +129,6 @@ class AtividadeForm(forms.ModelForm):
             'horaFim',
             'limitePessoas',
         ]
-
         labels = {
             'nome': 'Nome da Atividade',
             'descricao': 'Descrição',
@@ -142,110 +138,68 @@ class AtividadeForm(forms.ModelForm):
             'horaFim': 'Hora de Término',
             'limitePessoas': 'Limite de Participantes',
         }
-
         widgets = {
-            'nome': forms.TextInput(
-                attrs={'placeholder': 'Ex.: Workshop de Gestão de Projetos'}
-            ),
-            'descricao': forms.Textarea(
-                attrs={
-                    'placeholder': 'Ex.: Tópicos abordados, dinâmicas e objetivos da atividade...',
-                    'rows': 4,
-                }
-            ),
+            'nome': forms.TextInput(attrs={
+                'placeholder': 'Ex.: Workshop de Gestão de Projetos',
+            }),
+            'descricao': forms.Textarea(attrs={
+                'placeholder': 'Ex.: Tópicos abordados, dinâmicas e objetivos da atividade...',
+                'rows': 4,
+            }),
             'tipoAtividade': forms.Select(),
-            'complementoLocal': forms.TextInput(
-                attrs={'placeholder': 'Ex.: Sala 204 - Bloco B'}
-            ),
+            'complementoLocal': forms.TextInput(attrs={
+                'placeholder': 'Ex.: Sala 204 - Bloco B',
+            }),
             'horaInicio': forms.DateTimeInput(
-                format='%Y-%m-%dT%H:%M', attrs={'type': 'datetime-local'}
+                format='%Y-%m-%dT%H:%M',
+                attrs={'type': 'datetime-local'},
             ),
             'horaFim': forms.DateTimeInput(
-                format='%Y-%m-%dT%H:%M', attrs={'type': 'datetime-local'}
+                format='%Y-%m-%dT%H:%M',
+                attrs={'type': 'datetime-local'},
             ),
-            'limitePessoas': forms.NumberInput(
-                attrs={'placeholder': 'Ex.: 50'}
-            ),
+            'limitePessoas': forms.NumberInput(attrs={
+                'placeholder': 'Ex.: 50',
+            }),
         }
-
-    def clean(self):
-        cleaned_data = super().clean()
-        horaInicio = cleaned_data.get('horaInicio')
-        horaFim = cleaned_data.get('horaFim')
-
-        evento = cleaned_data.get('evento') or getattr(
-            self.instance, 'evento', None
-        )
-
-        # 1. Checagem de ordem simples (término < início)
-        if horaInicio and horaFim and horaFim < horaInicio:
-            self.add_error(
-                'horaFim',
-                'A hora de término não pode ser anterior à hora de início.',
-            )
-
-        # 2. Checagem dos limites do Evento
-        if evento and horaInicio and horaFim:
-            # Converte para .date() para comparação segura se houver mistura de date/datetime
-            dt_atv_inicio = (
-                horaInicio.date()
-                if isinstance(horaInicio, datetime)
-                else horaInicio
-            )
-            dt_atv_fim = (
-                horaFim.date() if isinstance(horaFim, datetime) else horaFim
-            )
-
-            dt_ev_inicio = (
-                evento.dataInicio.date()
-                if isinstance(evento.dataInicio, datetime)
-                else evento.dataInicio
-            )
-            dt_ev_fim = (
-                evento.dataFim.date()
-                if isinstance(evento.dataFim, datetime)
-                else evento.dataFim
-            )
-
-            # Prepara as strings formatadas antecipadamente (garante que as variáveis sempre existam)
-            inicio_fmt = (
-                evento.dataInicio.strftime('%d/%m/%Y às %H:%M')
-                if isinstance(evento.dataInicio, datetime)
-                else evento.dataInicio.strftime('%d/%m/%Y')
-            )
-
-            fim_fmt = (
-                evento.dataFim.strftime('%d/%m/%Y às %H:%M')
-                if isinstance(evento.dataFim, datetime)
-                else evento.dataFim.strftime('%d/%m/%Y')
-            )
-
-            # Valida se a atividade começa antes do evento
-            if dt_atv_inicio < dt_ev_inicio:
-                self.add_error(
-                    'horaInicio',
-                    f'A atividade não pode começar antes do evento ({inicio_fmt}).',
-                )
-
-            # Valida se a atividade termina depois do evento
-            if dt_atv_fim > dt_ev_fim:
-                self.add_error(
-                    'horaFim',
-                    f'A atividade não pode terminar após o encerramento do evento ({fim_fmt}).',
-                )
-
-        return cleaned_data
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         if self.instance and self.instance.pk:
             if self.instance.horaInicio:
-                self.initial['horaInicio'] = self.instance.horaInicio.strftime(
-                    '%Y-%m-%dT%H:%M'
+                self.initial['horaInicio'] = self.instance.horaInicio.strftime('%Y-%m-%dT%H:%M')
+            if self.instance.horaFim:
+                self.initial['horaFim'] = self.instance.horaFim.strftime('%Y-%m-%dT%H:%M')
+
+    @staticmethod
+    def _para_data(valor):
+        return valor.date() if isinstance(valor, datetime) else valor
+
+    @staticmethod
+    def _formatar_data(valor):
+        formato = '%d/%m/%Y às %H:%M' if isinstance(valor, datetime) else '%d/%m/%Y'
+        return valor.strftime(formato)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        hora_inicio = cleaned_data.get('horaInicio')
+        hora_fim = cleaned_data.get('horaFim')
+        evento = cleaned_data.get('evento') or getattr(self.instance, 'evento', None)
+
+        if hora_inicio and hora_fim and hora_fim < hora_inicio:
+            self.add_error('horaFim', 'A hora de término não pode ser anterior à hora de início.')
+
+        if evento and hora_inicio and hora_fim:
+            if self._para_data(hora_inicio) < self._para_data(evento.dataInicio):
+                self.add_error(
+                    'horaInicio',
+                    f'A atividade não pode começar antes do evento ({self._formatar_data(evento.dataInicio)}).',
                 )
 
-            if self.instance.horaFim:
-                self.initial['horaFim'] = self.instance.horaFim.strftime(
-                    '%Y-%m-%dT%H:%M'
+            if self._para_data(hora_fim) > self._para_data(evento.dataFim):
+                self.add_error(
+                    'horaFim',
+                    f'A atividade não pode terminar após o encerramento do evento ({self._formatar_data(evento.dataFim)}).',
                 )
+
+        return cleaned_data

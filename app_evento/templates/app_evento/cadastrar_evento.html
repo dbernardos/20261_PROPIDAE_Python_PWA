@@ -3,92 +3,88 @@
 {% load django_bootstrap5 %}
 
 {% block title %}
-  {% if editando %}Editar Evento{% else %}Criar Evento{% endif %}
+    {% if editando %}Editar Evento{% else %}Criar Evento{% endif %}
 {% endblock %}
 
 {% block content %}
-  <section class="py-5">
+<section class="py-5">
     <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
 
-          <!-- Exibição de Mensagens do Django -->
-          {% if messages %}
-            {% for message in messages %}
-              <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-4" role="alert">
-                <i class="bi bi-exclamation-circle-fill me-2"></i>{{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            {% endfor %}
-          {% endif %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-4" role="alert">
+                            <i class="bi bi-exclamation-circle-fill me-2"></i>{{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
 
-          <h2 class="fw-bold text-verde-escuro mb-4 d-flex align-items-center">
-            {% if editando %}
-              <i class="bi bi-pencil-square me-2 text-verde-claro"></i>Editar Evento: {{ evento.nome }}
-            {% else %}
-              <i class="bi bi-calendar-plus me-2 text-verde-claro"></i>Cadastrar Novo Evento
-            {% endif %}
-          </h2>
+                <h2 class="fw-bold text-verde-escuro mb-4 d-flex align-items-center">
+                    {% if editando %}
+                        <i class="bi bi-pencil-square me-2 text-verde-claro"></i>Editar Evento: {{ evento.nome }}
+                    {% else %}
+                        <i class="bi bi-calendar-plus me-2 text-verde-claro"></i>Cadastrar Novo Evento
+                    {% endif %}
+                </h2>
 
-          <form method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm bg-white border-0">
-            {% csrf_token %}
+                <form method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm bg-white border-0">
+                    {% csrf_token %}
 
-            <div class="row g-3">
-              <!-- Nome do Evento -->
-              <div class="col-12">
-                {% bootstrap_field form_evento.nome %}
-              </div>
+                    <div class="row g-3">
+                        <!-- Dados básicos -->
+                        <div class="col-12">
+                            {% bootstrap_field form_evento.nome %}
+                        </div>
+                        <div class="col-12">
+                            {% bootstrap_field form_evento.descricao %}
+                        </div>
 
-              <!-- Descrição -->
-              <div class="col-12">
-                {% bootstrap_field form_evento.descricao %}
-              </div>
+                        <!-- Contato, local e apoio -->
+                        <div class="col-md-6">
+                            {% bootstrap_field form_evento.emailContato %}
+                        </div>
+                        <div class="col-md-6">
+                            {% bootstrap_field form_evento.local %}
+                        </div>
+                        <div class="col-12">
+                            {% bootstrap_field form_evento.apoiadores %}
+                        </div>
 
-              <!-- E-mail e Local-->
-              <div class="col-md-6">
-                {% bootstrap_field form_evento.emailContato %}
-              </div>
-              <div class="col-md-6">
-                {% bootstrap_field form_evento.local %}
-              </div>
+                        <!-- Período -->
+                        <div class="col-md-6">
+                            {% bootstrap_field form_evento.dataInicio %}
+                        </div>
+                        <div class="col-md-6">
+                            {% bootstrap_field form_evento.dataFim %}
+                        </div>
 
-              <!-- Apoiadores -->
-              <div class="col-12">
-                {% bootstrap_field form_evento.apoiadores %}
-              </div>
+                        <!-- Classificação e banner -->
+                        <div class="col-md-6">
+                            {% bootstrap_field form_evento.tipoEvento %}
+                        </div>
+                        <div class="col-md-6">
+                            {% bootstrap_field form_evento.imagemBanner %}
+                        </div>
+                    </div>
 
-              <!-- Datas -->
-              <div class="col-md-6">
-                {% bootstrap_field form_evento.dataInicio %}
-              </div>
-              <div class="col-md-6">
-                {% bootstrap_field form_evento.dataFim %}
-              </div>
+                    <!-- Ações -->
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{% url 'app_evento:urldis_myevento' %}" class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle me-1"></i>
+                            {% if editando %}Salvar Alterações{% else %}Salvar Evento{% endif %}
+                        </button>
+                    </div>
+                </form>
 
-              <!-- Tipo de Evento -->
-              <div class="col-md-6">
-                {% bootstrap_field form_evento.tipoEvento %}
-              </div>
-
-              <!-- Banner do Evento -->
-              <div class="col-md-6">
-                {% bootstrap_field form_evento.imagemBanner %}
-              </div>
             </div>
-
-            <!-- Botões de Ação -->
-            <div class="d-flex justify-content-end gap-2 mt-4">
-              <a href="{% url 'app_evento:urldis_myevento' %}" class="btn btn-outline-secondary">Cancelar</a>
-              <button type="submit" class="btn btn-success">
-                <i class="bi bi-check-circle me-1"></i>
-                {% if editando %}Salvar Alterações{% else %}Salvar Evento{% endif %}
-              </button>
-            </div>
-          </form>
         </div>
-      </div>
     </div>
-  </section>
+</section>
 {% endblock %}
 
 {% block extra_js %}
@@ -128,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function () {
         validarIntervaloDatas();
     });
 
+    // Garante os limites já aplicados ao abrir na tela de edição
     sincronizarLimites();
 
     if (formulario) {

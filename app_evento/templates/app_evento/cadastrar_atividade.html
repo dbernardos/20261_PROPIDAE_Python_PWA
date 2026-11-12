@@ -3,83 +3,80 @@
 {% load django_bootstrap5 %}
 
 {% block title %}
-  {% if editando %}Editar Atividade{% else %}Cadastrar Atividade{% endif %}
+    {% if editando %}Editar Atividade{% else %}Cadastrar Atividade{% endif %}
 {% endblock %}
 
 {% block content %}
-  <section class="py-5">
+<section class="py-5">
     <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
 
-          <!-- Exibição de Mensagens do Django -->
-          {% if messages %}
-            {% for message in messages %}
-              <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-4" role="alert">
-                <i class="bi bi-exclamation-circle-fill me-2"></i>{{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            {% endfor %}
-          {% endif %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-4" role="alert">
+                            <i class="bi bi-exclamation-circle-fill me-2"></i>{{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
 
-          <h2 class="fw-bold text-verde-escuro mb-4 d-flex align-items-center">
-            {% if editando %}
-              <i class="bi bi-pencil-square me-2 text-verde-claro"></i>Editar Atividade: {{ atividade.nome }}
-            {% else %}
-              <i class="bi bi-calendar-plus me-2 text-verde-claro"></i>Cadastrar Nova Atividade em {{ evento.nome }}
-            {% endif %}
-          </h2>
+                <h2 class="fw-bold text-verde-escuro mb-4 d-flex align-items-center">
+                    {% if editando %}
+                        <i class="bi bi-pencil-square me-2 text-verde-claro"></i>Editar Atividade: {{ atividade.nome }}
+                    {% else %}
+                        <i class="bi bi-calendar-plus me-2 text-verde-claro"></i>Cadastrar Nova Atividade em {{ evento.nome }}
+                    {% endif %}
+                </h2>
 
-          <!-- Formulário -->
-          <form method="POST" class="card p-4 shadow-sm bg-white border-0">
-            {% csrf_token %}
+                <form method="POST" class="card p-4 shadow-sm bg-white border-0">
+                    {% csrf_token %}
 
-            <div class="row g-3">
-              <!-- Nome da Atividade-->
-              <div class="col-12">
-                {% bootstrap_field form_atividade.nome %}
-              </div>
+                    <div class="row g-3">
+                        <!-- Dados básicos -->
+                        <div class="col-12">
+                            {% bootstrap_field form_atividade.nome %}
+                        </div>
+                        <div class="col-12">
+                            {% bootstrap_field form_atividade.descricao %}
+                        </div>
 
-              <!-- Descrição -->
-              <div class="col-12">
-                {% bootstrap_field form_atividade.descricao %}
-              </div>
+                        <!-- Classificação e local -->
+                        <div class="col-md-6">
+                            {% bootstrap_field form_atividade.tipoAtividade %}
+                        </div>
+                        <div class="col-md-6">
+                            {% bootstrap_field form_atividade.complementoLocal %}
+                        </div>
 
-              <!-- Tipo de Atividade e Complemento do Local -->
-              <div class="col-md-6">
-                {% bootstrap_field form_atividade.tipoAtividade %}
-              </div>
-              <div class="col-md-6">
-                {% bootstrap_field form_atividade.complementoLocal %}
-              </div>
+                        <!-- Período e capacidade -->
+                        <div class="col-md-6">
+                            {% bootstrap_field form_atividade.horaInicio %}
+                        </div>
+                        <div class="col-md-6">
+                            {% bootstrap_field form_atividade.horaFim %}
+                        </div>
+                        <div class="col-md-6">
+                            {% bootstrap_field form_atividade.limitePessoas %}
+                        </div>
+                    </div>
 
-              <!-- Horário de Início e Fim -->
-              <div class="col-md-6">
-                {% bootstrap_field form_atividade.horaInicio %}
-              </div>
-              <div class="col-md-6">
-                {% bootstrap_field form_atividade.horaFim %}
-              </div>
+                    <!-- Ações -->
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="{% url 'app_evento:urldet_myevento' evento.id %}" class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle me-1"></i>
+                            {% if editando %}Salvar Alterações{% else %}Salvar Atividade{% endif %}
+                        </button>
+                    </div>
+                </form>
 
-              <!-- Limite de Pessoas -->
-              <div class="col-md-6">
-                {% bootstrap_field form_atividade.limitePessoas %}
-              </div>
             </div>
-
-            <!-- Botões de Ação -->
-            <div class="d-flex justify-content-end gap-2 mt-4">
-              <a href="{% url 'app_evento:urldet_myevento' evento.id %}" class="btn btn-outline-secondary">Cancelar</a>
-              <button type="submit" class="btn btn-success">
-                <i class="bi bi-check-circle me-1"></i>
-                {% if editando %}Salvar Alterações{% else %}Salvar Atividade{% endif %}
-              </button>
-            </div>
-          </form>
         </div>
-      </div>
     </div>
-  </section>
+</section>
 {% endblock %}
 
 {% block extra_js %}
@@ -91,15 +88,15 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!horaInicio || !horaFim) return;
 
     const formulario = horaInicio.closest('form');
+
+    // Formato YYYY-MM-DDTHH:MM exigido pelo input datetime-local
     const minEvento = "{% if evento.dataInicio %}{{ evento.dataInicio|date:'Y-m-d' }}T00:00{% endif %}";
     const maxEvento = "{% if evento.dataFim %}{{ evento.dataFim|date:'Y-m-d' }}T23:59{% endif %}";
 
     function sincronizarLimites() {
-        // Limita o início dentro do período do evento
         horaInicio.min = minEvento;
         horaInicio.max = horaFim.value || maxEvento;
 
-        // Limita o término a partir do início da atividade
         horaFim.min = horaInicio.value || minEvento;
         horaFim.max = maxEvento;
     }
@@ -139,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
         validarIntervaloHorarios();
     });
 
-    // Aplica os limites logo ao carregar a página
+    // Garante os limites já aplicados ao abrir na tela de edição
     sincronizarLimites();
 
     if (formulario) {
