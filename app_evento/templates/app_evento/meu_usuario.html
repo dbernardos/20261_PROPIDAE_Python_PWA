@@ -11,7 +11,7 @@
   <div class="row justify-content-center">
     <div class="col-lg-10">
 
-      <!-- Mensagens do Django (Sucesso/Erro) -->
+      <!-- Mensagens do Django-->
       {% if messages %}
         {% for message in messages %}
           <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-4" role="alert">
@@ -28,31 +28,86 @@
         </div>
         <div class="card-body p-4">
           
-          <div class="row align-items-center mb-4">
-            <!-- Foto de Perfil -->
-            <div class="col-md-3 text-center mb-3 mb-md-0">
-              {% if usuario.fotoPerfil %}
-                <img src="{{ usuario.fotoPerfil.url }}" alt="Foto de {{ usuario.nome }}" class="rounded-circle img-thumbnail shadow" style="width: 140px; height: 140px; object-fit: cover;">
-              {% else %}
-                <div class="rounded-circle bg-verde-escuro text-white d-flex align-items-center justify-content-center shadow mx-auto" style="width: 140px; height: 140px; font-size: 3rem;">
-                  {{ usuario.nome|slice:":1"|upper }}
+          <div class="row align-items-center">
+            
+            <!-- COLUNA 1 -->
+            <div class="col-lg-7 mb-4 mb-lg-0">
+              <div class="d-flex align-items-center gap-3">
+                
+                <!-- Foto de Perfil -->
+                <div class="flex-shrink-0">
+                  {% if usuario.fotoPerfil %}
+                    <img src="{{ usuario.fotoPerfil.url }}" 
+                         alt="Foto de {{ usuario.nome }}" 
+                         class="rounded-circle img-thumbnail shadow" 
+                         style="width: 140px; height: 140px; min-width: 140px; object-fit: cover;">
+                  {% else %}
+                    <div class="rounded-circle bg-verde-escuro text-white d-flex align-items-center justify-content-center shadow" 
+                         style="width: 140px; height: 140px; min-width: 140px; font-size: 3rem;">
+                      {{ usuario.nome|slice:":1"|upper }}
+                    </div>
+                  {% endif %}
                 </div>
-              {% endif %}
+
+                <!-- Dados Principais-->
+                <div class="text-start">
+                  
+                  <h4 class="text-verde-escuro fw-bold mb-1">{{ usuario.nome|default:"Não informado" }}</h4>
+                  <p class="text-muted mb-2 small">
+                    <strong>Cargo:</strong> {{ usuario.cargo|default:"Não informado" }}
+                  </p>
+                  {% if usuario.empresa %}
+                    <span class="badge bg-verde-claro text-verde-escuro px-2 py-1 fw-bold" style="font-size: 0.85rem;">
+                      {{ usuario.empresa }}
+                    </span>
+                  {% endif %}
+
+                  <br>
+                  <!-- Badges Lado a Lado: Nível e Pontuação -->
+                  <!-- Badges Lado a Lado: Nível e Pontuação -->
+                  <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
+                    
+                    <!-- Badge de Nível -->
+                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3 py-1 fw-semibold d-inline-flex align-items-center gap-1">
+                      <i class="bi bi-shield-lock-fill text-warning"></i>
+                      Nível {{ usuario.nivel|default:"1" }}
+                    </span>
+
+                    <!-- Badge de Pontos -->
+                    <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle rounded-pill px-3 py-1 fw-bold d-inline-flex align-items-center gap-1">
+                      <i class="bi bi-star-fill text-success"></i>
+                      {{ usuario.pontos_totais|default:"0" }} pts
+                    </span>
+
+                  </div>
+                </div>
+                  
+              </div>
             </div>
 
-            <!-- Dados Principais -->
-            <div class="col-md-9">
-              <h3 class="text-verde-escuro fw-bold mb-1">{{ usuario.nome|default:"Não informado" }}</h3>
-              <p class="text-muted mb-2">
-                <strong>Cargo:</strong> {{ usuario.cargo|default:"Não informado" }}
-              </p>
-              {% if usuario.empresa %}
-                <span class="badge bg-verde-claro text-verde-escuro p-2 fw-bold" style="font-size: 0.9rem;">
-                  {{ usuario.empresa }}
-                </span>
-              {% endif %}
+            <!-- COLUNA 2 -->
+            <div class="col-lg-5">
+              <div class="row g-2 text-center">
+                <div class="col-4">
+                  <div class="card border-0 shadow-sm p-2 bg-white h-100">
+                    <h5 class="fw-bold text-primary mb-0">{{ usuario.total_eventos_participados|default:"0" }}</h5>
+                    <span class="text-muted" style="font-size: 0.75rem;">Eventos</span>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="card border-0 shadow-sm p-2 bg-white h-100">
+                    <h5 class="fw-bold text-success mb-0">{{ usuario.total_atividades|default:"0" }}</h5>
+                    <span class="text-muted" style="font-size: 0.75rem;">Atividades</span>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="card border-0 shadow-sm p-2 bg-white h-100">
+                    <h5 class="fw-bold text-warning mb-0">{{ usuario.pontos_totais|default:"0" }}</h5>
+                    <span class="text-muted" style="font-size: 0.75rem;">Pontos</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
 
           <hr class="my-4">
 
@@ -107,7 +162,8 @@
 
         </div>
       </div>
-
+    </div>
+      <br> 
       <!-- Formulário de Edição -->
       <div class="collapse {% if form.errors %}show{% endif %}" id="formEdicao">
         <div class="card card-custom border">

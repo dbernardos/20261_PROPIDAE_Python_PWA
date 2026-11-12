@@ -16,6 +16,9 @@
             <h5 class="mb-0 fw-bold" style="color: #1b5e3a;">{{ evento.nome }}</h5>
             <small class="text-muted">Selecione a atividade para check-in</small>
         </div>
+        <button onclick="window.location.reload(true);" class="btn btn-outline-success btn-sm rounded-pill shadow-sm" title="Atualizar dados">
+             <i class="bi bi-arrow-clockwise me-1"></i> Atualizar
+        </button>
     </div>
 
     <!-- Lista de Atividades -->
@@ -24,24 +27,34 @@
             
            {% if item.status == 'ativa' %}
             <!-- ATIVIDADE LIBERADA: Aponta direto para o leitor no app_quiz -->
-            <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=item.obj.codigo_leitor %}">
+            
                 <div class="card border-0 shadow-sm" style="border-left: 5px solid #1b5e3a !important; border-radius: 10px;">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="fw-bold mb-1 text-dark">{{ item.obj.nome }}</h6>
-                            <div class="text-muted small">
-                                <i class="bi bi-clock me-1"></i> {{ item.obj.horaInicio|time:"H:i" }} às {{ item.obj.horaFim|time:"H:i" }}
-                                <br>
-                                <i class="bi bi-geo-alt me-1"></i> {{ item.obj.local }}
+                            <div class="d-flex flex-wrap gap-3 mt-1 text-secondary small">
+                       
+                            <span><i class="bi bi-calendar-event text-verde-claro me-1"></i>{{ item.obj.evento.dataInicio|date:'d/m/Y' }}</span>
+                            <span><i class="bi bi-clock text-verde-claro me-1"></i>{{ item.obj.horaInicio|time:'H:i' }}</span>
+                           
+                            <span><i class="bi bi-calendar-event text-vermelho me-1"></i>{{ item.obj.evento.dataFim|date:'d/m/Y' }}</span>
+                            <span><i class="bi bi-clock text-vermelho me-1"></i>{{ item.obj.horaFim|time:'H:i' }}</span>
+   
+                            <span><i class="bi bi-geo-alt text-vermelho me-1"></i>{{ item.obj.complementoLocal|default:'A definir' }}</span>
+
+                            <span><i class="bi bi-key-fill text-primary me-1"></i>{{ item.obj.codigo_leitor|default:'Código não disponível' }}</span>
                             </div>
                         </div>
-                        <div class="text-center" style="color: #1b5e3a;">
-                            <i class="bi bi-qr-code-scan fs-3"></i>
-                            <div style="font-size: 0.7rem; font-weight: bold;">LER QR CODE</div>
-                        </div>
+                        <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=item.obj.codigo_leitor %}" class="stretched-link text-decoration-none">
+                             <div class="text-center" style="color: #1b5e3a;">
+                                <i class="bi bi-qr-code-scan fs-3"></i>
+                             <div style="font-size: 0.7rem; font-weight: bold;">LER QR CODE</div>
+                                 
+                            </div>
+                       </a>
                     </div>
                 </div>
-            </a>
+            
         
 
             {% elif item.status == 'futura' %}

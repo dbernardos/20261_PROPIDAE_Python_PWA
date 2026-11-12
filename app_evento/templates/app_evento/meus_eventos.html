@@ -140,13 +140,17 @@
                     
                     <div class="meus-eventos-card-topo">
                       <h3 class="meus-eventos-card-titulo">{{ item.nome }}</h3>
+
+                      
                       <span class="meus-eventos-tipo-badge">{{ item.get_tipoEvento_display|default:item.tipoEvento }}</span>
                     </div>
+                    
+                    
 
                     {% if item.descricao %}
                       <p class="meus-eventos-descricao">{{ item.descricao|truncatewords:25 }}</p>
                     {% endif %}
-
+                    
                     <!-- Metadados do Evento -->
                     <div class="meus-eventos-metadados">
                       <div>
@@ -167,16 +171,23 @@
                           <strong>Contato:</strong> {{ item.emailContato }}
                         </div>
                       {% endif %}
+                      <div>             
+                          <i class="bi bi-key"></i>
+                          <strong>Código do Evento:</strong> {{ item.codigo_evento }}                     
+                      </div>
                     </div>
 
                     <!-- Botões de Ação na Parte Inferior -->
                     <div class="meus-eventos-card-rodape">
-                      <div class="d-inline-flex gap-2 align-items-center">
-                        <a href="{% url 'app_evento:urldet_myevento' item.id %}" class="btn btn-success btn-sm">
+                      <div class="d-flex gap-3 align-items-center mb-2">
+                        <a href="{% url 'app_evento:urldet_myevento' item.id %}" class="btn btn-success btn-sm text-nowrap">
                           <i class="bi bi-info-circle me-1"></i> Detalhes do Evento
                         </a>
                       </div>
-
+                      
+                        <a href="{% url 'app_evento:urlgerenciar_participantes' item.id %}" class="btn btn-sm btn-outline-success">
+                            <i class="bi bi-people-fill me-1"></i> Participantes
+                        </a>
                       {% if user.is_staff or user.is_superuser %}
                         <div class="d-inline-flex gap-2">
                           <a href="{% url 'app_evento:urledt_evento' item.id %}" class="btn btn-warning btn-sm">

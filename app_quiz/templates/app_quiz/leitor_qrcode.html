@@ -16,8 +16,13 @@
 {% block content %}
 <main class="pwa-screen-container">
   <div class="qr-content-wrapper">
-    
+    <span class="badge text-dark border rounded-pill px-3 py-1 mb-2">
+        {{ atividade.evento.nome }}
+        <br>
+        {{ atividade.nome }}
+    </span>
     <div class="text-center cabecalho-pwa">
+      
       <h2>Validação de Presença</h2>
       <p>Aponte a câmera para o QR Code ou digite o código</p>
     </div>

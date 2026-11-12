@@ -17,10 +17,11 @@
     <meta name="apple-mobile-web-app-title" content="Portal SEA Eventos">
 
     <!-- Icons -->
-    <link rel="apple-touch-icon" href="{% static 'icons/icon-192.png' %}" />
-    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'icons/icon-192.png' %}" />
-    <link rel="icon" type="image/png" sizes="512x512" href="{% static 'icons/icon-512.png' %}" />
+    <link rel="apple-touch-icon" href="{% static 'images/images-default/logo-sea-fill-192.png' %}" />
+    <link rel="icon" type="image/svg+xml" sizes="192x192" href="{% static 'images/images-default/logo-sea-fill-192.svg' %}" />
+    <link rel="icon" type="image/svg+xml" sizes="512x512" href="{% static 'images/images-default/logo-sea-fill-512t.svg' %}" />
 
+   
     <title>
       {% block title %}
         XXIX Colóquio de Usinagem
@@ -50,7 +51,7 @@
           <div class="d-flex align-items-center">
           
             <a class="navbar-brand me-3" href="{% url 'app_evento:urldis_evento' %}">
-                <img src="{% static 'images/images-default/Icontransparent.png' %}" alt=" PORTAL SEA EVENTOS- SISTEMA DE EVENTOS ACADEMICOS" height="60" />
+                <img src="{% static 'images/images-default/logo-sea-fill-192.svg' %}" alt=" PORTAL SEA EVENTOS- SISTEMA DE EVENTOS ACADEMICOS" height="60" />
             </a>
 
             {% if request.user.is_authenticated %}

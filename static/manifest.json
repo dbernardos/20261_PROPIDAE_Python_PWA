@@ -1,12 +1,12 @@
 {
 "display_override": ["window-controls-overlay"], 
 "protocol_handlers": [{"protocol":"mailto","url":"/newEmail?to=%s"}], 
-"name": "EVENT SEA - Sistema Gerenciador de Eventos Acadêmicos",
+"name": "Portal SEA Eventos",
 "short_name": "SEA",
 "start_url": "/evento/pwa_home/",
 "scope": "/",
 "display": "standalone",
-"description": "Sistema Gerenciador de Eventos Acadêmicos",
+"description": "Sistema de Eventos Acadêmicos",
 "lang": "PT-BR",
 "dir": "auto",
 "theme_color": "#000000",
@@ -14,24 +14,24 @@
 "orientation": "any",
 "icons": [
     {
-        "src": "images/images-default/icontransparent.png",
+        "src": "images/images-default/logo-sea-fill-vetor.svg",
         "sizes": "512x512",
-        "type": "image/png",
+        "type": "image/svg+xml",
         "purpose": "maskable"
     },
     {
-        "src": "images/images-default/icontransparent.png",
+        "src": "images/images-default/logo-sea-fill-vetor.svg",
         "sizes": "192x192",
-        "type": "image/png",
+        "type": "image/svg+xml",
         "purpose": "any"
     }
 ],
 "screenshots": [
     {
-        "src": "images/images-default/icontransparent.png",
+        "src": "images/images-default/screenshot-sea.svg",
         "sizes": "2880x1800",
-        "type": "image/png",
-        "description": "A screenshot of the home page"
+        "type": "image/svg+xml",
+        "description": "Uma captura de tela do aplicativo SEA Eventos"
     }
 ],
 "related_applications": [
@@ -43,7 +43,7 @@
 "prefer_related_applications": false,
 "shortcuts": [
     {
-        "name":"EVENT SEA",
+        "name":"Portal SEA Eventos",
         "url":"/",
         "description":"shortcut"
     }

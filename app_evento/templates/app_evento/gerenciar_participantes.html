@@ -1,0 +1,506 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  {% if atividade %}
+    Participantes - {{ atividade.nome }}
+  {% else %}
+    Gerenciar Participantes - {{ evento.nome }}
+  {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .participantes-card {
+    background: #ffffff;
+    border: 1px solid #e3eae5;
+    border-radius: 0.9rem;
+  }
+
+  .avatar-circle {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    background-color: #e9f5ee;
+    color: #1b5e3a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 1.05rem;
+    overflow: hidden;
+    border: 2px solid #d1e7dd;
+  }
+
+  .avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .avatar-modal {
+    width: 84px;
+    height: 84px;
+    min-width: 84px;
+    font-size: 2rem;
+    border-width: 3px;
+  }
+
+  .nivel-progress {
+    height: 6px;
+    width: 100%;
+    max-width: 110px;
+    background-color: #e9ecef;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .rank-badge {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container fade-in">
+    
+    <!-- Cabeçalho -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+      <div>
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+          <span class="badge bg-verde-escuro px-3 py-2 rounded-pill shadow-sm">{{ evento.nome }}</span>
+          {% if atividade %}
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">
+              <i class="bi bi-funnel-fill me-1"></i>Atividade: {{ atividade.nome }}
+            </span>
+          {% endif %}
+        </div>
+
+        <h2 class="fw-bold mb-0 text-verde-escuro">
+          {% if atividade %}
+            Participantes e Ranking da Atividade
+          {% else %}
+            Gestão de Participantes e Ranking
+          {% endif %}
+        </h2>
+        <p class="text-muted mb-0 mt-1">
+          Total {% if atividade %}nesta atividade{% else %}de inscritos{% endif %}: 
+          <strong>{{ participantes|length }}</strong>
+          {% if max_pontos_possiveis > 0 %}
+            <span class="mx-2">•</span> Pontuação máxima: <strong>{{ max_pontos_possiveis }} pts</strong>
+          {% endif %}
+        </p>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        {% if atividade %}
+          <a href="{% url 'app_evento:urlgerenciar_participantes' evento.id %}" class="btn btn-outline-success d-flex align-items-center rounded-pill px-3 shadow-sm">
+            <i class="bi bi-people me-2"></i> Ver Todos do Evento
+          </a>
+        {% endif %}
+
+        <a href="{% url 'app_evento:urldet_myevento' evento.id %}" class="btn btn-outline-secondary d-flex align-items-center rounded-pill px-4 shadow-sm">
+          <i class="bi bi-arrow-left me-2"></i> Voltar
+        </a>
+      </div>
+    </div>
+
+    <!-- Tabela de Participantes (Sem coluna de Nível) -->
+    <div class="participantes-card shadow-sm p-0 overflow-hidden">
+      {% if participantes %}
+        <div class="table-responsive mb-0">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-verde-escuro border-bottom">
+              <tr>
+                <th class="ps-4 py-3 text-center" style="width: 60px;">#</th>
+                <th class="py-3 text-start">Participante</th>
+                <th class="py-3 text-center">Crachá</th>
+                <th class="py-3 text-center">Pontuação</th>
+                <th class="py-3 text-center">Inscrição</th>
+                <th class="pe-4 py-3 text-end">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for inscricao in participantes %}
+                <tr>
+                  <!-- Posição no Ranking -->
+                  <td class="ps-4 py-3 text-center">
+                    {% if forloop.counter == 1 and inscricao.pontuacao_total > 0 %}
+                      <span class="rank-badge bg-warning text-dark shadow-sm" title="1º Lugar">
+                        <i class="bi bi-trophy-fill"></i>
+                      </span>
+                    {% elif forloop.counter == 2 and inscricao.pontuacao_total > 0 %}
+                      <span class="rank-badge bg-secondary text-white shadow-sm" title="2º Lugar">2º</span>
+                    {% elif forloop.counter == 3 and inscricao.pontuacao_total > 0 %}
+                      <span class="rank-badge bg-light text-dark border shadow-sm" title="3º Lugar">3º</span>
+                    {% else %}
+                      <span class="text-muted fw-semibold small">{{ forloop.counter }}º</span>
+                    {% endif %}
+                  </td>
+
+                  <!-- Foto, Nome e E-mail -->
+                  <td class="py-3">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="avatar-circle shadow-sm">
+                        {% if inscricao.foto_perfil_url %}
+                          <img src="{{ inscricao.foto_perfil_url }}"
+                               alt="Foto de perfil"
+                               onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
+                          <span class="d-none">
+                            {% if inscricao.usuario.nome %}
+                              {{ inscricao.usuario.nome|first|upper }}
+                            {% elif inscricao.usuario.user_django.get_full_name %}
+                              {{ inscricao.usuario.user_django.get_full_name|first|upper }}
+                            {% else %}
+                              {{ inscricao.usuario.user_django.username|first|upper }}
+                            {% endif %}
+                          </span>
+                        {% else %}
+                          <span>
+                            {% if inscricao.usuario.nome %}
+                              {{ inscricao.usuario.nome|first|upper }}
+                            {% elif inscricao.usuario.user_django.get_full_name %}
+                              {{ inscricao.usuario.user_django.get_full_name|first|upper }}
+                            {% else %}
+                              {{ inscricao.usuario.user_django.username|first|upper }}
+                            {% endif %}
+                          </span>
+                        {% endif %}
+                      </div>
+                      <div>
+                        <a href="#" class="fw-bold text-dark text-decoration-none d-block" data-bs-toggle="modal" data-bs-target="#modalDetalhes{{ inscricao.id }}">
+                          {% if inscricao.usuario.nome %}
+                            {{ inscricao.usuario.nome }}
+                          {% elif inscricao.usuario.user_django.get_full_name %}
+                            {{ inscricao.usuario.user_django.get_full_name }}
+                          {% else %}
+                            {{ inscricao.usuario.user_django.username }}
+                          {% endif %}
+                        </a>
+                        <small class="text-muted d-block">
+                          {{ inscricao.usuario.email|default:inscricao.usuario.user_django.email|default:"Sem e-mail" }}
+                        </small>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Crachá -->
+                  <td class="text-center font-monospace text-success fw-bold">
+                    {% if inscricao.cracha %}
+                      <span class="border border-success bg-success-subtle px-2 py-1 rounded">
+                        {{ inscricao.cracha }}
+                      </span>
+                    {% else %}
+                      <span class="text-muted fw-normal">---</span>
+                    {% endif %}
+                  </td>
+
+                  <!-- Pontuação -->
+                  <td class="text-center">
+                    <span class="fw-bold fs-6 text-verde-escuro">{{ inscricao.pontuacao_total }}</span>
+                    <small class="text-muted">pts</small>
+                    <small class="text-muted d-block" style="font-size: 0.75rem;">
+                      {{ inscricao.total_respondidos }} desafio{{ inscricao.total_respondidos|pluralize }}
+                    </small>
+                  </td>
+
+                  <!-- Data Inscrição -->
+                  <td class="text-center text-muted small">
+                    {{ inscricao.dataHora|date:"d/m/Y H:i" }}
+                  </td>
+
+                  <!-- Ações -->
+                  <td class="pe-4 text-end">
+                    <div class="d-inline-flex gap-1">
+                      <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalDetalhes{{ inscricao.id }}" title="Ver Ficha Completa">
+                        <i class="bi bi-person-vcard me-1"></i> Ficha
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2" data-bs-toggle="modal" data-bs-target="#modalExcluir{{ inscricao.id }}" title="Remover">
+                        <i class="bi bi-person-x-fill"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <!-- Estado Vazio -->
+        <div class="p-5 text-center text-muted bg-light">
+          <i class="bi bi-people text-secondary opacity-50 mb-3" style="font-size: 4rem;"></i>
+          <h5 class="text-dark fw-bold">
+            {% if atividade %}
+              Nenhum participante vinculado a esta atividade
+            {% else %}
+              Nenhum participante inscrito ainda
+            {% endif %}
+          </h5>
+          <p class="mb-0">Quando os usuários realizarem a inscrição, eles aparecerão listados aqui.</p>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- ==============================================
+       MODAIS (FORA DO CONTAINER PRINCIPAL)
+  ================================================ -->
+  {% for inscricao in participantes %}
+    
+    <!-- Modal Ficha Completa do Participante (Com Nível) -->
+    <div class="modal fade" id="modalDetalhes{{ inscricao.id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+          <div class="modal-header bg-verde-escuro text-white border-0 p-4">
+            <div class="d-flex align-items-center gap-3">
+              <div class="avatar-circle avatar-modal bg-white text-verde-escuro shadow">
+                {% if inscricao.foto_perfil_url %}
+                  <img src="{{ inscricao.foto_perfil_url }}"
+                       alt="Foto de perfil"
+                       onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
+                  <span class="d-none">
+                    {% if inscricao.usuario.nome %}
+                      {{ inscricao.usuario.nome|first|upper }}
+                    {% elif inscricao.usuario.user_django.get_full_name %}
+                      {{ inscricao.usuario.user_django.get_full_name|first|upper }}
+                    {% else %}
+                      {{ inscricao.usuario.user_django.username|first|upper }}
+                    {% endif %}
+                  </span>
+                {% else %}
+                  <span>
+                    {% if inscricao.usuario.nome %}
+                      {{ inscricao.usuario.nome|first|upper }}
+                    {% elif inscricao.usuario.user_django.get_full_name %}
+                      {{ inscricao.usuario.user_django.get_full_name|first|upper }}
+                    {% else %}
+                      {{ inscricao.usuario.user_django.username|first|upper }}
+                    {% endif %}
+                  </span>
+                {% endif %}
+              </div>
+              <div>
+                <h5 class="modal-title fw-bold mb-1">
+                  {% if inscricao.usuario.nome %}
+                    {{ inscricao.usuario.nome }}
+                  {% elif inscricao.usuario.user_django.get_full_name %}
+                    {{ inscricao.usuario.user_django.get_full_name }}
+                  {% else %}
+                    {{ inscricao.usuario.user_django.username }}
+                  {% endif %}
+                </h5>
+                <div class="d-flex flex-wrap align-items-center gap-2 small">
+                  <span class="badge bg-warning text-dark rounded-pill px-3 fw-bold">
+                    <i class="bi bi-shield-fill me-1"></i>Nível {{ inscricao.nivel }}
+                  </span>
+                  <span class="opacity-75">@{{ inscricao.usuario.user_django.username }}</span>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white align-self-start" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body p-4 bg-light">
+            <!-- Resumo de Desempenho (Incluindo Nível) -->
+            <div class="row g-2 mb-4 text-center">
+              <div class="col-6 col-md-3">
+                <div class="bg-white border rounded-3 p-3 h-100 shadow-sm">
+                  <span class="text-muted small d-block">Pontuação</span>
+                  <strong class="fs-4 text-verde-escuro">{{ inscricao.pontuacao_total }}</strong>
+                  <small class="text-muted d-block">pontos</small>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="bg-white border rounded-3 p-3 h-100 shadow-sm d-flex flex-column justify-content-between">
+                  <div>
+                    <span class="text-muted small d-block">Nível</span>
+                    <strong class="fs-4 text-warning-emphasis">{{ inscricao.nivel }}</strong>
+                  </div>
+                  <div class="mt-1">
+                    <div class="nivel-progress mx-auto mb-1" title="{{ inscricao.nivel_progresso }}% para o Nível {{ inscricao.nivel|add:1 }}">
+                      <div class="bg-success h-100" style="width: {{ inscricao.nivel_progresso }}%;"></div>
+                    </div>
+                    <small class="text-muted d-block" style="font-size: 0.7rem;">{{ inscricao.nivel_progresso }}% p/ Nível {{ inscricao.nivel|add:1 }}</small>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="bg-white border rounded-3 p-3 h-100 shadow-sm">
+                  <span class="text-muted small d-block">Respondidos</span>
+                  <strong class="fs-4 text-dark">{{ inscricao.total_respondidos }}</strong>
+                  <small class="text-muted d-block">desafios</small>
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="bg-white border rounded-3 p-3 h-100 shadow-sm">
+                  <span class="text-muted small d-block">Acertos</span>
+                  <strong class="fs-4 text-success">{{ inscricao.acertos_exatos }}</strong>
+                  <small class="text-muted d-block">+ {{ inscricao.aproximados }} aprox.</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dados Cadastrais Completos -->
+            <h6 class="fw-bold text-verde-escuro mb-2">
+              <i class="bi bi-person-lines-fill me-1"></i> Dados do Participante
+            </h6>
+            <div class="bg-white border rounded-3 p-3 mb-4 shadow-sm">
+              <div class="row g-3 small">
+                <div class="col-sm-6">
+                  <span class="text-muted d-block">E-mail</span>
+                  <strong class="text-dark">{{ inscricao.usuario.email|default:inscricao.usuario.user_django.email|default:"Não informado" }}</strong>
+                </div>
+                <div class="col-sm-6">
+                  <span class="text-muted d-block">Crachá</span>
+                  <strong class="text-success font-monospace">{{ inscricao.cracha|default:"Não definido" }}</strong>
+                </div>
+                <div class="col-sm-6">
+                  <span class="text-muted d-block">Data de Inscrição</span>
+                  <strong class="text-dark">{{ inscricao.dataHora|date:"d/m/Y H:i" }}</strong>
+                </div>
+                <div class="col-sm-6">
+                  <span class="text-muted d-block">Status da Inscrição</span>
+                  {% if inscricao.ativa %}
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">Ativa</span>
+                  {% else %}
+                    <span class="badge bg-secondary-subtle text-secondary">Inativa</span>
+                  {% endif %}
+                </div>
+
+                {% for item in inscricao.dados_completos %}
+                  <div class="{% if item.label == 'Biografia' %}col-12{% else %}col-sm-6{% endif %}">
+                    <span class="text-muted d-block">{{ item.label }}</span>
+                    <strong class="text-dark">{{ item.valor }}</strong>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Histórico de Respostas -->
+            <h6 class="fw-bold text-verde-escuro mb-2">
+              <i class="bi bi-list-check me-1"></i> Histórico de Desafios Respondidos
+            </h6>
+            <div class="bg-white border rounded-3 overflow-hidden shadow-sm">
+              {% if inscricao.respostas_lista %}
+                <div class="table-responsive">
+                  <table class="table table-sm align-middle mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th class="ps-3">Desafio</th>
+                        <th class="text-center">Resposta</th>
+                        <th class="text-center">Resultado</th>
+                        <th class="pe-3 text-end">Pontos</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for resp in inscricao.respostas_lista %}
+                        <tr>
+                          <td class="ps-3">
+                            <strong class="text-dark d-block small">#{{ resp.quiz.numero }} - {{ resp.quiz.titulo }}</strong>
+                            {% if not atividade %}
+                              <small class="text-muted" style="font-size: 0.72rem;">{{ resp.participa.atividade.nome }}</small>
+                            {% endif %}
+                          </td>
+                          <td class="text-center small">
+                            {% if resp.quiz.tipo == 'MULTIPLA' %}
+                              Alt. {{ resp.resposta_texto }}
+                            {% else %}
+                              {{ resp.valor_resposta }} {{ resp.quiz.unidade_medida }}
+                            {% endif %}
+                          </td>
+                          <td class="text-center">
+                            {% if resp.status == 'certo' %}
+                              <span class="badge bg-success rounded-pill">Certo</span>
+                            {% elif resp.status == 'aproximado' %}
+                              <span class="badge bg-warning text-dark rounded-pill">Aproximado</span>
+                            {% else %}
+                              <span class="badge bg-danger rounded-pill">Errado</span>
+                            {% endif %}
+                          </td>
+                          <td class="pe-3 text-end fw-bold text-verde-escuro small">
+                            +{{ resp.pontos_conquistados }}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p class="text-muted small text-center py-3 mb-0">Nenhum desafio respondido até o momento.</p>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="modal-footer border-0 bg-white p-3">
+            <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Fechar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Exclusão -->
+    <div class="modal fade" id="modalExcluir{{ inscricao.id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+          <div class="modal-header bg-danger text-white border-0">
+            <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Remover Participante</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center p-4">
+            <div class="avatar-circle mx-auto mb-3 text-danger bg-danger bg-opacity-10 border-danger" style="width: 70px; height: 70px; font-size: 2rem;">
+              <i class="bi bi-person-x"></i>
+            </div>
+            <h5 class="text-dark fw-bold">Tem certeza?</h5>
+            <p class="text-muted mb-1">
+              {% if atividade %}
+                Você está prestes a remover da atividade <strong>{{ atividade.nome }}</strong>:
+              {% else %}
+                Você está prestes a remover a inscrição no evento de:
+              {% endif %}
+            </p>
+            <p class="fw-bold fs-5 text-dark mb-3">
+              {% if inscricao.usuario.nome %}
+                {{ inscricao.usuario.nome }}
+              {% elif inscricao.usuario.user_django.get_full_name %}
+                {{ inscricao.usuario.user_django.get_full_name }}
+              {% else %}
+                {{ inscricao.usuario.user_django.username }}
+              {% endif %}
+            </p>
+            <div class="alert alert-warning border-warning border-opacity-50 small mb-0 rounded-3">
+              <i class="bi bi-info-circle-fill me-1"></i>
+              {% if atividade %}
+                Isso removerá a participação e as respostas vinculadas a esta atividade.
+              {% else %}
+                Isso apagará todo o progresso e as respostas vinculadas a este usuário neste evento.
+              {% endif %}
+            </div>
+          </div>
+          <div class="modal-footer border-0 bg-light p-3">
+            <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+            <form method="POST" action="{% if atividade %}{% url 'app_evento:urlgerenciar_participantes_atividade' evento.id atividade.id %}{% else %}{% url 'app_evento:urlgerenciar_participantes' evento.id %}{% endif %}">
+              {% csrf_token %}
+              <input type="hidden" name="inscricao_id" value="{{ inscricao.id }}">
+              <input type="hidden" name="acao" value="remover_participante">
+              <button type="submit" class="btn btn-danger rounded-pill px-4 shadow-sm">Sim, Remover</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  {% endfor %}
+
+</section>
+{% endblock %}

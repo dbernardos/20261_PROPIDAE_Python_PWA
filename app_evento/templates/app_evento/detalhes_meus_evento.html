@@ -30,34 +30,33 @@
       </div>
 
       <!-- Banner e Detalhes Principais do Evento -->
-      <div class="card card-custom shadow-sm mb-5 border-0 overflow-hidden">
-          <div class="row g-0 h-100">
+        <div class="card card-custom shadow-sm mb-5 border-0 overflow-hidden">
+          <div class="row g-0">
             
-              {% if evento.imagemBanner %}
-                <div class="col-12 col-xl-4 eventos-banner">              
-                    <img src="{{ evento.imagemBanner.url }}" 
-                        alt="Banner do {{ evento.nome }}" 
-                        class="img-fluid eventos-banner-img w-100 h-100" 
-                        style="object-fit: cover; min-height: 200px;" 
-                        loading="lazy" />                 
-               </div> 
-              {% endif %}
-              
-              <div class="col-12 col-xl-8">
-                  <div class="eventos-card-conteudo p-4">
+            {% if evento.imagemBanner %}
+              <div class="col-12 col-lg-4 eventos-banner d-flex align-items-center justify-content-center">              
+                <img src="{{ evento.imagemBanner.url }}" 
+                    alt="Banner do {{ evento.nome }}" 
+                    class="img-fluid eventos-banner-img" 
+                    loading="lazy" />                 
+              </div> 
+            {% endif %}
+            
+            <div class="col-12 {% if evento.imagemBanner %}col-lg-8{% endif %}">
+              <div class="eventos-card-conteudo p-4">
                     <!-- Topo -->
                     <div class="eventos-card-topo d-flex justify-content-between align-items-start gap-2 mb-3">
                       <div class="eventos-card-identificacao">
-                        <p class="eventos-card-etiqueta text-muted small mb-1">
-                          Evento acadêmico
-                        </p>
+                      <span class="badge bg-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center mb-2">
+                        <i class="bi bi-tag-fill me-1"></i> {% firstof evento.get_tipoEvento_display evento.tipoEvento 'Evento' %}
+                      </span>
+                      </span>
                         <h1 class="h2 fw-bold text-verde-escuro mb-0">
                           {{ evento.nome }}
                         </h1>
                       </div>
-
-                      <span class="badge bg-light text-dark border eventos-tipo-badge py-2 px-3">
-                        {% firstof evento.get_tipoEvento_display evento.tipoEvento 'Evento' %}
+                      <span class="eventos-codigo-badge badge rounded-pill border py-2 px-3 font-monospace" title="Código do Evento">
+                        <i class="bi bi-key-fill"></i> {{ evento.codigo_evento }}
                       </span>
                     </div>
 
@@ -161,6 +160,9 @@
                       <span class="badge bg-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center mb-2">
                         <i class="bi bi-tag-fill me-1"></i> {% firstof atividade.get_tipoAtividade_display atividade.tipoAtividade 'Atividade' %}
                       </span>
+                      <span class="eventos-codigo-badge badge rounded-pill border py-2 px-3 font-monospace" title="Código da Atividade">
+                        <i class="bi bi-key-fill"></i> {{ atividade.codigo_leitor }}
+                      </span>
                       <h4 class="h4 fw-bold text-verde-escuro mb-0">{{ atividade.nome }}</h4>
                     </div>
 
@@ -177,7 +179,9 @@
                       <a href="{% url 'app_evento:urlsorteio_atividade' atividade.id %}" class="btn btn-warning text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm">
                         <i class="bi bi-gift-fill me-1"></i> Sorteio
                       </a>
-                      
+                      <a href="{% url 'app_evento:urlgerenciar_participantes_atividade' evento.id atividade.id %}" class="btn btn-sm btn-outline-secondary">
+                          <i class="bi bi-person-lines-fill me-1"></i> Participantes
+                      </a>
                       <a href="{% url 'app_evento:urleditar_atividade' atividade.id %}" class="btn btn-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm" title="Editar Atividade">
                         <i class="bi bi-pencil-square me-1"></i> Editar
                       </a>
