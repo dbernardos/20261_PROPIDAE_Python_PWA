@@ -2,6 +2,8 @@ from django.db import models
 from django.utils import timezone
 import uuid
 from django.contrib.auth.models import User
+from django.db.models import Sum, Q
+from django.core.exceptions import ValidationError
 
 # MODELS do LOGIN.
 # -----------------------------------------------
@@ -31,21 +33,59 @@ class Usuario(models.Model):
     
     def __str__(self):
         return self.nome 
-'''
+
     @property
     def pontos_totais(self):
-        """Soma todos os pontos de quizzes acertados em todos os eventos e atividades"""
-        from app_quiz.models import Resposta
-        
-        resultado = Resposta.objects.filter(
-            participa__perfil=self,  # Ajuste conforme seu relacionamento no Participa
-            correto=True
-        ).aggregate(
-            total=Sum('quiz__pontos')
+        """Soma todos os pontos conquistados pelo usuário em quizzes concluídos."""
+        if not hasattr(self, '_cache_pontos_totais'):
+            from app_quiz.models import Resposta
+
+            respostas = Resposta.objects.filter(
+                participa__inscricao__usuario=self,
+                completo=True,
+            ).select_related('quiz')
+
+            self._cache_pontos_totais = sum(
+                (getattr(r, 'pontos_conquistados', 0) or 0) for r in respostas
+            )
+        return self._cache_pontos_totais
+
+    @property
+    def nivel(self):
+        """Calcula o nível inteiro a partir da pontuação total (100 pts por nível, iniciando no 1)."""
+        pontos = max(0, self.pontos_totais)
+        return (pontos // 100) + 1
+
+    @property
+    def nivel_progresso(self):
+        """Percentual de progresso (0 a 100) para alcançar o próximo nível."""
+        pontos = max(0, self.pontos_totais)
+        return round(((pontos % 100) / 100) * 100)
+
+    @property
+    def total_eventos_participados(self):
+        """Quantidade total de eventos em que o usuário possui inscrição."""
+        from app_evento.models import Inscricao
+
+        return (
+            Inscricao.objects.filter(usuario=self)
+            .values('evento_id')
+            .distinct()
+            .count()
+        )
+
+    @property
+    def total_atividades(self):
+        """Quantidade total de atividades em que o usuário registrou participação."""
+        from app_evento.models import Participa
+
+        return (
+            Participa.objects.filter(inscricao__usuario=self)
+            .values('atividade_id')
+            .distinct()
+            .count()
         )
         
-        return resultado['total'] or 0
-'''
 '''
 class LogAcesso(models.Model):
     """Model para registrar acessos dos participantes"""
@@ -58,4 +98,4 @@ class LogAcesso(models.Model):
         verbose_name = "Log de Acesso"
         verbose_name_plural = "Logs de Acesso"
         ordering = ['-data_acesso']
-    '''
+'''

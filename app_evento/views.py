@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
+from django.db import models as django_models
 
 from app_login.models import Usuario
 
@@ -543,8 +544,174 @@ def meus_eventos_disponiveis(request):
         context,
     )
 
+def _obter_foto_perfil(usuario):
+    """Detecta automaticamente o campo de foto no model Usuario e retorna sua URL."""
+    if not usuario:
+        return None
 
-# ==========================================================
+    for field in usuario._meta.fields:
+        if isinstance(field, (django_models.ImageField, django_models.FileField)):
+            arquivo = getattr(usuario, field.name, None)
+            if arquivo:
+                try:
+                    return arquivo.url
+                except ValueError:
+                    pass
+
+    for attr in ('foto', 'foto_perfil', 'foto_usuario', 'fotoUsuario', 'avatar', 'imagem', 'imagem_perfil', 'url_foto'):
+        valor = getattr(usuario, attr, None)
+        if not valor:
+            continue
+        if hasattr(valor, 'url'):
+            try:
+                return valor.url
+            except ValueError:
+                continue
+        if isinstance(valor, str) and valor.strip():
+            return valor.strip()
+
+    return None
+
+
+def _extrair_dados_completos(usuario):
+    """Coleta todas as informações cadastradas no perfil Usuario para exibir na Ficha."""
+    campos_possiveis = [
+        ('cpf', 'CPF'),
+        ('telefone', 'Telefone'),
+        ('dataNascimento', 'Data de Nascimento'),
+        ('empresa', 'Empresa / Instituição'),
+        ('cargo', 'Cargo'),
+        ('formacao', 'Formação Acadêmica'),
+        ('biografia', 'Biografia'),
+    ]
+    detalhes = []
+    for attr, label in campos_possiveis:
+        valor = getattr(usuario, attr, None)
+        if valor:
+            if hasattr(valor, 'strftime'):
+                valor = valor.strftime('%d/%m/%Y')
+            detalhes.append({'label': label, 'valor': valor})
+    return detalhes
+
+
+def _calcular_nivel(pontos, pontos_por_nivel=100):
+    """Calcula o nível inteiro a partir da pontuação (ex: 0-99 pts = Nível 1, 100-199 = Nível 2)."""
+    pontos = max(0, pontos or 0)
+    nivel = (pontos // pontos_por_nivel) + 1
+    progresso = round(((pontos % pontos_por_nivel) / pontos_por_nivel) * 100)
+
+    return {
+        'numero': nivel,
+        'progresso': progresso,
+    }
+
+
+@login_required
+def gerenciar_participantes(request, evento_id, atividade_id=None):
+    from .models import Evento, Atividade, Inscricao, Participa
+    from app_quiz.models import Quiz, Resposta
+
+    evento = get_object_or_404(Evento, id=evento_id)
+    atividade = None
+
+    if atividade_id:
+        atividade = get_object_or_404(Atividade, id=atividade_id, evento=evento)
+
+    def redirecionar_retorno():
+        if atividade:
+            return redirect(
+                'app_evento:urlgerenciar_participantes_atividade',
+                evento_id=evento.id,
+                atividade_id=atividade.id,
+            )
+        return redirect('app_evento:urlgerenciar_participantes', evento_id=evento.id)
+
+    # Ação POST: Remoção do participante (da atividade filtrada ou do evento inteiro)
+    if request.method == 'POST':
+        acao = request.POST.get('acao')
+
+        if acao == 'remover_participante':
+            inscricao_id = request.POST.get('inscricao_id')
+            inscricao = get_object_or_404(Inscricao, id=inscricao_id, evento=evento)
+
+            if atividade:
+                Participa.objects.filter(inscricao=inscricao, atividade=atividade).delete()
+                messages.success(request, f'Participante removido da atividade "{atividade.nome}".')
+            else:
+                inscricao.delete()
+                messages.success(request, 'Participante removido do evento com sucesso.')
+
+            return redirecionar_retorno()
+
+    # Consulta GET: Geral do evento ou filtrada por atividade
+    if atividade:
+        inscricoes_ids = Participa.objects.filter(atividade=atividade).values_list('inscricao_id', flat=True)
+        participantes_qs = (
+            Inscricao.objects.filter(id__in=inscricoes_ids, evento=evento)
+            .select_related('usuario', 'usuario__user_django')
+        )
+        quizzes_ativos = list(Quiz.objects.filter(atividade=atividade, ativo=True))
+        respostas_qs = Resposta.objects.filter(
+            participa__inscricao__in=participantes_qs,
+            participa__atividade=atividade,
+            completo=True,
+        ).select_related('quiz', 'participa')
+    else:
+        participantes_qs = (
+            Inscricao.objects.filter(evento=evento)
+            .select_related('usuario', 'usuario__user_django')
+        )
+        quizzes_ativos = list(Quiz.objects.filter(atividade__evento=evento, ativo=True))
+        respostas_qs = Resposta.objects.filter(
+            participa__inscricao__in=participantes_qs,
+            participa__atividade__evento=evento,
+            completo=True,
+        ).select_related('quiz', 'participa', 'participa__atividade')
+
+    # Pontuação máxima possível nos desafios ativos
+    max_pontos_possiveis = 0
+    for q in quizzes_ativos:
+        resp_simulada = Resposta(quiz=q, status='certo', correto=True, completo=True)
+        max_pontos_possiveis += getattr(resp_simulada, 'pontos_conquistados', 100) or 100
+
+    # Agrupa respostas por inscrição em memória para evitar consultas N+1
+    respostas_por_inscricao = {}
+    for resp in respostas_qs:
+        insc_id = resp.participa.inscricao_id
+        respostas_por_inscricao.setdefault(insc_id, []).append(resp)
+
+    # Monta métricas, nível inteiro, foto e ficha de cada participante
+    participantes = list(participantes_qs)
+    for inscricao in participantes:
+        resps = respostas_por_inscricao.get(inscricao.id, [])
+        pontos = sum((getattr(r, 'pontos_conquistados', 0) or 0) for r in resps)
+        acertos_exatos = sum(1 for r in resps if r.status == 'certo')
+        aproximados = sum(1 for r in resps if r.status == 'aproximado')
+
+        nivel_dados = _calcular_nivel(pontos, pontos_por_nivel=100)
+
+        inscricao.pontuacao_total = pontos
+        inscricao.total_respondidos = len(resps)
+        inscricao.acertos_exatos = acertos_exatos
+        inscricao.aproximados = aproximados
+        inscricao.respostas_lista = resps
+        inscricao.nivel = nivel_dados['numero']
+        inscricao.nivel_progresso = nivel_dados['progresso']
+        inscricao.foto_perfil_url = _obter_foto_perfil(inscricao.usuario)
+        inscricao.dados_completos = _extrair_dados_completos(inscricao.usuario)
+
+    # Ordena do maior para o menor score (desempate pela inscrição mais antiga)
+    participantes.sort(key=lambda i: (-i.pontuacao_total, i.dataHora))
+
+    context = {
+        'evento': evento,
+        'atividade': atividade,
+        'participantes': participantes,
+        'max_pontos_possiveis': max_pontos_possiveis,
+    }
+
+    return render(request, 'app_evento/gerenciar_participantes.html', context)
+
 # VIEWS DE ATIVIDADES E INSCRIÇÕES
 # ==========================================================
 

@@ -19,13 +19,15 @@ SECRET_KEY = 'django-insecure-9q#0(2@c0a%f%4quo!ea(d6u2u=zjt64cjq4wvvgd!qrgf^#g3
 DEBUG = True
 
 # Permite que o Django responda às requisições do ngrok
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'portalseaeventos.com.br','*']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.ngrok-free.app', 
     'https://*.ngrok.io', 
     'https://tipping-skipping-dangle.ngrok-free.dev', 
     'https://tipping-skipping-dangle.ngrok.io'
+    'https://portalseaeventos.com.br'
+    'https://www.portalseaeventos.com.br'
 ]
 
 

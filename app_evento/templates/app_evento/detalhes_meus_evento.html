@@ -3,270 +3,285 @@
 {% load django_bootstrap5 %}
 
 {% block title %}
-    {{ evento.nome }} - Gerenciar Atividades | SEA
+  {{ evento.nome }} - Gerenciar Atividades | SEA
 {% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/eventos.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'css/eventos.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
-<section class="py-5">
+  <section class="py-5">
     <div class="container">
+      
+      <!-- Navegação Superior -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{% url 'app_evento:urldis_myevento' %}" class="btn btn-secondary text-white">
+          <i class="bi bi-arrow-left me-1"></i> Voltar para Eventos
+        </a>
 
-        <!-- Navegação -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <a href="{% url 'app_evento:urldis_myevento' %}" class="btn btn-secondary text-white">
-                <i class="bi bi-arrow-left me-1"></i> Voltar para Eventos
+        <div class="d-flex gap-2">
+          {% if user.is_staff or user.is_superuser %}
+            <a href="{% url 'app_evento:urlcad_atividade' evento.id %}" class="btn btn-success text-white shadow-sm px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
+              <i class="bi bi-plus-lg me-1"></i> Nova Atividade
             </a>
-
-            <div class="d-flex gap-2">
-                {% if user.is_staff or user.is_superuser %}
-                    <a href="{% url 'app_evento:urlcad_atividade' evento.id %}" class="btn btn-success text-white shadow-sm px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                        <i class="bi bi-plus-lg me-1"></i> Nova Atividade
-                    </a>
-                {% endif %}
-            </div>
+          {% endif %}
         </div>
+      </div>
 
-        <!-- Detalhes do evento -->
+      <!-- Banner e Detalhes Principais do Evento -->
         <div class="card card-custom shadow-sm mb-5 border-0 overflow-hidden">
-            <div class="row g-0 h-100">
-
-                {% if evento.imagemBanner %}
-                    <div class="col-12 col-xl-4 eventos-banner">
-                        <img src="{{ evento.imagemBanner.url }}"
-                             alt="Banner do {{ evento.nome }}"
-                             class="img-fluid eventos-banner-img w-100 h-100"
-                             style="object-fit: cover; min-height: 200px;"
-                             loading="lazy">
+          <div class="row g-0">
+            
+            {% if evento.imagemBanner %}
+              <div class="col-12 col-lg-4 eventos-banner d-flex align-items-center justify-content-center">              
+                <img src="{{ evento.imagemBanner.url }}" 
+                    alt="Banner do {{ evento.nome }}" 
+                    class="img-fluid eventos-banner-img" 
+                    loading="lazy" />                 
+              </div> 
+            {% endif %}
+            
+            <div class="col-12 {% if evento.imagemBanner %}col-lg-8{% endif %}">
+              <div class="eventos-card-conteudo p-4">
+                    <!-- Topo -->
+                    <div class="eventos-card-topo d-flex justify-content-between align-items-start gap-2 mb-3">
+                      <div class="eventos-card-identificacao">
+                      <span class="badge bg-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center mb-2">
+                        <i class="bi bi-tag-fill me-1"></i> {% firstof evento.get_tipoEvento_display evento.tipoEvento 'Evento' %}
+                      </span>
+                      </span>
+                        <h1 class="h2 fw-bold text-verde-escuro mb-0">
+                          {{ evento.nome }}
+                        </h1>
+                      </div>
+                      <span class="eventos-codigo-badge badge rounded-pill border py-2 px-3 font-monospace" title="Código do Evento">
+                        <i class="bi bi-key-fill"></i> {{ evento.codigo_evento }}
+                      </span>
                     </div>
-                {% endif %}
 
-                <div class="col-12 col-xl-8">
-                    <div class="eventos-card-conteudo p-4">
+                    <!-- Descrição -->
+                    {% if evento.descricao %}
+                      <p class="eventos-descricao text-muted mb-4">
+                        {{ evento.descricao }}
+                      </p>
+                    {% else %}
+                      <p class="eventos-descricao eventos-descricao-vazia text-muted fst-italic mb-4">
+                        Mais informações sobre este evento estão disponíveis nesta página.
+                      </p>
+                    {% endif %}
 
-                        <div class="eventos-card-topo d-flex justify-content-between align-items-start gap-2 mb-3">
-                            <div class="eventos-card-identificacao">
-                                <p class="eventos-card-etiqueta text-muted small mb-1">Evento acadêmico</p>
-                                <h1 class="h2 fw-bold text-verde-escuro mb-0">{{ evento.nome }}</h1>
-                            </div>
-
-                            <span class="badge bg-light text-dark border eventos-tipo-badge py-2 px-3">
-                                {% firstof evento.get_tipoEvento_display evento.tipoEvento 'Evento' %}
-                            </span>
+                    <!-- Bloco de Metadados s -->
+                    <div class="eventos-metadados row g-3 mb-4">
+                
+                      <div class="col-6">
+                        <div class="eventos-metadado d-flex align-items-center gap-2">
+                          <i class="bi bi-calendar-event fs-5 text-verde-claro" aria-hidden="true"></i>
+                          <div>
+                            <span class="d-block text-muted small">Data de início</span>
+                            <strong>{{ evento.dataInicio|date:'d/m/Y' }}</strong>
+                          </div>
                         </div>
+                      </div>
 
-                        {% if evento.descricao %}
-                            <p class="eventos-descricao text-muted mb-4">{{ evento.descricao }}</p>
-                        {% else %}
-                            <p class="eventos-descricao eventos-descricao-vazia text-muted fst-italic mb-4">
-                                Mais informações sobre este evento estão disponíveis nesta página.
-                            </p>
-                        {% endif %}
-
-                        <!-- Metadados -->
-                        <div class="eventos-metadados row g-3 mb-4">
-                            <div class="col-6">
-                                <div class="eventos-metadado d-flex align-items-center gap-2">
-                                    <i class="bi bi-calendar-event fs-5 text-verde-claro" aria-hidden="true"></i>
-                                    <div>
-                                        <span class="d-block text-muted small">Data de início</span>
-                                        <strong>{{ evento.dataInicio|date:'d/m/Y' }}</strong>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-6">
-                                <div class="eventos-metadado d-flex align-items-center gap-2">
-                                    <i class="bi bi-calendar-check fs-5 text-verde-claro" aria-hidden="true"></i>
-                                    <div>
-                                        <span class="d-block text-muted small">Data de término</span>
-                                        <strong>{{ evento.dataFim|date:'d/m/Y' }}</strong>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-6">
-                                <div class="eventos-metadado eventos-metadado-local d-flex align-items-center gap-2">
-                                    <i class="bi bi-geo-alt fs-5 text-vermelho" aria-hidden="true"></i>
-                                    <div>
-                                        <span class="d-block text-muted small">Local</span>
-                                        <strong>{{ evento.local|default:"A definir" }}</strong>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {% if evento.emailContato %}
-                                <div class="col-6">
-                                    <div class="eventos-metadado d-flex align-items-center gap-2">
-                                        <i class="bi bi-envelope fs-5 text-primary" aria-hidden="true"></i>
-                                        <div>
-                                            <span class="d-block text-muted small">Contato</span>
-                                            <strong>{{ evento.emailContato }}</strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endif %}
+                      <div class="col-6">
+                        <div class="eventos-metadado d-flex align-items-center gap-2">
+                          <i class="bi bi-calendar-check fs-5 text-verde-claro" aria-hidden="true"></i>
+                          <div>
+                            <span class="d-block text-muted small">Data de término</span>
+                            <strong>{{ evento.dataFim|date:'d/m/Y' }}</strong>
+                          </div>
                         </div>
+                      </div>
 
-                        <!-- Apoiadores -->
-                        {% if evento.apoiadores.all %}
-                            <div class="pt-3 border-top mt-3">
-                                <span class="text-muted fs-6 fw-bold d-block mb-3">
-                                    <i class="bi bi-award-fill text-warning me-1"></i> Apoiadores e Patrocinadores:
-                                </span>
-                                <div class="d-flex flex-wrap gap-2 gap-sm-3">
-                                    {% for apoiador in evento.apoiadores.all %}
-                                        <span class="badge bg-light text-dark border fw-medium fs-6 py-2 px-3 rounded-pill d-inline-flex align-items-center column-gap-2">
-                                            {{ apoiador.nome }}
-                                        </span>
-                                    {% endfor %}
-                                </div>
+                      <div class="col-6">
+                        <div class="eventos-metadado eventos-metadado-local d-flex align-items-center gap-2">
+                          <i class="bi bi-geo-alt fs-5 text-vermelho" aria-hidden="true"></i>
+                          <div>
+                            <span class="d-block text-muted small">Local</span>
+                            <strong>{{ evento.local|default:"A definir" }}</strong>
+                          </div>
+                        </div>
+                      </div>
+
+                      {% if evento.emailContato %}
+                        <div class="col-6">
+                          <div class="eventos-metadado d-flex align-items-center gap-2">
+                            <i class="bi bi-envelope fs-5 text-primary" aria-hidden="true"></i>
+                            <div>
+                              <span class="d-block text-muted small">Contato</span>
+                              <strong>{{ evento.emailContato }}</strong>
                             </div>
-                        {% endif %}
+                          </div>
+                        </div>
+                      {% endif %}
 
                     </div>
+
+                    <!-- Apoiadores e Patrocinadores -->
+                    {% if evento.apoiadores.all %} 
+                      <div class="pt-3 border-top mt-3"> 
+                        <span class="text-muted fs-6 fw-bold d-block mb-3"> 
+                          <i class="bi bi-award-fill text-warning me-1"></i> Apoiadores e Patrocinadores: 
+                        </span> 
+                        <div class="d-flex flex-wrap gap-2 gap-sm-3"> 
+                          {% for apoiador in evento.apoiadores.all %} 
+                            <span class="badge bg-light text-dark border fw-medium fs-6 py-2 px-3 rounded-pill d-inline-flex align-items-center column-gap-2"> 
+                              {{ apoiador.nome }} 
+                            </span> 
+                          {% endfor %} 
+                        </div> 
+                      </div> 
+                    {% endif %}
+
+                  </div>
                 </div>
+          </div>
+      </div>
 
-            </div>
-        </div>
+      <!-- Lista Detalhada de Atividades -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-verde-escuro mb-0">
+          <i class="bi bi-list-task text-verde-claro me-2"></i>Atividades Programadas
+        </h3>
+        <span class="badge bg-secondary rounded-pill fs-6">{{ atividades|length }} atividade(s)</span>
+      </div>
 
-        <!-- Lista de atividades -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold text-verde-escuro mb-0">
-                <i class="bi bi-list-task text-verde-claro me-2"></i>Atividades Programadas
-            </h3>
-            <span class="badge bg-secondary rounded-pill fs-6">{{ atividades|length }} atividade(s)</span>
-        </div>
-
-        {% if atividades %}
-            <div class="row g-4">
-                {% for atividade in atividades %}
-                    <div class="col-12">
-                        <div class="card card-custom shadow-sm border-0 border-start border-4 border-success overflow-hidden">
-                            <div class="card-body p-4">
-
-                                <!-- Cabeçalho e ações da atividade -->
-                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3 pb-3 border-bottom">
-                                    <div>
-                                        <span class="badge bg-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center mb-2">
-                                            <i class="bi bi-tag-fill me-1"></i> {% firstof atividade.get_tipoAtividade_display atividade.tipoAtividade 'Atividade' %}
-                                        </span>
-                                        <h4 class="h4 fw-bold text-verde-escuro mb-0">{{ atividade.nome }}</h4>
-                                    </div>
-
-                                    <div class="d-flex flex-wrap gap-2 align-items-center">
-                                        <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}" class="btn btn-primary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm">
-                                            <i class="bi bi-qr-code-scan me-1"></i> QR Code
-                                        </a>
-
-                                        <a href="{% url 'app_quiz:urlgerenciar_quizzes' atividade.id %}" class="btn btn-info text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm" title="Gerenciar Quizzes">
-                                            <i class="bi bi-controller me-1"></i> Quizzes
-                                        </a>
-
-                                        <a href="{% url 'app_evento:urlsorteio_atividade' atividade.id %}" class="btn btn-warning text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm">
-                                            <i class="bi bi-gift-fill me-1"></i> Sorteio
-                                        </a>
-
-                                        <a href="{% url 'app_evento:urleditar_atividade' atividade.id %}" class="btn btn-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm" title="Editar Atividade">
-                                            <i class="bi bi-pencil-square me-1"></i> Editar
-                                        </a>
-
-                                        <button type="button" class="btn btn-danger text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm" data-bs-toggle="modal" data-bs-target="#modalExcluirAtividade{{ atividade.id }}" title="Excluir Atividade">
-                                            <i class="bi bi-trash-fill me-1"></i> Excluir
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {% if atividade.descricao %}
-                                    <div class="mb-4">
-                                        <p class="text-secondary mb-0">{{ atividade.descricao }}</p>
-                                    </div>
-                                {% endif %}
-
-                                <!-- Horários, local e vagas -->
-                                <div class="row g-3 bg-light rounded p-3 m-0">
-                                    <div class="col-sm-6 col-md-3">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="bi bi-calendar-event text-verde-claro fs-5"></i>
-                                            <div>
-                                                <span class="text-muted d-block small">Início</span>
-                                                <strong class="text-dark small">{{ atividade.horaInicio|date:'d/m/Y H:i' }}</strong>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-3">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="bi bi-clock text-verde-claro fs-5"></i>
-                                            <div>
-                                                <span class="text-muted d-block small">Término</span>
-                                                <strong class="text-dark small">{{ atividade.horaFim|date:'d/m/Y H:i' }}</strong>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-3">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="bi bi-geo-alt text-vermelho fs-5"></i>
-                                            <div>
-                                                <span class="text-muted d-block small">Local</span>
-                                                <strong class="text-dark small">{{ atividade.complementoLocal|default:'A definir' }}</strong>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-3">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="bi bi-people text-primary fs-5"></i>
-                                            <div>
-                                                <span class="text-muted d-block small">Vagas Ocupadas</span>
-                                                <strong class="text-dark small">
-                                                    {{ atividade.participa_set.count }}{% if atividade.limitePessoas %} / {{ atividade.limitePessoas }}{% endif %}
-                                                </strong>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
+      {% if atividades %}
+        <div class="row g-4">
+          {% for atividade in atividades %}
+            <div class="col-12">
+              <div class="card card-custom shadow-sm border-0 border-start border-4 border-success overflow-hidden">
+                <div class="card-body p-4">
+                  
+                  <!-- Cabeçalho da Atividade -->
+                  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3 pb-3 border-bottom">
+                    <div>
+                      <span class="badge bg-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center mb-2">
+                        <i class="bi bi-tag-fill me-1"></i> {% firstof atividade.get_tipoAtividade_display atividade.tipoAtividade 'Atividade' %}
+                      </span>
+                      <span class="eventos-codigo-badge badge rounded-pill border py-2 px-3 font-monospace" title="Código da Atividade">
+                        <i class="bi bi-key-fill"></i> {{ atividade.codigo_leitor }}
+                      </span>
+                      <h4 class="h4 fw-bold text-verde-escuro mb-0">{{ atividade.nome }}</h4>
                     </div>
 
-                    <!-- Modal de exclusão -->
-                    <div class="modal fade" id="modalExcluirAtividade{{ atividade.id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content border-0 shadow">
-                                <div class="modal-header bg-danger text-white">
-                                    <h5 class="modal-title fw-bold">
-                                        <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão
-                                    </h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body text-start">
-                                    Tem certeza que deseja excluir a atividade <strong>{{ atividade.nome }}</strong>? Esta ação não poderá ser desfeita.
-                                </div>
-                                <div class="modal-footer bg-light">
-                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                                    <form method="POST" action="{% url 'app_evento:urlexcluir_atividade' atividade.id %}" class="d-inline">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger btn-sm fw-bold text-white">Excluir Atividade</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="card card-custom p-5 text-center text-muted border-0 shadow-sm">
-                <i class="bi bi-calendar-x display-4 mb-3 text-secondary"></i>
-                <h5>Nenhuma atividade cadastrada para este evento.</h5>
-                <p class="mb-0">Cadastre a primeira atividade clicando no botão no topo da página.</p>
-            </div>
-        {% endif %}
+                    <!-- Botões -->
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                      <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}" class="btn btn-primary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm">
+                        <i class="bi bi-qr-code-scan me-1"></i> QR Code
+                      </a>
+                      
+                      <a href="{% url 'app_quiz:urlgerenciar_quizzes' atividade.id %}" class="btn btn-info text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm" title="Gerenciar Quizzes">
+                        <i class="bi bi-controller me-1"></i> Quizzes
+                      </a>  
+                      
+                      <a href="{% url 'app_evento:urlsorteio_atividade' atividade.id %}" class="btn btn-warning text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm">
+                        <i class="bi bi-gift-fill me-1"></i> Sorteio
+                      </a>
+                      <a href="{% url 'app_evento:urlgerenciar_participantes_atividade' evento.id atividade.id %}" class="btn btn-sm btn-outline-secondary">
+                          <i class="bi bi-person-lines-fill me-1"></i> Participantes
+                      </a>
+                      <a href="{% url 'app_evento:urleditar_atividade' atividade.id %}" class="btn btn-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm" title="Editar Atividade">
+                        <i class="bi bi-pencil-square me-1"></i> Editar
+                      </a>
 
+                      <button type="button" class="btn btn-danger text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center shadow-sm" data-bs-toggle="modal" data-bs-target="#modalExcluirAtividade{{ atividade.id }}" title="Excluir Atividade">
+                        <i class="bi bi-trash-fill me-1"></i> Excluir
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Descrição Completa da Atividade -->
+                  {% if atividade.descricao %}
+                    <div class="mb-4">
+                      <p class="text-secondary mb-0">{{ atividade.descricao }}</p>
+                    </div>
+                  {% endif %}
+
+                  <!-- Grade de Detalhes-->
+                  <div class="row g-3 bg-light rounded p-3 m-0">
+                    <div class="col-sm-6 col-md-3">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-calendar-event text-verde-claro fs-5"></i>
+                        <div>
+                          <span class="text-muted d-block small">Início</span>
+                          <strong class="text-dark small">
+                            {{ atividade.horaInicio|date:'d/m/Y H:i' }}
+                          </strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-3">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-clock text-verde-claro fs-5"></i>
+                        <div>
+                          <span class="text-muted d-block small">Término</span>
+                          <strong class="text-dark small">
+                            {{ atividade.horaFim|date:'d/m/Y H:i' }}
+                          </strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-3">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-geo-alt text-vermelho fs-5"></i>
+                        <div>
+                          <span class="text-muted d-block small">Local</span>
+                          <strong class="text-dark small">{{ atividade.complementoLocal|default:'A definir' }}</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-3">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-people text-primary fs-5"></i>
+                        <div>
+                          <span class="text-muted d-block small">Vagas Ocupadas</span>
+                          <strong class="text-dark small">
+                            {{ atividade.participa_set.count }}{% if atividade.limitePessoas %} / {{ atividade.limitePessoas }}{% endif %}
+                          </strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal Excluir Atividade -->
+            <div class="modal fade" id="modalExcluirAtividade{{ atividade.id }}" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                  <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body text-start">
+                    Tem certeza que deseja excluir a atividade <strong>{{ atividade.nome }}</strong>? Esta ação não poderá ser desfeita.
+                  </div>
+                  <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <form method="POST" action="{% url 'app_evento:urlexcluir_atividade' atividade.id %}" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-danger btn-sm fw-bold text-white">Excluir Atividade</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="card card-custom p-5 text-center text-muted border-0 shadow-sm">
+          <i class="bi bi-calendar-x display-4 mb-3 text-secondary"></i>
+          <h5>Nenhuma atividade cadastrada para este evento.</h5>
+          <p class="mb-0">Cadastre a primeira atividade clicando no botão no topo da página.</p>
+        </div>
+      {% endif %}
     </div>
-</section>
+  </section>
 {% endblock %}

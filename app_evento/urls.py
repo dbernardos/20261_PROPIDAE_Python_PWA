@@ -34,7 +34,9 @@ urlpatterns = [
 
     path('minhas_inscricoes/', views.minhas_inscricoes, name='urlminhas_inscricoes'),
     path('atividade/<int:atividade_id>/participar/', views.alternar_participacao_atividade, name='urlparticipar_atividade'),
+    path('evento/<int:evento_id>/participantes/atividade/<int:atividade_id>/', views.gerenciar_participantes, name='urlgerenciar_participantes_atividade'),
     path('evento/<int:evento_id>/comprovante/', views.comprovante_inscricao, name='urlcomprovante_inscricao'),
+    path('evento/<int:evento_id>/participantes/', views.gerenciar_participantes, name='urlgerenciar_participantes')
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

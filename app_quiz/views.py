@@ -4,7 +4,7 @@ from django.contrib import messages
 import json
 from django.http import JsonResponse
 
-from .models import Quiz, Resposta
+from app_quiz.models import Quiz, Resposta
 from .form import RespostaQuizForm, CadastroQuizForm
 from app_evento.models import Inscricao, Participa, Atividade 
 from django.contrib.auth.decorators import login_required
@@ -47,58 +47,60 @@ def boas_vindas(request, cracha, atividade_id):
 
 @login_required
 def cadastrar_quiz(request, atividade_id=None, quiz_id=None):
-  """View para cadastrar ou editar um quiz vinculado a uma atividade"""
-  atividade = None
-  evento = None
-  quiz = None
-  editando = False
+    """View para cadastrar ou editar um quiz vinculado a uma atividade"""
+    atividade = None
+    evento = None
+    quiz = None
+    editando = False
 
-  if quiz_id:
-    quiz = get_object_or_404(Quiz, id=quiz_id)
-    editando = True
-    atividade = quiz.atividade
-    evento = atividade.evento
-  elif atividade_id:
-    atividade = get_object_or_404(Atividade, id=atividade_id)
-    evento = atividade.evento
+    if quiz_id:
+        quiz = get_object_or_404(Quiz, id=quiz_id)
+        editando = True
+        atividade = quiz.atividade
+        evento = atividade.evento
+    elif atividade_id:
+        atividade = get_object_or_404(Atividade, id=atividade_id)
+        evento = atividade.evento
 
-  if request.method == 'POST':
-    form_quiz = CadastroQuizForm(request.POST, instance=quiz)
-    if form_quiz.is_valid():
-      quiz_salvo = form_quiz.save(commit=False)
-      quiz_salvo.atividade = atividade
-      
-      if not editando:
-          # Define o número do quiz como o próximo número disponível na atividade
-          ultimo_numero = Quiz.objects.filter(atividade=atividade).aggregate(max_numero=models.Max('numero'))['max_numero'] or 0
-          quiz_salvo.numero = ultimo_numero + 1
-      
-      quiz_salvo.save()
-      messages.success(
-          request,
-          f'Quiz {"atualizado" if editando else "cadastrado"} com sucesso!',
-      )
-      return redirect(
-          'app_evento:urldet_myevento',
-          evento_id=quiz_salvo.atividade.evento.id,
-      )
-  else:
-    initial_data = {}
-    if atividade:
-      initial_data['atividade'] = atividade
+    if request.method == 'POST':
+        form_quiz = CadastroQuizForm(request.POST, instance=quiz)
+        if form_quiz.is_valid():
+            quiz_salvo = form_quiz.save(commit=False)
+            quiz_salvo.atividade = atividade
 
-    form_quiz = CadastroQuizForm(instance=quiz, initial=initial_data)
+            if not editando:
+                ultimo_numero = (
+                    Quiz.objects.filter(atividade=atividade)
+                    .aggregate(max_numero=models.Max('numero'))['max_numero']
+                    or 0
+                )
+                quiz_salvo.numero = ultimo_numero + 1
 
-  context = {
-      'form_quiz': form_quiz,
-      'editando': editando,
-      'quiz': quiz,
-      'atividade': atividade,
-      'evento': evento,  
-  }
+            quiz_salvo.save()
+            messages.success(
+                request,
+                f'Desafio {"atualizado" if editando else "cadastrado"} com sucesso!',
+            )
+            return redirect(
+                'app_quiz:urlgerenciar_quizzes',
+                atividade_id=quiz_salvo.atividade.id,
+            )
+    else:
+        initial_data = {}
+        if atividade:
+            initial_data['atividade'] = atividade
 
-  return render(request, 'app_quiz/cadastrar_quiz.html', context)
+        form_quiz = CadastroQuizForm(instance=quiz, initial=initial_data)
 
+    context = {
+        'form_quiz': form_quiz,
+        'editando': editando,
+        'quiz': quiz,
+        'atividade': atividade,
+        'evento': evento,
+    }
+
+    return render(request, 'app_quiz/cadastrar_quiz.html', context)
 
 @login_required
 def gerenciar_quizzes(request, atividade_id):
@@ -155,7 +157,7 @@ def quizzes_atividade(request, cracha, atividade_id):
     participacao = get_object_or_404(Participa, inscricao=inscricao, atividade=atividade)
     if not participacao.presente:
         messages.error(request, "Você precisa registrar presença pelo Leitor QR Code primeiro.")
-        return redirect('app_quiz:urlboas_vindas', cracha=cracha)
+        return redirect('app_quiz:urlboas_vindas', cracha=cracha, atividade_id=atividade.id,)
 
     # Filtra APENAS os quizzes vinculados a ESTA atividade E que estejam ativos
     quizzes = Quiz.objects.filter(
@@ -190,49 +192,105 @@ def leitor_qrcode(request, codigo_leitor):
 
 def quiz_detail(request, cracha, quiz_id):
     """Página detalhada do quiz"""
-    # Busca a inscrição pelo crachá e obtém o usuário associado
     inscricao = get_object_or_404(Inscricao, cracha=cracha)
-    participante = inscricao.usuario 
+    participante = inscricao.usuario
 
-    quiz = get_object_or_404(Quiz, id=quiz_id, ativo=True)
-    
+    # Busca sem ativo=True para permitir o redirecionamento amigável logo abaixo
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+
     if not quiz.ativo:
         messages.warning(
             request, 'Este desafio está temporariamente desativado pelo organizador.'
         )
-        return redirect('app_quiz:urlquizzes_atividade', cracha=cracha)
-    
-    # Obtém a relação Participa
-    participa_obj, created = Participa.objects.get_or_create(
-      inscricao=inscricao,
-      atividade=quiz.atividade,
+        return redirect(
+            'app_quiz:urlquizzes_atividade',
+            cracha=cracha,
+            atividade_id=quiz.atividade.id,
+        )
+
+    participa_obj, _ = Participa.objects.get_or_create(
+        inscricao=inscricao,
+        atividade=quiz.atividade,
     )
-    
-    resposta, created = Resposta.objects.get_or_create(
+
+    resposta, _ = Resposta.objects.get_or_create(
         participa=participa_obj,
         quiz=quiz,
     )
-    
+
     if resposta.completo and request.method == 'POST':
-        messages.warning(request, 'Você já respondeu a este desafio e não pode enviá-lo novamente.')
-        return redirect('app_quiz:urlpagina_leitor', codigo_leitor=quiz.atividade.codigo_leitor)
-        
+        messages.warning(
+            request, 'Você já respondeu a este desafio e não pode enviá-lo novamente.'
+        )
+        return redirect(
+            'app_quiz:urlpagina_leitor',
+            codigo_leitor=quiz.atividade.codigo_leitor,
+        )
+
+    # Inicializa o form antes do POST para evitar UnboundLocalError no fluxo de múltipla escolha
+    form = RespostaQuizForm(instance=resposta)
+
     if request.method == 'POST':
-        form = RespostaQuizForm(request.POST, instance=resposta)
-        if form.is_valid():
-            resposta = form.save(commit=False)
-        
-            resposta.correto = (quiz.valor_minimo <= resposta.valor_resposta <= quiz.valor_maximo)
-            resposta.completo = True 
-            resposta.save()
-                
-            messages.success(request, f'Resposta do Desafio {quiz.numero} registrada com sucesso!')
-                
-            return redirect('app_quiz:urlpagina_leitor', codigo_leitor=quiz.atividade.codigo_leitor)
-                
-    else:
-        form = RespostaQuizForm(instance=resposta)
-    
+        # 1. Fluxo de Múltipla Escolha
+        if quiz.tipo == 'MULTIPLA':
+            escolha = request.POST.get('resposta_multipla', '').strip().upper()
+
+            if escolha not in ['A', 'B', 'C', 'D']:
+                messages.error(request, 'Selecione uma alternativa antes de enviar.')
+            else:
+                resposta.resposta_texto = escolha
+                if escolha == quiz.alternativa_correta:
+                    resposta.correto = True
+                    resposta.status = 'certo'
+                else:
+                    resposta.correto = False
+                    resposta.status = 'errado'
+
+                resposta.completo = True
+                resposta.save()
+
+                messages.success(
+                    request, f'Resposta do Desafio {quiz.numero} registrada com sucesso!'
+                )
+                return redirect(
+                    'app_quiz:urlpagina_leitor',
+                    codigo_leitor=quiz.atividade.codigo_leitor,
+                )
+
+        # 2. Fluxo Numérico / Métrico
+        else:
+            form = RespostaQuizForm(request.POST, instance=resposta)
+            if form.is_valid():
+                resposta = form.save(commit=False)
+                valor = resposta.valor_resposta
+
+                if (
+                    valor is not None
+                    and quiz.valor_minimo is not None
+                    and quiz.valor_maximo is not None
+                    and quiz.valor_minimo <= valor <= quiz.valor_maximo
+                ):
+                    resposta.correto = True
+                    if quiz.valor_ideal is not None and valor == quiz.valor_ideal:
+                        resposta.status = 'certo'
+                    else:
+                        resposta.status = 'aproximado'
+                else:
+                    resposta.correto = False
+                    resposta.status = 'errado'
+
+                resposta.completo = True
+                resposta.save()
+
+                messages.success(
+                    request, f'Resposta do Desafio {quiz.numero} registrada com sucesso!'
+                )
+                return redirect(
+                    'app_quiz:urlquizzes_atividade',
+                    cracha=cracha,
+                    atividade_id=quiz.atividade.id,
+                )
+
     context = {
         'cracha': cracha,
         'participante': participante,
@@ -242,7 +300,7 @@ def quiz_detail(request, cracha, quiz_id):
         'resposta': resposta,
         'form': form,
     }
-    
+
     return render(request, 'app_quiz/quiz_detail.html', context)
 
 def reset_quiz(request, cracha, quiz_id):

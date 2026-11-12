@@ -304,6 +304,28 @@
     object-fit: cover;
 }
 
+.pagina-eventos .eventos-banner-img,
+.eventos-banner-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+@media (max-width: 991.98px) {
+    .pagina-eventos .eventos-banner,
+    .eventos-banner {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--eventos-borda, #e3eae5);
+    }
+
+    .pagina-eventos .eventos-banner-img,
+    .eventos-banner-img {
+        max-height: 360px;
+    }
+}
+
 .pagina-eventos .eventos-banner-vazio {
     display: flex;
     width: 100%;
@@ -340,6 +362,32 @@
     justify-content: space-between;
     gap: 1rem;
     margin-bottom: .9rem;
+}
+
+.pagina-eventos .eventos-topo-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .5rem;
+    flex: 0 0 auto;
+}
+
+.pagina-eventos .eventos-topo-badges .eventos-tipo-badge {
+    max-width: none;
+}
+
+.pagina-eventos .eventos-codigo-badge,
+.eventos-codigo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    border-color: #d9e8dd !important;
+    background-color: #edf5ef !important;
+    color: #1b5e3a !important;
+    font-size: .78rem;
+    font-weight: 750;
+    letter-spacing: .04em;
 }
 
 .pagina-eventos .eventos-card-identificacao {
@@ -516,21 +564,6 @@
 @media (max-width: 767.98px) {
     .pagina-eventos .eventos-cabecalho {
         margin-bottom: 1.5rem;
-    }
-
-    .pagina-eventos .eventos-banner {
-        min-height: 190px;
-        max-height: 240px;
-    }
-
-    .pagina-eventos .eventos-banner-img {
-        height: 220px;
-        min-height: 220px;
-    }
-
-    .pagina-eventos .eventos-banner-vazio {
-        min-height: 190px;
-        max-height: 240px;
     }
 
     .pagina-eventos .eventos-card-conteudo {

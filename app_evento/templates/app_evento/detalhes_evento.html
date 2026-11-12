@@ -2,301 +2,319 @@
 {% load static %}
 {% load django_bootstrap5 %}
 
+
 {% block title %}
-    {{ evento.nome }} - Atividades | SEA
+  {{ evento.nome }} - Atividades | SEA
 {% endblock %}
 
+
 {% block content %}
-<section class="py-5">
+  <section class="py-5">
     <div class="container">
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-4" role="alert">
-                    <i class="bi bi-exclamation-circle-fill me-2"></i>{{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
+      <!-- Exibição de Mensagens do Django -->
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-4" role="alert">
+            <i class="bi bi-exclamation-circle-fill me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+      
+      <!-- Navegação Superior -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-secondary">
+          <i class="bi bi-arrow-left me-1"></i> Voltar para Eventos
+        </a>
 
-        <!-- Navegação -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left me-1"></i> Voltar para Eventos
+        <div class="d-flex gap-2">
+          {% if user.is_authenticated and atividades_inscritas_ids %}
+            <a href="{% url 'app_evento:urlcomprovante_inscricao' evento.id %}" class="btn btn-outline-success shadow-sm fw-bold">
+              <i class="bi bi-person-badge me-1"></i> Ver Meu Crachá / Comprovante
             </a>
-
-            <div class="d-flex gap-2">
-                {% if user.is_authenticated and atividades_inscritas_ids %}
-                    <a href="{% url 'app_evento:urlcomprovante_inscricao' evento.id %}" class="btn btn-outline-success shadow-sm fw-bold">
-                        <i class="bi bi-person-badge me-1"></i> Ver Meu Crachá / Comprovante
-                    </a>
-                {% endif %}
-            </div>
+          {% endif %}
         </div>
+      </div>
 
-        <!-- Detalhes do evento -->
-        <div class="card card-custom shadow-sm mb-5 border-0 overflow-hidden">
-            <div class="row g-0 h-100">
-                {% if evento.imagemBanner %}
-                    <div class="col-12 col-xl-4 eventos-banner">
-                        <img src="{{ evento.imagemBanner.url }}"
-                             alt="Banner do {{ evento.nome }}"
-                             class="img-fluid eventos-banner-img w-100 h-100"
-                             style="object-fit: cover; min-height: 200px;"
-                             loading="lazy">
+      <!-- Banner e Detalhes Principais do Evento -->
+     <div class="card card-custom shadow-sm mb-5 border-0 overflow-hidden">
+          <div class="row g-0">
+            
+            {% if evento.imagemBanner %}
+              <div class="col-12 col-lg-4 eventos-banner d-flex align-items-center justify-content-center">              
+                <img src="{{ evento.imagemBanner.url }}" 
+                    alt="Banner do {{ evento.nome }}" 
+                    class="img-fluid eventos-banner-img" 
+                    loading="lazy" />                 
+              </div> 
+            {% endif %}
+            
+            <div class="col-12 {% if evento.imagemBanner %}col-lg-8{% endif %}">
+              <div class="eventos-card-conteudo p-4">
+                    <!-- Topo -->
+                    <div class="eventos-card-topo d-flex justify-content-between align-items-start gap-2 mb-3">
+                      <div class="eventos-card-identificacao">
+                      <span class="badge bg-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center mb-2">
+                        <i class="bi bi-tag-fill me-1"></i> {% firstof evento.get_tipoEvento_display evento.tipoEvento 'Evento' %}
+                      </span>
+                      </span>
+                        <h1 class="h2 fw-bold text-verde-escuro mb-0">
+                          {{ evento.nome }}
+                        </h1>
+                      </div>
                     </div>
-                {% endif %}
 
-                <div class="col-12 col-xl-8">
-                    <div class="eventos-card-conteudo p-4">
+              <!-- Descrição -->
+              {% if evento.descricao %}
+                <p class="eventos-descricao text-muted mb-4">
+                  {{ evento.descricao }}
+                </p>
+              {% else %}
+                <p class="eventos-descricao eventos-descricao-vazia text-muted fst-italic mb-4">
+                  Mais informações sobre este evento estão disponíveis nesta página.
+                </p>
+              {% endif %}
 
-                        <div class="eventos-card-topo d-flex justify-content-between align-items-start gap-2 mb-3">
-                            <div class="eventos-card-identificacao">
-                                <p class="eventos-card-etiqueta text-muted small mb-1">Evento acadêmico</p>
-                                <h1 class="h2 fw-bold text-verde-escuro mb-0">{{ evento.nome }}</h1>
-                            </div>
-
-                            <span class="badge bg-light text-dark border eventos-tipo-badge py-2 px-3">
-                                {% firstof evento.get_tipoEvento_display evento.tipoEvento 'Evento' %}
-                            </span>
-                        </div>
-
-                        {% if evento.descricao %}
-                            <p class="eventos-descricao text-muted mb-4">{{ evento.descricao }}</p>
-                        {% else %}
-                            <p class="eventos-descricao eventos-descricao-vazia text-muted fst-italic mb-4">
-                                Mais informações sobre este evento estão disponíveis nesta página.
-                            </p>
-                        {% endif %}
-
-                        <!-- Metadados -->
-                        <div class="eventos-metadados row g-3 mb-4">
-                            <div class="col-6">
-                                <div class="eventos-metadado d-flex align-items-center gap-2">
-                                    <i class="bi bi-calendar-event fs-5 text-verde-claro" aria-hidden="true"></i>
-                                    <div>
-                                        <span class="d-block text-muted small">Data de início</span>
-                                        <strong>{{ evento.dataInicio|date:'d/m/Y' }}</strong>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-6">
-                                <div class="eventos-metadado d-flex align-items-center gap-2">
-                                    <i class="bi bi-calendar-check fs-5 text-verde-claro" aria-hidden="true"></i>
-                                    <div>
-                                        <span class="d-block text-muted small">Data de término</span>
-                                        <strong>{{ evento.dataFim|date:'d/m/Y' }}</strong>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-6">
-                                <div class="eventos-metadado eventos-metadado-local d-flex align-items-center gap-2">
-                                    <i class="bi bi-geo-alt fs-5 text-vermelho" aria-hidden="true"></i>
-                                    <div>
-                                        <span class="d-block text-muted small">Local</span>
-                                        <strong>{{ evento.local|default:"A definir" }}</strong>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {% if evento.emailContato %}
-                                <div class="col-6">
-                                    <div class="eventos-metadado d-flex align-items-center gap-2">
-                                        <i class="bi bi-envelope fs-5 text-primary" aria-hidden="true"></i>
-                                        <div>
-                                            <span class="d-block text-muted small">Contato</span>
-                                            <strong>{{ evento.emailContato }}</strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Apoiadores -->
-                        {% if evento.apoiadores.all %}
-                            <div class="pt-3 border-top mt-3">
-                                <span class="text-muted fs-6 fw-bold d-block mb-3">
-                                    <i class="bi bi-award-fill text-warning me-1"></i> Apoiadores e Patrocinadores:
-                                </span>
-                                <div class="d-flex flex-wrap gap-2 gap-sm-3">
-                                    {% for apoiador in evento.apoiadores.all %}
-                                        <span class="badge bg-light text-dark border fw-medium fs-6 py-2 px-3 rounded-pill d-inline-flex align-items-center column-gap-2">
-                                            {{ apoiador.nome }}
-                                        </span>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endif %}
-
+              <!-- Bloco de Metadados-->
+              <div class="eventos-metadados row g-3 mb-4">
+          
+                <div class="col-6">
+                  <div class="eventos-metadado d-flex align-items-center gap-2">
+                    <i class="bi bi-calendar-event fs-5 text-verde-claro" aria-hidden="true"></i>
+                    <div>
+                      <span class="d-block text-muted small">Data de início</span>
+                      <strong>{{ evento.dataInicio|date:'d/m/Y' }}</strong>
                     </div>
+                  </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Lista de atividades -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="fw-bold text-verde-escuro mb-0">
-                <i class="bi bi-journal-text me-2"></i>Atividades Programadas
-            </h3>
-            <span class="badge bg-secondary rounded-pill fs-6">{{ atividades|length }} atividade(s)</span>
-        </div>
-
-        {% if atividades %}
-            <div class="row g-4">
-                {% for atividade in atividades %}
-                    <div class="col-12">
-                        <!-- Borda lateral: vermelha (encerrada), azul (em andamento) ou verde (futura) -->
-                        <div class="card card-custom shadow-sm border-0 border-start border-4
-                            {% if atividade.horaFim and atividade.horaFim < agora %}
-                                border-danger
-                            {% elif atividade.horaInicio and atividade.horaInicio <= agora and atividade.horaFim >= agora %}
-                                border-primary
-                            {% else %}
-                                border-success
-                            {% endif %} overflow-hidden">
-
-                            <div class="card-body p-4">
-
-                                <!-- Cabeçalho e ações de inscrição -->
-                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-3 pb-3 border-bottom">
-                                    <div class="d-flex flex-column align-items-start gap-1">
-                                        {% if atividade.horaFim and atividade.horaFim < agora %}
-                                            <span class="badge bg-danger text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center mb-1">
-                                                <i class="bi bi-clock-history me-1"></i> Encerrada
-                                            </span>
-                                        {% else %}
-                                            <span class="badge bg-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center mb-1">
-                                                <i class="bi bi-tag-fill me-1"></i> {% firstof atividade.get_tipoAtividade_display atividade.tipoAtividade 'Atividade' %}
-                                            </span>
-                                        {% endif %}
-
-                                        <h4 class="h4 fw-bold text-verde-escuro mb-0">{{ atividade.nome }}</h4>
-                                    </div>
-
-                                    <div class="d-flex flex-wrap gap-2 align-items-center">
-                                        {% if atividade.horaFim and atividade.horaFim < agora %}
-                                            {% if atividade.id in atividades_inscritas_ids %}
-                                                <span class="badge bg-danger text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                    <i class="bi bi-check-circle-fill me-1"></i> Participou
-                                                </span>
-                                            {% else %}
-                                                <span class="badge bg-danger text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                    <i class="bi bi-clock-history me-1"></i> Atividade Encerrada
-                                                </span>
-                                            {% endif %}
-
-                                        {% elif atividade.horaInicio and atividade.horaInicio <= agora and atividade.horaFim >= agora %}
-                                            {% if atividade.id in atividades_inscritas_ids %}
-                                                <span class="badge bg-primary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                    <i class="bi bi-broadcast me-1"></i> Participando
-                                                </span>
-                                            {% else %}
-                                                <span class="badge bg-primary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                    <i class="bi bi-play-circle-fill me-1"></i> Em Andamento
-                                                </span>
-                                            {% endif %}
-
-                                        {% elif user.is_authenticated %}
-                                            {% if atividade.id in atividades_inscritas_ids %}
-                                                <form action="{% url 'app_evento:urlparticipar_atividade' atividade.id %}" method="POST" class="d-inline">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-outline-danger btn-sm px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                        <i class="bi bi-x-circle me-1"></i> Cancelar Inscrição
-                                                    </button>
-                                                </form>
-                                            {% else %}
-                                                {% if atividade.limitePessoas and atividade.participa_set.count >= atividade.limitePessoas %}
-                                                    <button type="button" class="btn btn-secondary btn-sm px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center" disabled>
-                                                        <i class="bi bi-slash-circle me-1"></i> Vagas Esgotadas
-                                                    </button>
-                                                {% else %}
-                                                    <form action="{% url 'app_evento:urlparticipar_atividade' atividade.id %}" method="POST" class="d-inline">
-                                                        {% csrf_token %}
-                                                        <button type="submit" class="btn btn-success btn-sm px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                            <i class="bi bi-check-circle me-1"></i> Inscrever-se
-                                                        </button>
-                                                    </form>
-                                                {% endif %}
-                                            {% endif %}
-
-                                        {% else %}
-                                            <a href="{% url 'app_login:urllogin' %}?next={{ request.path }}" class="btn btn-outline-primary btn-sm px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                <i class="bi bi-box-arrow-in-right me-1"></i> Entrar para Inscrever-se
-                                            </a>
-                                        {% endif %}
-                                    </div>
-                                </div>
-
-                                {% if atividade.descricao %}
-                                    <div class="mb-4">
-                                        <p class="text-secondary mb-0">{{ atividade.descricao }}</p>
-                                    </div>
-                                {% endif %}
-
-                                <!-- Horários, local e vagas -->
-                                <div class="row g-3 bg-light rounded p-3 m-0">
-                                    <div class="col-sm-6 col-md-3">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="bi bi-calendar3 {% if atividade.horaFim and atividade.horaFim < agora %}text-danger{% else %}text-verde-claro{% endif %} fs-5"></i>
-                                            <div>
-                                                <span class="text-muted d-block small">Data / Hora Início</span>
-                                                <strong class="{% if atividade.horaFim and atividade.horaFim < agora %}text-danger fw-bold{% else %}text-dark{% endif %} small">
-                                                    {{ atividade.horaInicio|date:"d/m/Y H:i" }}
-                                                </strong>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-3">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="bi bi-clock {% if atividade.horaFim and atividade.horaFim < agora %}text-danger{% else %}text-verde-claro{% endif %} fs-5"></i>
-                                            <div>
-                                                <span class="text-muted d-block small">Término</span>
-                                                <strong class="{% if atividade.horaFim and atividade.horaFim < agora %}text-danger fw-bold{% else %}text-dark{% endif %} small">
-                                                    {{ atividade.horaFim|date:"d/m/Y H:i" }}
-                                                </strong>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-3">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="bi bi-geo-alt text-vermelho fs-5"></i>
-                                            <div>
-                                                <span class="text-muted d-block small">Complemento do Local</span>
-                                                <strong class="text-dark small">{{ atividade.complementoLocal|default:'A definir' }}</strong>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-3">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="bi bi-people text-primary fs-5"></i>
-                                            <div>
-                                                <span class="text-muted d-block small">Vagas Ocupadas</span>
-                                                <strong class="text-dark small">
-                                                    {{ atividade.participa_set.count }}{% if atividade.limitePessoas %} / {{ atividade.limitePessoas }}{% endif %}
-                                                </strong>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
+                <div class="col-6">
+                  <div class="eventos-metadado d-flex align-items-center gap-2">
+                    <i class="bi bi-calendar-check fs-5 text-verde-claro" aria-hidden="true"></i>
+                    <div>
+                      <span class="d-block text-muted small">Data de término</span>
+                      <strong>{{ evento.dataFim|date:'d/m/Y' }}</strong>
                     </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="card card-custom p-5 text-center text-muted border-0 shadow-sm">
-                <i class="bi bi-calendar-x display-4 mb-3 text-secondary"></i>
-                <h5>Nenhuma atividade cadastrada para este evento.</h5>
-                <p class="mb-0">Novas atividades serão exibidas aqui assim que forem publicadas.</p>
-            </div>
-        {% endif %}
+                  </div>
+                </div>
 
+                <div class="col-6">
+                  <div class="eventos-metadado eventos-metadado-local d-flex align-items-center gap-2">
+                    <i class="bi bi-geo-alt fs-5 text-vermelho" aria-hidden="true"></i>
+                    <div>
+                      <span class="d-block text-muted small">Local</span>
+                      <strong>{{ evento.local|default:"A definir" }}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {% if evento.emailContato %}
+                  <div class="col-6">
+                    <div class="eventos-metadado d-flex align-items-center gap-2">
+                      <i class="bi bi-envelope fs-5 text-primary" aria-hidden="true"></i>
+                      <div>
+                        <span class="d-block text-muted small">Contato</span>
+                        <strong>{{ evento.emailContato }}</strong>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+
+              </div>
+
+              <!-- Apoiadores e Patrocinadores -->
+              {% if evento.apoiadores.all %} 
+                <div class="pt-3 border-top mt-3"> 
+                  <span class="text-muted fs-6 fw-bold d-block mb-3"> 
+                    <i class="bi bi-award-fill text-warning me-1"></i> Apoiadores e Patrocinadores: 
+                  </span> 
+                  <div class="d-flex flex-wrap gap-2 gap-sm-3"> 
+                    {% for apoiador in evento.apoiadores.all %} 
+                      <span class="badge bg-light text-dark border fw-medium fs-6 py-2 px-3 rounded-pill d-inline-flex align-items-center column-gap-2"> 
+                        {{ apoiador.nome }} 
+                      </span> 
+                    {% endfor %} 
+                  </div> 
+                </div> 
+              {% endif %}
+
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- Lista Detalhada de Atividades -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-verde-escuro mb-0"><i class="bi bi-journal-text me-2"></i>Atividades Programadas</h3>
+        <span class="badge bg-secondary rounded-pill fs-6">{{ atividades|length }} atividade(s)</span>
+      </div>
+
+      {% if atividades %}
+        <div class="row g-4">
+          {% for atividade in atividades %}
+            <div class="col-12">
+              <!-- Borda lateral dinâmica em Vermelho (Encerrada), Azul (Em Andamento) ou Verde (Futura) -->
+              <div class="card card-custom shadow-sm border-0 border-start border-4 
+                {% if atividade.horaFim and atividade.horaFim < agora %}
+                  border-danger
+                {% elif atividade.horaInicio and atividade.horaInicio <= agora and atividade.horaFim >= agora %}
+                  border-primary
+                {% else %}
+                  border-success
+                {% endif %} overflow-hidden">
+                
+                <div class="card-body p-4">
+                  
+                  <!-- Cabeçalho da Atividade -->
+                  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-3 pb-3 border-bottom">
+                    <div class="d-flex flex-column align-items-start gap-1">
+                      
+                      <!-- Badge Superior (Vermelho para Encerrada, Secundário para Tipo de Atividade) -->
+                      {% if atividade.horaFim and atividade.horaFim < agora %}
+                        <span class="badge bg-danger text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center mb-1">
+                          <i class="bi bi-clock-history me-1"></i> Encerrada
+                        </span>
+                      {% else %}
+                        <span class="badge bg-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center mb-1">
+                          <i class="bi bi-tag-fill me-1"></i> {% firstof atividade.get_tipoAtividade_display atividade.tipoAtividade 'Atividade' %}
+                        </span>
+                      {% endif %}
+                      
+                      <h4 class="h4 fw-bold text-verde-escuro mb-0">{{ atividade.nome }}</h4>
+                    </div>
+
+                    <!-- Status e Ações do Participante (Vermelho para Encerrada) -->
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                      
+                      {% if atividade.horaFim and atividade.horaFim < agora %}
+                        {% if atividade.id in atividades_inscritas_ids %}
+
+                          <!-- Atividade Encerrada + Usuário Participou -->
+                          <span class="badge bg-danger text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
+                            <i class="bi bi-check-circle-fill me-1"></i> Participou
+                          </span>
+                        {% else %}
+
+                          <!-- Atividade Encerrada -->
+                          <span class="badge bg-danger text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
+                            <i class="bi bi-clock-history me-1"></i> Atividade Encerrada
+                          </span>
+                        {% endif %}
+                      {% elif atividade.horaInicio and atividade.horaInicio <= agora and atividade.horaFim >= agora %}
+                        {% if atividade.id in atividades_inscritas_ids %}
+
+                          <!-- Acontecendo Agora + Inscrito -->
+                          <span class="badge bg-primary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
+                            <i class="bi bi-broadcast me-1"></i> Participando
+                          </span>
+                        {% else %}
+
+                          <!-- Acontecendo Agora + Não Inscrito -->
+                          <span class="badge bg-primary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
+                            <i class="bi bi-play-circle-fill me-1"></i> Em Andamento
+                          </span>
+                        {% endif %}
+                      {% elif user.is_authenticated %}
+                        {% if atividade.id in atividades_inscritas_ids %}
+                          <form action="{% url 'app_evento:urlparticipar_atividade' atividade.id %}" method="POST" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
+                              <i class="bi bi-x-circle me-1"></i> Cancelar Inscrição
+                            </button>
+                          </form>
+                        {% else %}
+                          {% if atividade.limitePessoas and atividade.participa_set.count >= atividade.limitePessoas %}
+                            <button type="button" class="btn btn-secondary btn-sm px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center" disabled>
+                              <i class="bi bi-slash-circle me-1"></i> Vagas Esgotadas
+                            </button>
+                          {% else %}
+                            <form action="{% url 'app_evento:urlparticipar_atividade' atividade.id %}" method="POST" class="d-inline">
+                              {% csrf_token %}
+                              <button type="submit" class="btn btn-success btn-sm px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
+                                <i class="bi bi-check-circle me-1"></i> Inscrever-se
+                              </button>
+                            </form>
+                          {% endif %}
+                        {% endif %}
+                      {% else %}
+                        <a href="{% url 'app_login:urllogin' %}?next={{ request.path }}" class="btn btn-outline-primary btn-sm px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
+                          <i class="bi bi-box-arrow-in-right me-1"></i> Entrar para Inscrever-se
+                        </a>
+                      {% endif %}
+
+                    </div>
+                  </div>
+
+                  <!-- Descrição Completa da Atividade -->
+                  {% if atividade.descricao %}
+                    <div class="mb-4">
+                      <p class="text-secondary mb-0">{{ atividade.descricao }}</p>
+                    </div>
+                  {% endif %}
+
+                  <!-- Grade de Detalhes (Ícones/Horários em Vermelho quando Encerrada) -->
+                  <div class="row g-3 bg-light rounded p-3 m-0">
+                    <div class="col-sm-6 col-md-3">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-calendar3 {% if atividade.horaFim and atividade.horaFim < agora %}text-danger{% else %}text-verde-claro{% endif %} fs-5"></i>
+                        <div>
+                          <span class="text-muted d-block small">Data / Hora Início</span>
+                          <strong class="{% if atividade.horaFim and atividade.horaFim < agora %}text-danger fw-bold{% else %}text-dark{% endif %} small">
+                            {{ atividade.horaInicio|date:"d/m/Y H:i" }}
+                          </strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-3">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-clock {% if atividade.horaFim and atividade.horaFim < agora %}text-danger{% else %}text-verde-claro{% endif %} fs-5"></i>
+                        <div>
+                          <span class="text-muted d-block small">Término</span>
+                          <strong class="{% if atividade.horaFim and atividade.horaFim < agora %}text-danger fw-bold{% else %}text-dark{% endif %} small">
+                            {{ atividade.horaFim|date:"d/m/Y H:i" }}
+                          </strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-3">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-geo-alt text-vermelho fs-5"></i>
+                        <div>
+                          <span class="text-muted d-block small">Complemento do Local</span>
+                          <strong class="text-dark small">{{ atividade.complementoLocal|default:'A definir' }}</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md-3">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-people text-primary fs-5"></i>
+                        <div>
+                          <span class="text-muted d-block small">Vagas Ocupadas</span>
+                          <strong class="text-dark small">
+                            {{ atividade.participa_set.count }}{% if atividade.limitePessoas %} / {{ atividade.limitePessoas }}{% endif %}
+                          </strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="card card-custom p-5 text-center text-muted border-0 shadow-sm">
+          <i class="bi bi-calendar-x display-4 mb-3 text-secondary"></i>
+          <h5>Nenhuma atividade cadastrada para este evento.</h5>
+          <p class="mb-0">Novas atividades serão exibidas aqui assim que forem publicadas.</p>
+        </div>
+      {% endif %}
     </div>
-</section>
+  </section>
 {% endblock %}
