@@ -63,38 +63,39 @@
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
 
           <div class="collapse navbar-collapse" id="navbarMain">
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-2">
+              
               <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.url_name == 'urldis_evento' %}active{% endif %}" aria-current="page" href="{% url 'app_evento:urldis_evento' %}">Início</a>
+                <a class="nav-link rounded-pill px-3 {% if request.resolver_match.url_name == 'urldis_evento' %}active{% endif %}" aria-current="page" href="{% url 'app_evento:urldis_evento' %}">Início</a>
               </li>
-
-              {% comment '' %}MENUS APENAS PARA QUEM ESTÁ LOGADO{% endcomment %}
+              
               {% if request.user.is_authenticated %}
                 {% if request.user.is_staff %}
                   <li class="nav-item">
-                    <a class="nav-link {% if 'myevento' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_evento:urldis_myevento' %}">Meus Eventos</a>
+                    <a class="nav-link rounded-pill {% if 'myevento' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_evento:urldis_myevento' %}">Meus Eventos</a>
                   </li>
                 {% endif %}
                 <li class="nav-item">
-                  <a class="nav-link {% if 'inscricoes' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_evento:urlminhas_inscricoes' %}">Inscrições</a>
+                  <a class="nav-link rounded-pill px-3 {% if 'inscricoes' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_evento:urlminhas_inscricoes' %}">Inscrições</a>
                 </li>
 
                 <li class="nav-item">
-                  <a class="nav-link {% if 'usuario' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_login:urlmeu_usuario' %}">Meu Perfil</a>
+                  <a class="nav-link rounded-pill px-3 {% if 'usuario' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_login:urlmeu_usuario' %}">Meu Perfil</a>
                 </li>
 
                 <li class="nav-item">
                   <form method="POST" action="{% url 'app_login:urllogout' %}" autocomplete="off">
                     {% csrf_token %}
-                    <button type="submit" class="nav-link btn btn-link text-decoration-none">Sair</button>
+                    <button type="submit" class="nav-link rounded-pill px-3 btn btn-link text-decoration-none">
+                    <i class="bi bi-box-arrow-right"></i> Sair
+                    </button>
                   </form>
                 </li>
               {% else %}
                 <li class="nav-item">
-                  <a class="nav-link {% if 'login' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_login:urllogin' %}">Entrar</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link {% if 'pwa_home' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_evento:urlpwa_home' %}">Encontrar Evento</a>
+                  <a class="nav-link rounded-pill px-3 {% if 'login' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'app_login:urllogin' %}">
+                    <i class="bi bi-box-arrow-in-right"></i> Entrar
+                  </a>
                 </li>
               {% endif %}
             </ul>
@@ -122,64 +123,61 @@
       {% endblock %}
     </main>
 
-    <footer class="site-footer mt-auto py-3 text-center">
+    <footer class="site-footer mt-auto py-3 text-center ">
       <div class="container">
         <div class="row g-3 mb-2"> 
           <!-- Informações de Contato -->
           <div class="col-md-4 mb-2 mb-md-0">
-            <h6 class="text-white mb-1">Portal SEA Eventos - Sistema de Eventos Acadêmicos</h6>
-            <p class="text-secondary small mb-0">
+            <h6 class="text-white mb-3">Portal SEA Eventos - Sistema de Eventos Acadêmicos</h6>
+            <p class="text-white-50 small mb-0">
               <i class="bi bi-geo-alt-fill me-1"></i>IFSC - RAU | <i class="bi bi-calendar-event me-1"></i>2026<br />
               <i class="bi bi-envelope-fill me-1"></i>contato@portalseaeventos.com.br<br />
-              <i class="bi bi-telephone-fill me-1"></i>(48) 99999-9999
+              <i class="bi bi-telephone-fill me-1"></i>(47) 99766-9819
             </p>
           </div>
 
           <!-- Links Rápidos -->
           <div class="col-md-4 mb-2 mb-md-0">
-            <h6 class="text-white mb-1">Links Rápidos</h6>
+            <h6 class="text-white mb-3">Links Rápidos</h6>
             <ul class="list-unstyled">
-
+                    <li>
+                      <a href="{% url 'app_evento:urldis_evento' %}" class="text-white-50 text-decoration-none link-light">Inicio</a>
+                    </li>
               {% if request.user.is_authenticated %}
                   {% if request.user.is_staff %}
                     
                     <li>
-                      <a href="{% url 'app_evento:urldis_myevento' %}" class="text-secondary text-decoration-none">Meus Eventos</a>
+                      <a href="{% url 'app_evento:urldis_myevento' %}" class="text-white-50 text-decoration-none link-light">Meus Eventos</a>
                     </li>
                     <li>
-                      <a href="{% url 'app_evento:urlcad_evento' %}" class="text-secondary text-decoration-none">Novo Evento</a>
+                      <a href="{% url 'app_evento:urlcad_evento' %}" class="text-white-50 text-decoration-none link-light">Novo Evento</a>
                     </li>
 
                   {% endif %}
                     
                     <li>
-                      <a href="{% url 'app_evento:urlminhas_inscricoes' %}" class="text-secondary text-decoration-none">Inscrições</a>
+                      <a href="{% url 'app_evento:urlminhas_inscricoes' %}" class="text-white-50 text-decoration-none link-light">Inscrições</a>
                     </li>
 
                     <li>
-                      <a href="{% url 'app_login:urlmeu_usuario' %}" class="text-secondary text-decoration-none">Meu Perfil</a>
+                      <a href="{% url 'app_login:urlmeu_usuario' %}" class="text-white-50 text-decoration-none link-light">Meu Perfil</a>
                     </li>
 
-                    
-                    <form method="POST" action="{% url 'app_login:urllogout' %}" autocomplete="off">
-                      {% csrf_token %}
-                      <li>
-                        <button type="submit" class="btn btn-link text-secondary text-decoration-none p-0 m-0">Sair</button>
-                      </li>
-                    </form>
-                   
-                  
+                    <li>
+                      <form method="POST" action="{% url 'app_login:urllogout' %}" autocomplete="off">
+                        {% csrf_token %}
+                        <li>
+                          <button type="submit" class="text-white-50 btn btn-link text-decoration-none link-light">Sair</button>
+                        </li>
+                      </form>
+                    <li>                 
               {% else %}  
                 <li>
-                  <a href="{% url 'app_evento:urldis_evento' %}" class="text-secondary text-decoration-none">Início</a>
-                </li>
-
-                <li>
-                  <a href="{% url 'app_login:urllogin' %}" class="text-secondary text-decoration-none">Entrar</a>
+                  <a href="{% url 'app_login:urllogin' %}" class="text-white-50 text-decoration-none link-light">Entrar</a>
                  </li>
 
                 <li>
-                  <a href="{% url 'app_evento:urlpwa_home' %}" class="text-secondary text-decoration-none">Encontrar Evento</a>
+                  <a href="{% url 'app_evento:urlpwa_home' %}" class="text-white-50 text-decoration-none link-light">Encontrar Evento</a>
                 </li>
               {% endif %}
 
@@ -187,12 +185,12 @@
           </div>
 
           <!-- Redes Sociais -->
-          <div class="col-md-4">
-            <h6 class="text-white mb-1">Redes Sociais</h6>
+          <div class="col-md-4" nav-bar>
+            <h6 class="text-white mb-3">Redes Sociais</h6>
             <div class="social-links d-flex justify-content-center align-items-center gap-3">
-              <a href="https://www.facebook.com/portalseaeventos/" class="text-white" target="_blank"><i class="bi bi-facebook fs-6"></i></a>
-              <a href="https://www.instagram.com/portalseaeventos/" class="text-white" target="_blank"><i class="bi bi-instagram fs-6"></i></a>
-              <a href="https://www.youtube.com/@portalseaeventos/" class="text-white" target="_blank"><i class="bi bi-youtube fs-6"></i></a>
+              <a href="https://www.facebook.com/portalseaeventos/" class="text-white nav-link rounded-pill px-3" target="_blank"><i class="bi bi-facebook fs-6"></i></a>
+              <a href="https://www.instagram.com/portalseaeventos/" class="text-white nav-link rounded-pill px-3" target="_blank"><i class="bi bi-instagram fs-6"></i></a>
+              <a href="https://www.youtube.com/@portalseaeventos/" class="text-white nav-link rounded-pill px-3" target="_blank"><i class="bi bi-youtube fs-6"></i></a>
             </div>
           </div>
         </div>
@@ -202,7 +200,7 @@
         <!-- Copyright -->
         <div class="row">
           <div class="col-12">
-            <p class="text-secondary small mb-0">
+            <p class="text-white-50 text-secondary small mb-0">
               &copy;{% now 'Y' %} Portal SEA Eventos. Sistema de Eventos Acadêmicos. [Projeto Acadêmico - Sem Fins Lucrativos]
             </p>
           </div>
@@ -215,17 +213,6 @@
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 
     <script src="{% static 'js/sw-registro.js' %}"></script>
-
-    {% if user.is_authenticated %}
-      <script>   
-          const tempoLimite = {{ SESSION_COOKIE_AGE }} * 1000; 
-
-          setTimeout(function() {
-              alert("Sua sessão expirou após inatividade. Faça login novamente.");
-              window.location.href = "{% url 'app_login:urllogin' %}?expirado=1";
-          }, tempoLimite);
-      </script>
-    {% endif %}
     
     {% if user.is_authenticated %}
       <script>
