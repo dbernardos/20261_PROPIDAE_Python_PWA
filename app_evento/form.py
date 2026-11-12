@@ -28,7 +28,6 @@ class EventoForm(forms.ModelForm):
             'dataInicio',
             'dataFim',
             'tipoEvento',
-            
         ]
 
         labels = {
@@ -41,7 +40,6 @@ class EventoForm(forms.ModelForm):
             'dataInicio': 'Data de Início',
             'dataFim': 'Data de Término',
             'tipoEvento': 'Tipo do Evento',
-            
         }
         
         widgets = {
@@ -49,7 +47,7 @@ class EventoForm(forms.ModelForm):
             'descricao': forms.Textarea(attrs={'placeholder': 'Ex.: Resumo dos objetivos e temas abordados...', 'class': 'form-control mb-3', 'rows': 4}),
             'apoiadores': forms.TextInput(attrs={'placeholder': 'Ex.: Weg, Embrapa, Marissol', 'class': 'form-control mb-3'}),
             'emailContato': forms.EmailInput(attrs={'placeholder': 'Ex.: contato@evento.com', 'class': 'form-control mb-3'}),
-            'local': forms.TextInput(attrs={'placeholder': 'Ex.:Rua dos Imigrantes, 445, Rau, Jaraguá do Sul - SC, CEP 89254-430', 'class': 'form-control mb-3'}),
+            'local': forms.TextInput(attrs={'placeholder': 'Ex.: Rua dos Imigrantes, 445, Rau, Jaraguá do Sul - SC, CEP 89254-430', 'class': 'form-control mb-3'}),
             'imagemBanner': forms.FileInput(attrs={'class': 'form-control mb-3', 'accept': 'image/*'}),
             'dataInicio': forms.DateInput(
                 format='%Y-%m-%d',
@@ -60,8 +58,8 @@ class EventoForm(forms.ModelForm):
                 attrs={'class': 'form-control mb-3', 'type': 'date'}
             ),
             'tipoEvento': forms.Select(attrs={'class': 'form-select mb-3'}),
-            
         }
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
@@ -71,7 +69,7 @@ class EventoForm(forms.ModelForm):
         if self.instance and self.instance.pk and self.instance.dataInicio:
             self.initial['dataInicio'] = self.instance.dataInicio.strftime('%Y-%m-%d')
         if self.instance and self.instance.pk and self.instance.dataFim:
-            self.initial['dataFim'] = self.instance.dataFim.strftime('%Y-%m-%d')    
+            self.initial['dataFim'] = self.instance.dataFim.strftime('%Y-%m-%d')
 
     def clean_apoiadores(self):
         """Transforma a string digitada em uma lista de nomes limpos"""
@@ -82,14 +80,15 @@ class EventoForm(forms.ModelForm):
         # Divide por vírgula e remove espaços extras de cada nome
         return [nome.strip() for nome in texto_apoiadores.split(',') if nome.strip()]
 
-    def clean_dataInicio(self):
-        dataInicio = self.cleaned_data.get('dataInicio')
-        dataFim = self.cleaned_data.get('dataFim')
+    def clean(self):
+        cleaned_data = super().clean()
+        data_inicio = cleaned_data.get('dataInicio')
+        data_fim = cleaned_data.get('dataFim')
 
-        if dataInicio and dataFim and dataInicio > dataFim:
-            raise forms.ValidationError("A data de início não pode ser maior que a data de término.")
-        
-        return dataInicio
+        if data_inicio and data_fim and data_inicio > data_fim:
+            self.add_error('dataFim', 'A data de término não pode ser anterior à data de início.')
+
+        return cleaned_data
 
     def save(self, commit=True):
         # Salva o evento sem commitar no banco por enquanto
@@ -114,8 +113,7 @@ class EventoForm(forms.ModelForm):
             self.save_m2m = save_m2m
 
         return evento
-
-
+        
 
 from datetime import datetime
 from django import forms

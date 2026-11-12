@@ -265,55 +265,67 @@ def eventos_disponiveis(request):
 @never_cache
 @login_required
 def cadastrar_evento(request):
-    """Cadastra um evento para o administrador autenticado."""
-    try:
-        usuario_perfil = Usuario.objects.get(
-            user_django=request.user
-        )
-    except Usuario.DoesNotExist:
-        messages.warning(
-            request,
-            'Você precisa completar seu perfil de Usuário antes de criar um evento.',
-        )
-        return redirect('app_login:urlcad_usuario')
-
-    if request.method == 'POST':
-        form = EventoForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            evento = form.save(commit=False)
-            evento.administrador = usuario_perfil
-            evento.save()
-
-            nomes_apoiadores = form.cleaned_data.get('apoiadores')
-
-            if nomes_apoiadores:
-                objetos_apoiadores = []
-                for nome in nomes_apoiadores:
-                    apoiador_obj, criado = Apoiador.objects.get_or_create(
-                        nome=nome
-                    )
-                    objetos_apoiadores.append(apoiador_obj)
-
-                evento.apoiadores.set(objetos_apoiadores)
-
-            messages.success(
-                request,
-                'Evento cadastrado com sucesso!',
-            )
-
-            return redirect(
-                'app_evento:urlcad_atividade',
-                evento_id=evento.id,
-            )
-    else:
-        form = EventoForm()
-
-    return render(
+  """Cadastra um evento para o administrador autenticado."""
+  try:
+    usuario_perfil = Usuario.objects.get(user_django=request.user)
+  except Usuario.DoesNotExist:
+    messages.warning(
         request,
-        'app_evento/cadastrar_evento.html',
-        {'form_evento': form},
+        'Você precisa completar seu perfil de Usuário antes de criar um evento.',
     )
+    return redirect('app_login:urlcad_usuario')
+
+  if request.method == 'POST':
+    form = EventoForm(request.POST, request.FILES)
+
+    if form.is_valid():
+      evento = form.save(commit=False)
+
+      # Bloqueia data final anterior à data de início
+      if (
+          evento.dataInicio
+          and evento.dataFim
+          and evento.dataFim < evento.dataInicio
+      ):
+        form.add_error(
+            'dataFim',
+            'A data de término não pode ser anterior à data de início.',
+        )
+        messages.error(
+            request,
+            'A data de término não pode ser anterior à data de início.',
+        )
+      else:
+        evento.administrador = usuario_perfil
+        evento.save()
+
+        nomes_apoiadores = form.cleaned_data.get('apoiadores')
+
+        if nomes_apoiadores:
+          objetos_apoiadores = []
+          for nome in nomes_apoiadores:
+            apoiador_obj, criado = Apoiador.objects.get_or_create(nome=nome)
+            objetos_apoiadores.append(apoiador_obj)
+
+          evento.apoiadores.set(objetos_apoiadores)
+
+        messages.success(
+            request,
+            'Evento cadastrado com sucesso!',
+        )
+
+        return redirect(
+            'app_evento:urlcad_atividade',
+            evento_id=evento.id,
+        )
+  else:
+    form = EventoForm()
+
+  return render(
+      request,
+      'app_evento/cadastrar_evento.html',
+      {'form_evento': form},
+  )
 
 
 @never_cache
@@ -547,11 +559,10 @@ def cadastrar_atividade(request, evento_id):
 
     if request.method == 'POST':
         form = AtividadeForm(request.POST)
+        form.instance.evento = evento_atual
 
         if form.is_valid():
-            atividade = form.save(commit=False)
-            atividade.evento = evento_atual
-            atividade.save()
+            form.save()
 
             messages.success(
                 request,

@@ -11,6 +11,17 @@
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-lg-8">
+
+          <!-- Exibição de Mensagens do Django -->
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm mb-4" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+
           <h2 class="fw-bold text-verde-escuro mb-4 d-flex align-items-center">
             {% if editando %}
               <i class="bi bi-pencil-square me-2 text-verde-claro"></i>Editar Atividade: {{ atividade.nome }}
@@ -69,4 +80,77 @@
       </div>
     </div>
   </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const horaInicio = document.getElementById('id_horaInicio');
+    const horaFim = document.getElementById('id_horaFim');
+
+    if (!horaInicio || !horaFim) return;
+
+    const formulario = horaInicio.closest('form');
+    const minEvento = "{% if evento.dataInicio %}{{ evento.dataInicio|date:'Y-m-d' }}T00:00{% endif %}";
+    const maxEvento = "{% if evento.dataFim %}{{ evento.dataFim|date:'Y-m-d' }}T23:59{% endif %}";
+
+    function sincronizarLimites() {
+        // Limita o início dentro do período do evento
+        horaInicio.min = minEvento;
+        horaInicio.max = horaFim.value || maxEvento;
+
+        // Limita o término a partir do início da atividade
+        horaFim.min = horaInicio.value || minEvento;
+        horaFim.max = maxEvento;
+    }
+
+    function validarIntervaloHorarios() {
+        horaInicio.setCustomValidity('');
+        horaFim.setCustomValidity('');
+
+        if (minEvento && horaInicio.value && horaInicio.value < minEvento) {
+            horaInicio.setCustomValidity('A atividade não pode começar antes do início do evento.');
+            horaInicio.reportValidity();
+            return false;
+        }
+
+        if (maxEvento && horaFim.value && horaFim.value > maxEvento) {
+            horaFim.setCustomValidity('A atividade não pode terminar após o encerramento do evento.');
+            horaFim.reportValidity();
+            return false;
+        }
+
+        if (horaInicio.value && horaFim.value && horaInicio.value > horaFim.value) {
+            horaFim.setCustomValidity('A hora de término deve ser igual ou posterior à hora de início.');
+            horaFim.reportValidity();
+            return false;
+        }
+
+        return true;
+    }
+
+    horaInicio.addEventListener('change', function () {
+        sincronizarLimites();
+        validarIntervaloHorarios();
+    });
+
+    horaFim.addEventListener('change', function () {
+        sincronizarLimites();
+        validarIntervaloHorarios();
+    });
+
+    // Aplica os limites logo ao carregar a página
+    sincronizarLimites();
+
+    if (formulario) {
+        formulario.addEventListener('submit', function (evento) {
+            if (!validarIntervaloHorarios()) {
+                evento.preventDefault();
+                evento.stopPropagation();
+                return false;
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
