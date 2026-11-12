@@ -304,7 +304,6 @@ def popular_banco():
             "dataInicio": hoje,
             "dataFim": hoje + timedelta(days=4),
             "tipoEvento": tipoEvento.SEMANA,
-            "eventoPublico": True,
         }
     )
     evento.apoiadores.add(apoiador_1, apoiador_2)
@@ -322,7 +321,6 @@ def popular_banco():
             "dataInicio": hoje,
             "dataFim": hoje + timedelta(days=4),
             "tipoEvento": tipoEvento.OUTRO,
-            "eventoPublico": True,
         }
     )
     evento2.apoiadores.add(apoiador_3)
@@ -340,7 +338,6 @@ def popular_banco():
             "dataInicio": hoje,
             "dataFim": hoje + timedelta(days=4),
             "tipoEvento": tipoEvento.FORUM,
-            "eventoPublico": True,
         }
     )
     evento3.apoiadores.add(apoiador_1, apoiador_2, apoiador_3)
@@ -528,7 +525,6 @@ def popular_banco():
             "valor_minimo": Decimal("10.00"),
             "valor_maximo": Decimal("10.50"),
             "valor_ideal": Decimal("10.25"),
-            "icone": "bi-rulers",
             "ativo": True,
         }
     )
@@ -545,7 +541,6 @@ def popular_banco():
             "valor_minimo": Decimal("48.00"),
             "valor_maximo": Decimal("52.00"),
             "valor_ideal": Decimal("50.00"),
-            "icone": "bi-trophy",
             "ativo": True,
         }
     )
@@ -562,7 +557,6 @@ def popular_banco():
                 "valor_minimo": Decimal("48.00"),
                 "valor_maximo": Decimal("52.00"),
                 "valor_ideal": Decimal("50.00"),
-                "icone": "bi-trophy",
                 "ativo": True,
             }
         )
