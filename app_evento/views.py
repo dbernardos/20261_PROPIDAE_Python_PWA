@@ -18,7 +18,7 @@ from django.views.decorators.http import require_POST
 from django.db import models as django_models
 
 from app_login.models import Usuario
-
+from app_quiz.models import Quiz, Resposta
 from .form import AtividadeForm, EventoForm
 from .models import (
     Apoiador,
@@ -29,6 +29,8 @@ from .models import (
     StatusParticipa,
     tipoEvento,
 )
+
+
 
 # Views do EVENTO.
 # -----------------------------------------------
@@ -544,7 +546,7 @@ def meus_eventos_disponiveis(request):
         context,
     )
 
-def _obter_foto_perfil(usuario):
+def obter_foto_perfil(usuario):
     """Detecta automaticamente o campo de foto no model Usuario e retorna sua URL."""
     if not usuario:
         return None
@@ -573,7 +575,7 @@ def _obter_foto_perfil(usuario):
     return None
 
 
-def _extrair_dados_completos(usuario):
+def extrair_dados_completos(usuario):
     """Coleta todas as informações cadastradas no perfil Usuario para exibir na Ficha."""
     campos_possiveis = [
         ('cpf', 'CPF'),
@@ -594,7 +596,7 @@ def _extrair_dados_completos(usuario):
     return detalhes
 
 
-def _calcular_nivel(pontos, pontos_por_nivel=100):
+def calcular_nivel(pontos, pontos_por_nivel=100):
     """Calcula o nível inteiro a partir da pontuação (ex: 0-99 pts = Nível 1, 100-199 = Nível 2)."""
     pontos = max(0, pontos or 0)
     nivel = (pontos // pontos_por_nivel) + 1
@@ -605,12 +607,46 @@ def _calcular_nivel(pontos, pontos_por_nivel=100):
         'progresso': progresso,
     }
 
+def status_presenca_atividade(participa, atividade, agora):
+    """
+    Define o status de presença na atividade com base no registro via QR Code:
+    - Presente: inscrito e registrou presença até o término da atividade
+    - Não iniciado: não registrou presença e a atividade ainda não começou
+    - Em Espera: não registrou presença e a atividade está em andamento
+    - Ausente: não registrou presença até o término da atividade
+    """
+    # Ajuste os nomes dos campos abaixo conforme o seu models.py (ex: presente / dataHoraPresenca)
+    data_presenca = getattr(participa, 'dataHoraPresenca', None)
+    registrou = bool(getattr(participa, 'presente' , False) or data_presenca)
+
+    inicio = atividade.horaInicio
+    fim = atividade.horaFim
+
+    # Se dataInicio/dataFim forem DateField (sem hora), combina com horaInicio/horaFim
+    tz = timezone.get_current_timezone()
+    if not hasattr(inicio, 'hour'):
+        inicio = datetime.datetime.combine(inicio, getattr(atividade, 'horaInicio', datetime.time.min))
+        fim = datetime.datetime.combine(fim, getattr(atividade, 'horaFim', datetime.time(23, 59, 59)))
+    if timezone.is_naive(inicio):
+        inicio = timezone.make_aware(inicio, tz)
+    if timezone.is_naive(fim):
+        fim = timezone.make_aware(fim, tz)
+
+    if registrou:
+        if data_presenca and data_presenca > fim:
+            return {'texto': 'Ausente', 'classe': 'bg-danger-subtle text-danger border-danger-subtle', 'icone': 'bi-x-circle-fill'}
+        return {'texto': 'Presente', 'classe': 'bg-success-subtle text-success border-success-subtle', 'icone': 'bi-check-circle-fill'}
+
+    if agora < inicio:
+        return {'texto': 'Não iniciado', 'classe': 'bg-secondary-subtle text-secondary border-secondary-subtle', 'icone': 'bi-clock'}
+
+    if agora > fim:
+        return {'texto': 'Ausente', 'classe': 'bg-danger-subtle text-danger border-danger-subtle', 'icone': 'bi-x-circle-fill'}
+
+    return {'texto': 'Em Espera', 'classe': 'bg-warning-subtle text-warning-emphasis border-warning-subtle', 'icone': 'bi-hourglass-split'}
 
 @login_required
 def gerenciar_participantes(request, evento_id, atividade_id=None):
-    from .models import Evento, Atividade, Inscricao, Participa
-    from app_quiz.models import Quiz, Resposta
-
     evento = get_object_or_404(Evento, id=evento_id)
     atividade = None
 
@@ -680,7 +716,15 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
         insc_id = resp.participa.inscricao_id
         respostas_por_inscricao.setdefault(insc_id, []).append(resp)
 
-    # Monta métricas, nível inteiro, foto e ficha de cada participante
+    agora = timezone.now()
+    participacoes_map = {}
+    if atividade:
+        participacoes_map = {
+            p.inscricao_id: p
+            for p in Participa.objects.filter(inscricao__in=participantes_qs, atividade=atividade)
+        }
+
+    # Monta métricas, nível inteiro, presença, foto e ficha de cada participante
     participantes = list(participantes_qs)
     for inscricao in participantes:
         resps = respostas_por_inscricao.get(inscricao.id, [])
@@ -688,7 +732,7 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
         acertos_exatos = sum(1 for r in resps if r.status == 'certo')
         aproximados = sum(1 for r in resps if r.status == 'aproximado')
 
-        nivel_dados = _calcular_nivel(pontos, pontos_por_nivel=100)
+        nivel_dados = calcular_nivel(pontos, pontos_por_nivel=100)
 
         inscricao.pontuacao_total = pontos
         inscricao.total_respondidos = len(resps)
@@ -697,12 +741,16 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
         inscricao.respostas_lista = resps
         inscricao.nivel = nivel_dados['numero']
         inscricao.nivel_progresso = nivel_dados['progresso']
-        inscricao.foto_perfil_url = _obter_foto_perfil(inscricao.usuario)
-        inscricao.dados_completos = _extrair_dados_completos(inscricao.usuario)
+        inscricao.presenca_info = (
+            status_presenca_atividade(participacoes_map.get(inscricao.id), atividade, agora)
+            if atividade else None
+        )
+        inscricao.foto_perfil_url = obter_foto_perfil(inscricao.usuario)
+        inscricao.dados_completos = extrair_dados_completos(inscricao.usuario)
 
     # Ordena do maior para o menor score (desempate pela inscrição mais antiga)
     participantes.sort(key=lambda i: (-i.pontuacao_total, i.dataHora))
-
+    
     context = {
         'evento': evento,
         'atividade': atividade,

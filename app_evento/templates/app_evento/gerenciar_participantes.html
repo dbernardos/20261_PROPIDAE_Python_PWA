@@ -115,7 +115,7 @@
       </div>
     </div>
 
-    <!-- Tabela de Participantes (Sem coluna de Nível) -->
+    <!-- Tabela de Participantes -->
     <div class="participantes-card shadow-sm p-0 overflow-hidden">
       {% if participantes %}
         <div class="table-responsive mb-0">
@@ -125,6 +125,9 @@
                 <th class="ps-4 py-3 text-center" style="width: 60px;">#</th>
                 <th class="py-3 text-start">Participante</th>
                 <th class="py-3 text-center">Crachá</th>
+                {% if atividade %}
+                    <th class="py-3 text-center">Presença</th>
+                {% endif %}
                 <th class="py-3 text-center">Pontuação</th>
                 <th class="py-3 text-center">Inscrição</th>
                 <th class="pe-4 py-3 text-end">Ações</th>
@@ -197,14 +200,22 @@
                   <!-- Crachá -->
                   <td class="text-center font-monospace text-success fw-bold">
                     {% if inscricao.cracha %}
-                      <span class="border border-success bg-success-subtle px-2 py-1 rounded">
+                      <span class="border border-success bg-success-subtle px-2 py-1 rounded text-nowrap d-inline-block">
                         {{ inscricao.cracha }}
                       </span>
                     {% else %}
                       <span class="text-muted fw-normal">---</span>
                     {% endif %}
                   </td>
-
+                  
+                  <!-- Crachá -->
+                  {% if atividade %}
+                    <td class="text-center">
+                      <span class="badge {{ inscricao.presenca_info.classe }} border rounded-pill px-3 py-1 fw-semibold">
+                        <i class="bi {{ inscricao.presenca_info.icone }} me-1"></i>{{ inscricao.presenca_info.texto }}
+                      </span>
+                    </td>
+                  {% endif %}
                   <!-- Pontuação -->
                   <td class="text-center">
                     <span class="fw-bold fs-6 text-verde-escuro">{{ inscricao.pontuacao_total }}</span>
@@ -226,7 +237,7 @@
                         <i class="bi bi-person-vcard me-1"></i> Ficha
                       </button>
                       <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2" data-bs-toggle="modal" data-bs-target="#modalExcluir{{ inscricao.id }}" title="Remover">
-                        <i class="bi bi-person-x-fill"></i>
+                        <i class="bi bi-person-x-fill"></i> Excluir
                       </button>
                     </div>
                   </td>
@@ -326,12 +337,7 @@
                   <div>
                     <span class="text-muted small d-block">Nível</span>
                     <strong class="fs-4 text-warning-emphasis">{{ inscricao.nivel }}</strong>
-                  </div>
-                  <div class="mt-1">
-                    <div class="nivel-progress mx-auto mb-1" title="{{ inscricao.nivel_progresso }}% para o Nível {{ inscricao.nivel|add:1 }}">
-                      <div class="bg-success h-100" style="width: {{ inscricao.nivel_progresso }}%;"></div>
-                    </div>
-                    <small class="text-muted d-block" style="font-size: 0.7rem;">{{ inscricao.nivel_progresso }}% p/ Nível {{ inscricao.nivel|add:1 }}</small>
+                     <small class="text-muted d-block">da Conta</small>
                   </div>
                 </div>
               </div>
