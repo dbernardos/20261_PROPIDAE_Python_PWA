@@ -19,7 +19,7 @@ SECRET_KEY = 'django-insecure-9q#0(2@c0a%f%4quo!ea(d6u2u=zjt64cjq4wvvgd!qrgf^#g3
 DEBUG = True
 
 # Permite que o Django responda às requisições do ngrok
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'portalseaeventos.com.br','*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'portalseaeventos.com.br', '//portalseaeventos.com.br','*']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.ngrok-free.app', 
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -130,6 +131,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Configurações de arquivos de mídia (Uploads como a Foto de Perfil)
 MEDIA_URL = '/media/'
