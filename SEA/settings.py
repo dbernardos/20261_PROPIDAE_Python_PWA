@@ -25,11 +25,12 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.ngrok-free.app', 
     'https://*.ngrok.io', 
     'https://tipping-skipping-dangle.ngrok-free.dev', 
-    'https://tipping-skipping-dangle.ngrok.io'
-    'https://portalseaeventos.com.br'
-    'https://www.portalseaeventos.com.br'
+    'https://tipping-skipping-dangle.ngrok.io',
+    'https://portalseaeventos.com.br',
+    'https://www.portalseaeventos.com.br',
 ]
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
