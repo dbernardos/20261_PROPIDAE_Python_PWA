@@ -463,7 +463,7 @@ def detalhes_evento(request, evento_id):
         'atividades': atividades,
         'atividades_inscritas_ids': list(atividades_inscritas_ids),
         'esta_inscrito_no_evento': esta_inscrito_no_evento,
-        'agora': timezone.now(),  # <--- Linha necessária para validar os horários no HTML
+        'agora': timezone.now(),  # necessária para validar os horários no HTML
     }
 
     return render(
@@ -615,14 +615,13 @@ def status_presenca_atividade(participa, atividade, agora):
     - Em Espera: não registrou presença e a atividade está em andamento
     - Ausente: não registrou presença até o término da atividade
     """
-    # Ajuste os nomes dos campos abaixo conforme o seu models.py (ex: presente / dataHoraPresenca)
+
     data_presenca = getattr(participa, 'dataHoraPresenca', None)
     registrou = bool(getattr(participa, 'presente' , False) or data_presenca)
 
     inicio = atividade.horaInicio
     fim = atividade.horaFim
 
-    # Se dataInicio/dataFim forem DateField (sem hora), combina com horaInicio/horaFim
     tz = timezone.get_current_timezone()
     if not hasattr(inicio, 'hour'):
         inicio = datetime.datetime.combine(inicio, getattr(atividade, 'horaInicio', datetime.time.min))
