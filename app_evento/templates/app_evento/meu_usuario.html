@@ -52,7 +52,7 @@
                   {% endif %}
 
                   <br>
-                  <!-- Badges Lado a Lado: Nível e Pontuação -->
+                  <!- Nível e Pontuação -->
                   <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
                     <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3 py-1 fw-semibold d-inline-flex align-items-center gap-1">
                       <i class="bi bi-shield-lock-fill text-warning"></i>
@@ -138,7 +138,7 @@
             </div>
           </div>
 
-          <!-- Botão Único de Edição -->
+          <!-- Botão de Edição -->
           <div class="text-end mt-4">
             <button class="btn btn-primary-custom px-4" type="button" data-bs-toggle="collapse" data-bs-target="#formEdicao" aria-expanded="false" aria-controls="formEdicao">
               Editar Perfil
@@ -148,7 +148,7 @@
         </div>
       </div>
 
-      <!-- Painel Expansível: Editar Informações + Alterar Senha + Excluir Conta -->
+      <!-- Editar Informações -->
       <div class="collapse {% if form.errors or password_form.errors %}show{% endif %}" id="formEdicao">
         <div class="card card-custom border">
           <div class="card-header bg-verde-escuro text-white py-3">
@@ -169,7 +169,7 @@
               </div>
             {% endif %}
 
-            <!-- 1. Formulário de Dados Pessoais -->
+            <!-- Formulário de Dados Pessoais -->
             <form method="post" enctype="multipart/form-data" novalidate>
               {% csrf_token %}
               <input type="hidden" name="acao" value="editar_perfil">
@@ -212,13 +212,13 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label for="{{ form.formacao.id_for_label }}" class="form-label fw-bold">Formação</label>
+                  <label for="{{ form.formacao.id_for_label }}" class="form-label fw-bold">Formação Acadêmica</label>
                   {{ form.formacao }}
                   {% if form.formacao.errors %}<div class="text-vermelho small mt-1">{{ form.formacao.errors.0 }}</div>{% endif %}
                 </div>
 
                 <div class="col-md-6">
-                  <label for="{{ form.fotoPerfil.id_for_label }}" class="form-label fw-bold">Foto de Perfil</label>
+                  <label for="{{ form.fotoPerfil.id_for_label }}" class="form-label fw-bold">Foto de Perfil (Máx. 2MB)</label>
                   {{ form.fotoPerfil }}
                   {% if form.fotoPerfil.errors %}<div class="text-vermelho small mt-1">{{ form.fotoPerfil.errors.0 }}</div>{% endif %}
                 </div>
@@ -242,7 +242,7 @@
 
             <hr class="my-4">
 
-            <!-- 2. Seção Interna de Alterar Senha -->
+            <!-- Alterar Senha -->
             <div class="bg-light border rounded-3 p-4">
               <h6 class="fw-bold text-verde-escuro mb-3">
                 <i class="bi bi-key-fill me-2"></i>Alterar Senha
@@ -261,7 +261,7 @@
               </form>
             </div>
 
-            <!-- 3. Rodapé do Painel: Botão Menor de Excluir Conta no Canto Inferior Esquerdo -->
+            <!-- Excluir Conta -->
             <div class="d-flex justify-content-start align-items-center mt-4 pt-3 border-top">
               <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExclusaoConta">
                 <i class="bi bi-trash me-1"></i>Excluir minha conta

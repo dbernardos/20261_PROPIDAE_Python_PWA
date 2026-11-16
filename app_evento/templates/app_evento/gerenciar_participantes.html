@@ -208,7 +208,6 @@
                     {% endif %}
                   </td>
                   
-                  <!-- Crachá -->
                   {% if atividade %}
                     <td class="text-center">
                       <span class="badge {{ inscricao.presenca_info.classe }} border rounded-pill px-3 py-1 fw-semibold">
@@ -216,6 +215,7 @@
                       </span>
                     </td>
                   {% endif %}
+
                   <!-- Pontuação -->
                   <td class="text-center">
                     <span class="fw-bold fs-6 text-verde-escuro">{{ inscricao.pontuacao_total }}</span>
@@ -247,7 +247,7 @@
           </table>
         </div>
       {% else %}
-        <!-- Estado Vazio -->
+       
         <div class="p-5 text-center text-muted bg-light">
           <i class="bi bi-people text-secondary opacity-50 mb-3" style="font-size: 4rem;"></i>
           <h5 class="text-dark fw-bold">
@@ -264,12 +264,10 @@
 
   </div>
 
-  <!-- ==============================================
-       MODAIS (FORA DO CONTAINER PRINCIPAL)
-  ================================================ -->
+  <!--   MODAIS -->
   {% for inscricao in participantes %}
     
-    <!-- Modal Ficha Completa do Participante (Com Nível) -->
+    <!-- Modal Ficha Completa do Participante -->
     <div class="modal fade" id="modalDetalhes{{ inscricao.id }}" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
@@ -323,7 +321,8 @@
           </div>
 
           <div class="modal-body p-4 bg-light">
-            <!-- Resumo de Desempenho (Incluindo Nível) -->
+
+            <!-- Resumo de Desempenho-->
             <div class="row g-2 mb-4 text-center">
               <div class="col-6 col-md-3">
                 <div class="bg-white border rounded-3 p-3 h-100 shadow-sm">
