@@ -20,30 +20,45 @@ def validar_cpf_matematico(cpf_numeros):
         if digito != int(cpf_numeros[i]):
             return False
     return True
-  
-
 
 # FORMULÁRIO 1: OBRIGATÓRIO (CRIA O USUÁRIO NO BANCO)
 class CadastroEtapa1Form(forms.ModelForm):
   username = forms.CharField(max_length=150, label='Nome de Usuário')
   senha = forms.CharField(
       widget=forms.PasswordInput(
-          attrs={'class': 'form-control', 'placeholder': 'Digite sua senha'}
+          attrs={'class': 'form-control', 'placeholder': 'Digite sua senha forte'}
       ),
       label='Senha',
       help_text=password_validators_help_text_html(),
   )
   confirmar_senha = forms.CharField(
       widget=forms.PasswordInput(
-          attrs={'class': 'form-control', 'placeholder': 'Confirme sua senha'}
+          attrs={'class': 'form-control', 'placeholder': 'Repita a Senha digitada'}
       ),
       label='Confirmar Senha',
   )
 
   class Meta:
     model = Usuario
-    fields = ['nome', 'cpf', 'email', 'dataNascimento']
+    fields = [
+        'nome', 
+        'cpf', 
+        'email', 
+        'dataNascimento'
+    
+    ]
+    
+    labels = {
+        'nome': 'Nome',
+        'cpf': 'CPF',
+        'email': 'Email',
+        'dataNascimento': 'Data de Nascimento'    
+        
+    }
+    
     widgets = {
+        'nome': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex.: Maria Silva Santos'}),
+        'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ex.: maria.silva@email.com'}),
         'dataNascimento': forms.DateInput(
             format='%Y-%m-%d',
             attrs={
@@ -146,11 +161,12 @@ class CadastroEtapa1Form(forms.ModelForm):
 
 def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Formata a data existente para AAAA-MM-DD[cite: 1]
+        # Formata a data existente para AAAA-MM-DD
         if self.instance and self.instance.pk and self.instance.dataNascimento:
             self.initial['dataNascimento'] = (
                 self.instance.dataNascimento.strftime('%Y-%m-%d')
             )
+            
         # Bloqueia edição do CPF se já estiver cadastrado
         if self.instance and self.instance.pk and self.instance.cpf:
             self.fields['cpf'].disabled = True
@@ -171,11 +187,16 @@ class CadastroEtapa2Form(forms.ModelForm):
     ]
     
     labels = {
+        'telefone': 'Telefone',
+        'formacao': 'Formação Acadêmica',
+        'empresa': 'Empresa/Instituição',
+        'cargo': 'Cargo',
         'fotoPerfil': 'Foto de Perfil (Máx. 2MB)',
+        'biografia': 'Biografia',
     }
     
     widgets = {
-        'biografia': forms.Textarea(attrs={'rows': 3}),
+        
         'telefone': forms.TextInput(
             attrs={
                 'class': 'form-control',
@@ -184,16 +205,30 @@ class CadastroEtapa2Form(forms.ModelForm):
                 'maxlength': '15',
             }
         ),
+        'formacao': forms.TextInput(
+            attrs={'class': 'form-control', 'placeholder': 'Ex.: Engenharia de Software', }
+        ),
+        'empresa': forms.TextInput(
+            attrs={ 'class': 'form-control', 'placeholder': 'Ex.: Univille / Empresa LTDA', }
+        ),
+        'cargo': forms.TextInput(
+            attrs={'class': 'form-control', 'placeholder': 'Ex.: Estudante, Desenvolvedor, Analista',}
+        ),
+        'fotoPerfil': forms.FileInput(
+            attrs={'class': 'form-control', 'accept': 'image/*'}
+        ),
+        'biografia': forms.Textarea(
+            attrs={ 'class': 'form-control', 'rows': 3, 'placeholder': 'Conte um pouco sobre você, suas áreas de interesse ou experiência...', }
+        ),
     }
 
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
+    
     # Torna todos os campos da etapa 2 opcionais
     for field in self.fields.values():
       field.required = False
 
-# Create your LOGIN forms here.
-# -----------------------------------------------
 class UsuarioForm(UserCreationForm):
     class Meta:
         model = User
@@ -230,11 +265,10 @@ class EditarPerfilForm(forms.ModelForm):
 
     class Meta:
         model = Usuario
-        # O atributo 'fields' DEVE estar dentro de 'class Meta'
+
         fields = [
             'nome', 
             'email', 
-            #'cpf', 
             'telefone', 
             'dataNascimento',  
             
@@ -248,7 +282,6 @@ class EditarPerfilForm(forms.ModelForm):
         labels = {
             'nome': 'Nome Completo',
             'email': 'E-mail',
-            #'cpf': 'CPF',
             'telefone': 'Telefone',
             'dataNascimento': 'Data de Nascimento',
             
@@ -262,7 +295,6 @@ class EditarPerfilForm(forms.ModelForm):
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
-           # 'cpf': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '000.000.000-00'}),
             'telefone': forms.TextInput(attrs={
                     'class': 'form-control',
                     'placeholder': '(00) 00000-0000',
@@ -274,13 +306,23 @@ class EditarPerfilForm(forms.ModelForm):
                 format='%Y-%m-%d',
                 attrs={'class': 'form-control', 'type': 'date', 'max': timezone.localdate().isoformat()}
             ),
-            
-            'formacao': forms.TextInput(attrs={'class': 'form-control'}),
-            'empresa': forms.TextInput(attrs={'class': 'form-control'}),
-            'cargo': forms.TextInput(attrs={'class': 'form-control'}),   
-            'fotoPerfil': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
-            'biografia': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'formacao': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Ex.: Engenharia de Software', }
+            ),
+            'empresa': forms.TextInput(
+                attrs={ 'class': 'form-control', 'placeholder': 'Ex.: Univille / Empresa LTDA', }
+            ),
+            'cargo': forms.TextInput(
+                attrs={'class': 'form-control', 'placeholder': 'Ex.: Estudante, Desenvolvedor, Analista',}
+            ),
+            'fotoPerfil': forms.FileInput(
+                attrs={'class': 'form-control', 'accept': 'image/*'}
+            ),
+            'biografia': forms.Textarea(
+                attrs={ 'class': 'form-control', 'rows': 3, 'placeholder': 'Conte um pouco sobre você, suas áreas de interesse ou experiência...', }
+            ),
         }
+        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Formata a data existente para AAAA-MM-DD 
