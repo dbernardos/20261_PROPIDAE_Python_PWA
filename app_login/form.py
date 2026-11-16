@@ -5,11 +5,23 @@ from .models import Usuario
 from dateutil.relativedelta import relativedelta
 import re
 from django.utils import timezone
-
+from django.contrib.auth.password_validation import validate_password, password_validators_help_text_html
 
 
 # FORMS do LOGIN.
 # -----------------------------------------------
+
+def validar_cpf_matematico(cpf_numeros):
+    if len(cpf_numeros) != 11 or cpf_numeros == cpf_numeros[0] * 11:
+        return False
+    for i in range(9, 11):
+        soma = sum(int(cpf_numeros[num]) * ((i + 1) - num) for num in range(0, i))
+        digito = ((soma * 10) % 11) % 10
+        if digito != int(cpf_numeros[i]):
+            return False
+    return True
+  
+
 
 # FORMULÁRIO 1: OBRIGATÓRIO (CRIA O USUÁRIO NO BANCO)
 class CadastroEtapa1Form(forms.ModelForm):
@@ -19,6 +31,7 @@ class CadastroEtapa1Form(forms.ModelForm):
           attrs={'class': 'form-control', 'placeholder': 'Digite sua senha'}
       ),
       label='Senha',
+      help_text=password_validators_help_text_html(),
   )
   confirmar_senha = forms.CharField(
       widget=forms.PasswordInput(
@@ -42,18 +55,25 @@ class CadastroEtapa1Form(forms.ModelForm):
             },
         ),
         'cpf': forms.TextInput(
-            attrs={'placeholder': '000.000.000-00', 'required': 'required'}
+            attrs={'class': 'form-control',
+                'placeholder': '000.000.000-00',
+                'inputmode': 'numeric',
+                'maxlength': '14',
+                'required': 'required',
+                }
         ),
     }
+    
 
   def clean_cpf(self):
-    cpf = self.cleaned_data.get('cpf')
+    cpf = self.cleaned_data.get('cpf', '')
     cpf_limpo = re.sub(r'\D', '', cpf)
-    if len(cpf_limpo) != 11:
-      raise forms.ValidationError('Insira um CPF válido com 11 dígitos.')
-    if Usuario.objects.filter(cpf=cpf).exists():
+    if not validar_cpf_matematico(cpf_limpo):
+      raise forms.ValidationError('CPF inválido. Verifique os dígitos informados.')
+    cpf_formatado = f'{cpf_limpo[:3]}.{cpf_limpo[3:6]}.{cpf_limpo[6:9]}-{cpf_limpo[9:]}'
+    if Usuario.objects.filter(cpf=cpf_formatado).exists():
       raise forms.ValidationError('Este CPF já está cadastrado.')
-    return cpf
+    return cpf_formatado
 
   def clean_email(self):
     email = self.cleaned_data.get('email')
@@ -64,8 +84,10 @@ class CadastroEtapa1Form(forms.ModelForm):
     return email
 
   def clean_username(self):
-    username = self.cleaned_data.get('username')
-    if User.objects.filter(username=username).exists():
+    username = self.cleaned_data.get('username', '').strip()
+    if '@' in username:
+      raise forms.ValidationError('O nome de usuário não pode conter "@".')
+    if User.objects.filter(username__iexact=username).exists():
       raise forms.ValidationError('Este nome de usuário já está em uso.')
     return username
 
@@ -91,6 +113,18 @@ class CadastroEtapa1Form(forms.ModelForm):
     cleaned_data = super().clean()
     senha = cleaned_data.get('senha')
     confirmar_senha = cleaned_data.get('confirmar_senha')
+
+    if senha:
+      usuario_temp = User(
+          username=cleaned_data.get('username') or '',
+          first_name=cleaned_data.get('nome') or '',
+          email=cleaned_data.get('email') or '',
+      )
+      try:
+        validate_password(senha, user=usuario_temp)
+      except forms.ValidationError as e:
+        self.add_error('senha', e)
+
     if senha and confirmar_senha and senha != confirmar_senha:
       self.add_error(
           'confirmar_senha', 'As senhas não coincidem. Tente novamente.'
@@ -109,6 +143,17 @@ class CadastroEtapa1Form(forms.ModelForm):
     if commit:
       usuario.save()
     return usuario
+
+def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Formata a data existente para AAAA-MM-DD[cite: 1]
+        if self.instance and self.instance.pk and self.instance.dataNascimento:
+            self.initial['dataNascimento'] = (
+                self.instance.dataNascimento.strftime('%Y-%m-%d')
+            )
+        # Bloqueia edição do CPF se já estiver cadastrado
+        if self.instance and self.instance.pk and self.instance.cpf:
+            self.fields['cpf'].disabled = True
 
 
 # FORMULÁRIO 2: Não Obrigatório 
@@ -131,6 +176,14 @@ class CadastroEtapa2Form(forms.ModelForm):
     
     widgets = {
         'biografia': forms.Textarea(attrs={'rows': 3}),
+        'telefone': forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'placeholder': '(00) 00000-0000',
+                'inputmode': 'numeric',
+                'maxlength': '15',
+            }
+        ),
     }
 
   def __init__(self, *args, **kwargs):
@@ -181,7 +234,7 @@ class EditarPerfilForm(forms.ModelForm):
         fields = [
             'nome', 
             'email', 
-            'cpf', 
+            #'cpf', 
             'telefone', 
             'dataNascimento',  
             
@@ -195,7 +248,7 @@ class EditarPerfilForm(forms.ModelForm):
         labels = {
             'nome': 'Nome Completo',
             'email': 'E-mail',
-            'cpf': 'CPF',
+            #'cpf': 'CPF',
             'telefone': 'Telefone',
             'dataNascimento': 'Data de Nascimento',
             
@@ -209,8 +262,14 @@ class EditarPerfilForm(forms.ModelForm):
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'cpf': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '000.000.000-00'}),
-            'telefone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(00) 00000-0000'}),
+           # 'cpf': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '000.000.000-00'}),
+            'telefone': forms.TextInput(attrs={
+                    'class': 'form-control',
+                    'placeholder': '(00) 00000-0000',
+                    'inputmode': 'numeric',
+                    'maxlength': '15',}
+            ),
+            
             'dataNascimento': forms.DateInput(
                 format='%Y-%m-%d',
                 attrs={'class': 'form-control', 'type': 'date', 'max': timezone.localdate().isoformat()}

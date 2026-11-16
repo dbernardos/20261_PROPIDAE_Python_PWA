@@ -247,6 +247,63 @@
       });
     </script>
 
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('input[type="password"]').forEach((input) => {
+          const group = document.createElement('div');
+          group.className = 'input-group';
+          input.parentNode.insertBefore(group, input);
+          group.appendChild(input);
+
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'btn btn-outline-secondary';
+          btn.innerHTML = '<i class="bi bi-eye"></i>';
+          btn.onclick = () => {
+            const oculto = input.type === 'password';
+            input.type = oculto ? 'text' : 'password';
+            btn.innerHTML = `<i class="bi bi-eye${oculto ? '-slash' : ''}"></i>`;
+          };
+          group.appendChild(btn);
+        });
+      });
+    </script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        // Máscara de CPF: 000.000.000-00
+        document.querySelectorAll('input[name$="cpf"]').forEach((input) => {
+          input.maxLength = 14;
+          input.addEventListener('input', (e) => {
+            let v = e.target.value.replace(/\D/g, '').slice(0, 11);
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            e.target.value = v;
+          });
+        });
+
+        // Máscara de Telefone: (00) 00000-0000 ou (00) 0000-0000
+        document.querySelectorAll('input[name$="telefone"]').forEach((input) => {
+          input.maxLength = 15;
+          input.addEventListener('input', (e) => {
+            let v = e.target.value.replace(/\D/g, '').slice(0, 11);
+            if (v.length > 10) {
+              // Celular (11 dígitos)
+              v = v.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
+            } else if (v.length > 6) {
+              // Fixo (10 dígitos) ou digitando
+              v = v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+            } else if (v.length > 2) {
+              v = v.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
+            } else if (v.length > 0) {
+              v = v.replace(/^(\d*)/, '($1');
+            }
+            e.target.value = v;
+          });
+        });
+      });
+    </script>
     {% block extra_js %}{% endblock %}
   </body>
 </html>

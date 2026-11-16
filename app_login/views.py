@@ -3,6 +3,8 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 
 from django.utils import timezone
 import json
@@ -97,7 +99,7 @@ def cadastrar_usuario(request):
 
 @login_required
 def meu_usuario(request):
-   # Busca o perfil Usuario ligado ao login atual ou cria se não existir
+    # Busca o perfil Usuario ligado ao login atual ou cria se não existir
     usuario, created = Usuario.objects.get_or_create(
         user_django=request.user,
         defaults={
@@ -106,26 +108,62 @@ def meu_usuario(request):
         }
     )
 
+    form = EditarPerfilForm(instance=usuario)
+    password_form = PasswordChangeForm(request.user)
+
     if request.method == 'POST':
-        form = EditarPerfilForm(request.POST, request.FILES, instance=usuario)
-        
-        if form.is_valid():
-            # 1. Salva as alterações no model Usuario no Banco de Dados
-            usuario_atualizado = form.save()
+        acao = request.POST.get('acao')
 
-            # 2. Sincroniza o E-mail e Nome também no User nativo do Django
-            request.user.email = usuario_atualizado.email
-            request.user.first_name = usuario_atualizado.nome
-            request.user.save()
+        if acao == 'alterar_senha':
+            password_form = PasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                
+                # Mantém a sessão ativa após a troca de senha
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Senha alterada com sucesso!')
+                return redirect('app_login:urlmeu_usuario')
+            else:
+                messages.error(request, 'Não foi possível alterar a senha. Verifique os erros abaixo.')
 
-            messages.success(request, 'Perfil atualizado com sucesso no banco de dados!')
-            return redirect('app_login:urlmeu_usuario') # Ajuste com o seu name da URL
+        elif acao == 'excluir_conta':
+            user = request.user
+            logout(request)
+            user.delete() 
+            messages.success(request, 'Sua conta foi excluída permanentemente.')
+            return redirect('app_login:urllogin') 
+
         else:
-            messages.error(request, 'Não foi possível salvar. Verifique os erros no formulário.')
-    else:
-        form = EditarPerfilForm(instance=usuario)
+            # Edição de perfil (acao == 'editar_perfil' ou envio padrão do formulário)
+            form = EditarPerfilForm(request.POST, request.FILES, instance=usuario)
+            if form.is_valid():
+              
+                usuario_atualizado = form.save()
+
+               
+                request.user.email = usuario_atualizado.email
+                request.user.first_name = usuario_atualizado.nome
+                request.user.save()
+
+                messages.success(request, 'Perfil atualizado com sucesso!')
+                return redirect('app_login:urlmeu_usuario')
+            else:
+                messages.error(request, 'Não foi possível salvar. Verifique os erros no formulário.')
 
     return render(request, 'app_evento/meu_usuario.html', {
         'usuario': usuario,
-        'form': form
-    })  
+        'form': form,
+        'password_form': password_form,
+    })
+    
+def resolver_username_login(identificador):
+    identificador = (identificador or '').strip()
+    if not identificador:
+        return ''
+
+    if '@' in identificador:
+        user = User.objects.filter(email__iexact=identificador).first()
+    else:
+        user = User.objects.filter(username__iexact=identificador).first()
+
+    return user.username if user else identificador
