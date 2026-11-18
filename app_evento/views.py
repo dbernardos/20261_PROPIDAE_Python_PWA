@@ -660,8 +660,7 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
                 atividade_id=atividade.id,
             )
         return redirect('app_evento:urlgerenciar_participantes', evento_id=evento.id)
-
-    # Ação POST: Remoção do participante (da atividade filtrada ou do evento inteiro)
+    # Ação POST: Remoção do participante (bloqueada se já houver presença registrada)
     if request.method == 'POST':
         acao = request.POST.get('acao')
 
@@ -670,14 +669,37 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
             inscricao = get_object_or_404(Inscricao, id=inscricao_id, evento=evento)
 
             if atividade:
+                ja_presente = (
+                    Participa.objects.filter(inscricao=inscricao, atividade=atividade)
+                    .filter(Q(presente=True) | Q(data_hora_presenca__isnull=False))
+                    .exists()
+                )
+                if ja_presente:
+                    messages.error(
+                        request,
+                        f'Não é possível remover este participante pois ele já registrou presença na atividade "{atividade.nome}".',
+                    )
+                    return redirecionar_retorno()
+
                 Participa.objects.filter(inscricao=inscricao, atividade=atividade).delete()
                 messages.success(request, f'Participante removido da atividade "{atividade.nome}".')
             else:
+                ja_presente_evento = (
+                    Participa.objects.filter(inscricao=inscricao, atividade__evento=evento)
+                    .filter(Q(presente=True) | Q(data_hora_presenca__isnull=False))
+                    .exists()
+                )
+                if ja_presente_evento:
+                    messages.error(
+                        request,
+                        'Não é possível remover este participante do evento pois ele já possui presença registrada em pelo menos uma atividade.',
+                    )
+                    return redirecionar_retorno()
+
                 inscricao.delete()
                 messages.success(request, 'Participante removido do evento com sucesso.')
 
             return redirecionar_retorno()
-
     # Consulta GET: Geral do evento ou filtrada por atividade
     if atividade:
         inscricoes_ids = Participa.objects.filter(atividade=atividade).values_list('inscricao_id', flat=True)
@@ -709,36 +731,73 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
         resp_simulada = Resposta(quiz=q, status='certo', correto=True, completo=True)
         max_pontos_possiveis += getattr(resp_simulada, 'pontos_conquistados', 100) or 100
 
-    # Agrupa respostas por inscrição em memória para evitar consultas N+1
     respostas_por_inscricao = {}
     for resp in respostas_qs:
         insc_id = resp.participa.inscricao_id
         respostas_por_inscricao.setdefault(insc_id, []).append(resp)
 
+    # Busca respostas GLOBAIS (de todos os eventos e atividades) para o Nível da Conta
+    participantes = list(participantes_qs)
+    usuarios_ids = [insc.usuario_id for insc in participantes]
+    respostas_globais_qs = Resposta.objects.filter(
+        participa__inscricao__usuario_id__in=usuarios_ids,
+        completo=True,
+    ).select_related('quiz', 'participa__inscricao')
+
+    pontos_globais_por_usuario = {}
+    for resp in respostas_globais_qs:
+        uid = resp.participa.inscricao.usuario_id
+        pontos_globais_por_usuario[uid] = (
+            pontos_globais_por_usuario.get(uid, 0)
+            + (getattr(resp, 'pontos_conquistados', 0) or 0)
+        )
+
     agora = timezone.now()
     participacoes_map = {}
+    inscricoes_com_presenca_ids = set()
+
     if atividade:
         participacoes_map = {
             p.inscricao_id: p
             for p in Participa.objects.filter(inscricao__in=participantes_qs, atividade=atividade)
         }
+    else:
+        inscricoes_com_presenca_ids = set(
+            Participa.objects.filter(
+                inscricao__in=participantes_qs,
+                atividade__evento=evento,
+            )
+            .filter(Q(presente=True) | Q(data_hora_presenca__isnull=False))
+            .values_list('inscricao_id', flat=True)
+        )
 
-    # Monta métricas, nível inteiro, presença, foto e ficha de cada participante
-    participantes = list(participantes_qs)
+    # Monta métricas locais (pontuação/ranking) e globais (nível da conta)
     for inscricao in participantes:
         resps = respostas_por_inscricao.get(inscricao.id, [])
-        pontos = sum((getattr(r, 'pontos_conquistados', 0) or 0) for r in resps)
+        pontos_locais = sum((getattr(r, 'pontos_conquistados', 0) or 0) for r in resps)
         acertos_exatos = sum(1 for r in resps if r.status == 'certo')
         aproximados = sum(1 for r in resps if r.status == 'aproximado')
 
-        nivel_dados = calcular_nivel(pontos, pontos_por_nivel=100)
+        pontos_globais = pontos_globais_por_usuario.get(inscricao.usuario_id, 0)
+        nivel_dados = calcular_nivel(pontos_globais, pontos_por_nivel=100)
+        nivel_conta = getattr(inscricao.usuario, 'nivel', None) or nivel_dados['numero']
 
-        inscricao.pontuacao_total = pontos
+        if atividade:
+            part_atual = participacoes_map.get(inscricao.id)
+            ja_presente = bool(
+                part_atual and (part_atual.presente or getattr(part_atual, 'data_hora_presenca', None))
+            )
+        else:
+            ja_presente = inscricao.id in inscricoes_com_presenca_ids
+
+        inscricao.pode_excluir = not ja_presente
+        inscricao.pontuacao_total = pontos_locais
+        inscricao.pontos_globais = pontos_globais
         inscricao.total_respondidos = len(resps)
         inscricao.acertos_exatos = acertos_exatos
         inscricao.aproximados = aproximados
         inscricao.respostas_lista = resps
-        inscricao.nivel = nivel_dados['numero']
+        inscricao.nivel = nivel_conta
         inscricao.nivel_progresso = nivel_dados['progresso']
         inscricao.presenca_info = (
             status_presenca_atividade(participacoes_map.get(inscricao.id), atividade, agora)
@@ -746,10 +805,10 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
         )
         inscricao.foto_perfil_url = obter_foto_perfil(inscricao.usuario)
         inscricao.dados_completos = extrair_dados_completos(inscricao.usuario)
-
+    
     # Ordena do maior para o menor score (desempate pela inscrição mais antiga)
     participantes.sort(key=lambda i: (-i.pontuacao_total, i.dataHora))
-    
+
     context = {
         'evento': evento,
         'atividade': atividade,

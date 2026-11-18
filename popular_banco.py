@@ -5,8 +5,9 @@ from decimal import Decimal
 from django.core.files import File
 from django.conf import settings
 import shutil
+from django.db import transaction
+from datetime import date, datetime, time, timedelta
 
-# Configura o ambiente Django com a settings do seu projeto
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'SEA.settings')
 django.setup()
 
@@ -58,6 +59,27 @@ def atribuir_imagem_do_disco(instancia, nome_campo, caminho_origem, pasta_destin
 User = get_user_model()
 
 def popular_banco():
+    
+    print("Limpando dados anteriores do banco de dados...")
+
+    with transaction.atomic():
+        #Apaga dados de execução e participação 
+        Resposta.objects.all().delete()
+        Participa.objects.all().delete()
+        Inscricao.objects.all().delete()
+
+        #Apaga estrutura dos eventos 
+        Quiz.objects.all().delete()
+        Atividade.objects.all().delete()
+        Evento.objects.all().delete()
+        Apoiador.objects.all().delete()
+
+        # 3. Apaga perfis e usuários criados anteriormente
+        Usuario.objects.all().delete()
+        User.objects.all().delete()
+
+    print("Banco limpo!")
+    
     print("Iniciando povoamento completo do banco de dados...")
 
     # -------------------------------------------------------------
@@ -181,7 +203,7 @@ def popular_banco():
             "email": "admin4@sea.com",
             "cpf": "155.340.800-43",
             "telefone": "(11) 97777-0004",
-            "dataNascimento": date(1995, 7, 20),
+            "dataNascimento": date(1909, 9, 23),
             "cargo": "Adminstrador de Negócios",
             "formacao": "Administração",
             "empresa": "IFSC",
@@ -529,7 +551,7 @@ def popular_banco():
         }
     )
     if created_participante12:
-        user_participante12.set_password('participante2')
+        user_participante12.set_password('participante12')
         user_participante12.save()
 
     usuario_participante12, _ = Usuario.objects.get_or_create(
@@ -546,7 +568,7 @@ def popular_banco():
             "biografia": "Helena Ribeiro é Especialista em Psicologia do Trabalho e atua como Psicóloga Organizacional.\nDedica-se à saúde mental no ambiente corporativo, desenvolvimento de lideranças e cultura inclusiva."
         }
     )
-    atribuir_imagem_do_disco(usuario_participante12, 'fotoPerfil', 'media/popular_iniciais/perfis/participante2.png', 'perfis')
+    atribuir_imagem_do_disco(usuario_participante12, 'fotoPerfil', 'media/popular_iniciais/perfis/participante12.png', 'perfis')
     
     
     # PARTICIPANTE 13 
@@ -559,7 +581,7 @@ def popular_banco():
         }
     )
     if created_participante13:
-        user_participante13.set_password('participante3')
+        user_participante13.set_password('participante13')
         user_participante13.save()
 
     usuario_participante13, _ = Usuario.objects.get_or_create(
@@ -576,7 +598,7 @@ def popular_banco():
             "biografia": "Mateus Cardoso é Doutor em História Social e atua como Historiador e Curador.\nPesquisa preservação de acervos digitais, memória urbana e políticas públicas de patrimônio cultural."
         }
     )
-    atribuir_imagem_do_disco(usuario_participante13, 'fotoPerfil', 'media/popular_iniciais/perfis/participante3.png', 'perfis')
+    atribuir_imagem_do_disco(usuario_participante13, 'fotoPerfil', 'media/popular_iniciais/perfis/participante13.png', 'perfis')
     
 
     # PARTICIPANTE 14  
@@ -788,6 +810,7 @@ def popular_banco():
     # -------------------------------------------------------------
     # 2. APOIADORES
     # -------------------------------------------------------------
+    
     apoiador_1, _ = Apoiador.objects.get_or_create(nome="Conselho de Tecnologia")
     apoiador_2, _ = Apoiador.objects.get_or_create(nome="Tech Innovation Lab")
     apoiador_3, _ = Apoiador.objects.get_or_create(nome="Instituto Federal de Santa Catarina")
@@ -802,10 +825,14 @@ def popular_banco():
     # -------------------------------------------------------------
     # 3. EVENTO
     # -------------------------------------------------------------
-
-    hoje = date.today()
     
-    #EVENTO 1 - Em andamento (3 apoiadores)
+    #hoje = date.today()
+    #agora = timezone.now()
+    
+    agora = timezone.localtime(timezone.now())
+    hoje = agora.replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    #EVENTO 1 - Em andamento 
     evento1, _ = Evento.objects.get_or_create(
         nome="Semana Acadêmica de Tecnologia 2026",
         defaults={
@@ -821,7 +848,7 @@ def popular_banco():
     evento1.apoiadores.set([apoiador_1, apoiador_2, apoiador_3])
     atribuir_imagem_do_disco(evento1, 'imagemBanner', 'media/popular_iniciais/banners/evento1.png', 'banners')
 
-    # EVENTO 2 - Já encerrado (1 apoiador)
+    # EVENTO 2 - Já encerrado
     evento2, _ = Evento.objects.get_or_create(
         nome="Palestra Internacional de Administração 2026",
         defaults={
@@ -837,7 +864,7 @@ def popular_banco():
     evento2.apoiadores.set([apoiador_3])
     atribuir_imagem_do_disco(evento2, 'imagemBanner', 'media/popular_iniciais/banners/evento2.png', 'banners')
 
-    # EVENTO 3 - Já encerrado (2 apoiadores)
+    # EVENTO 3 - Já encerrado 
     evento3, _ = Evento.objects.get_or_create(
         nome="Fórum de Gestão de Projetos de Tecnologia 2026",
         defaults={
@@ -853,7 +880,7 @@ def popular_banco():
     evento3.apoiadores.set([apoiador_1, apoiador_3])
     atribuir_imagem_do_disco(evento3, 'imagemBanner', 'media/popular_iniciais/banners/evento3.png', 'banners')
 
-    # EVENTO 4 - Saúde - Em andamento (2 apoiadores)
+    # EVENTO 4 - Saúde - Em andamento
     evento4, _ = Evento.objects.get_or_create(
         nome="Congresso Brasileiro de Saúde e Biotecnologia 2026",
         defaults={
@@ -869,7 +896,7 @@ def popular_banco():
     evento4.apoiadores.set([apoiador_4, apoiador_2])
     atribuir_imagem_do_disco(evento4, 'imagemBanner', 'media/popular_iniciais/banners/evento4.jpg', 'banners')
 
-    # EVENTO 5 - Meio Ambiente - Já encerrado (1 apoiador)
+    # EVENTO 5 - Já encerrado 
     evento5, _ = Evento.objects.get_or_create(
         nome="Simpósio Sul de Energias Renováveis e Sustentabilidade",
         defaults={
@@ -885,7 +912,7 @@ def popular_banco():
     evento5.apoiadores.set([apoiador_5])
     atribuir_imagem_do_disco(evento5, 'imagemBanner', 'media/popular_iniciais/banners/evento5.jpg', 'banners')
 
-    # EVENTO 6 - Direito - Em andamento (2 apoiadores)
+    # EVENTO 6 - Em andamento 
     evento6, _ = Evento.objects.get_or_create(
         nome="Fórum Nacional de Direito Digital e Proteção de Dados",
         defaults={
@@ -901,7 +928,7 @@ def popular_banco():
     evento6.apoiadores.set([apoiador_6, apoiador_1])
     atribuir_imagem_do_disco(evento6, 'imagemBanner', 'media/popular_iniciais/banners/evento6.jpg', 'banners')
 
-    # EVENTO 7 - Design e Arquitetura - Futuro (1 apoiador)
+    # EVENTO 7 - Futuro 
     evento7, _ = Evento.objects.get_or_create(
         nome="Semana de Design, Arquitetura e Urbanismo Criativo",
         defaults={
@@ -917,7 +944,7 @@ def popular_banco():
     evento7.apoiadores.set([apoiador_7])
     atribuir_imagem_do_disco(evento7, 'imagemBanner', 'media/popular_iniciais/banners/evento7.jpg', 'banners')
 
-    # EVENTO 8 - Agronegócio - Futuro (3 apoiadores)
+    # EVENTO 8 - Futuro
     evento8, _ = Evento.objects.get_or_create(
         nome="Feira de Inovação no Agronegócio e Agricultura 4.0",
         defaults={
@@ -933,7 +960,7 @@ def popular_banco():
     evento8.apoiadores.set([apoiador_8, apoiador_2, apoiador_5])
     atribuir_imagem_do_disco(evento8, 'imagemBanner', 'media/popular_iniciais/banners/evento8.jpg', 'banners')
 
-    # EVENTO 9 - Engenharia e Indústria - Futuro (3 apoiadores)
+    # EVENTO 9 - Futuro
     evento9, _ = Evento.objects.get_or_create(
         nome="Semana de Engenharia Mecânica e Automação Industrial",
         defaults={
@@ -949,7 +976,7 @@ def popular_banco():
     evento9.apoiadores.set([apoiador_9, apoiador_3, apoiador_2])
     atribuir_imagem_do_disco(evento9, 'imagemBanner', 'media/popular_iniciais/banners/evento9.jpg', 'banners')
 
-    # EVENTO 10 - Gastronomia e Turismo - Futuro (0 apoiadores - estado vazio)
+    # EVENTO 10 - Futuro 
     evento10, _ = Evento.objects.get_or_create(
         nome="Fórum Sul-Brasileiro de Gastronomia e Turismo Cultural",
         defaults={
@@ -962,7 +989,7 @@ def popular_banco():
             "tipoEvento": tipoEvento.FORUM,
         }
     )
-    evento10.apoiadores.clear()  # 0 apoiadores propositalmente (apoiador_10 fica disponível para testes de vínculo)
+    evento10.apoiadores.clear()  # 0 apoiadores
     atribuir_imagem_do_disco(evento10, 'imagemBanner', 'media/popular_iniciais/banners/evento10.jpg', 'banners')
 
 
@@ -971,25 +998,23 @@ def popular_banco():
         nome="Apresentação dos Projetos de PI 2",
         defaults={
             "administrador": usuario_admin4,
-            "descricao": "Cozinha show, valorização de ingredientes regionais e estratégias para o turismo local.",
+            "descricao": "Apresentação dos Projetos Integradores das Turmas do terceiro e quarto semestre do Curso Técnico de Desevolvimento de Sistemas",
             "emailContato": "contato@ifsc.edu.br",
-            "local": "IFSC - RAU ",
+            "local": "IFSC - RAU",
             "dataInicio": hoje,
             "dataFim": hoje + timedelta(days=2),
             "tipoEvento": tipoEvento.OUTRO,
         }
     )
-    evento11.apoiadores.clear()  # 0 apoiadores propositalmente (apoiador_11 fica disponível para testes de vínculo)
-    atribuir_imagem_do_disco(evento11, 'imagemBanner', 'media/popular_iniciais/banners/evento10.jpg', 'banners')
+    evento11.apoiadores.clear()  # 0 apoiadores
+    atribuir_imagem_do_disco(evento11, 'imagemBanner', 'media/popular_iniciais/banners/evento11.jpg', 'banners')
 
     #====================================
      # ATIVIDADES
     #===================================
-    agora = timezone.now()
 
     # =============================================================
     # EVENTO 1: Semana Acadêmica de Tecnologia 2026 (4 atividades)
-    # Período: hoje - 2d até hoje + 2d (Em andamento)
     # =============================================================
     atividade_palestra, _ = Atividade.objects.get_or_create(
         nome="Keynote: Inteligência Computacional no Diagnóstico",
@@ -1045,7 +1070,6 @@ def popular_banco():
 
     # =============================================================
     # EVENTO 2: Palestra Internacional de Administração 2026 (2 atividades)
-    # Período: hoje - 14d até hoje - 10d (Encerrado)
     # =============================================================
     atividade_palestra2, _ = Atividade.objects.get_or_create(
         nome="Palestra Internacional de Administração 2026",
@@ -1075,7 +1099,6 @@ def popular_banco():
 
     # =============================================================
     # EVENTO 3: Fórum de Gestão de Projetos de Tecnologia 2026 (3 atividades)
-    # Período: hoje - 8d até hoje - 4d (Encerrado)
     # =============================================================
     atividade_forum, _ = Atividade.objects.get_or_create(
         nome="Fórum: Gestão de Projetos em Tecnologia",
@@ -1118,7 +1141,6 @@ def popular_banco():
 
     # =============================================================
     # EVENTO 4: Congresso Brasileiro de Saúde e Biotecnologia 2026 (5 atividades)
-    # Período: hoje - 1d até hoje + 2d (Em andamento)
     # =============================================================
     atividade_ev4_1, _ = Atividade.objects.get_or_create(
         nome="Palestra: Edição Genética CRISPR e Terapias Avançadas",
@@ -1187,13 +1209,11 @@ def popular_banco():
 
     # =============================================================
     # EVENTO 5: Simpósio Sul de Energias Renováveis e Sustentabilidade (0 atividades)
-    # Período: hoje - 22d até hoje - 20d (Encerrado - Evento sem atividades cadastradas)
     # =============================================================
-    # Nenhuma atividade criada propositalmente para testar o estado vazio (0 atividades).
+  
 
     # =============================================================
     # EVENTO 6: Fórum Nacional de Direito Digital e Proteção de Dados (3 atividades)
-    # Período: hoje - 1d até hoje + 1d (Em andamento)
     # =============================================================
     atividade_ev6_1, _ = Atividade.objects.get_or_create(
         nome="Palestra: Responsabilidade Civil e Direitos Autorais em Modelos de IA",
@@ -1236,7 +1256,6 @@ def popular_banco():
 
     # =============================================================
     # EVENTO 7: Semana de Design, Arquitetura e Urbanismo Criativo (6 atividades)
-    # Período: hoje + 7d até hoje + 11d (Futuro)
     # =============================================================
     atividade_ev7_1, _ = Atividade.objects.get_or_create(
         nome="Palestra: Cidades Esponja e Drenagem Urbana Sustentável",
@@ -1318,7 +1337,6 @@ def popular_banco():
 
     # =============================================================
     # EVENTO 8: Feira de Inovação no Agronegócio e Agricultura 4.0 (2 atividades)
-    # Período: hoje + 16d até hoje + 19d (Futuro)
     # =============================================================
     atividade_ev8_1, _ = Atividade.objects.get_or_create(
         nome="Oficina: Mapeamento Aéreo com Drones e Índice NDVI",
@@ -1347,8 +1365,7 @@ def popular_banco():
     )
 
     # =============================================================
-    # EVENTO 9: Semana de Engenharia Mecânica e Automação Industrial (4 atividades)
-    # Período: hoje + 25d até hoje + 29d (Futuro)
+    # EVENTO 9: Semana de Engenharia Mecânica e Automação Industrial 
     # =============================================================
     atividade_ev9_1, _ = Atividade.objects.get_or_create(
         nome="Oficina: Programação de CLPs e Redes Industriais Profinet",
@@ -1404,7 +1421,6 @@ def popular_banco():
 
     # =============================================================
     # EVENTO 10: Fórum Sul-Brasileiro de Gastronomia e Turismo Cultural (1 atividade)
-    # Período: hoje + 38d até hoje + 40d (Futuro)
     # =============================================================
     atividade_ev10_1, _ = Atividade.objects.get_or_create(
         nome="Oficina: Fermentação Natural e Panificação Artesanal com Grãos Locais",
@@ -1422,9 +1438,9 @@ def popular_banco():
     # =============================================================
     # EVENTO 11: PI 1 e 2
     # =============================================================
-    atividade_ev10_1, _ = Atividade.objects.get_or_create(
+    atividade_ev11_1, _ = Atividade.objects.get_or_create(
         nome="Primeiro dia de Apresentação dos Projetos do Projeto Integrador I e II",
-        evento=evento10,
+        evento=evento11,
         defaults={
             "descricao": " Apresentação dos Projetos do Projeto",
             "tipoAtividade": tipoAtividade.OUTRO,
@@ -1434,109 +1450,145 @@ def popular_banco():
             "limitePessoas": 60,
         }
     )
+    
+    atividade_ev11_2, _ = Atividade.objects.get_or_create(
+        nome="Segundo dia de Apresentação dos Projetos do Projeto Integrador I e II",
+        evento=evento11,
+        defaults={
+            "descricao": " Apresentação dos Projetos do Projeto",
+            "tipoAtividade": tipoAtividade.OUTRO,
+            "complementoLocal": "Auditório - Bloco A",
+            "horaInicio": hoje + timedelta(days=1,hours=14),
+            "horaFim": hoje + timedelta(days=1, hours=17),
+            "limitePessoas": 60,
+        }
+    )
+
+
+    # ===========================================================
+    
+    def calcular_data_inscricao(evento_obj, dias_antecedencia=3, hora=10, minuto=15):
+        data_ev = evento_obj.dataInicio
+        if isinstance(data_ev, str):
+            data_ev = date.fromisoformat(data_ev)
+
+        data_alvo = data_ev - timedelta(days=dias_antecedencia)
+        dt_coerente = timezone.make_aware(datetime.combine(data_alvo, time(hora, minuto)))
+
+        agora_atual = timezone.now()
+        if dt_coerente > agora_atual:
+            dt_coerente = agora_atual - timedelta(days=dias_antecedencia)
+
+        return dt_coerente
 
     # -------------------------------------------------------------
-    # 5. INSCRIÇÕES E 6. PARTICIPAÇÕES NAS ATIVIDADES
+    # 5. INSCRIÇÕES E PARTICIPAÇÕES NAS ATIVIDADES
     # -------------------------------------------------------------
 
     Participa.objects.all().delete()
 
-    def inscrever_e_participar(usuario, evento_obj, atividades_lista=None, presentes_lista=None):
-        """
-        Cria a inscrição (com código de crachá) e vincula o participante às atividades.
-        Administradores (staff/superuser) não recebem crachá e não participam como inscritos.
-        """
-        if usuario.user_django.is_staff or usuario.user_django.is_superuser:
+    def inscrever_e_participar(
+        usuario,
+        evento_obj,
+        atividades_lista=None,
+        presentes_lista=None,
+        dias_antecedencia=3
+    ):
+        if usuario.id == evento_obj.administrador_id:
             return None
 
         presentes_set = set(presentes_lista or [])
-        inscricao = Inscricao.objects.create(
+        inscricao, _ = Inscricao.objects.get_or_create(
             usuario_id=usuario.id,
             evento=evento_obj
         )
+
+        # Sobrescreve o auto_now_add=True com uma data/hora coerente antes do evento
+        dt_inscricao = calcular_data_inscricao(evento_obj, dias_antecedencia=dias_antecedencia)
+        Inscricao.objects.filter(id=inscricao.id).update(dataHora=dt_inscricao)
+        inscricao.refresh_from_db()
+
         if atividades_lista:
             for atv in atividades_lista:
                 esta_presente = atv in presentes_set
                 dt_presenca = (atv.horaInicio + timedelta(minutes=10)) if esta_presente else None
 
-                Participa.objects.create(
+                Participa.objects.update_or_create(
                     inscricao=inscricao,
                     atividade=atv,
-                    funcao=StatusParticipa.PARTICIPANTE,
-                    presente=esta_presente,
-                    data_hora_presenca=dt_presenca,
+                    defaults={
+                        "funcao": StatusParticipa.PARTICIPANTE,
+                        "presente": esta_presente,
+                        "data_hora_presenca": dt_presenca,
+                    }
                 )
         return inscricao
 
     # =============================================================
     # INSCRIÇÕES DE ADMINISTRADORES
     # =============================================================
-    inscrever_e_participar(usuario_admin, evento9, [atividade_ev9_2])  # Futuro -> Não iniciado
-    inscrever_e_participar(usuario_admin, evento8, [atividade_ev8_2])  # Futuro -> Não iniciado
 
     inscricao_admin2 = inscrever_e_participar(
         usuario_admin2, evento1,
         [atividade_palestra, atividade_ev1_3],
-        presentes_lista=[atividade_palestra]  # Presente na palestra, Ausente na ev1_3 (ontem)
+        presentes_lista=[atividade_palestra]  
     )
-    inscrever_e_participar(usuario_admin2, evento6, [atividade_ev6_1])  # Ausente (ontem)
+    inscrever_e_participar(usuario_admin2, evento6, [atividade_ev6_1])  
 
     inscricao_admin = inscrever_e_participar(
         usuario_admin3, evento2,
         [atividade_palestra2, atividade_ev2_2],
-        presentes_lista=[atividade_palestra2]  # Presente na palestra2, Ausente na ev2_2
+        presentes_lista=[atividade_palestra2]  
     )
     inscrever_e_participar(
         usuario_admin3, evento3,
         [atividade_forum, atividade_ev3_3],
-        presentes_lista=[]  # Ausente em ambas
+        presentes_lista=[]  
     )
 
     # =============================================================
     # EVENTO 1 - Semana Acadêmica de Tecnologia 2026 (Em andamento)
     # =============================================================
-    # atividade_palestra: Acontecendo AGORA (mistura de Presente e Em Espera)
-    # atividade_ev1_3: Ocorreu ONTEM (mistura de Presente e Ausente)
-    # atividade_oficina / atividade_ev1_4: AMANHÃ / +2d (Não iniciado)
+    
     inscricao_participante1 = inscrever_e_participar(
         usuario_participante1, evento1,
         [atividade_palestra, atividade_ev1_3, atividade_ev1_4],
-        presentes_lista=[atividade_palestra, atividade_ev1_3]  # Presente em ambas
+        presentes_lista=[atividade_palestra, atividade_ev1_3]  
     )
     inscrever_e_participar(
         usuario_participante2, evento1,
         [atividade_palestra, atividade_oficina, atividade_ev1_3],
-        presentes_lista=[atividade_oficina]  # Em Espera na palestra (agora) | Ausente na ev1_3 (ontem)
+        presentes_lista=[atividade_oficina]  
     )
     inscrever_e_participar(
         usuario_participante3, evento1,
         [atividade_palestra, atividade_ev1_3, atividade_ev1_4],
-        presentes_lista=[atividade_ev1_3]  # Em Espera na palestra (agora) | Presente na ev1_3 (ontem)
+        presentes_lista=[atividade_ev1_3] 
     )
     inscricao_participante4 = inscrever_e_participar(
         usuario_participante4, evento1,
         [atividade_palestra, atividade_oficina, atividade_ev1_3, atividade_ev1_4],
-        presentes_lista=[atividade_palestra, atividade_oficina]  # Ausente na ev1_3 (ontem)
+        presentes_lista=[atividade_palestra, atividade_oficina]  
     )
     inscricao_participante5 = inscrever_e_participar(
         usuario_participante5, evento1,
         [atividade_palestra, atividade_oficina, atividade_ev1_3],
-        presentes_lista=[atividade_oficina]  # Em Espera na palestra (agora) | Ausente na ev1_3 (ontem)
+        presentes_lista=[atividade_oficina]  
     )
     inscrever_e_participar(
         usuario_participante10, evento1,
         [atividade_palestra, atividade_oficina],
-        presentes_lista=[atividade_oficina]  # Em Espera na palestra (agora)
+        presentes_lista=[atividade_oficina]  
     )
     inscrever_e_participar(
         usuario_participante17, evento1,
         [atividade_palestra, atividade_ev1_4],
-        presentes_lista=[]  # Em Espera na palestra (agora) | Não iniciado na ev1_4
+        presentes_lista=[]  
     )
     inscrever_e_participar(
         usuario_participante8, evento1,
         [atividade_palestra, atividade_ev1_3],
-        presentes_lista=[]  # Em Espera na palestra (agora) | Ausente na ev1_3 (ontem)
+        presentes_lista=[]  
     )
 
     # =============================================================
@@ -1545,32 +1597,32 @@ def popular_banco():
     inscricao_participante2 = inscrever_e_participar(
         usuario_participante2, evento2,
         [atividade_palestra2],
-        presentes_lista=[]  # Ausente
+        presentes_lista=[]  
     )
     inscricao_participante6 = inscrever_e_participar(
         usuario_participante5, evento2,
         [atividade_palestra2, atividade_ev2_2],
-        presentes_lista=[]  # Ausente em ambas
+        presentes_lista=[]  
     )
     inscrever_e_participar(
         usuario_participante7, evento2,
         [atividade_palestra2, atividade_ev2_2],
-        presentes_lista=[atividade_palestra2, atividade_ev2_2]  # Presente em ambas
+        presentes_lista=[atividade_palestra2, atividade_ev2_2]  
     )
     inscrever_e_participar(
         usuario_participante9, evento2,
         [atividade_palestra2, atividade_ev2_2],
-        presentes_lista=[atividade_palestra2]  # Presente na palestra2 | Ausente na ev2_2
+        presentes_lista=[atividade_palestra2]  
     )
     inscrever_e_participar(
         usuario_participante12, evento2,
         [atividade_palestra2, atividade_ev2_2],
-        presentes_lista=[]  # Ausente em ambas
+        presentes_lista=[] 
     )
     inscrever_e_participar(
         usuario_participante15, evento2,
         [atividade_palestra2],
-        presentes_lista=[]  # Ausente
+        presentes_lista=[] 
     )
 
     # =============================================================
@@ -1579,38 +1631,38 @@ def popular_banco():
     inscricao_participante3 = inscrever_e_participar(
         usuario_participante2, evento3,
         [atividade_forum, atividade_ev3_2],
-        presentes_lista=[atividade_forum]  # Presente no fórum | Ausente na ev3_2
+        presentes_lista=[atividade_forum] 
     )
     inscrever_e_participar(
         usuario_participante3, evento3,
         [atividade_forum, atividade_ev3_2],
-        presentes_lista=[atividade_ev3_2]  # Ausente no fórum | Presente na ev3_2
+        presentes_lista=[atividade_ev3_2] 
     )
     inscrever_e_participar(
         usuario_participante4, evento3,
         [atividade_ev3_2, atividade_ev3_3],
-        presentes_lista=[]  # Ausente em ambas
+        presentes_lista=[]  
     )
     inscrever_e_participar(
         usuario_participante7, evento3,
         [atividade_forum, atividade_ev3_2, atividade_ev3_3],
-        presentes_lista=[atividade_forum, atividade_ev3_2]  # Ausente na ev3_3
+        presentes_lista=[atividade_forum, atividade_ev3_2]  
     )
     inscrever_e_participar(
         usuario_participante16, evento3,
         [atividade_ev3_2, atividade_ev3_3],
-        presentes_lista=[]  # Ausente em ambas
+        presentes_lista=[] 
     )
     inscrever_e_participar(
         usuario_participante12, evento3,
         [atividade_forum],
-        presentes_lista=[]  # Ausente
+        presentes_lista=[]  
     )
 
     # =============================================================
     # EVENTO 4 - Congresso Brasileiro de Saúde e Biotecnologia 2026 (Em andamento)
     # =============================================================
-    # atividade_ev4_1: ONTEM | atividade_ev4_2: AGORA | ev4_3, ev4_4, ev4_5: AMANHÃ / +2d
+    
     inscrever_e_participar(
         usuario_participante6, evento4,
         [atividade_ev4_1, atividade_ev4_2, atividade_ev4_3, atividade_ev4_4, atividade_ev4_5],
@@ -1619,22 +1671,22 @@ def popular_banco():
     inscrever_e_participar(
         usuario_participante1, evento4,
         [atividade_ev4_1, atividade_ev4_2, atividade_ev4_4],
-        presentes_lista=[atividade_ev4_1]  # Presente ontem | Em Espera agora (ev4_2) | Não iniciado (ev4_4)
+        presentes_lista=[atividade_ev4_1]  
     )
     inscrever_e_participar(
         usuario_participante2, evento4,
         [atividade_ev4_1, atividade_ev4_2, atividade_ev4_5],
-        presentes_lista=[atividade_ev4_5]  # Ausente ontem (ev4_1) | Em Espera agora (ev4_2)
+        presentes_lista=[atividade_ev4_5] 
     )
     inscrever_e_participar(
         usuario_participante18, evento4,
         [atividade_ev4_1, atividade_ev4_2],
-        presentes_lista=[]  # Ausente ontem (ev4_1) | Em Espera agora (ev4_2)
+        presentes_lista=[] 
     )
     inscrever_e_participar(
         usuario_participante19, evento4,
         [atividade_ev4_2, atividade_ev4_5],
-        presentes_lista=[]  # Em Espera agora (ev4_2) | Não iniciado (ev4_5)
+        presentes_lista=[]  
     )
 
     # =============================================================
@@ -1647,7 +1699,8 @@ def popular_banco():
     # =============================================================
     # EVENTO 6 - Fórum Nacional de Direito Digital (Em andamento)
     # =============================================================
-    # atividade_ev6_1: ONTEM | atividade_ev6_2: AGORA | atividade_ev6_3: AMANHÃ
+
+    
     inscrever_e_participar(
         usuario_participante8, evento6,
         [atividade_ev6_1, atividade_ev6_2, atividade_ev6_3],
@@ -1656,27 +1709,28 @@ def popular_banco():
     inscrever_e_participar(
         usuario_participante17, evento6,
         [atividade_ev6_1, atividade_ev6_2],
-        presentes_lista=[atividade_ev6_1]  # Presente ontem | Em Espera agora (ev6_2)
+        presentes_lista=[atividade_ev6_1] 
     )
     inscrever_e_participar(
         usuario_participante19, evento6,
         [atividade_ev6_1, atividade_ev6_2],
-        presentes_lista=[]  # Ausente ontem (ev6_1) | Em Espera agora (ev6_2)
+        presentes_lista=[] 
     )
     inscrever_e_participar(
         usuario_participante7, evento6,
         [atividade_ev6_2, atividade_ev6_3],
-        presentes_lista=[atividade_ev6_3]  # Em Espera agora (ev6_2)
+        presentes_lista=[atividade_ev6_3]  
     )
     inscrever_e_participar(
         usuario_participante14, evento6,
         [atividade_ev6_1, atividade_ev6_2],
-        presentes_lista=[]  # Ausente ontem | Em Espera agora
+        presentes_lista=[]
     )
 
     # =============================================================
-    # EVENTOS 7, 8, 9 e 10 - Futuros (Todos ficam como "Não iniciado")
+    # EVENTOS 7, 8, 9 e 10 - Futuros
     # =============================================================
+    
     inscrever_e_participar(usuario_participante5, evento7, [atividade_ev7_2, atividade_ev7_3, atividade_ev7_5, atividade_ev7_6])
     inscrever_e_participar(usuario_participante14, evento7, [atividade_ev7_1, atividade_ev7_4])
     inscrever_e_participar(usuario_participante13, evento7, [atividade_ev7_1, atividade_ev7_4, atividade_ev7_6])
@@ -1699,6 +1753,7 @@ def popular_banco():
     # -------------------------------------------------------------
     # 7. QUIZZES / DESAFIOS (0 a 3 por atividade)
     # -------------------------------------------------------------
+    
     Quiz.objects.all().delete()
 
     def criar_quiz(atividade_obj, titulo, tipo, pergunta, **kwargs):
@@ -1728,7 +1783,6 @@ def popular_banco():
     # =============================================================
     # EVENTO 1 - Semana Acadêmica de Tecnologia 2026
     # =============================================================
-    # Atividade 1 (atividade_palestra): 2 quizzes (Múltipla Escolha)
     q_ev1_p1 = criar_quiz(
         atividade_palestra,
         titulo="Arquitetura de Redes Neurais em Diagnóstico",
@@ -1757,7 +1811,6 @@ def popular_banco():
         alternativa_correta="B",
     )
 
-    # Atividade 2 (atividade_oficina): 3 quizzes (Métrica - seus originais + 1)
     quiz_1 = criar_quiz(
         atividade_oficina,
         titulo="Aferição de Espessura do Material",
@@ -1797,7 +1850,6 @@ def popular_banco():
         valor_ideal=Decimal("3.30"),
     )
 
-    # Atividade 3 (atividade_ev1_3 - Docker/K8s): 2 quizzes
     q_ev1_3_1 = criar_quiz(
         atividade_ev1_3,
         titulo="Orquestração de Pods no Kubernetes",
@@ -1825,12 +1877,12 @@ def popular_banco():
         valor_ideal=Decimal("152.00"),
     )
 
-    # Atividade 4 (atividade_ev1_4 - Fórum Carreira): 0 quizzes (proposital)
+    # Atividade 4 (atividade_ev1_4 - Fórum Carreira): 0 quizzes 
 
     # =============================================================
     # EVENTO 2 - Palestra Internacional de Administração 2026 (Encerrado)
     # =============================================================
-    # atividade_palestra2: 1 quiz
+    
     q_ev2_1 = criar_quiz(
         atividade_palestra2,
         titulo="Indicadores de Governança Corporativa",
@@ -1845,7 +1897,6 @@ def popular_banco():
         alternativa_correta="C",
     )
 
-    # atividade_ev2_2 (Oficina OKRs): 2 quizzes
     q_ev2_2_1 = criar_quiz(
         atividade_ev2_2,
         titulo="Estruturação de Key Results",
@@ -1876,8 +1927,7 @@ def popular_banco():
     # =============================================================
     # EVENTO 3 - Fórum de Gestão de Projetos de Tecnologia 2026 (Encerrado)
     # =============================================================
-    # atividade_forum: 0 quizzes
-    # atividade_ev3_2 (Oficina Kanban): 2 quizzes
+    
     q_ev3_2_1 = criar_quiz(
         atividade_ev3_2,
         titulo="Lei de Little na Prática",
@@ -1910,7 +1960,7 @@ def popular_banco():
     # =============================================================
     # EVENTO 4 - Congresso Brasileiro de Saúde e Biotecnologia 2026
     # =============================================================
-    # atividade_ev4_1 (CRISPR): 1 quiz
+    
     q_ev4_1 = criar_quiz(
         atividade_ev4_1,
         titulo="Mecanismo CRISPR-Cas9",
@@ -1925,8 +1975,6 @@ def popular_banco():
         alternativa_correta="B",
     )
 
-    # atividade_ev4_2 (Fórum Telemedicina): 0 quizzes
-    # atividade_ev4_3 (Oficina Biossegurança): 3 quizzes
     q_ev4_3_1 = criar_quiz(
         atividade_ev4_3,
         titulo="Temperatura de Armazenamento de Reagentes",
@@ -1967,8 +2015,6 @@ def popular_banco():
         valor_ideal=Decimal("15.00"),
     )
 
-    # atividade_ev4_4: 0 quizzes
-    # atividade_ev4_5 (Oficina Python DataSUS): 1 quiz
     q_ev4_5_1 = criar_quiz(
         atividade_ev4_5,
         titulo="Taxa de Incidência Calculada",
@@ -1985,9 +2031,6 @@ def popular_banco():
     # =============================================================
     # EVENTO 6 - Fórum Nacional de Direito Digital e Proteção de Dados
     # =============================================================
-    # atividade_ev6_1: 0 quizzes
-    # atividade_ev6_2: 0 quizzes
-    # atividade_ev6_3 (Oficina RIPD): 2 quizzes
     q_ev6_3_1 = criar_quiz(
         atividade_ev6_3,
         titulo="Bases Legais da LGPD",
@@ -2017,8 +2060,7 @@ def popular_banco():
 
     # =============================================================
     # EVENTO 7 - Semana de Design, Arquitetura e Urbanismo (Futuro)
-    # =============================================================
-    # atividade_ev7_2 (FabLab): 1 quiz (sem respostas ainda, pois é futuro)
+    # =============================================================)
     q_ev7_2_1 = criar_quiz(
         atividade_ev7_2,
         titulo="Temperatura de Extrusão PLA",
@@ -2031,8 +2073,7 @@ def popular_banco():
         valor_maximo=Decimal("215.00"),
         valor_ideal=Decimal("205.00"),
     )
-
-    # atividade_ev7_3 (Design Systems): 1 quiz (sem respostas ainda)
+    
     q_ev7_3_1 = criar_quiz(
         atividade_ev7_3,
         titulo="Contraste Mínimo WCAG AA",
@@ -2049,7 +2090,6 @@ def popular_banco():
     # =============================================================
     # EVENTO 8 - Feira de Inovação no Agronegócio (Futuro)
     # =============================================================
-    # atividade_ev8_1 (Oficina Drones NDVI): 1 quiz (sem respostas ainda)
     q_ev8_1_1 = criar_quiz(
         atividade_ev8_1,
         titulo="Interpretação do Índice NDVI",
@@ -2066,7 +2106,6 @@ def popular_banco():
     # =============================================================
     # EVENTO 9 e EVENTO 10 (Futuros)
     # =============================================================
-    # atividade_ev9_1 (Oficina CLPs): 1 quiz (sem respostas ainda)
     q_ev9_1_1 = criar_quiz(
         atividade_ev9_1,
         titulo="Linguagem Ladder - Contato Normalmente Aberto",
@@ -2086,13 +2125,13 @@ def popular_banco():
     # -------------------------------------------------------------
     # 8. RESPOSTAS DOS QUIZZES
     # -------------------------------------------------------------
+    
     Resposta.objects.all().delete()
     def registrar_resposta(usuario_obj, atividade_obj, quiz_obj, valor_resposta=None, resposta_texto=None):
         """
         Registra a resposta de um participante no quiz.
-        Ignora caso o usuário seja o organizador do evento (que não possui crachá).
         """
-        if usuario_obj.user_django.is_staff or usuario_obj.user_django.is_superuser:
+        if usuario_obj.id == atividade_obj.evento.administrador_id:
             return None
 
         inscricao_obj = Inscricao.objects.filter(
@@ -2105,6 +2144,9 @@ def popular_banco():
                 usuario_id=usuario_obj.id,
                 evento=atividade_obj.evento
             )
+            dt_inscricao = calcular_data_inscricao(atividade_obj.evento, dias_antecedencia=2)
+            Inscricao.objects.filter(id=inscricao_obj.id).update(dataHora=dt_inscricao)
+            inscricao_obj.refresh_from_db()
 
         dt_presenca = atividade_obj.horaInicio + timedelta(minutes=10)
         participa_obj, created = Participa.objects.get_or_create(
@@ -2153,7 +2195,7 @@ def popular_banco():
         )
         return resposta
 
-    # --- Oficina de Sensores (Joana, João e Sofia presentes; Pedro presente mas não respondeu) ---
+    # --- Oficina ---
     registrar_resposta(usuario_participante4, atividade_oficina, quiz_1, valor_resposta="10.20")  # aproximado
     registrar_resposta(usuario_participante4, atividade_oficina, quiz_2, valor_resposta="42.50")  # errado
     registrar_resposta(usuario_participante4, atividade_oficina, quiz_3, valor_resposta="3.30")   # certo
@@ -2165,20 +2207,20 @@ def popular_banco():
     registrar_resposta(usuario_participante5, atividade_oficina, quiz_1, valor_resposta="11.10")  # errado
     registrar_resposta(usuario_participante5, atividade_oficina, quiz_2, valor_resposta="50.00")  # certo
 
-    # --- Palestra de IA (Mariana, Joana e Admin2 presentes; outros 5 inscritos ficam "Em Espera") ---
+    # --- Palestra ---
     registrar_resposta(usuario_participante1, atividade_palestra, q_ev1_p1, resposta_texto="A")   # certo
     registrar_resposta(usuario_participante1, atividade_palestra, q_ev1_p2, resposta_texto="B")   # certo
     registrar_resposta(usuario_participante4, atividade_palestra, q_ev1_p1, resposta_texto="A")   # certo
     registrar_resposta(usuario_participante4, atividade_palestra, q_ev1_p2, resposta_texto="A")   # errado
     registrar_resposta(usuario_admin2, atividade_palestra, q_ev1_p1, resposta_texto="A")          # certo
 
-    # --- Oficina Docker/K8s (Mariana e Lucas presentes; João, Joana, Sofia, Thiago e Admin2 ficam "Ausente") ---
+    # --- Oficina ---
     registrar_resposta(usuario_participante1, atividade_ev1_3, q_ev1_3_1, resposta_texto="C")     # certo
     registrar_resposta(usuario_participante1, atividade_ev1_3, q_ev1_3_2, valor_resposta="150.00")# aproximado
     registrar_resposta(usuario_participante3, atividade_ev1_3, q_ev1_3_1, resposta_texto="C")     # certo
     registrar_resposta(usuario_participante3, atividade_ev1_3, q_ev1_3_2, valor_resposta="180.00")# errado
 
-    # --- Evento 2 Encerrado (Clara, Fernanda e Admin3 presentes; João, Sofia, Helena e Gabriel ficam "Ausente") ---
+    # --- Evento 2  ---
     registrar_resposta(usuario_participante7, atividade_palestra2, q_ev2_1, resposta_texto="C")   # certo
     registrar_resposta(usuario_participante9, atividade_palestra2, q_ev2_1, resposta_texto="C")   # certo
     registrar_resposta(usuario_admin3, atividade_palestra2, q_ev2_1, resposta_texto="A")          # errado
@@ -2186,13 +2228,13 @@ def popular_banco():
     registrar_resposta(usuario_participante7, atividade_ev2_2, q_ev2_2_1, resposta_texto="B")     # certo
     registrar_resposta(usuario_participante7, atividade_ev2_2, q_ev2_2_2, valor_resposta="75.00") # certo
 
-    # --- Evento 3 Encerrado (Lucas e Clara presentes; João, Joana e Patrícia ficam "Ausente") ---
+    # --- Evento 3 ---
     registrar_resposta(usuario_participante7, atividade_ev3_2, q_ev3_2_1, valor_resposta="4.00")  # certo
     registrar_resposta(usuario_participante7, atividade_ev3_2, q_ev3_2_2, resposta_texto="B")     # certo
     registrar_resposta(usuario_participante3, atividade_ev3_2, q_ev3_2_1, valor_resposta="3.90")  # aproximado
     registrar_resposta(usuario_participante3, atividade_ev3_2, q_ev3_2_2, resposta_texto="B")     # certo
 
-    # --- Evento 4 Em andamento (Rafael e Mariana presentes; João e Amanda ficam "Ausente" na ev4_1) ---
+    # --- Evento 4 ---
     registrar_resposta(usuario_participante6, atividade_ev4_1, q_ev4_1, resposta_texto="B")       # certo
     registrar_resposta(usuario_participante1, atividade_ev4_1, q_ev4_1, resposta_texto="B")       # certo
 
@@ -2203,7 +2245,7 @@ def popular_banco():
     registrar_resposta(usuario_participante6, atividade_ev4_5, q_ev4_5_1, valor_resposta="125.40")# certo
     registrar_resposta(usuario_participante2, atividade_ev4_5, q_ev4_5_1, valor_resposta="124.80")# aproximado
 
-    # --- Evento 6 Em andamento (Thiago e Clara presentes) ---
+    # --- Evento 6 ---
     registrar_resposta(usuario_participante8, atividade_ev6_3, q_ev6_3_1, resposta_texto="B")     # certo
     registrar_resposta(usuario_participante8, atividade_ev6_3, q_ev6_3_2, valor_resposta="3.00")  # certo
     registrar_resposta(usuario_participante7, atividade_ev6_3, q_ev6_3_1, resposta_texto="B")     # certo

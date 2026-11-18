@@ -111,11 +111,11 @@ class Resposta(models.Model):
 
         quiz = self.quiz
 
-        # Se for Múltipla Escolha: valor fixo por acerto (30 pts)
+        # Múltipla Escolha(30 pts)
         if quiz.tipo in ('MULTIPLA', 'MULTIPLA_ESCOLHA'):
             return 30
 
-        # Se for Métrica: calcula proporcionalmente a proximidade do valor_ideal
+        # Métrica: calcula proporcionalmente a proximidade do valor_ideal
         if (
             quiz.tipo == 'METRICA'
             and quiz.valor_ideal is not None
@@ -130,9 +130,9 @@ class Resposta(models.Model):
             )
 
             if tolerancia_max == 0 or diferenca == 0:
-                return 50  # Acerto exato perfeito = 50 pts
+                return 50  # Acerto exato = 50 pts
 
-            # Interpolação linear: 50 pts (exato) caindo até 20 pts (na borda da tolerância)
+            # 50 pts (exato) caindo até 20 pts (na borda da tolerância)
             proporcao_erro = min(1.0, diferenca / tolerancia_max)
             bonus = 50 - (proporcao_erro * 30)
             return max(20, round(bonus))
