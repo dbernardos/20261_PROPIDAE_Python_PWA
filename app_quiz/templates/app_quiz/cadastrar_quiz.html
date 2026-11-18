@@ -21,9 +21,9 @@
               </span>
               <h2 class="fw-bold text-verde-escuro mb-0">
                 {% if editando %}
-                  Editar Desafio #{{ quiz.numero }}
+                  Editar Quiz #{{ quiz.numero }}
                 {% else %}
-                  Cadastrar Novo Desafio
+                  Cadastrar Novo Quiz
                 {% endif %}
               </h2>
             </div>
@@ -51,7 +51,7 @@
 
             <div class="row g-3 mb-4">
               <div class="col-md-5">
-                <label for="{{ form_quiz.tipo.id_for_label }}" class="form-label fw-semibold">Modalidade do Desafio *</label>
+                <label for="{{ form_quiz.tipo.id_for_label }}" class="form-label fw-semibold">Modalidade do Quiz *</label>
                 {{ form_quiz.tipo }}
                 {% for error in form_quiz.tipo.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
               </div>
@@ -162,7 +162,7 @@
               <div class="form-check form-switch">
                 {{ form_quiz.ativo }}
                 <label class="form-check-label fw-semibold" for="{{ form_quiz.ativo.id_for_label }}">
-                  Desafio ativo para os participantes
+                  Quiz ativo para os participantes
                 </label>
               </div>
 
