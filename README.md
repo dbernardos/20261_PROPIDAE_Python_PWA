@@ -1,10 +1,10 @@
-# 🎓 SEAEvents - Sistema de Eventos Acadêmicos
+# 🎓 SEA Eventos - Sistema de Eventos Acadêmicos
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-4.x%2B-092E20.svg)](https://www.djangoproject.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-O **SEAEvents** é um sistema web para gerenciamento de eventos acadêmicos, desenvolvido com o framework Django. O projeto visa facilitar a organização, inscrição, participação e engajamento dos participantes por meio de funcionalidades interativas como quizzes, sorteios e geração de crachás.
+O **SEA Eventos** é um sistema web para gerenciamento de eventos acadêmicos, desenvolvido com o framework Django. O projeto visa facilitar a organização, inscrição, participação e engajamento dos participantes por meio de funcionalidades interativas como quizzes, sorteios e geração de crachás.
 
 ---
 
@@ -135,3 +135,10 @@ SENHA: ifsc1234
 USUARIO: mariana.li
 SENHA: participante1
 
+
+## ACESSO AO SITE:
+portalseaeventos.com.br
+
+## Autenticação: 
+nome de usuário:ifsc
+senha:ifsc
