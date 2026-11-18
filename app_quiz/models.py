@@ -108,23 +108,34 @@ class Resposta(models.Model):
         """Retorna o bônus de acerto baseado na precisão da resposta (entre 20 e 50 pts)"""
         if not self.correto:
             return 0
-            
+
         quiz = self.quiz
-        # Se for Múltipla Escolha: valor fixo por acerto (ex: 30 pts)
-        if quiz.tipo == 'MULTIPLA_ESCOLHA':
+
+        # Se for Múltipla Escolha: valor fixo por acerto (30 pts)
+        if quiz.tipo in ('MULTIPLA', 'MULTIPLA_ESCOLHA'):
             return 30
-            
+
         # Se for Métrica: calcula proporcionalmente a proximidade do valor_ideal
-        if quiz.tipo == 'METRICA' and quiz.valor_ideal and self.valor_resposta is not None:
-            diferenca = abs(self.valor_resposta - quiz.valor_ideal)
-            tolerancia_max = max(abs(quiz.valor_maximo - quiz.valor_ideal), abs(quiz.valor_ideal - quiz.valor_minimo))
-            
+        if (
+            quiz.tipo == 'METRICA'
+            and quiz.valor_ideal is not None
+            and quiz.valor_minimo is not None
+            and quiz.valor_maximo is not None
+            and self.valor_resposta is not None
+        ):
+            diferenca = abs(float(self.valor_resposta) - float(quiz.valor_ideal))
+            tolerancia_max = max(
+                abs(float(quiz.valor_maximo) - float(quiz.valor_ideal)),
+                abs(float(quiz.valor_ideal) - float(quiz.valor_minimo)),
+            )
+
             if tolerancia_max == 0 or diferenca == 0:
                 return 50  # Acerto exato perfeito = 50 pts
-                
-            # Interpolação linear de pontuação: 50 pts (exato) caindo até 20 pts (na borda da tolerância)
-            proporcao_erro = diferenca / tolerancia_max
+
+            # Interpolação linear: 50 pts (exato) caindo até 20 pts (na borda da tolerância)
+            proporcao_erro = min(1.0, diferenca / tolerancia_max)
             bonus = 50 - (proporcao_erro * 30)
-            return max(20, int(bonus))
-            
-        return 20  # Padrão básico para acerto
+            return max(20, round(bonus))
+
+        # Fallback caso o quiz métrico não tenha valor_ideal configurado (ex: simulação de pontuação máxima)
+        return 20

@@ -40,6 +40,7 @@ class tipoEvento(models.TextChoices):
     SEMANA = 'SemanaAcademica', 'Semana Acadêmica'
     ENCONTRO = 'Encontro', 'Encontro'
     CONGRESSO = 'Congresso', 'Congresso'
+    FEIRA = 'Feira', 'Feira'
     OUTRO = 'Outro', 'Outro'
 
 def validar_tamanho_banner(imagem):
@@ -140,7 +141,6 @@ class Inscricao(models.Model):
 
 class StatusParticipa(models.TextChoices):
     PARTICIPANTE = 'Participante', 'Participante'
-    PALESTRANTE = 'Palestrante', 'Palestrante'
     ORGANIZADOR = 'Organizador', 'Organizador'
 
 
