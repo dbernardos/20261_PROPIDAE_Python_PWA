@@ -17,9 +17,9 @@ from django.conf import settings
 
 def gerar_codigo():
     alfabeto = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
-    parte1 = generate(alfabeto, size=3)
-    parte2 = generate(alfabeto, size=3)
-    return f"{parte1}-{parte2}"
+    parte1 = generate(alfabeto, size=4)
+    parte2 = generate(alfabeto, size=4)
+    return f"{parte1}{parte2}"
 
 
 class Apoiador(models.Model):
@@ -93,7 +93,7 @@ class Inscricao(models.Model):
     evento = models.ForeignKey('Evento', on_delete=models.CASCADE)
 
     dataHora = models.DateTimeField(auto_now_add=True)
-    cracha = models.CharField(max_length=7, unique=True, default=gerar_codigo, editable=False)
+    cracha = models.CharField(max_length=8, unique=True, default=gerar_codigo, editable=False)
     qrcode_imagem = models.ImageField(upload_to='qrcodes/', blank=True, null=True)  
 
     ativa = models.BooleanField(default=True)
