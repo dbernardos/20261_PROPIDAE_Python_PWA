@@ -15,9 +15,9 @@ def validar_tamanho_usuario(imagem):
 """Model da tabela Usuario"""
 class Usuario(models.Model):
     nome = models.CharField(max_length=200)
-    cpf = models.CharField(verbose_name="CPF", max_length=14, unique=True, blank=True, null=True)
+    cpf = models.CharField(verbose_name="CPF", max_length=14, unique=True)
     dataNascimento = models.DateField(verbose_name="Data de Nascimento", blank=True, null=True)
-    email = models.EmailField(max_length=200,unique=True, blank=True, null=True)
+    email = models.EmailField(max_length=200,unique=True)
     telefone = models.CharField(max_length=20, blank=True, null=True)
     
     formacao = models.CharField(max_length=200, blank=True, null=True)
