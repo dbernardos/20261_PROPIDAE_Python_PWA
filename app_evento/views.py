@@ -79,7 +79,7 @@ def pwa_home(request):
         
         try:
             evento = Evento.objects.get(codigo_evento=codigo)
-            return redirect('app_evento:urlpwa_atividades_evento', evento_id=evento.id)
+            return redirect('app_evento:urlpwa_atividades', evento_id=evento.id)
         except Evento.DoesNotExist:
             messages.error(request, "Evento não encontrado. Verifique o código.")
             
@@ -951,7 +951,7 @@ def alternar_participacao_atividade(request, atividade_id):
         messages.error(request, f'A atividade "{atividade.nome}" já foi encerrada.')
         return redirect('app_evento:urldet_evento', evento_id=evento.id)
 
-    # 2. Bloqueia alterações dentro da janela de 15 min antes do início (credenciamento aberto)
+    # Bloqueia alterações dentro da janela de 15 min antes do início (credenciamento aberto)
     if atividade.horaInicio and atividade.horaInicio <= agora_tolerancia:
         messages.error(
             request,

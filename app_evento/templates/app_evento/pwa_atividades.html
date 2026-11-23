@@ -1,105 +1,191 @@
 {% extends 'basepwa.html' %}
 {% load static %}
-{% load django_bootstrap5 %}
+
+{% block title %}Atividades | {{ evento.nome }}{% endblock %}
+
+{% block extra_css %}
+
+{% endblock %}
 
 {% block content %}
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+<section class="py-4 pwa-scroll-safe-bottom">
+  <div class="container fade-in">
 
-<div class="d-flex flex-column px-3 py-4" style="min-height: 100vh; background-color: #f8f9fa;">
-    
-    <!-- Cabeçalho -->
-    <div class="d-flex align-items-center mb-4">
-        <a href="{% url 'app_evento:urlpwa_home' %}" class="btn btn-outline-secondary rounded-circle me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
-            <i class="bi bi-arrow-left fs-5"></i>
+    <!-- Cabeçalho do Evento  -->
+    <div class="d-flex justify-content-between align-items-start gap-3 mb-4 pb-3 border-bottom">
+      <div class="d-flex align-items-start gap-3 flex-grow-1 min-w-0">
+        <a href="{% url 'app_evento:urlpwa_home' %}"
+           onclick="window.location.replace(this.href); return false;"
+           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center pwa-back-btn flex-shrink-0 mt-1"
+           title="Voltar para eventos">
+          <i class="bi bi-arrow-left fs-5"></i>
         </a>
-        <div>
-            <h5 class="mb-0 fw-bold" style="color: #1b5e3a;">{{ evento.nome }}</h5>
-            <small class="text-muted">Selecione a atividade para check-in</small>
+
+        <div class="min-w-0">
+          <span class="text-verde-escuro fw-bold small text-uppercase d-block">
+            Check-in de Participantes
+          </span>
+          <h2 class="h4 fw-bold text-dark mb-2 text-break">{{ evento.nome }}</h2>
+
+          <!-- Datas e Endereço do Evento -->
+          <div class="d-flex flex-wrap gap-x-3 gap-y-1 text-secondary small">
+            <span class="me-3">
+              <i class="bi bi-calendar-event text-verde-escuro me-1"></i>
+              <strong>Início:</strong> {{ evento.dataInicio|date:'d/m/Y' }}
+            </span>
+            <span class="me-3">
+              <i class="bi bi-calendar-check text-vermelho me-1"></i>
+              <strong>Término:</strong> {{ evento.dataFim|date:'d/m/Y' }}
+            </span>
+            <span>
+              <i class="bi bi-geo-alt-fill text-vermelho me-1"></i>
+              {{ evento.local|default:'Endereço a definir' }}
+            </span>
+          </div>
         </div>
-        <button onclick="window.location.reload(true);" class="btn btn-outline-success btn-sm rounded-pill shadow-sm" title="Atualizar dados">
-             <i class="bi bi-arrow-clockwise me-1"></i> Atualizar
-        </button>
+      </div>
+
+      <button type="button"
+              onclick="window.location.reload();"
+              class="btn btn-outline-verde-escuro btn-sm rounded-pill px-3 ms-auto flex-shrink-0"
+              title="Atualizar lista de atividades">
+        <i class="bi bi-arrow-clockwise me-1"></i>
+        <span class="d-none d-sm-inline">Atualizar</span>
+      </button>
     </div>
 
-    <!-- Lista de Atividades -->
-    <div class="d-flex flex-column gap-3 mb-5">
+    <!-- 1 coluna no celular e tablet e 2 no PC  -->
+    {% if atividades_info %}
+      <div class="row g-3 pb-4">
         {% for item in atividades_info %}
-            
-           {% if item.status == 'ativa' %}
-            <!-- ATIVIDADE LIBERADA: Aponta direto para o leitor no app_quiz -->
-            
-                <div class="card border-0 shadow-sm" style="border-left: 5px solid #1b5e3a !important; border-radius: 10px;">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="fw-bold mb-1 text-dark">{{ item.obj.nome }}</h6>
-                            <div class="d-flex flex-wrap gap-3 mt-1 text-secondary small">
-                       
-                            <span><i class="bi bi-calendar-event text-verde-claro me-1"></i>{{ item.obj.evento.dataInicio|date:'d/m/Y' }}</span>
-                            <span><i class="bi bi-clock text-verde-claro me-1"></i>{{ item.obj.horaInicio|time:'H:i' }}</span>
-                           
-                            <span><i class="bi bi-calendar-event text-vermelho me-1"></i>{{ item.obj.evento.dataFim|date:'d/m/Y' }}</span>
-                            <span><i class="bi bi-clock text-vermelho me-1"></i>{{ item.obj.horaFim|time:'H:i' }}</span>
-   
-                            <span><i class="bi bi-geo-alt text-vermelho me-1"></i>{{ item.obj.complementoLocal|default:'A definir' }}</span>
+          <div class="col-12 col-lg-6">
 
-                            <span><i class="bi bi-key-fill text-primary me-1"></i>{{ item.obj.codigo_leitor|default:'Código não disponível' }}</span>
-                            </div>
-                        </div>
-                        <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=item.obj.codigo_leitor %}" class="stretched-link text-decoration-none">
-                             <div class="text-center" style="color: #1b5e3a;">
-                                <i class="bi bi-qr-code-scan fs-3"></i>
-                             <div style="font-size: 0.7rem; font-weight: bold;">LER QR CODE</div>
-                                 
-                            </div>
-                       </a>
+            {% if item.status == 'ativa' %}
+              <!-- ATIVIDADE LIBERADA -->
+              <div class="card card-custom h-100 pwa-card-ativa position-relative">
+                <div class="card-body p-3 d-flex justify-content-between align-items-center gap-3">
+                  <div class="min-w-0">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                      <span class="badge badge-verde-suave border rounded-pill px-2 py-1 small fw-semibold">
+                        <i class="bi bi-broadcast me-1"></i> Liberada
+                      </span>
+                      <span class="badge bg-light text-dark border rounded-pill px-2 py-1 small font-monospace">
+                        <i class="bi bi-key-fill text-verde-escuro me-1"></i>{{ item.obj.codigo_leitor|default:'Sem código' }}
+                      </span>
                     </div>
+
+                    <h6 class="fw-bold text-dark mb-2">{{ item.obj.nome }}</h6>
+
+                    <div class="text-secondary small d-flex flex-column gap-1">
+                      <span>
+                        <i class="bi bi-calendar-event text-verde-escuro me-1"></i>
+                        <strong>Início:</strong> {{ item.obj.dataInicio|default:evento.dataInicio|date:'d/m/Y' }} às {{ item.obj.horaInicio|time:'H:i' }}
+                      </span>
+                      <span>
+                        <i class="bi bi-calendar-x text-vermelho me-1"></i>
+                        <strong>Fim:</strong> {{ item.obj.dataFim|default:evento.dataFim|date:'d/m/Y' }} às {{ item.obj.horaFim|time:'H:i' }}
+                      </span>
+                      <span>
+                        <i class="bi bi-geo-alt text-vermelho me-1"></i>
+                        {{ item.obj.complementoLocal|default:'Local a definir' }}
+                      </span>
+                    </div>
+                  </div>
+
+                  {% if item.obj.codigo_leitor %}
+                    <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=item.obj.codigo_leitor %}"
+                        onclick="window.location.replace(this.href); return false;"   
+                        class="stretched-link text-decoration-none flex-shrink-0">
+                      <div class="pwa-qr-action p-3 text-center">
+                        <i class="bi bi-qr-code-scan fs-3 d-block mb-1"></i>
+                        <span class="d-block fw-bold pwa-qr-action-label">LER QR CODE</span>
+                      </div>
+                    </a>
+                  {% endif %}
                 </div>
-            
-        
+              </div>
 
             {% elif item.status == 'futura' %}
-                <!-- ATIVIDADE FUTURA (Bloqueada) -->
-                <div class="card border-0 bg-light text-muted" style="border-left: 5px solid #adb5bd !important; border-radius: 10px; opacity: 0.7;">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="fw-bold mb-1">{{ item.obj.nome }}</h6>
-                            <div class="small">
-                                <i class="bi bi-clock me-1"></i> {{ item.obj.horaInicio|time:"H:i" }} (Em breve)
-                            </div>
-                        </div>
-                        <i class="bi bi-lock-fill fs-4 text-secondary"></i>
+              <!-- ATIVIDADE FUTURA (Bloqueada) -->
+              <div class="card card-custom h-100 bg-light text-muted pwa-card-futura">
+                <div class="card-body p-3 d-flex justify-content-between align-items-center gap-3">
+                  <div class="min-w-0">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                      <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-2 py-1 small">
+                        Em breve
+                      </span>
+                      <span class="badge bg-white text-secondary border rounded-pill px-2 py-1 small font-monospace">
+                        <i class="bi bi-key-fill me-1"></i>{{ item.obj.codigo_leitor|default:'Sem código' }}
+                      </span>
                     </div>
+
+                    <h6 class="fw-bold text-dark mb-2">{{ item.obj.nome }}</h6>
+
+                    <div class="small d-flex flex-column gap-1">
+                      <span>
+                        <i class="bi bi-calendar-event me-1"></i>
+                        <strong>Início:</strong> {{ item.obj.dataInicio|default:evento.dataInicio|date:'d/m/Y' }} às {{ item.obj.horaInicio|time:'H:i' }}
+                      </span>
+                      <span>
+                        <i class="bi bi-calendar-x me-1"></i>
+                        <strong>Fim:</strong> {{ item.obj.dataFim|default:evento.dataFim|date:'d/m/Y' }} às {{ item.obj.horaFim|time:'H:i' }}
+                      </span>
+                      <span>
+                        <i class="bi bi-geo-alt me-1"></i>
+                        {{ item.obj.complementoLocal|default:'Local a definir' }}
+                      </span>
+                    </div>
+                  </div>
+                  <i class="bi bi-lock-fill fs-4 text-secondary flex-shrink-0"></i>
                 </div>
+              </div>
 
             {% else %}
-                <!-- ATIVIDADE ENCERRADA (Bloqueada) -->
-                <div class="card border-0 bg-light text-muted" style="border-left: 5px solid #dc3545 !important; border-radius: 10px; opacity: 0.6;">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="fw-bold mb-1 text-decoration-line-through">{{ item.obj.nome }}</h6>
-                            <div class="small text-danger">
-                                <i class="bi bi-clock-history me-1"></i> Encerrada às {{ item.obj.horaFim|time:"H:i" }}
-                            </div>
-                        </div>
-                        <i class="bi bi-check-circle-fill fs-4 text-danger"></i>
+              <!-- ATIVIDADE ENCERRADA (Bloqueada) -->
+              <div class="card card-custom h-100 bg-light text-muted pwa-card-encerrada">
+                <div class="card-body p-3 d-flex justify-content-between align-items-center gap-3">
+                  <div class="min-w-0">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                      <span class="badge bg-danger-subtle text-danger border rounded-pill px-2 py-1 small">
+                        Encerrada
+                      </span>
+                      <span class="badge bg-white text-secondary border rounded-pill px-2 py-1 small font-monospace">
+                        <i class="bi bi-key-fill me-1"></i>{{ item.obj.codigo_leitor|default:'Sem código' }}
+                      </span>
                     </div>
+
+                    <h6 class="fw-bold text-decoration-line-through mb-2">{{ item.obj.nome }}</h6>
+
+                    <div class="small d-flex flex-column gap-1">
+                      <span>
+                        <i class="bi bi-calendar-event me-1"></i>
+                        <strong>Início:</strong> {{ item.obj.dataInicio|default:evento.dataInicio|date:'d/m/Y' }} às {{ item.obj.horaInicio|time:'H:i' }}
+                      </span>
+                      <span class="text-danger">
+                        <i class="bi bi-clock-history me-1"></i>
+                        <strong>Encerrada:</strong> {{ item.obj.dataFim|default:evento.dataFim|date:'d/m/Y' }} às {{ item.obj.horaFim|time:'H:i' }}
+                      </span>
+                      <span>
+                        <i class="bi bi-geo-alt me-1"></i>
+                        {{ item.obj.complementoLocal|default:'Local a definir' }}
+                      </span>
+                    </div>
+                  </div>
+                  <i class="bi bi-check-circle-fill fs-4 text-danger flex-shrink-0"></i>
                 </div>
+              </div>
             {% endif %}
-            
-        {% empty %}
-            <div class="text-center py-5 text-muted">
-                <i class="bi bi-calendar-x fs-1 mb-2"></i>
-                <p>Nenhuma atividade cadastrada para este evento.</p>
-            </div>
+
+          </div>
         {% endfor %}
-    </div>
+      </div>
+    {% else %}
+      <div class="card card-custom p-4 text-center text-muted bg-light">
+        <i class="bi bi-calendar-x fs-2 opacity-50 d-block mb-2"></i>
+        <p class="small mb-0">Nenhuma atividade cadastrada para este evento.</p>
+      </div>
+    {% endif %}
 
-</div>
-
-<style>
-    /* Esconde barra de navegação principal do desktop */
-    header, footer, .navbar {
-        display: none !important;
-    }
-</style>
+  </div>
+</section>
 {% endblock %}

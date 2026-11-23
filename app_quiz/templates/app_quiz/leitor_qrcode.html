@@ -2,66 +2,121 @@
 {% load static %}
 
 {% block title %}
-  Validação de Presença - XXIX Colóquio de Usinagem
-{% endblock %}
-
-{% block pre_script %}
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  Validação de Presença | {{ atividade.evento.nome|default:'Portal SEA Eventos' }}
 {% endblock %}
 
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/leitor_qrcode.css' %}" />
 {% endblock %}
 
+{% block pre_script %}
+  <script src="https://unpkg.com/html5-qrcode"></script>
+{% endblock %}
+
 {% block content %}
-<main class="pwa-screen-container">
+
+{% csrf_token %}
+  <div class="pwa-screen-container kiosk-mode">
   <div class="qr-content-wrapper">
-    <span class="badge text-dark border rounded-pill px-3 py-1 mb-2">
-        {{ atividade.evento.nome }}
-        <br>
-        {{ atividade.nome }}
-    </span>
+
+    <!-- Identificação do Evento e Atividade (5 toques rápidos abrem o PIN de saída) -->
+    <div class="text-center" id="kioskSecretTrigger">
+      <span class="badge badge-verde-suave border rounded-pill px-3 py-2 mb-1 d-inline-block mw-100">
+        <strong class="d-block text-truncate">{{ atividade.evento.nome }}</strong>
+        <span class="fw-normal text-dark d-block text-truncate mt-1">{{ atividade.nome }}</span>
+      </span>
+    </div>
+
     <div class="text-center cabecalho-pwa">
-      
       <h2>Validação de Presença</h2>
       <p>Aponte a câmera para o QR Code ou digite o código</p>
     </div>
 
-    <!-- Área da Câmera -->
+  <!-- Área da Câmera -->
     <div class="qr-reader-container shadow-sm">
-      <div id="reader"></div>
+      <div id="reader"
+        data-url-identificar="{% url 'app_quiz:urlidentificar' %}"
+        data-atividade-id="{{ atividade.id }}"
+        data-codigo-leitor="{{ atividade.codigo_leitor }}"
+        data-url-saida="{% url 'app_evento:urlpwa_atividades' atividade.evento.id %}">
+      </div>
     </div>
 
     <!-- Área de Alertas -->
-    <div id="resultado" class="resultado-box"></div>
+    <div id="resultado" class="resultado-box" role="status" aria-live="polite"></div>
 
     <!-- Formulário de Código Manual -->
     <form id="formManual" class="form-manual" autocomplete="off">
       {% csrf_token %}
-      <input type="text" 
-             id="codigoManual" 
-             class="custom-pwa-input shadow-sm" 
-             placeholder="DIGITE O CÓDIGO" 
-             required 
+      <input type="text"
+             id="codigoManual"
+             class="form-control custom-pwa-input shadow-sm"
+             placeholder="DIGITE O CÓDIGO"
+             required
              autocapitalize="characters"
-             oninput="this.value = this.value.toUpperCase()" />
-      
-      <button type="submit" class="btn-pwa-primary shadow-sm">
-        Validar Código
+             autocomplete="off"
+             enterkeyhint="send"
+             oninput="this.value = this.value.toUpperCase()"
+             maxlength="30" />
+
+      <button type="submit" class="btn-pwa-primary shadow-sm gap-2">
+        <i class="bi bi-check2-circle fs-5"></i>
+        <span>Validar Código</span>
       </button>
     </form>
 
   </div>
-</main>
+</div>
+
+<!-- Modal Oculto de Saída do Modo Quiosque (Equipe / Staff) -->
+<div class="modal fade" id="modalSaidaQuiosque" tabindex="-1" aria-labelledby="modalSaidaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow rounded-4">
+      <div class="modal-header border-0 pb-0">
+        <h6 class="modal-title fw-bold text-verde-escuro" id="modalSaidaLabel">
+          <i class="bi bi-shield-lock-fill me-1"></i> Acesso da Equipe
+        </h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <form id="formPinSaida" autocomplete="off">
+        <div class="modal-body pt-2">
+          <p class="text-muted small mb-2">
+            Informe o <strong>código do leitor</strong> desta atividade para sair do modo quiosque:
+          </p>
+          <input type="password"
+                 id="inputPinSaida"
+                 class="form-control text-center fw-bold text-uppercase"
+                 placeholder="CÓDIGO DA ATIVIDADE"
+                 autocapitalize="characters"
+                 autocomplete="off"
+                 required />
+          <div id="erroPinSaida" class="text-danger small text-center mt-2 d-none">
+            Código incorreto.
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-light btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-verde-escuro btn-sm rounded-pill px-3">
+            Sair do Leitor
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
   <script>
     window.ConfigAtividade = {
       idAtividadeParaEnvio: "{{ atividade.id|default:'' }}" || "{{ atividade.codigo_leitor|default:'' }}",
+      codigoLeitor: "{{ atividade.codigo_leitor|default:''|escapejs }}",
       urlIdentificar: "{% url 'app_quiz:urlidentificar' %}",
+      urlSaidaStaff: "{% url 'app_evento:urlpwa_home' %}",
       csrfToken: "{{ csrf_token }}"
     };
   </script>
-  <script src="{% static 'js/leitor_qrcode.js' %}"></script>
+ <script src="{% static 'js/leitor_qrcode.js' %}?v=9"></script>
 {% endblock %}

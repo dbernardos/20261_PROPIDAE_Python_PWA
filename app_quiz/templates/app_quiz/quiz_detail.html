@@ -2,253 +2,270 @@
 {% load static %}
 
 {% block title %}
-  {{ quiz.titulo }} - Desafio {{ quiz.numero }}
+  {{ quiz.titulo }} | Desafio {{ quiz.numero }} | Portal SEA Eventos
 {% endblock %}
 
-{% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/quiz.css' %}" />
-  <style>
-    /* estilização para Mobile */
-    .quiz-btn {
-        border: 2px solid #e9ecef;
-        background-color: #fff;
-        color: #495057;
-        transition: all 0.2s ease-in-out;
-        width: 100%;
-        text-align: left;
-    }
-    .btn-check:checked + .quiz-btn {
-        background-color: #f0fdf4 !important;
-        border-color: #198754 !important;
-        color: #155d27 !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(25, 135, 84, 0.15);
-    }
-    .btn-check:checked + .quiz-btn .badge-letra {
-        background-color: #198754 !important;
-        color: white !important;
-    }
+{% block pwa_messages %}{% endblock %}
 
-    .challenge-card {
-        background: #fff;
-        border-radius: 1rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        border: 1px solid rgba(0,0,0,0.05);
-        overflow: hidden;
-    }
-    .challenge-header {
-        background-color: #1b5e3a;
-        color: white;
-        padding: 1.25rem;
-        text-align: center;
-        border-bottom: 4px solid #14492c;
-    }
-    .challenge-number {
-        background: rgba(255,255,255,0.2);
-        display: inline-block;
-        padding: 0.25rem 1rem;
-        border-radius: 2rem;
-        font-weight: bold;
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-    }
-    .challenge-title {
-        font-size: 1.25rem;
-        font-weight: bold;
-        margin-bottom: 0;
-    }
-    .challenge-description {
-        font-size: 0.9rem;
-        opacity: 0.9;
-        margin-top: 0.5rem;
-        margin-bottom: 0;
-    }
-    .challenge-body {
-        padding: 1.5rem;
-    }
-    .challenge-question {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 1.5rem;
-        text-align: center;
-    }
-    
-    /* Botões Múltipla Escolha Mobile */
-    .quiz-btn {
-        border: 2px solid #e9ecef;
-        background-color: #f8f9fa;
-        color: #495057;
-        transition: all 0.2s ease-in-out;
-        width: 100%;
-        text-align: left;
-        border-radius: 0.75rem;
-        padding: 1rem !important;
-        display: flex;
-        align-items: center;
-    }
-    .btn-check:checked + .quiz-btn {
-        background-color: #f0fdf4 !important;
-        border-color: #198754 !important;
-        color: #155d27 !important;
-        transform: scale(0.98);
-        box-shadow: inset 0 3px 5px rgba(0,0,0,0.05);
-    }
-    .btn-check:checked + .quiz-btn .badge-letra {
-        background-color: #198754 !important;
-        color: white !important;
-        border-color: #198754 !important;
-    }
-    .badge-letra {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/quiz.css' %}?v=2" />
+  <style>
+    header.site-header,
+    footer.site-footer {
+      display: none !important;
     }
   </style>
 {% endblock %}
 
 {% block pre_script %}
-  <link rel="manifest" href="manifest.json" crossorigin="use-credentials" />
-  <meta http-equiv="refresh" content="10;url={% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}" />
+  <meta http-equiv="refresh" content="60;url={% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}" />
 {% endblock %}
 
 {% block content %}
-  <div class="container py-3">
-    <!-- INICIO DESAFIO -->
-    <div class="challenge-card mb-4" data-challenge="{{ quiz.numero }}">
-      
-      <div class="challenge-header">
-        <div class="challenge-number">Desafio #{{ quiz.numero }}</div>
-        <div class="challenge-title">{{ quiz.titulo }}</div>
-        {% if quiz.subtitulo %}
-          <p class="challenge-description">{{ quiz.subtitulo }}</p>
-        {% endif %}
+<section class="py-3 py-md-4">
+  <div class="container fade-in">
+    <div class="quiz-detail-wrapper">
+
+      <!-- Cabeçalho Superior (Voltar + Atividade) -->
+      <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+        <a href="{% url 'app_quiz:urlquizzes_atividade' cracha=cracha atividade_id=atividade.id %}"
+           onclick="window.location.replace(this.href); return false;"
+           class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center pwa-back-btn flex-shrink-0"
+           title="Voltar aos desafios">
+          <i class="bi bi-arrow-left fs-5"></i>
+        </a>
+
+        <div class="text-end min-w-0">
+          <span class="badge badge-verde-suave border rounded-pill px-3 py-1 small fw-semibold d-inline-block mw-100 text-truncate">
+            <i class="bi bi-geo-alt-fill me-1"></i>{{ atividade.nome }}
+          </span>
+        </div>
       </div>
 
-      <div class="challenge-body">
-        <!-- Pergunta -->
-        <p class="challenge-question">{{ quiz.pergunta }}</p>
+      <!-- Card Principal do Desafio -->
+      <div class="card card-custom border-0 shadow-sm rounded-4 overflow-hidden mb-3" data-challenge="{{ quiz.numero }}">
 
-        <!-- Formulário -->
-       {% if not resposta.completo %}
-        <form method="post" action="{% url 'app_quiz:urlquiz_detail' cracha quiz.id %}">
-          {% csrf_token %}
-          
-          {% if quiz.tipo == 'MULTIPLA' %}
-            <!-- Layout de Múltipla Escolha  -->
-            <div class="d-grid gap-2 mb-4">
-              {% if quiz.opcao_a %}
-                <input type="radio" class="btn-check" name="resposta_multipla" id="opcaoA" value="A" required autocomplete="off">
-                <label class="btn quiz-btn shadow-sm" for="opcaoA">
-                  <span class="badge badge-letra bg-white text-dark border me-3 rounded-circle">A</span> 
-                  <span class="fw-semibold">{{ quiz.opcao_a }}</span>
-                </label>
-              {% endif %}
+        <div class="quiz-header-pwa">
+          <div class="quiz-badge-numero">Desafio #{{ quiz.numero }}</div>
+          <h1 class="quiz-titulo-pwa">{{ quiz.titulo }}</h1>
+          {% if quiz.subtitulo %}
+            <p class="quiz-subtitulo-pwa">{{ quiz.subtitulo }}</p>
+          {% endif %}
+        </div>
 
-              {% if quiz.opcao_b %}
-                <input type="radio" class="btn-check" name="resposta_multipla" id="opcaoB" value="B" required autocomplete="off">
-                <label class="btn quiz-btn shadow-sm" for="opcaoB">
-                  <span class="badge badge-letra bg-white text-dark border me-3 rounded-circle">B</span> 
-                  <span class="fw-semibold">{{ quiz.opcao_b }}</span>
-                </label>
-              {% endif %}
+        <div class="card-body p-3 p-md-4 bg-white">
+          <!-- Pergunta -->
+          <p class="quiz-pergunta-pwa">{{ quiz.pergunta }}</p>
 
-              {% if quiz.opcao_c %}
-                <input type="radio" class="btn-check" name="resposta_multipla" id="opcaoC" value="C" required autocomplete="off">
-                <label class="btn quiz-btn shadow-sm" for="opcaoC">
-                  <span class="badge badge-letra bg-white text-dark border me-3 rounded-circle">C</span> 
-                  <span class="fw-semibold">{{ quiz.opcao_c }}</span>
-                </label>
-              {% endif %}
-
-              {% if quiz.opcao_d %}
-                <input type="radio" class="btn-check" name="resposta_multipla" id="opcaoD" value="D" required autocomplete="off">
-                <label class="btn quiz-btn shadow-sm" for="opcaoD">
-                  <span class="badge badge-letra bg-white text-dark border me-3 rounded-circle">D</span> 
-                  <span class="fw-semibold">{{ quiz.opcao_d }}</span>
-                </label>
-              {% endif %}
-            </div>
-          {% else %}
-            <!-- Layout Numérico Original -->
-            <div class="mb-4">
-              <label class="form-label text-muted small fw-bold ms-1 mb-1">Sua resposta:</label>
-              <div class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden border">
-                {{ form.valor_resposta }}
-                <span class="input-group-text bg-light fw-bold border-0 text-dark">{{ quiz.unidade_medida }}</span>
-              </div>
+          <!-- Mensagens de Erro / Aviso -->
+          {% if messages %}
+            <div class="mb-3 d-flex flex-column gap-2">
+              {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show border-0 rounded-3 small py-2 px-3 mb-0"
+                     role="alert">
+                  {{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                </div>
+              {% endfor %}
             </div>
           {% endif %}
 
-          <div class="d-grid mt-4 pt-2">
-            <button type="submit" class="btn btn-success btn-lg rounded-pill fw-bold shadow" style="background-color: #198754;" onclick="return confirm('Tem certeza? Você só tem UMA tentativa para este desafio.');">
-              <i class="bi bi-check2-circle me-2"></i>Confirmar Resposta
-            </button>
-          </div>
-        </form>
+          {% if not resposta.completo %}
+            <!-- Formulário de Resposta -->
+            <form id="formResponderQuiz" method="post" action="{% url 'app_quiz:urlquiz_detail' cracha quiz.id %}" autocomplete="off">
+              {% csrf_token %}
 
-        <!-- Status de "Já Respondido" -->
-        {% else %}
-          <div class="alert alert-light border shadow-sm mb-4 text-center rounded-4">
-            <i class="bi bi-lock-fill text-secondary fs-3 d-block mb-2"></i>
-            <h6 class="alert-heading text-dark fw-bold mb-2">Desafio Concluído</h6>
-            <p class="mb-1 text-dark">
-              Sua resposta: 
-              <strong>
-                {% if quiz.tipo == 'MULTIPLA' %}
-                  Alternativa {{ resposta.resposta_texto }}
-                {% else %}
-                  {{ resposta.valor_resposta }} {{ quiz.unidade_medida }}
-                {% endif %}
-              </strong>
-            </p>
-            <span class="badge bg-secondary mt-2">Resposta Registrada</span>
-          </div>
-        {% endif %}
+              {% if quiz.tipo == 'MULTIPLA' %}
+                <!-- Múltipla Escolha -->
+                <div class="d-grid gap-2 mb-4">
+                  {% if quiz.opcao_a %}
+                    <input type="radio" class="btn-check" name="resposta_multipla" id="opcaoA" value="A" required autocomplete="off">
+                    <label class="btn quiz-btn shadow-sm" for="opcaoA">
+                      <span class="badge badge-letra bg-white text-dark border me-3 rounded-circle">A</span>
+                      <span class="fw-semibold">{{ quiz.opcao_a }}</span>
+                    </label>
+                  {% endif %}
 
-        <!-- Mensagens de erro/sucesso -->
-        {% if messages %}
-          <div class="mt-3">
-            {% for message in messages %}
-              <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-3 small py-2 px-3" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" style="padding: 0.75rem;"></button>
+                  {% if quiz.opcao_b %}
+                    <input type="radio" class="btn-check" name="resposta_multipla" id="opcaoB" value="B" required autocomplete="off">
+                    <label class="btn quiz-btn shadow-sm" for="opcaoB">
+                      <span class="badge badge-letra bg-white text-dark border me-3 rounded-circle">B</span>
+                      <span class="fw-semibold">{{ quiz.opcao_b }}</span>
+                    </label>
+                  {% endif %}
+
+                  {% if quiz.opcao_c %}
+                    <input type="radio" class="btn-check" name="resposta_multipla" id="opcaoC" value="C" required autocomplete="off">
+                    <label class="btn quiz-btn shadow-sm" for="opcaoC">
+                      <span class="badge badge-letra bg-white text-dark border me-3 rounded-circle">C</span>
+                      <span class="fw-semibold">{{ quiz.opcao_c }}</span>
+                    </label>
+                  {% endif %}
+
+                  {% if quiz.opcao_d %}
+                    <input type="radio" class="btn-check" name="resposta_multipla" id="opcaoD" value="D" required autocomplete="off">
+                    <label class="btn quiz-btn shadow-sm" for="opcaoD">
+                      <span class="badge badge-letra bg-white text-dark border me-3 rounded-circle">D</span>
+                      <span class="fw-semibold">{{ quiz.opcao_d }}</span>
+                    </label>
+                  {% endif %}
+                </div>
+              {% else %}
+                <!-- Resposta Numérica -->
+                <div class="mb-4">
+                  <label class="form-label text-muted small fw-bold ms-1 mb-1">Sua resposta:</label>
+                  <div class="input-group quiz-numeric-group shadow-sm">
+                    {{ form.valor_resposta }}
+                    {% if quiz.unidade_medida %}
+                      <span class="input-group-text bg-light fw-bold border-0 text-verde-escuro px-3">
+                        {{ quiz.unidade_medida }}
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endif %}
+
+              <button type="button" id="btnAbrirConfirmacaoQuiz" class="btn-pwa-primary shadow-sm gap-2">
+                <i class="bi bi-check2-circle fs-5"></i>
+                <span>Confirmar Resposta</span>
+              </button>
+            </form>
+
+            <!-- Dica -->
+            {% if quiz.dica %}
+              <div class="mt-4 pt-3 border-top">
+                <button class="btn btn-outline-warning w-100 rounded-pill text-dark fw-semibold btn-sm py-2"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#dicaCollapse"
+                        aria-expanded="false"
+                        aria-controls="dicaCollapse">
+                  <i class="bi bi-lightbulb-fill text-warning me-1"></i> Precisa de uma dica?
+                </button>
+                <div class="collapse mt-2" id="dicaCollapse">
+                  <div class="alert alert-warning border-0 bg-warning-subtle text-dark small mb-0 rounded-3">
+                    <strong>Dica:</strong> {{ quiz.dica }}
+                  </div>
+                </div>
               </div>
-            {% endfor %}
-          </div>
-        {% endif %}
+            {% endif %}
 
-        <!-- Dica -->
-        {% if quiz.dica and not resposta.completo %}
-          <div class="mt-4 pt-2 border-top">
-            <button class="btn btn-outline-warning w-100 rounded-pill text-dark fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#dicaCollapse">
-              <i class="bi bi-lightbulb-fill text-warning me-2"></i>Precisa de uma dica?
-            </button>
-            <div class="collapse mt-3" id="dicaCollapse">
-              <div class="alert alert-warning border-warning border-opacity-50 shadow-sm small mb-0 rounded-4">
-                <strong>Dica:</strong> {{ quiz.dica }}
+          {% else %}
+            <!-- Desafio Já Concluído -->
+            <div class="bg-light border rounded-4 p-4 text-center">
+              <div class="icon-circle-pwa shadow-sm mb-3" style="width: 60px; height: 60px;">
+                <i class="bi bi-check-lg fs-3"></i>
               </div>
+              <h6 class="text-dark fw-bold mb-1">Desafio Concluído</h6>
+              <p class="mb-3 text-muted small">
+                Sua resposta:
+                <strong class="text-dark">
+                  {% if quiz.tipo == 'MULTIPLA' %}
+                    Alternativa {{ resposta.resposta_texto }}
+                  {% else %}
+                    {{ resposta.valor_resposta }} {{ quiz.unidade_medida }}
+                  {% endif %}
+                </strong>
+              </p>
+
+              <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}"
+                 onclick="window.location.replace(this.href); return false;"
+                 class="btn-pwa-primary text-decoration-none shadow-sm gap-2">
+                <i class="bi bi-qr-code-scan fs-5"></i>
+                <span>Voltar ao Leitor</span>
+              </a>
             </div>
-          </div>
-        {% endif %}
+          {% endif %}
+        </div>
       </div>
-    </div>
-    
-    <!-- Botão Voltar -->
-    <div class="text-center mb-3">
-      <a href="{% url 'app_quiz:urlquizzes_atividade' cracha=cracha atividade_id=atividade.id %}" class="btn btn-light border rounded-pill px-4 shadow-sm text-dark">
-        <i class="bi bi-arrow-left me-2"></i>Voltar aos Desafios
-      </a>
+
+      <!-- Botão Inferior Voltar aos Desafios -->
+      <div class="text-center pb-3">
+        <a href="{% url 'app_quiz:urlquizzes_atividade' cracha=cracha atividade_id=atividade.id %}"
+           onclick="window.location.replace(this.href); return false;"
+           class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+          <i class="bi bi-arrow-left me-1"></i> Voltar aos Desafios
+        </a>
+      </div>
+
     </div>
   </div>
+</section>
 
-<style>
-    /* Esconde barra de navegação principal do desktop */
-    header, footer, .navbar {
-        display: none !important;
-    }
-</style>
+<!-- Modal de Confirmação de Envio -->
+<div class="modal fade" id="modalConfirmarQuiz" tabindex="-1" aria-labelledby="modalConfirmarQuizLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow rounded-4">
+      <div class="modal-header border-0 pb-0">
+        <h6 class="modal-title fw-bold text-verde-escuro" id="modalConfirmarQuizLabel">
+          <i class="bi bi-question-circle-fill me-1"></i> Confirmar Resposta
+        </h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body pt-2">
+        <p class="text-muted small mb-0">
+          Tem certeza? Você possui apenas <strong>uma tentativa</strong> para este desafio.
+        </p>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-light btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+          Revisar
+        </button>
+        <button type="button" id="btnConfirmarEnvioFinal" class="btn btn-verde-escuro btn-sm rounded-pill px-3">
+          Enviar Resposta
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const formQuiz = document.getElementById('formResponderQuiz');
+      const btnAbrirConfirmacao = document.getElementById('btnAbrirConfirmacaoQuiz');
+      const modalConfirmarEl = document.getElementById('modalConfirmarQuiz');
+      const btnConfirmarFinal = document.getElementById('btnConfirmarEnvioFinal');
+      const urlLeitor = "{% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}";
+
+      const TEMPO_TOTAL_MS = 60000;       // 60 segundos máximos na tela
+      const TEMPO_INATIVIDADE_MS = 15000; // 15 segundos sem interação
+
+      function voltarParaLeitor() {
+        window.location.replace(urlLeitor);
+      }
+
+      if (formQuiz && btnAbrirConfirmacao && modalConfirmarEl && typeof bootstrap !== 'undefined') {
+        const modalConfirmar = new bootstrap.Modal(modalConfirmarEl);
+
+        btnAbrirConfirmacao.addEventListener('click', function () {
+          if (formQuiz.reportValidity()) {
+            modalConfirmar.show();
+          }
+        });
+
+        if (btnConfirmarFinal) {
+          btnConfirmarFinal.addEventListener('click', function () {
+            btnConfirmarFinal.disabled = true;
+            btnConfirmarFinal.textContent = 'Enviando...';
+            formQuiz.submit();
+          });
+        }
+      }
+
+      // 1. Limite absoluto de 60 segundos
+      setTimeout(voltarParaLeitor, TEMPO_TOTAL_MS);
+
+      // 2. Limite de 15 segundos de inatividade (reinicia ao tocar, rolar ou digitar)
+      let timerInatividade = setTimeout(voltarParaLeitor, TEMPO_INATIVIDADE_MS);
+
+      ['pointerdown', 'touchstart', 'scroll', 'keydown', 'input'].forEach(function (evento) {
+        document.addEventListener(evento, function () {
+          clearTimeout(timerInatividade);
+          timerInatividade = setTimeout(voltarParaLeitor, TEMPO_INATIVIDADE_MS);
+        }, { passive: true });
+      });
+    });
+  </script>
 {% endblock %}

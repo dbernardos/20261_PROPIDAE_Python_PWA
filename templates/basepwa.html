@@ -3,26 +3,26 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0A0302" />
-    <meta name="description" content="Meu App Django PWA" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a3a25" />
+    <meta name="description" content="Portal SEA Eventos - Sistema de Eventos Acadêmicos" />
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="{% static 'manifest.json' %}" crossorigin="use-credentials" />
 
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Portal SEA Eventos">
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Portal SEA Eventos" />
 
-    <!-- Icons -->
-    <link rel="apple-touch-icon" href="{% static 'images-default/logo-sea-fill-192.png' %}" />
-    <link rel="icon" type="image/svg+xml" sizes="192x192" href="{% static 'images-default/logo-sea-fill-192.svg' %}" />
-    <link rel="icon" type="image/svg+xml" sizes="512x512" href="{% static 'images-default/logo-sea-fill-512.svg' %}" />
+    <!-- Ícones -->
+    <link rel="apple-touch-icon" href="{% static 'images/images-default/logo-sea-fill-192.png' %}" />
+    <link rel="icon" type="image/svg+xml" sizes="192x192" href="{% static 'images/images-default/logo-sea-fill-192.svg' %}" />
+    <link rel="icon" type="image/svg+xml" sizes="512x512" href="{% static 'images/images-default/logo-sea-fill-512t.svg' %}" />
 
     <title>
       {% block title %}
-        XXIX Colóquio de Usinagem
+        Portal SEA Eventos
       {% endblock %}
     </title>
 
@@ -32,47 +32,186 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap-icons.css' %}" />
     <!-- CSS Customizado -->
     <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+    <!-- CSS PWA -->
+    <link rel="stylesheet" href="{% static 'css/pwa.css' %}" />
 
-    {% block extra_css %}
-    {% endblock %}
+    {% block extra_css %}{% endblock %}
+    {% block pre_script %}{% endblock %}
 
-    {% block pre_script %}
-    {% endblock %}
+    <script>
+      (function () {
+        const urlHome = "{% url 'app_evento:urlpwa_home' %}";
+        const rotasParticipante = [
+          '/boas-vindas/',
+          '/quizzes/',
+          '/desafio/'
+        ];
 
-    <style>
-      /* Trava de viewport */
-      html, body {
-        height: 100%;
-        height: 100dvh;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-      }
-      body {
-        display: flex;
-        flex-direction: column;
-      }
-      main.pwa-main-wrapper {
-        flex: 1 1 auto;
-        height: 100%;
-        width: 100%;
-        overflow: hidden;
-      }
-    </style>
+        function normalizarPath(urlOuPath) {
+          return new URL(urlOuPath, window.location.origin).pathname.replace(/\/$/, '');
+        }
 
+        function ehRotaParticipante(pathname) {
+          return rotasParticipante.some((rota) => pathname.includes(rota));
+        }
+
+        function foiNavegacaoVoltarAvancar(event) {
+          if (event && event.persisted) return true;
+          try {
+            const navEntries = performance.getEntriesByType('navigation');
+            if (navEntries && navEntries.length > 0) {
+              return navEntries[0].type === 'back_forward';
+            }
+            if (performance.navigation) {
+              return performance.navigation.type === 2;
+            }
+          } catch (_) {}
+          return false;
+        }
+
+        function verificarNavegacao(event) {
+          const pathAtual = window.location.pathname;
+          const pathAtualNorm = pathAtual.replace(/\/$/, '');
+          const pathHomeNorm = normalizarPath(urlHome);
+          const trava = localStorage.getItem('pwa_quiosque_url');
+          const naTelaParticipante = ehRotaParticipante(pathAtual);
+          const ehBackForward = foiNavegacaoVoltarAvancar(event);
+
+          // Bloqueia tentativa de voltar
+          if (naTelaParticipante && ehBackForward) {
+            sessionStorage.removeItem('pwa_fluxo_participante');
+            window.location.replace(trava || urlHome);
+            return;
+          }
+
+          // Libera o fluxo automaticamente quando boas_vindas abre por navegação normal 
+          if (pathAtual.includes('/boas-vindas/') && !ehBackForward) {
+            sessionStorage.setItem('pwa_fluxo_participante', '1');
+          }
+
+          // Ao voltar para tela leitor, atividades, home, encerra a sessão do participante
+          if (!naTelaParticipante) {
+            sessionStorage.removeItem('pwa_fluxo_participante');
+          }
+
+          //  Modo "Quiosque/Totem"
+          if (trava) {
+            try {
+              const pathTravaNorm = normalizarPath(trava);
+              const fluxoAtivo = sessionStorage.getItem('pwa_fluxo_participante') === '1';
+
+              if (naTelaParticipante && !fluxoAtivo) {
+                window.location.replace(trava);
+                return;
+              }
+
+              if (pathAtualNorm !== pathTravaNorm && !naTelaParticipante) {
+                window.location.replace(trava);
+                return;
+              }
+            } catch (_) {
+              localStorage.removeItem('pwa_quiosque_url');
+            }
+            return;
+          }
+
+          // Fora do Modo Quiosque (Totem) não exibe telas de participante
+          if (naTelaParticipante) {
+            window.location.replace(urlHome);
+            return;
+          }
+
+          // Saiu pelo PIN: impede voltar para o leitor ou atividades anteriores
+          if (sessionStorage.getItem('pwa_saiu_por_pin') === '1' && pathAtualNorm !== pathHomeNorm) {
+            window.location.replace(urlHome);
+          }
+        }
+
+        // Neutraliza o botão Voltar nas telas da equipe
+        function protegerHistoricoEquipe() {
+          const pathAtual = window.location.pathname;
+          const pathAtualNorm = pathAtual.replace(/\/$/, '');
+          const pathHomeNorm = normalizarPath(urlHome);
+          const trava = localStorage.getItem('pwa_quiosque_url');
+
+          if (trava || ehRotaParticipante(pathAtual)) return;
+
+          window.history.pushState({ pwaGuard: true }, '', window.location.href);
+          window.addEventListener('popstate', function () {
+            if (pathAtualNorm === pathHomeNorm) {
+              window.history.pushState({ pwaGuard: true }, '', window.location.href);
+            } else {
+              window.location.replace(urlHome);
+            }
+          });
+        }
+
+        verificarNavegacao();
+        protegerHistoricoEquipe();
+
+        window.addEventListener('pageshow', function (event) {
+          verificarNavegacao(event);
+        });
+      })();
+    </script>
   </head>
-  <body class="d-flex flex-column min-vh-100">
-    <!-- Cabeçalho -->
-    <header class="site-header">
+
+  <body>
+   <!-- Barra superior de proteção + 5 toques rápidos -->
+    <div class="pwa-camera-safe-bar d-lg-none" id="pwaSafeBarReset" aria-hidden="true"></div>
+    <script>
+      (function () {
+        const safeBar = document.getElementById('pwaSafeBarReset');
+        if (!safeBar) return;
+        let toquesBarra = 0;
+        let timerBarra = null;
+        safeBar.addEventListener('click', function () {
+          toquesBarra++;
+          clearTimeout(timerBarra);
+          if (toquesBarra >= 5) {
+            toquesBarra = 0;
+            window.location.reload();
+            return;
+          }
+          timerBarra = setTimeout(function () { toquesBarra = 0; }, 2500);
+        });
+      })();
+    </script>
+
+    <!-- Cabeçalho (Desktop) -->
+    <header class="site-header d-none d-lg-block flex-shrink-0">
       <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
-          <img src="{% static 'images/images-default/logo-sea-fill-192.svg' %}" alt="PORTAL SEA EVENTOS - SISTEMA DE EVENTOS ACADEMICOS" height="60" />
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+          <a class="navbar-brand me-3" href="{% url 'app_evento:urldis_evento' %}">
+            <img src="{% static 'images/images-default/logo-sea-fill-192.svg' %}"
+                 alt="Portal SEA Eventos - Sistema de Eventos Acadêmicos"
+                 height="52" />
+          </a>
+
+          <button class="navbar-toggler border-0"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#navbarMain"
+                  aria-controls="navbarMain"
+                  aria-expanded="false"
+                  aria-label="Alternar navegação">
+            <span class="navbar-toggler-icon"></span>
+          </button>
 
           <div class="collapse navbar-collapse" id="navbarMain">
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <ul class="navbar-nav nav-pills ms-auto align-items-center gap-2">
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="{% url 'app_evento:urldis_evento' %}">Início</a>
+                <a class="nav-link rounded-pill px-3 py-1 small"
+                   href="{% url 'app_evento:urldis_evento' %}">
+                  <i class="bi bi-house-door me-1"></i> Inicio
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link rounded-pill px-3 py-1 small active"
+                   aria-current="page"
+                   href="{% url 'app_evento:urlpwa_home' %}">
+                  <i class="bi bi-qr-code-scan me-1"></i> Leitor de QR Code
+                </a>
               </li>
             </ul>
           </div>
@@ -80,37 +219,38 @@
       </nav>
     </header>
 
-    <!-- Mensagens Django -->
-  
-    <!-- Corpo do Site -->
-    <main class="flex-grow-1">
-      {% block content %}
-        <!-- Conteúdo específico de cada página vai aqui -->
+    <!-- Corpo Principal -->
+    <main class="pwa-main-wrapper">
+      {% block pwa_messages %}
+        {% if messages %}
+          <div class="container pt-3">
+            {% for message in messages %}
+              <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show border-0 shadow-sm rounded-3 mb-2"
+                   role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
       {% endblock %}
+
+      {% block content %}{% endblock %}
     </main>
 
-    <!-- Rodapé com Patrocinadores -->
-    <footer class="site-footer mt-auto">
+    <!-- Rodapé(Desktop)  -->
+    <footer class="site-footer d-none d-lg-block py-2 text-center flex-shrink-0">
       <div class="container">
-        <!-- Seção de Patrocinadores -->
-        
-        <div class="row mb-4">
-          <div class="col-12 text-center">
-            <h5 class="text-white mb-4">Patrocinadores</h5>
-          </div>
-        </div>
+        <p class="text-white-50 small mb-0">
+          &copy; {% now 'Y' %} Portal SEA Eventos • Modo Leitor QR Code
+        </p>
+      </div>
+    </footer>
 
-        <div class="row align-items-center mb-4">
-          
     <!-- Bootstrap 5 JS Bundle -->
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/sw-registro.js' %}"></script>
 
-    {% block extra_js %}
-
-    {% endblock %}
-
-        
-
+    {% block extra_js %}{% endblock %}
   </body>
 </html>

@@ -1,39 +1,58 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-
 import json
-from django.http import JsonResponse
 
-from app_quiz.models import Quiz, Resposta
-from .form import RespostaQuizForm, CadastroQuizForm
-from app_evento.models import Inscricao, Participa, Atividade 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import models
 from django.db.models import Prefetch
-
-from django.utils import timezone
-from django.db import models  
-from django.db.models import Max
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import ensure_csrf_cookie
+
+from app_evento.models import Atividade, Inscricao, Participa
+from app_quiz.models import Quiz, Resposta
+
+from .form import CadastroQuizForm, RespostaQuizForm
 
 
 # Views do Quiz.
 # -----------------------------------------------
 
-
+@never_cache
 def boas_vindas(request, cracha, atividade_id):
-    """Página de boas-vindas"""
-    # Busca a inscrição no app_evento usando o crachá
+    """Página de boas-vindas após leitura do QR Code"""
     inscricao = get_object_or_404(Inscricao, cracha=cracha)
-    
-    # Extrai o participante (Usuário) a partir da inscrição
-    participante = inscricao.usuario 
+    participante = inscricao.usuario
     atividade = get_object_or_404(Atividade, id=atividade_id)
-    
-    print(f">>>>> Inscrição encontrada: {inscricao} participante: {participante}")
-    
-    # Obtém todos os quizzes ativos
-    quizzes = Quiz.objects.filter(ativo=True)
-    
+
+    # Filtra apenas os quizzes ativos vinculados a esta atividade
+    quizzes = Quiz.objects.filter(atividade=atividade, ativo=True).distinct()
+    total_quizzes = quizzes.count()
+
+    participacao = Participa.objects.filter(
+        inscricao=inscricao,
+        atividade=atividade,
+    ).first()
+
+    if total_quizzes > 0 and participacao:
+        respondidos_count = (
+            Resposta.objects.filter(
+                participa=participacao,
+                quiz__in=quizzes,
+                completo=True,
+            )
+            .values('quiz_id')
+            .distinct()
+            .count()
+        )
+    else:
+        respondidos_count = 0
+
+    todos_respondidos = total_quizzes > 0 and respondidos_count >= total_quizzes
+    tem_quiz_pendente = total_quizzes > 0 and not todos_respondidos
+
     context = {
         'cracha': cracha,
         'participante': participante,
@@ -41,9 +60,12 @@ def boas_vindas(request, cracha, atividade_id):
         'atividade': atividade,
         'quizzes': quizzes,
         'evento': atividade.evento,
+        'tem_quiz_pendente': tem_quiz_pendente,
+        'todos_respondidos': todos_respondidos,
     }
-    
+
     return render(request, 'app_quiz/boas_vindas.html', context)
+
 
 @login_required
 def cadastrar_quiz(request, atividade_id=None, quiz_id=None):
@@ -102,74 +124,70 @@ def cadastrar_quiz(request, atividade_id=None, quiz_id=None):
 
     return render(request, 'app_quiz/cadastrar_quiz.html', context)
 
+
 @login_required
 def gerenciar_quizzes(request, atividade_id):
-  """View centralizada para gerenciar, alternar status, excluir e listar respostas dos quizzes."""
-  atividade = get_object_or_404(Atividade, id=atividade_id)
-    
+    """View centralizada para gerenciar, alternar status, excluir e listar respostas dos quizzes."""
+    atividade = get_object_or_404(Atividade, id=atividade_id)
 
-  if request.method == 'POST':
-    acao = request.POST.get('acao')
-    quiz_id = request.POST.get('quiz_id')
-    quiz = get_object_or_404(Quiz, id=quiz_id, atividade=atividade)
-    
+    if request.method == 'POST':
+        acao = request.POST.get('acao')
+        quiz_id = request.POST.get('quiz_id')
+        quiz = get_object_or_404(Quiz, id=quiz_id, atividade=atividade)
 
-    if acao == 'alternar_status':
-      quiz.ativo = not quiz.ativo
-      quiz.save()
-      status_txt = 'ativado' if quiz.ativo else 'desativado'
-      messages.success(request, f'Quiz "{quiz.titulo}" foi {status_txt}!')
+        if acao == 'alternar_status':
+            quiz.ativo = not quiz.ativo
+            quiz.save()
+            status_txt = 'ativado' if quiz.ativo else 'desativado'
+            messages.success(request, f'Quiz "{quiz.titulo}" foi {status_txt}!')
 
-    elif acao == 'excluir':
-      quiz.delete()
-      messages.success(request, 'Quiz excluído com sucesso!')
+        elif acao == 'excluir':
+            quiz.delete()
+            messages.success(request, 'Quiz excluído com sucesso!')
 
-    return redirect('app_quiz:urlgerenciar_quizzes', atividade_id=atividade.id)
+        return redirect('app_quiz:urlgerenciar_quizzes', atividade_id=atividade.id)
 
-  # Identificação dinâmica do respostas
-  respostas = Resposta._meta.get_field('quiz').remote_field.get_accessor_name()
+    respostas = Resposta._meta.get_field('quiz').remote_field.get_accessor_name()
 
-  # Busca dos Quizzes 
-  quizzes = Quiz.objects.filter(atividade=atividade).prefetch_related(
-      Prefetch(
-          respostas,
-          queryset=Resposta.objects.select_related(
-              'participa__inscricao__usuario'
-          ),
-      )
-  )
+    quizzes = Quiz.objects.filter(atividade=atividade).prefetch_related(
+        Prefetch(
+            respostas,
+            queryset=Resposta.objects.select_related(
+                'participa__inscricao__usuario'
+            ),
+        )
+    )
 
-  context = {
-      'atividade': atividade,
-      'evento': atividade.evento,
-      'quizzes': quizzes,
-  }
-  return render(request, 'app_quiz/gerenciar_quizzes.html', context)
+    context = {
+        'atividade': atividade,
+        'evento': atividade.evento,
+        'quizzes': quizzes,
+    }
+    return render(request, 'app_quiz/gerenciar_quizzes.html', context)
 
-
+@never_cache
 def quizzes_atividade(request, cracha, atividade_id):
     """Página que lista apenas os quizzes da atividade em que foi feito o check-in"""
     inscricao = get_object_or_404(Inscricao, cracha=cracha)
-    participante = inscricao.usuario 
+    participante = inscricao.usuario
     atividade = get_object_or_404(Atividade, id=atividade_id)
-    
-    # Garante que ele só veja os quizzes se a presença estiver como True
+
+    # Garante que ele só veja os quizzes se a presença estiver confirmada
     participacao = get_object_or_404(Participa, inscricao=inscricao, atividade=atividade)
     if not participacao.presente:
-        messages.error(request, "Você precisa registrar presença pelo Leitor QR Code primeiro.")
-        return redirect('app_quiz:urlboas_vindas', cracha=cracha, atividade_id=atividade.id,)
+        messages.error(request, 'Você precisa registrar presença pelo Leitor QR Code primeiro.')
+        return redirect('app_quiz:urlboas_vindas', cracha=cracha, atividade_id=atividade.id)
 
-    # Filtra APENAS os quizzes vinculados a ESTA atividade E que estejam ativos
     quizzes = Quiz.objects.filter(
-        atividade=atividade, 
-        ativo=True
+        atividade=atividade,
+        ativo=True,
     ).order_by('numero').distinct()
-    
+
     quizzes_respondidos = Resposta.objects.filter(
         participa=participacao,
-        completo=True
+        completo=True,
     ).values_list('quiz_id', flat=True)
-    
+
     context = {
         'cracha': cracha,
         'participante': participante,
@@ -178,24 +196,25 @@ def quizzes_atividade(request, cracha, atividade_id):
         'quizzes': quizzes,
         'quizzes_respondidos': quizzes_respondidos,
     }
-    
+
     return render(request, 'app_quiz/quizzes.html', context)
 
-
+@ensure_csrf_cookie
+@never_cache
 def leitor_qrcode(request, codigo_leitor):
     atividade = get_object_or_404(Atividade, codigo_leitor=codigo_leitor)
-    
+
     context = {
         'atividade': atividade,
     }
     return render(request, 'app_quiz/leitor_qrcode.html', context)
 
+@never_cache
 def quiz_detail(request, cracha, quiz_id):
     """Página detalhada do quiz"""
     inscricao = get_object_or_404(Inscricao, cracha=cracha)
     participante = inscricao.usuario
 
-    # Busca sem ativo=True para permitir o redirecionamento amigável logo abaixo
     quiz = get_object_or_404(Quiz, id=quiz_id)
 
     if not quiz.ativo:
@@ -227,11 +246,10 @@ def quiz_detail(request, cracha, quiz_id):
             codigo_leitor=quiz.atividade.codigo_leitor,
         )
 
-    # Inicializa o form antes do POST para evitar UnboundLocalError no fluxo de múltipla escolha
     form = RespostaQuizForm(instance=resposta)
 
     if request.method == 'POST':
-        # 1. Fluxo de Múltipla Escolha
+        # Fluxo de Múltipla Escolha
         if quiz.tipo == 'MULTIPLA':
             escolha = request.POST.get('resposta_multipla', '').strip().upper()
 
@@ -257,7 +275,7 @@ def quiz_detail(request, cracha, quiz_id):
                     codigo_leitor=quiz.atividade.codigo_leitor,
                 )
 
-        # 2. Fluxo Numérico / Métrico
+        # Fluxo Numérico / Métrico
         else:
             form = RespostaQuizForm(request.POST, instance=resposta)
             if form.is_valid():
@@ -286,9 +304,8 @@ def quiz_detail(request, cracha, quiz_id):
                     request, f'Resposta do Desafio {quiz.numero} registrada com sucesso!'
                 )
                 return redirect(
-                    'app_quiz:urlquizzes_atividade',
-                    cracha=cracha,
-                    atividade_id=quiz.atividade.id,
+                    'app_quiz:urlpagina_leitor',
+                    codigo_leitor=quiz.atividade.codigo_leitor,
                 )
 
     context = {
@@ -303,82 +320,68 @@ def quiz_detail(request, cracha, quiz_id):
 
     return render(request, 'app_quiz/quiz_detail.html', context)
 
-def reset_quiz(request, cracha, quiz_id):
-    """Permite resetar um quiz para tentar novamente"""
-
-    inscricao = get_object_or_404(Inscricao, cracha=cracha)
-    participante = inscricao.usuario
-    
-    quiz = get_object_or_404(Quiz, id=quiz_id)
-    
-    resposta = Resposta.objects.filter(
-        participa__inscricao=inscricao,
-        quiz=quiz,
-
-    ).first()
-    
-    if resposta:
-        resposta.delete()
-        messages.info(request, 'Quiz reiniciado. Boa sorte!')
-    
-    return redirect('app_quiz:urlquiz_detail', cracha=cracha, quiz_id=quiz.id)
-
+@never_cache
 def leitor_identificar(request):
     if request.method == 'POST':
         try:
-            # Pega o JSON enviado pelo JavaScript
             dados_recebidos = json.loads(request.body)
             codigo = dados_recebidos.get('codigo', '').strip()
             atividade_param = str(dados_recebidos.get('atividade_id', '')).strip()
 
             if not atividade_param:
-                 return JsonResponse(
-                     {'autorizado': False, 'mensagem': 'Atividade não identificada.'}
-                  )
+                return JsonResponse(
+                    {'autorizado': False, 'mensagem': 'Atividade não identificada.'}
+                )
 
             try:
                 inscricao = Inscricao.objects.get(cracha=codigo)
             except Inscricao.DoesNotExist:
-                return JsonResponse({
-                    'autorizado': False, 'mensagem': 'QR Code não cadastrado.'} 
+                return JsonResponse(
+                    {'autorizado': False, 'mensagem': 'QR Code não cadastrado.'}
                 )
+
             try:
                 if atividade_param.isdigit():
                     participacao = Participa.objects.get(
-                        inscricao=inscricao, atividade_id=int(atividade_param)
+                        inscricao=inscricao,
+                        atividade_id=int(atividade_param),
                     )
-                    
                 else:
-                    participacao = Participa.objects.get(inscricao=inscricao, atividade_id=atividade_id)
-                    participacao.presente = True
+                    participacao = Participa.objects.get(
+                        inscricao=inscricao,
+                        atividade__codigo_leitor=atividade_param,
+                    )
             except Participa.DoesNotExist:
-                return JsonResponse({
-                    "autorizado": False,
-                    "mensagem": "Acesso negado. Este participante não está inscrito nesta atividade."  
-                })   
-             
-            
+                return JsonResponse(
+                    {
+                        'autorizado': False,
+                        'mensagem': 'Acesso negado. Este participante não está inscrito nesta atividade.',
+                    }
+                )
+
             agora = timezone.now()
             participacao.presente = True
             participacao.data_hora_presenca = agora
             participacao.save()
-            
-            url_destino = reverse('app_quiz:urlboas_vindas', kwargs={
-                'cracha': codigo,
-                'atividade_id': participacao.atividade_id,
-            })
-                                  
-            return JsonResponse({
-                "autorizado": True,
-                "id": codigo,
-                "mensagem": f'Presença confirmada às ({agora.strftime("%H:%M:%S")})',
-                "redirect_url": url_destino
-            })      
-                
+
+            url_destino = reverse(
+                'app_quiz:urlboas_vindas',
+                kwargs={
+                    'cracha': codigo,
+                    'atividade_id': participacao.atividade_id,
+                },
+            )
+
+            return JsonResponse(
+                {
+                    'autorizado': True,
+                    'id': codigo,
+                    'mensagem': f'Presença confirmada às ({agora.strftime("%H:%M:%S")})',
+                    'redirect_url': url_destino,
+                }
+            )
+
         except json.JSONDecodeError:
-            return JsonResponse({"mensagem": "Dados Inválidos"}, status=400)
+            return JsonResponse({'mensagem': 'Dados Inválidos'}, status=400)
 
-    return JsonResponse({"mensagem": "Método não permitido"}, status=405)  
-
-from django.shortcuts import render, redirect
-
+    return JsonResponse({'mensagem': 'Método não permitido'}, status=405)

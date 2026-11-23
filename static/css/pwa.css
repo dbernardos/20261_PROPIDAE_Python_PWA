@@ -1,0 +1,193 @@
+/* =========================================================
+   ESTRUTURA BASE DO MODO PWA
+   ========================================================= */
+html, body {
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.pwa-camera-safe-bar {
+  width: 100%;
+  height: max(32px, env(safe-area-inset-top, 32px));
+  background-color: var(--verde-escuro, #0a3a25);
+  position: relative;
+  z-index: 1050;
+  flex-shrink: 0;
+}
+
+.pwa-scroll-safe-bottom {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 24px)) !important;
+}
+
+main.pwa-main-wrapper {
+  flex: 1 1 auto;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+
+/* =========================================================
+   TELA DE ENTRADA CÓDIGO DO EVENTO 
+   ========================================================= */
+.pwa-screen-container {
+  width: 100%;
+  min-height: 100%;
+  padding: max(1.25rem, env(safe-area-inset-top)) 1.25rem max(1.25rem, env(safe-area-inset-bottom)) 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.pwa-card-wrapper {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.icon-circle-pwa {
+  width: 72px;
+  height: 72px;
+  background-color: var(--verde-claro, #e8f5e9);
+  color: var(--verde-escuro, #0a3a25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.75rem auto;
+}
+
+.icon-circle-pwa i {
+  font-size: 2rem;
+}
+
+.custom-pwa-input {
+  font-size: 1.15rem !important;
+  font-weight: 700;
+  letter-spacing: 2px;
+  height: 52px !important;
+  border: 2px solid #dee2e6;
+  border-radius: 0.85rem !important;
+  background-color: #ffffff;
+  color: var(--verde-escuro, #0a3a25);
+  text-align: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.custom-pwa-input:focus {
+  border-color: var(--verde-escuro, #0a3a25) !important;
+  box-shadow: 0 0 0 0.25rem rgba(10, 58, 37, 0.16) !important;
+  outline: none;
+}
+
+.btn-pwa-primary {
+  background-color: var(--verde-escuro, #0a3a25);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.85rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  height: 52px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.2s ease;
+}
+
+.btn-pwa-primary:hover {
+  background-color: #145334;
+  color: #ffffff;
+}
+
+.btn-pwa-primary:active {
+  transform: scale(0.98);
+}
+
+
+
+/* =========================================================
+   LISTA DE ATIVIDADES PWA
+   ========================================================= */
+.pwa-back-btn {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+}
+
+.pwa-card-ativa {
+  border-left: 5px solid var(--verde-escuro, #0a3a25) !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.pwa-card-ativa:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(10, 58, 37, 0.12) !important;
+}
+
+.pwa-card-futura {
+  border-left: 5px solid #adb5bd !important;
+  opacity: 0.78;
+}
+
+.pwa-card-encerrada {
+  border-left: 5px solid #dc3545 !important;
+  opacity: 0.7;
+}
+
+.pwa-qr-action {
+  min-width: 84px;
+  background-color: var(--verde-claro, #e8f5e9);
+  color: var(--verde-escuro, #0a3a25);
+  border-radius: 0.75rem;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.pwa-qr-action-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.3px;
+}
+
+.pwa-card-ativa:hover .pwa-qr-action {
+  background-color: var(--verde-escuro, #0a3a25);
+  color: #ffffff;
+}
+
+/* =========================================================
+   AJUSTES PARA DESKTOP (>= 768px)
+   ========================================================= */
+@media (min-width: 768px) {
+  .pwa-card-wrapper {
+    max-width: 440px;
+    gap: 1.25rem;
+  }
+
+  .icon-circle-pwa {
+    width: 80px;
+    height: 80px;
+  }
+
+  .icon-circle-pwa i {
+    font-size: 2.25rem;
+  }
+
+  .custom-pwa-input,
+  .btn-pwa-primary {
+    height: 56px !important;
+    font-size: 1.15rem !important;
+  }
+}

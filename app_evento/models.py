@@ -21,6 +21,11 @@ def gerar_codigo():
     parte2 = generate(alfabeto, size=3)
     return f"{parte1}-{parte2}"
 
+def gerar_codigo_alt():
+    numeros = "123456789"
+    parte1 = generate(alfabeto, size=4)
+    parte2 = generate(alfabeto, size=4)
+    return f"{parte1}{parte2}"
 
 class Apoiador(models.Model):
     nome = models.CharField(max_length=255, unique=True)
