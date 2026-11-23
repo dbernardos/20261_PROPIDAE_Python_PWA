@@ -1,52 +1,35 @@
-/* Palette: Verde e Branco */
-:root {
-  --verde-principal: #0d5c3a;
-  --verde-escuro: #0a3a25;
-  --verde-destaque: #25c274;
-  --verde-claro: #e8f5e9;
-  --branco: #ffffff;
-}
-
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f6f9;
-  padding-bottom: 50px;
-}
-
-.card-custom {
-  border-radius: 12px;
-  border: 1px solid #e3e6f0;
-}
-
-.messages {
-  list-style: none;
-  padding: 10px;
-  background-color: #d4edda;
-  color: #155724;
-  border-radius: 6px;
-}
-
-/* Container do Pião */
+/* =========================================================
+   PAINEL DE SORTEIO 
+   ========================================================= */
 .piao-card {
-  background: linear-gradient(135deg, var(--verde-escuro) 0%, var(--verde-principal) 100%);
-  border: 4px solid var(--verde-destaque) !important;
-  box-shadow: 0 10px 30px rgba(10, 58, 37, 0.3);
-  border-radius: 20px;
+  background: linear-gradient(135deg, var(--verde-escuro) 0%, #145334 100%);
+  border: 3px solid var(--verde-escuro) !important;
+  box-shadow: 0 10px 28px rgba(10, 58, 37, 0.22);
+  border-radius: 1rem;
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
 }
 
-/* Esteira Horizontal Expandida */
+.confetti-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1060;
+}
+
+/* Esteira Horizontal */
 .horizontal-wrapper {
   position: relative;
   width: 100%;
-  height: 180px;
-  margin: 30px 0;
+  height: 170px;
+  margin: 24px 0;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: 0.85rem;
   background: rgba(0, 0, 0, 0.25);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.25);
 }
 
 .horizontal-wrapper::before,
@@ -55,7 +38,7 @@ body {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 120px;
+  width: 90px;
   z-index: 5;
   pointer-events: none;
 }
@@ -67,19 +50,19 @@ body {
 
 .horizontal-wrapper::after {
   right: 0;
-  background: linear-gradient(to left, var(--verde-escuro), transparent);
+  background: linear-gradient(to left, #145334, transparent);
 }
 
-/* Indicador / Ponteiro Central */
+/* Indicador */
 .ponteiro-central {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 6px;
+  width: 4px;
   background-color: var(--branco);
-  box-shadow: 0 0 12px var(--branco), 0 0 20px var(--verde-destaque);
+  box-shadow: 0 0 12px var(--branco), 0 0 18px var(--verde-claro);
   z-index: 8;
   pointer-events: none;
 }
@@ -90,14 +73,15 @@ body {
   left: 50%;
   transform: translateX(-50%);
   color: var(--branco);
-  font-size: 2rem;
+  font-size: 1.4rem;
+  line-height: 1;
   z-index: 9;
-  text-shadow: 0 0 10px var(--verde-destaque);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
   pointer-events: none;
 }
 
-.ponteiro-seta-top { top: -10px; }
-.ponteiro-seta-bottom { bottom: -10px; }
+.ponteiro-seta-top { top: 2px; }
+.ponteiro-seta-bottom { bottom: 2px; }
 
 /* Trilho Horizontal */
 .horizontal-track {
@@ -112,48 +96,68 @@ body {
 
 /* Cards Individuais dos Participantes */
 .item-participante {
-  flex: 0 0 280px;
-  height: 120px;
+  flex: 0 0 230px;
+  height: 112px;
   margin: 0 10px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   border: 2px solid rgba(255, 255, 255, 0.25);
-  border-radius: 14px;
+  border-radius: 0.85rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 15px;
+  padding: 12px 16px;
   color: var(--branco);
-  font-weight: 800;
-  font-size: 1.75rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.25;
   text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
   backdrop-filter: blur(4px);
   transition: transform 0.2s, background-color 0.2s;
+}
+
+.item-participante span {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .item-participante.vencedor {
   background: var(--branco);
   color: var(--verde-escuro);
-  border-color: var(--verde-destaque);
-  transform: scale(1.1);
-  box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 15px var(--verde-destaque);
+  border-color: var(--verde-claro);
+  transform: scale(1.08);
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.75);
   z-index: 6;
-  font-size: 2rem;
+  font-size: 1.2rem;
 }
 
-/* Painel Flutuante de Prêmios (Oculto em modo normal) */
+@media (max-width: 576px) {
+  .item-participante {
+    flex: 0 0 190px;
+    font-size: 0.95rem;
+  }
+
+  .horizontal-wrapper::before,
+  .horizontal-wrapper::after {
+    width: 45px;
+  }
+}
+
+/* Painel Flutuante de Prêmios */
 .fullscreen-prizes-panel {
   display: none;
 }
 
 /* =========================================================
-   MODO TELA CHEIA (ESPECIAL PARA PROJETOR / GRANDES ECRÃS)
+   MODO TELA CHEIA
    ========================================================= */
 #piaoCard:fullscreen,
 #piaoCard:-webkit-full-screen {
-  background: linear-gradient(135deg, var(--verde-escuro) 0%, var(--verde-principal) 100%) !important;
+  background: linear-gradient(135deg, var(--verde-escuro) 0%, #145334 100%) !important;
   padding: 2rem !important;
   display: flex;
   flex-direction: column;
@@ -166,87 +170,88 @@ body {
   box-sizing: border-box;
 }
 
-/* Altura da Esteira em Gigante */
 #piaoCard:fullscreen .horizontal-wrapper,
 #piaoCard:-webkit-full-screen .horizontal-wrapper {
-  height: 420px !important;
-  width: 98vw !important;
+  height: 360px !important;
+  width: 96vw !important;
   margin: 10px 0 !important;
   border-width: 4px !important;
 }
 
-/* Cartões dos Participantes (Ultra Visíveis para Projetor) */
 #piaoCard:fullscreen .item-participante,
 #piaoCard:-webkit-full-screen .item-participante {
-  flex: 0 0 700px !important; /* Largura gigante */
-  height: 320px !important;   /* Altura gigante */
-  font-size: 4.8rem !important; /* Fonte para leitura à distância */
-  border-radius: 28px !important;
-  border-width: 5px !important;
+  flex: 0 0 540px !important;
+  height: 260px !important;
+  padding: 20px 28px !important;
+  font-size: 2.4rem !important;
+  line-height: 1.2 !important;
+  border-radius: 1.25rem !important;
+  border-width: 4px !important;
 }
 
 #piaoCard:fullscreen .item-participante.vencedor,
 #piaoCard:-webkit-full-screen .item-participante.vencedor {
-  font-size: 5.5rem !important;
+  font-size: 2.85rem !important;
 }
 
-/* Ponteiros Centrais em Escala Maior */
 #piaoCard:fullscreen .ponteiro-seta-top,
 #piaoCard:fullscreen .ponteiro-seta-bottom {
-  font-size: 3.5rem !important;
+  font-size: 2.8rem !important;
 }
 
 #piaoCard:fullscreen .ponteiro-central {
-  width: 10px !important;
+  width: 6px !important;
 }
 
-/* Textos e Títulos de Grande Destaque */
 #piaoCard:fullscreen #statusText,
 #piaoCard:-webkit-full-screen #statusText {
-  font-size: 4.5rem !important;
-  letter-spacing: 2px;
+  font-size: 3.4rem !important;
+  letter-spacing: 1px;
 }
 
 #piaoCard:fullscreen p,
 #piaoCard:-webkit-full-screen p {
-  font-size: 2.5rem !important;
+  font-size: 1.9rem !important;
 }
 
 #piaoCard:fullscreen #nomePremioAtual,
 #piaoCard:-webkit-full-screen #nomePremioAtual {
-  font-size: 3.8rem !important;
+  font-size: 2.8rem !important;
 }
 
-/* Botão Principal Destaque */
 #piaoCard:fullscreen #btnSorteio,
 #piaoCard:-webkit-full-screen #btnSorteio {
-  font-size: 3rem !important;
-  padding: 28px 110px !important;
-  border-radius: 22px !important;
+  position: relative;
+  z-index: 10;
+  font-size: 2rem !important;
+  padding: 20px 72px !important;
+  border-radius: 999px !important;
 }
 
-/* Painel Flutuante de Prêmios Ampliado */
+/* Painel Flutuante Tela Cheia */
 #piaoCard:fullscreen .fullscreen-prizes-panel,
 #piaoCard:-webkit-full-screen .fullscreen-prizes-panel {
   display: block;
   position: absolute;
-  top: 30px;
-  right: 35px;
-  width: 350px;
-  max-height: calc(100vh - 120px);
+  top: auto;
+  right: auto;
+  bottom: 24px;
+  left: 24px;
+  width: 300px;
+  max-height: 28vh;
   overflow-y: auto;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(14px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 16px;
-  padding: 22px 26px;
-  z-index: 1050;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 0.85rem;
+  padding: 14px 18px;
+  z-index: 20;
   text-align: left;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
 }
 
 #piaoCard:fullscreen .fullscreen-prizes-panel li,
 #piaoCard:-webkit-full-screen .fullscreen-prizes-panel li {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  font-size: 1.3rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 1rem !important;
 }

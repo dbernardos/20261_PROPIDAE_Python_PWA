@@ -264,3 +264,194 @@ textarea:focus-visible {
       font-size: 0.9rem;
     }
 }
+
+/* ==========================================================================
+   PADRONIZAÇÃO DE CATÁLOGO (EVENTOS E MEUS EVENTOS)
+   ========================================================================== */
+
+/* Botões arredondados no verde-escuro institucional */
+.btn-verde-escuro {
+    background-color: var(--verde-escuro);
+    border: 1px solid var(--verde-escuro);
+    color: var(--branco);
+    border-radius: 50rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-verde-escuro:hover {
+    background-color: #2d7a52;
+    border-color: #2d7a52;
+    color: var(--branco);
+    transform: translateY(-1px);
+}
+
+.btn-outline-verde-escuro {
+    background-color: var(--branco);
+    border: 1.5px solid var(--verde-escuro);
+    color: var(--verde-escuro);
+    border-radius: 50rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-outline-verde-escuro:hover {
+    background-color: #edf5ef;
+    color: var(--verde-escuro);
+    transform: translateY(-1px);
+}
+
+/* Etiqueta suave (tipo do evento e contador) */
+.badge-verde-suave {
+    background-color: #edf5ef;
+    color: var(--verde-escuro);
+    border: 1px solid #d5e6da;
+    font-weight: 600;
+}
+/* Banner lateral dos cards de evento (estendido lateralmente, imagem 4:3 inteira) */
+.evento-banner {
+    background-color: #f4f7f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.evento-banner img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: contain;
+    display: block;
+}
+
+.evento-banner-vazio {
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    aspect-ratio: 4 / 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--cinza-escuro);
+    opacity: 0.65;
+    font-size: 0.85rem;
+}
+
+@media (min-width: 768px) {
+    .evento-banner {
+        border-right: 1px solid #ebefed;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .evento-banner {
+        aspect-ratio: 4 / 3;
+        border-bottom: 1px solid #ebefed;
+    }
+}
+
+/* =========================================================
+   AVATAR DE PERFIL (MEU USUÁRIO)
+   ========================================================= */
+.perfil-avatar,
+.perfil-avatar-placeholder {
+  width: 88px;
+  height: 88px;
+  min-width: 88px;
+  border-radius: 50%;
+}
+
+.perfil-avatar {
+  object-fit: cover;
+  border: 2px solid var(--verde-claro);
+}
+
+.perfil-avatar-placeholder {
+  background-color: var(--verde-escuro);
+  color: var(--branco);
+  font-size: 2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#perfilTabs .nav-link {
+  color: var(--verde-escuro);
+  font-weight: 600;
+}
+
+#perfilTabs .nav-link:hover {
+  background-color: var(--verde-claro);
+}
+
+#perfilTabs .nav-link.active {
+  background-color: var(--verde-escuro);
+  color: var(--branco);
+}
+
+/* =========================================================
+   GERENCIAR PARTICIPANTES E RANKING
+   ========================================================= */
+.avatar-circle {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  background-color: var(--verde-claro);
+  color: var(--verde-escuro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 1.05rem;
+  overflow: hidden;
+  border: 2px solid var(--verde-claro);
+}
+
+.avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar-modal {
+  width: 76px;
+  height: 76px;
+  min-width: 76px;
+  font-size: 1.85rem;
+}
+
+.rank-badge {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   GERENCIAR QUIZZES
+   ========================================================= */
+.quiz-badge-num {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  font-size: 0.95rem;
+}
+
+.btn-toggle-respostas .bi-chevron-down {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.btn-toggle-respostas[aria-expanded="true"] .bi-chevron-down {
+  transform: rotate(180deg);
+}

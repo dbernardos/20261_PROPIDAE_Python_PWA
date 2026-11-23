@@ -3,6 +3,7 @@ import random
 import re
 import unicodedata
 from datetime import datetime, timedelta
+from django.utils import timezone
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -20,6 +21,7 @@ from django.db import models as django_models
 from app_login.models import Usuario
 from app_quiz.models import Quiz, Resposta
 from .form import AtividadeForm, EventoForm
+
 from .models import (
     Apoiador,
     Atividade,
@@ -458,12 +460,16 @@ def detalhes_evento(request, evento_id):
                 flat=True,
             )
 
+    agora = timezone.now()
+    agora_tolerancia = agora + timedelta(minutes=15)   
+        
     context = {
         'evento': evento,
         'atividades': atividades,
         'atividades_inscritas_ids': list(atividades_inscritas_ids),
         'esta_inscrito_no_evento': esta_inscrito_no_evento,
-        'agora': timezone.now(),  # necessária para validar os horários no HTML
+        'agora': agora,  # necessária para validar os horários no HTML
+        'agora_tolerancia': agora_tolerancia,
     }
 
     return render(
@@ -938,12 +944,21 @@ def alternar_participacao_atividade(request, atividade_id):
     atividade = get_object_or_404(Atividade, id=atividade_id)
     evento = atividade.evento
     agora = timezone.now()
+    agora_tolerancia = agora + timedelta(minutes=15)
 
     # Bloqueia inscrições se o evento ou a atividade específica já encerrou
     if (evento.dataFim and evento.dataFim < timezone.localdate()) or (atividade.horaFim and atividade.horaFim < agora):
         messages.error(request, f'A atividade "{atividade.nome}" já foi encerrada.')
         return redirect('app_evento:urldet_evento', evento_id=evento.id)
 
+    # 2. Bloqueia alterações dentro da janela de 15 min antes do início (credenciamento aberto)
+    if atividade.horaInicio and atividade.horaInicio <= agora_tolerancia:
+        messages.error(
+            request,
+            f'O prazo para alterar a inscrição na atividade "{atividade.nome}" encerrou 15 minutos antes do início.',
+        )
+        return redirect('app_evento:urldet_evento', evento_id=evento.id)
+    
     try:
         usuario_perfil = Usuario.objects.get(
             user_django=request.user

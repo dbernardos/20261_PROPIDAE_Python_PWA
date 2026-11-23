@@ -4,300 +4,255 @@
 
 {% block title %}Catálogo de Eventos | PORTAL SEA EVENTOS{% endblock %}
 
-{% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/eventos.css' %}?v=2">
-{% endblock %}
-
 {% block content %}
-<section class="pagina-eventos">
-    <div class="container eventos-container">
+<section class="py-4 py-md-5">
+  <div class="container fade-in">
 
-        <!-- Cabeçalho -->
-        <header class="eventos-cabecalho d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-            <div>
-                <span class="eventos-eyebrow">
-                    <i class="bi bi-calendar2-week me-2" aria-hidden="true"></i>
-                    Descubra o que acontece
-                </span>
+    <!-- Cabeçalho -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+      <div>
+        <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1">
+          <i class="bi bi-calendar2-week me-1"></i> Descubra o que acontece
+        </span>
+        <h1 class="fw-bold text-dark mb-1">
+          Catálogo de <span class="text-verde-escuro">Eventos</span>
+        </h1>
+        <p class="text-muted mb-0">
+          Encontre eventos acadêmicos, confira a programação e participe.
+        </p>
+      </div>
 
-                <h1 class="eventos-titulo">
-                    Catálogo de <span>eventos</span>
-                </h1>
-
-                <p class="eventos-subtitulo mb-0">
-                    Encontre eventos acadêmicos, confira a programação e participe.
-                </p>
-            </div>
-
-            {% if user.is_staff or user.is_superuser %}
-                <a href="{% url 'app_evento:urldis_myevento' %}" class="btn btn-primary-custom eventos-admin-btn">
-                    <i class="bi bi-gear me-2" aria-hidden="true"></i>
-                    Meus eventos
-                </a>
-            {% endif %}
-        </header>
-
-        <!-- Filtros -->
-        <section class="eventos-filtros card border-0" aria-labelledby="titulo-filtros">
-            <div class="card-body">
-                <div class="eventos-filtros-cabecalho">
-                    <div class="eventos-filtros-icone" aria-hidden="true">
-                        <i class="bi bi-sliders2"></i>
-                    </div>
-
-                    <div>
-                        <h2 id="titulo-filtros" class="h5 mb-1">
-                            Encontre seu próximo evento
-                        </h2>
-
-                        <p class="text-muted small mb-0">
-                            Combine os filtros para encontrar o que procura.
-                        </p>
-                    </div>
-                </div>
-
-                <form method="get" action="{% url 'app_evento:urldis_evento' %}" id="formFiltrosEventos">
-                    <div class="row g-3 align-items-end">
-
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <label for="busca" class="form-label">Pesquisar evento</label>
-                            <div class="input-group eventos-busca">
-                                <span class="input-group-text" aria-hidden="true">
-                                    <i class="bi bi-search"></i>
-                                </span>
-                                <input type="search"
-                                       class="form-control"
-                                       id="busca"
-                                       name="busca"
-                                       placeholder="Nome ou palavra-chave"
-                                       value="{{ busca_atual }}"
-                                       autocomplete="off">
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-6 col-xl-3">
-                            <label for="tipo" class="form-label">Tipo de evento</label>
-                            <select class="form-select" id="tipo" name="tipo">
-                                <option value="">Todos os tipos</option>
-                                {% for valor, rotulo in tipos_evento %}
-                                    <option value="{{ valor }}" {% if tipo_atual == valor %}selected{% endif %}>
-                                        {{ rotulo }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="col-12 col-md-6 col-xl-3">
-                            <label for="periodo" class="form-label">Quando?</label>
-                            <select class="form-select" id="periodo" name="periodo">
-                                <option value="">Qualquer data</option>
-                                <option value="hoje" {% if periodo_atual == 'hoje' %}selected{% endif %}>Hoje</option>
-                                <option value="amanha" {% if periodo_atual == 'amanha' %}selected{% endif %}>Amanhã</option>
-                                <option value="fim_semana" {% if periodo_atual == 'fim_semana' %}selected{% endif %}>Fim de semana</option>
-                                <option value="7_dias" {% if periodo_atual == '7_dias' %}selected{% endif %}>Próximos 7 dias</option>
-                                <option value="30_dias" {% if periodo_atual == '30_dias' %}selected{% endif %}>Próximos 30 dias</option>
-                                <option value="custom" {% if periodo_atual == 'custom' %}selected{% endif %}>Período personalizado</option>
-                            </select>
-                        </div>
-
-                        <div class="col-12 col-md-6 col-xl-2">
-                            <div class="form-check form-switch eventos-encerrados">
-                                <input class="form-check-input"
-                                       type="checkbox"
-                                       id="encerrados"
-                                       name="encerrados"
-                                       value="1"
-                                       {% if encerrados_atual %}checked{% endif %}>
-                                <label class="form-check-label" for="encerrados">
-                                    Somente encerrados
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Intervalo personalizado -->
-                        <div class="col-12 {% if periodo_atual != 'custom' %}d-none{% endif %}" id="containerDatasCustom">
-                            <div class="row g-3">
-                                <div class="col-12 col-sm-6 col-lg-4">
-                                    <label for="data_inicio" class="form-label">Data inicial</label>
-                                    <input type="date"
-                                           class="form-control"
-                                           id="data_inicio"
-                                           name="data_inicio"
-                                           value="{{ data_inicio_atual }}"
-                                           {% if periodo_atual != 'custom' %}disabled{% endif %}>
-                                </div>
-
-                                <div class="col-12 col-sm-6 col-lg-4">
-                                    <label for="data_fim" class="form-label">Data final</label>
-                                    <input type="date"
-                                           class="form-control"
-                                           id="data_fim"
-                                           name="data_fim"
-                                           value="{{ data_fim_atual }}"
-                                           {% if periodo_atual != 'custom' %}disabled{% endif %}>
-                                </div>
-                            </div>
-
-                            <p class="eventos-ajuda-filtro small text-muted mt-2 mb-0">
-                                Serão exibidos eventos que ocorram, total ou parcialmente, dentro do intervalo.
-                            </p>
-                        </div>
-
-                        <div class="col-12">
-                            <div class="eventos-acoes-filtros">
-                                <a href="{% url 'app_evento:urldis_evento' %}" class="btn eventos-btn-limpar">
-                                    <i class="bi bi-eraser me-2" aria-hidden="true"></i>
-                                    Limpar filtros
-                                </a>
-
-                                <button type="submit" class="btn btn-success eventos-btn-buscar">
-                                    <i class="bi bi-search me-2" aria-hidden="true"></i>
-                                    Buscar eventos
-                                </button>
-                            </div>
-                        </div>
-
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <!-- Listagem de eventos -->
-        <section class="eventos-listagem" aria-labelledby="titulo-listagem">
-
-            <div class="eventos-lista-cabecalho d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 mb-3">
-                <div>
-                    <h2 id="titulo-listagem" class="h4 mb-1">Eventos disponíveis</h2>
-                    <p class="text-muted small mb-0">
-                        Confira as informações e acesse os detalhes de cada evento.
-                    </p>
-                </div>
-
-                <span class="eventos-contador">
-                    <i class="bi bi-calendar-event me-1" aria-hidden="true"></i>
-                    {{ eventos|length }} evento{{ eventos|length|pluralize:"s" }}
-                </span>
-            </div>
-
-            <div class="row g-3 g-lg-4">
-                {% for item in eventos %}
-                    <div class="col-12">
-                        <article class="card eventos-card border-0 h-100">
-                            <div class="row g-0 h-100">
-
-                                <div class="col-12 col-md-5 col-lg-4 eventos-banner">
-                                    {% if item.imagemBanner %}
-                                        <img src="{{ item.imagemBanner.url }}"
-                                             alt="Banner do evento {{ item.nome }}"
-                                             class="eventos-banner-img"
-                                             loading="lazy">
-                                    {% else %}
-                                        <div class="eventos-banner-vazio" role="img" aria-label="Este evento não possui banner">
-                                            <i class="bi bi-calendar2-event" aria-hidden="true"></i>
-                                            <span>Banner não disponível</span>
-                                        </div>
-                                    {% endif %}
-                                </div>
-
-                                <div class="col-12 col-md-7 col-lg-8">
-                                    <div class="eventos-card-conteudo">
-
-                                        <div class="eventos-card-topo">
-                                            <div class="eventos-card-identificacao">
-                                                <p class="eventos-card-etiqueta mb-1">Evento acadêmico</p>
-                                                <h3 class="eventos-card-titulo mb-0">{{ item.nome }}</h3>
-                                            </div>
-
-                                            <span class="badge eventos-tipo-badge">
-                                                {{ item.get_tipoEvento_display }}
-                                            </span>
-                                        </div>
-
-                                        {% if item.descricao %}
-                                            <p class="eventos-descricao">
-                                                {{ item.descricao|truncatewords:30 }}
-                                            </p>
-                                        {% else %}
-                                            <p class="eventos-descricao eventos-descricao-vazia">
-                                                Mais informações sobre este evento estão disponíveis na página de detalhes.
-                                            </p>
-                                        {% endif %}
-
-                                        <div class="eventos-metadados">
-                                            <div class="eventos-metadado">
-                                                <i class="bi bi-calendar-event" aria-hidden="true"></i>
-                                                <div>
-                                                    <span>Data de início</span>
-                                                    <strong>{{ item.dataInicio|date:'d/m/Y' }}</strong>
-                                                </div>
-                                            </div>
-
-                                            <div class="eventos-metadado">
-                                                <i class="bi bi-calendar-check" aria-hidden="true"></i>
-                                                <div>
-                                                    <span>Data de término</span>
-                                                    <strong>{{ item.dataFim|date:'d/m/Y' }}</strong>
-                                                </div>
-                                            </div>
-
-                                            <div class="eventos-metadado eventos-metadado-local">
-                                                <i class="bi bi-geo-alt" aria-hidden="true"></i>
-                                                <div>
-                                                    <span>Local</span>
-                                                    <strong>{{ item.local|default:"A definir" }}</strong>
-                                                </div>
-                                            </div>
-
-                                            {% if item.emailContato %}
-                                                <div class="eventos-metadado">
-                                                    <i class="bi bi-envelope" aria-hidden="true"></i>
-                                                    <div>
-                                                        <span>Contato</span>
-                                                        <strong>{{ item.emailContato }}</strong>
-                                                    </div>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-
-                                        <div class="eventos-card-rodape">
-                                            <a href="{% url 'app_evento:urldet_evento' item.id %}" class="btn btn-success eventos-detalhes-btn">
-                                                Ver detalhes
-                                                <i class="bi bi-arrow-right ms-2" aria-hidden="true"></i>
-                                            </a>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                            </div>
-                        </article>
-                    </div>
-
-                {% empty %}
-                    <div class="col-12">
-                        <div class="eventos-vazio text-center">
-                            <div class="eventos-vazio-icone" aria-hidden="true">
-                                <i class="bi bi-calendar2-x"></i>
-                            </div>
-
-                            <h3>Nenhum evento encontrado</h3>
-
-                            <p>
-                                Não encontramos eventos com os filtros selecionados. Experimente alterar a pesquisa ou limpar os filtros.
-                            </p>
-
-                            <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-outline-success">
-                                <i class="bi bi-arrow-counterclockwise me-2" aria-hidden="true"></i>
-                                Limpar filtros
-                            </a>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-
-        </section>
-
+      {% if user.is_staff or user.is_superuser %}
+        <a href="{% url 'app_evento:urldis_myevento' %}" class="btn btn-outline-verde-escuro px-4 align-self-start align-self-md-center">
+          <i class="bi bi-gear me-1"></i> Meus eventos
+        </a>
+      {% endif %}
     </div>
+
+    <!-- Barra de Busca e Filtros -->
+    <div class="card card-custom p-3 p-md-4 mb-4">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-sliders2 text-verde-escuro fs-5"></i>
+        <div>
+          <h2 class="h6 fw-bold mb-0">Encontre seu próximo evento</h2>
+          <small class="text-muted">Combine os filtros para encontrar o que procura.</small>
+        </div>
+      </div>
+
+      <form method="get" action="{% url 'app_evento:urldis_evento' %}" id="formFiltrosEventos">
+        <div class="row g-3 align-items-end">
+
+          <div class="col-12 col-md-6 col-xl-4">
+            <label for="busca" class="form-label small fw-semibold">Pesquisar evento</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light"><i class="bi bi-search text-verde-escuro"></i></span>
+              <input type="search"
+                     class="form-control"
+                     id="busca"
+                     name="busca"
+                     placeholder="Nome ou palavra-chave"
+                     value="{{ busca_atual }}"
+                     autocomplete="off">
+            </div>
+          </div>
+
+          <div class="col-12 col-md-6 col-xl-3">
+            <label for="tipo" class="form-label small fw-semibold">Tipo de evento</label>
+            <select class="form-select" id="tipo" name="tipo">
+              <option value="">Todos os tipos</option>
+              {% for valor, rotulo in tipos_evento %}
+                <option value="{{ valor }}" {% if tipo_atual == valor %}selected{% endif %}>{{ rotulo }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-12 col-md-6 col-xl-3">
+            <label for="periodo" class="form-label small fw-semibold">Quando?</label>
+            <select class="form-select" id="periodo" name="periodo">
+              <option value="">Qualquer data</option>
+              <option value="hoje" {% if periodo_atual == 'hoje' %}selected{% endif %}>Hoje</option>
+              <option value="amanha" {% if periodo_atual == 'amanha' %}selected{% endif %}>Amanhã</option>
+              <option value="fim_semana" {% if periodo_atual == 'fim_semana' %}selected{% endif %}>Fim de semana</option>
+              <option value="7_dias" {% if periodo_atual == '7_dias' %}selected{% endif %}>Próximos 7 dias</option>
+              <option value="30_dias" {% if periodo_atual == '30_dias' %}selected{% endif %}>Próximos 30 dias</option>
+              <option value="custom" {% if periodo_atual == 'custom' %}selected{% endif %}>Período personalizado</option>
+            </select>
+          </div>
+
+          <div class="col-12 col-md-6 col-xl-2">
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input"
+                     type="checkbox"
+                     id="encerrados"
+                     name="encerrados"
+                     value="1"
+                     {% if encerrados_atual %}checked{% endif %}>
+              <label class="form-check-label small fw-semibold" for="encerrados">Somente encerrados</label>
+            </div>
+          </div>
+
+          <!-- Intervalo personalizado -->
+          <div class="col-12 {% if periodo_atual != 'custom' %}d-none{% endif %}" id="containerDatasCustom">
+            <div class="row g-3">
+              <div class="col-12 col-sm-6 col-lg-3">
+                <label for="data_inicio" class="form-label small fw-semibold">Data inicial</label>
+                <input type="date"
+                       class="form-control"
+                       id="data_inicio"
+                       name="data_inicio"
+                       value="{{ data_inicio_atual }}"
+                       {% if periodo_atual != 'custom' %}disabled{% endif %}>
+              </div>
+
+              <div class="col-12 col-sm-6 col-lg-3">
+                <label for="data_fim" class="form-label small fw-semibold">Data final</label>
+                <input type="date"
+                       class="form-control"
+                       id="data_fim"
+                       name="data_fim"
+                       value="{{ data_fim_atual }}"
+                       {% if periodo_atual != 'custom' %}disabled{% endif %}>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 d-flex flex-wrap justify-content-end gap-2 pt-1">
+            <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-outline-verde-escuro px-4">
+              <i class="bi bi-eraser me-1"></i> Limpar filtros
+            </a>
+            <button type="submit" id="btnBuscarEventos" class="btn btn-verde-escuro px-4">
+              <i class="bi bi-search me-1"></i> Buscar eventos
+            </button>
+          </div>
+
+        </div>
+      </form>
+    </div>
+
+    <!-- Cabeçalho da Listagem -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h2 class="h5 fw-bold mb-0">Eventos disponíveis</h2>
+        <small class="text-muted">Confira as informações e acesse os detalhes de cada evento.</small>
+      </div>
+      <span class="badge badge-verde-suave rounded-pill px-3 py-2">
+        <i class="bi bi-calendar-event me-1"></i>
+        {{ eventos|length }} evento{{ eventos|length|pluralize:"s" }}
+      </span>
+    </div>
+
+    <!-- Cards de Eventos -->
+    <div class="d-flex flex-column gap-3">
+      {% for item in eventos %}
+        <article class="card card-custom overflow-hidden">
+          <div class="row g-0 align-items-stretch">
+
+            <div class="col-12 col-md-5 col-xl-4 evento-banner">
+            {% if item.imagemBanner %}
+                <img src="{{ item.imagemBanner.url }}" alt="Banner do evento {{ item.nome }}" loading="lazy">
+            {% else %}
+                <div class="evento-banner-vazio">
+                <i class="bi bi-calendar2-event text-verde-escuro fs-1 mb-1"></i>
+                <span>Sem banner</span>
+                </div>
+            {% endif %}
+            </div>
+
+           <div class="col-12 col-md-7 col-xl-8">
+              <div class="p-3 p-md-4 d-flex flex-column h-100">
+
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                  <div>
+                    <span class="text-verde-escuro fw-bold small text-uppercase d-block">Evento acadêmico</span>
+                    <h3 class="h5 fw-bold mb-0">{{ item.nome }}</h3>
+                  </div>
+
+                  <span class="badge badge-verde-suave rounded-pill px-3 py-2">
+                    {{ item.get_tipoEvento_display }}
+                  </span>
+                </div>
+
+                <p class="text-muted small mb-3">
+                  {% if item.descricao %}
+                    {{ item.descricao|truncatewords:30 }}
+                  {% else %}
+                    Mais informações sobre este evento estão disponíveis na página de detalhes.
+                  {% endif %}
+                </p>
+
+                <!-- -->
+                <div class="row g-2 small mb-3">
+                <div class="col-12 col-sm-6">
+                    <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-calendar-event text-verde-escuro mt-1"></i>
+                    <div>
+                        <span class="text-muted d-block">Data de início</span>
+                        <strong>{{ item.dataInicio|date:'d/m/Y' }}</strong>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6">
+                    <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-calendar-check text-verde-escuro mt-1"></i>
+                    <div>
+                        <span class="text-muted d-block">Data de término</span>
+                        <strong>{{ item.dataFim|date:'d/m/Y' }}</strong>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-sm-6">
+                    <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-geo-alt text-vermelho mt-1"></i>
+                    <div>
+                        <span class="text-muted d-block">Local</span>
+                        <strong>{{ item.local|default:"A definir" }}</strong>
+                    </div>
+                    </div>
+                </div>
+
+                {% if item.emailContato %}
+                    <div class="col-12 col-sm-6">
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="bi bi-envelope text-verde-escuro mt-1"></i>
+                        <div>
+                        <span class="text-muted d-block">Contato</span>
+                        <strong>{{ item.emailContato }}</strong>
+                        </div>
+                    </div>
+                    </div>
+                {% endif %}
+                </div>
+
+                <div class="mt-auto pt-3 border-top d-flex justify-content-start">
+                  <a href="{% url 'app_evento:urldet_evento' item.id %}" class="btn btn-verde-escuro btn-sm px-4 py-2">
+                    Ver detalhes <i class="bi bi-arrow-right ms-1"></i>
+                  </a>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </article>
+      {% empty %}
+        <div class="card card-custom p-5 text-center">
+          <i class="bi bi-calendar2-x text-verde-escuro fs-1 mb-2"></i>
+          <h3 class="h5 fw-bold">Nenhum evento encontrado</h3>
+          <p class="text-muted small mb-3">
+            Não encontramos eventos com os filtros selecionados. Experimente alterar a pesquisa ou limpar os filtros.
+          </p>
+          <div>
+            <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-outline-verde-escuro px-4">
+              <i class="bi bi-arrow-counterclockwise me-1"></i> Limpar filtros
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
 </section>
 {% endblock %}
 
@@ -309,46 +264,30 @@ document.addEventListener('DOMContentLoaded', function () {
     const dataInicio = document.getElementById('data_inicio');
     const dataFim = document.getElementById('data_fim');
     const formulario = document.getElementById('formFiltrosEventos');
+    const btnBuscar = document.getElementById('btnBuscarEventos');
 
-    // Desabilita os campos ocultos para não enviar parâmetros vazios na URL do GET
     function atualizarDatasPersonalizadas() {
         const personalizado = periodo && periodo.value === 'custom';
-
-        if (containerDatas) {
-            containerDatas.classList.toggle('d-none', !personalizado);
-        }
-
-        if (dataInicio) {
-            dataInicio.disabled = !personalizado;
-        }
-
-        if (dataFim) {
-            dataFim.disabled = !personalizado;
-        }
+        if (containerDatas) containerDatas.classList.toggle('d-none', !personalizado);
+        if (dataInicio) dataInicio.disabled = !personalizado;
+        if (dataFim) dataFim.disabled = !personalizado;
     }
 
     function validarIntervaloDatas() {
-        if (!dataInicio || !dataFim || !periodo || periodo.value !== 'custom') {
-            return true;
-        }
-
+        if (!dataInicio || !dataFim || !periodo || periodo.value !== 'custom') return true;
         dataFim.setCustomValidity('');
-
         if (dataInicio.value && dataFim.value && dataInicio.value > dataFim.value) {
             dataFim.setCustomValidity('A data final deve ser igual ou posterior à data inicial.');
             dataFim.reportValidity();
             return false;
         }
-
         return true;
     }
 
     if (periodo) {
         periodo.addEventListener('change', function () {
             atualizarDatasPersonalizadas();
-            if (periodo.value === 'custom') {
-                validarIntervaloDatas();
-            }
+            if (periodo.value === 'custom') validarIntervaloDatas();
         });
         atualizarDatasPersonalizadas();
     }
@@ -358,7 +297,6 @@ document.addEventListener('DOMContentLoaded', function () {
             dataFim.min = dataInicio.value || '';
             validarIntervaloDatas();
         });
-
         dataFim.addEventListener('change', function () {
             dataInicio.max = dataFim.value || '';
             validarIntervaloDatas();
@@ -369,14 +307,11 @@ document.addEventListener('DOMContentLoaded', function () {
         formulario.addEventListener('submit', function (evento) {
             if (!validarIntervaloDatas()) {
                 evento.preventDefault();
-                evento.stopPropagation();
-                return false;
+                return;
             }
-
-            const btnBuscar = formulario.querySelector('.eventos-btn-buscar');
             if (btnBuscar) {
                 btnBuscar.disabled = true;
-                btnBuscar.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Buscando...';
+                btnBuscar.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Buscando...';
             }
         });
     }

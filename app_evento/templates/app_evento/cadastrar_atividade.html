@@ -3,143 +3,180 @@
 {% load django_bootstrap5 %}
 
 {% block title %}
-    {% if editando %}Editar Atividade{% else %}Cadastrar Atividade{% endif %}
+  {% if editando %}Editar Atividade{% else %}Cadastrar Atividade{% endif %}
 {% endblock %}
 
 {% block content %}
-<section class="py-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
+<section class="py-4 py-md-5">
+  <div class="container fade-in">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
 
+        <!-- Cabeçalho -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+          <div>
+            <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1">
+              {{ evento.nome }}
+            </span>
+            <h2 class="fw-bold text-dark mb-1">
+              {% if editando %}
+                Editar <span class="text-verde-escuro">Atividade</span>
+              {% else %}
+                Cadastrar <span class="text-verde-escuro">Atividade</span>
+              {% endif %}
+            </h2>
+            <p class="text-muted mb-0">
+              {% if editando %}
+                Atualize as informações, horários e capacidade de "{{ atividade.nome }}".
+              {% else %}
+                Preencha os dados para adicionar uma nova atividade à programação do evento.
+              {% endif %}
+            </p>
+          </div>
 
-                <h2 class="fw-bold text-verde-escuro mb-4 d-flex align-items-center">
-                    {% if editando %}
-                        <i class="bi bi-pencil-square me-2 text-verde-claro"></i>Editar Atividade: {{ atividade.nome }}
-                    {% else %}
-                        <i class="bi bi-calendar-plus me-2 text-verde-claro"></i>Cadastrar Nova Atividade em {{ evento.nome }}
-                    {% endif %}
-                </h2>
-
-                <form method="POST" class="card p-4 shadow-sm bg-white border-0">
-                    {% csrf_token %}
-
-                    <div class="row g-3">
-                        <!-- Dados básicos -->
-                        <div class="col-12">
-                            {% bootstrap_field form_atividade.nome %}
-                        </div>
-                        <div class="col-12">
-                            {% bootstrap_field form_atividade.descricao %}
-                        </div>
-
-                        <!-- Classificação e local -->
-                        <div class="col-md-6">
-                            {% bootstrap_field form_atividade.tipoAtividade %}
-                        </div>
-                        <div class="col-md-6">
-                            {% bootstrap_field form_atividade.complementoLocal %}
-                        </div>
-
-                        <!-- Período e capacidade -->
-                        <div class="col-md-6">
-                            {% bootstrap_field form_atividade.horaInicio %}
-                        </div>
-                        <div class="col-md-6">
-                            {% bootstrap_field form_atividade.horaFim %}
-                        </div>
-                        <div class="col-md-6">
-                            {% bootstrap_field form_atividade.limitePessoas %}
-                        </div>
-                    </div>
-
-                    <!-- Ações -->
-                    <div class="d-flex justify-content-end gap-2 mt-4">
-                        <a href="{% url 'app_evento:urldet_myevento' evento.id %}" class="btn btn-outline-secondary">
-                            Cancelar
-                        </a>
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-check-circle me-1"></i>
-                            {% if editando %}Salvar Alterações{% else %}Salvar Atividade{% endif %}
-                        </button>
-                    </div>
-                </form>
-
-            </div>
+          <a href="{% url 'app_evento:urldet_myevento' evento.id %}"
+             class="btn btn-outline-secondary btn-sm rounded-pill px-3 align-self-start align-self-md-center">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+          </a>
         </div>
-    </div>
-</section>
-{% endblock %}
 
-{% block extra_js %}
+        <!-- Card do Formulário -->
+        <div class="card card-custom overflow-hidden">
+          <div class="card-header bg-light border-bottom py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="fw-bold text-verde-escuro small">
+              <i class="bi {% if editando %}bi-pencil-square{% else %}bi-calendar-plus{% endif %} me-1"></i>
+              Dados da Atividade
+            </span>
+
+            {% if evento.dataInicio %}
+              <span class="badge badge-verde-suave rounded-pill px-3 py-1">
+                <i class="bi bi-calendar-range me-1"></i>
+                Período do evento: {{ evento.dataInicio|date:"d/m/Y" }}{% if evento.dataFim %} a {{ evento.dataFim|date:"d/m/Y" }}{% endif %}
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="card-body p-4">
+            <form method="POST" novalidate>
+              {% csrf_token %}
+
+              {% bootstrap_form_errors form_atividade %}
+
+              <div class="row g-3">
+                <!-- Dados básicos -->
+                <div class="col-12">
+                  {% bootstrap_field form_atividade.nome %}
+                </div>
+                <div class="col-12">
+                  {% bootstrap_field form_atividade.descricao %}
+                </div>
+
+                <!-- Classificação e local -->
+                <div class="col-md-6">
+                  {% bootstrap_field form_atividade.tipoAtividade %}
+                </div>
+                <div class="col-md-6">
+                  {% bootstrap_field form_atividade.complementoLocal %}
+                </div>
+
+                <!-- Período e capacidade -->
+                <div class="col-md-6">
+                  {% bootstrap_field form_atividade.horaInicio %}
+                </div>
+                <div class="col-md-6">
+                  {% bootstrap_field form_atividade.horaFim %}
+                </div>
+                <div class="col-md-6">
+                  {% bootstrap_field form_atividade.limitePessoas %}
+                </div>
+              </div>
+
+              <!-- Ações -->
+              <div class="d-flex justify-content-end gap-2 pt-3 mt-4 border-top">
+                <a href="{% url 'app_evento:urldet_myevento' evento.id %}"
+                   class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                  Cancelar
+                </a>
+                <button type="submit" class="btn btn-verde-escuro btn-sm px-4">
+                  <i class="bi bi-check2 me-1"></i>
+                  {% if editando %}Salvar Alterações{% else %}Salvar Atividade{% endif %}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const horaInicio = document.getElementById('id_horaInicio');
-    const horaFim = document.getElementById('id_horaFim');
+  const horaInicio = document.getElementById('id_horaInicio');
+  const horaFim = document.getElementById('id_horaFim');
 
-    if (!horaInicio || !horaFim) return;
+  if (!horaInicio || !horaFim) return;
 
-    const formulario = horaInicio.closest('form');
+  const formulario = horaInicio.closest('form');
 
-    // Formato YYYY-MM-DDTHH:MM exigido pelo input datetime-local
-    const minEvento = "{% if evento.dataInicio %}{{ evento.dataInicio|date:'Y-m-d' }}T00:00{% endif %}";
-    const maxEvento = "{% if evento.dataFim %}{{ evento.dataFim|date:'Y-m-d' }}T23:59{% endif %}";
+  const minEvento = "{% if evento.dataInicio %}{{ evento.dataInicio|date:'Y-m-d' }}T00:00{% endif %}";
+  const maxEvento = "{% if evento.dataFim %}{{ evento.dataFim|date:'Y-m-d' }}T23:59{% endif %}";
 
-    function sincronizarLimites() {
-        horaInicio.min = minEvento;
-        horaInicio.max = horaFim.value || maxEvento;
+  function sincronizarLimites() {
+    horaInicio.min = minEvento;
+    horaInicio.max = horaFim.value || maxEvento;
 
-        horaFim.min = horaInicio.value || minEvento;
-        horaFim.max = maxEvento;
+    horaFim.min = horaInicio.value || minEvento;
+    horaFim.max = maxEvento;
+  }
+
+  function validarIntervaloHorarios() {
+    horaInicio.setCustomValidity('');
+    horaFim.setCustomValidity('');
+
+    if (minEvento && horaInicio.value && horaInicio.value < minEvento) {
+      horaInicio.setCustomValidity('A atividade não pode começar antes do início do evento.');
+      horaInicio.reportValidity();
+      return false;
     }
 
-    function validarIntervaloHorarios() {
-        horaInicio.setCustomValidity('');
-        horaFim.setCustomValidity('');
-
-        if (minEvento && horaInicio.value && horaInicio.value < minEvento) {
-            horaInicio.setCustomValidity('A atividade não pode começar antes do início do evento.');
-            horaInicio.reportValidity();
-            return false;
-        }
-
-        if (maxEvento && horaFim.value && horaFim.value > maxEvento) {
-            horaFim.setCustomValidity('A atividade não pode terminar após o encerramento do evento.');
-            horaFim.reportValidity();
-            return false;
-        }
-
-        if (horaInicio.value && horaFim.value && horaInicio.value > horaFim.value) {
-            horaFim.setCustomValidity('A hora de término deve ser igual ou posterior à hora de início.');
-            horaFim.reportValidity();
-            return false;
-        }
-
-        return true;
+    if (maxEvento && horaFim.value && horaFim.value > maxEvento) {
+      horaFim.setCustomValidity('A atividade não pode terminar após o encerramento do evento.');
+      horaFim.reportValidity();
+      return false;
     }
 
-    horaInicio.addEventListener('change', function () {
-        sincronizarLimites();
-        validarIntervaloHorarios();
-    });
+    if (horaInicio.value && horaFim.value && horaInicio.value > horaFim.value) {
+      horaFim.setCustomValidity('A hora de término deve ser igual ou posterior à hora de início.');
+      horaFim.reportValidity();
+      return false;
+    }
 
-    horaFim.addEventListener('change', function () {
-        sincronizarLimites();
-        validarIntervaloHorarios();
-    });
+    return true;
+  }
 
-    // Garante os limites já aplicados ao abrir na tela de edição
+  horaInicio.addEventListener('change', function () {
     sincronizarLimites();
+    validarIntervaloHorarios();
+  });
 
-    if (formulario) {
-        formulario.addEventListener('submit', function (evento) {
-            if (!validarIntervaloHorarios()) {
-                evento.preventDefault();
-                evento.stopPropagation();
-                return false;
-            }
-        });
-    }
+  horaFim.addEventListener('change', function () {
+    sincronizarLimites();
+    validarIntervaloHorarios();
+  });
+
+  sincronizarLimites();
+
+  if (formulario) {
+    formulario.addEventListener('submit', function (evento) {
+      if (!validarIntervaloHorarios()) {
+        evento.preventDefault();
+        evento.stopPropagation();
+        return false;
+      }
+    });
+  }
 });
 </script>
 {% endblock %}

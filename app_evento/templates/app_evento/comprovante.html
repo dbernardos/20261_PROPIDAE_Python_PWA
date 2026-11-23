@@ -1,309 +1,322 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}
+    Comprovante de Inscrição - {{ evento.nome }} | PORTAL SEA EVENTOS
+{% endblock %}
+
 {% block extra_css %}
-<style>
-    /* Isola o card do comprovante na impressão */
-    @media print {
-        body * {
-            visibility: hidden;
-        }
-        .comprovante-printable,
-        .comprovante-printable * {
-            visibility: visible;
-        }
-        .comprovante-printable {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            box-shadow: none !important;
-            border: 1px solid #ccc !important;
-        }
-        .comprovante-printable img {
-            max-height: 120px !important;
-            width: auto !important;
-            box-shadow: none !important;
-            display: block !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
-        }
-        .btn, nav, footer, header {
-            display: none !important;
-        }
-    }
-</style>
+    <link rel="stylesheet" href="{% static 'css/inscricao.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="container my-5">
+<section class="py-4 py-md-5">
+    <div class="container fade-in">
 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <div>
-            <h1 class="h3 fw-bold mb-1">
-                <i class="bi bi-file-earmark-check me-2 text-success"></i>Comprovante de Inscrição
-            </h1>
-            <p class="text-muted mb-0">Confira os detalhes da sua inscrição e utilize seu comprovante para credenciamento.</p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{% url 'app_evento:urlminhas_inscricoes' %}" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-arrow-left me-1"></i> Minhas Inscrições
-            </a>
-            <button type="button" class="btn btn-success btn-sm" onclick="window.print()">
-                <i class="bi bi-printer me-1"></i> Imprimir Comprovante
-            </button>
-        </div>
-    </div>
+        <!-- Cabeçalho -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 no-print">
+            <div>
+                <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1">
+                    <i class="bi bi-file-earmark-check me-1"></i> Documento
+                </span>
+                <h1 class="h2 fw-bold text-dark mb-1">
+                    Comprovante de <span class="text-verde-escuro">Inscrição</span>
+                </h1>
+                <p class="text-muted mb-0">
+                    Confira os detalhes da sua inscrição e utilize seu comprovante para credenciamento.
+                </p>
+            </div>
 
-    <!-- Comprovante -->
-    <div class="card border-0 shadow-sm rounded-3 overflow-hidden comprovante-printable">
-
-        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center py-3">
-            <span class="badge bg-light text-success fw-bold text-uppercase px-3 py-2 fs-6">
-                {{ evento.get_tipoEvento_display|default:evento.tipoEvento }}
-            </span>
-            <small class="text-white-50">
-                <i class="bi bi-clock me-1"></i>Inscrito em {{ inscricao.dataHora|date:"d/m/Y \à\s H:i" }}
-            </small>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'app_evento:urlminhas_inscricoes' %}" class="btn btn-outline-verde-escuro px-4">
+                    <i class="bi bi-arrow-left me-1"></i> Minhas Inscrições
+                </a>
+                <button type="button" class="btn btn-verde-escuro px-4" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i> Imprimir Comprovante
+                </button>
+            </div>
         </div>
 
-        <div class="card-body p-4">
+        <!-- Card do Comprovante -->
+        <article class="card card-custom overflow-hidden comprovante-printable">
 
-            <!-- Dados do evento e participante -->
-            <div class="row align-items-center mb-4">
-                {% if evento.imagemBanner %}
-                    <div class="col-lg-3 col-md-4 mb-3 mb-md-0">
-                        <img src="{{ evento.imagemBanner.url }}" alt="{{ evento.nome }}" class="img-fluid rounded shadow-sm w-100" style="max-height: 160px; object-fit: cover;">
+            <div class="card-header card-header-custom d-flex justify-content-between align-items-center py-3 px-4 flex-wrap gap-2">
+                <span class="badge bg-white text-verde-escuro rounded-pill px-3 py-1 text-uppercase">
+                    {{ evento.get_tipoEvento_display|default:evento.tipoEvento }}
+                </span>
+                <small class="text-white-50">
+                    <i class="bi bi-clock me-1"></i> Inscrito em {{ inscricao.dataHora|date:"d/m/Y \à\s H:i" }}
+                </small>
+            </div>
+
+            <div class="card-body p-4">
+
+                <!-- Dados do evento e participante -->
+                <div class="row g-4 align-items-center mb-4">
+                    {% if evento.imagemBanner %}
+                        <div class="col-12 col-md-4 col-lg-3">
+                            <div class="banner-evento-container">
+                                <img src="{{ evento.imagemBanner.url }}" alt="{{ evento.nome }}" class="banner-evento-img" loading="lazy">
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="{% if evento.imagemBanner %}col-12 col-md-8 col-lg-9{% else %}col-12{% endif %}">
+                        <h2 class="h4 fw-bold text-verde-escuro mb-2">{{ evento.nome }}</h2>
+                        <p class="text-secondary small mb-3">{{ evento.descricao|default:"Sem descrição informada." }}</p>
+
+                        <!-- Grade 2x2 de Metadados -->
+                        <div class="row g-3 small">
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-person-circle text-verde-escuro mt-1"></i>
+                                    <div>
+                                        <span class="text-muted d-block">Participante</span>
+                                        <strong>{{ usuario.nome|default:request.user.get_full_name|default:request.user.username }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-calendar-event text-verde-escuro mt-1"></i>
+                                    <div>
+                                        <span class="text-muted d-block">Período</span>
+                                        <strong>{{ evento.dataInicio|date:"d/m/Y" }} até {{ evento.dataFim|date:"d/m/Y" }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-geo-alt text-vermelho mt-1"></i>
+                                    <div>
+                                        <span class="text-muted d-block">Local</span>
+                                        <strong>{{ evento.local|default:"A definir" }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6">
+                                <div class="d-flex align-items-start gap-2">
+                                    <i class="bi bi-ticket-perforated text-verde-escuro mt-1"></i>
+                                    <div>
+                                        <span class="text-muted d-block">Status</span>
+                                        <span class="badge badge-verde-suave rounded-pill px-3 py-1 mt-1">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Inscrição Confirmada
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4 text-muted">
+
+                <!-- Credenciamento com QR Code -->
+                <div class="d-flex flex-column flex-sm-row align-items-center gap-3 gap-md-4 bg-light p-3 p-md-4 rounded-3 border mb-4">
+                    {% if inscricao.qrcode_imagem %}
+                        <div class="qrcode-container-destaque">
+                            <img src="{{ inscricao.qrcode_imagem.url }}" alt="QR Code {{ inscricao.cracha }}" class="qrcode-thumb">
+                        </div>
+                    {% else %}
+                        <div class="qrcode-indisponivel">
+                            <i class="bi bi-qr-code fs-1 text-muted"></i>
+                            <small class="text-muted mt-1">Sem QR Code</small>
+                        </div>
+                    {% endif %}
+
+                    <div class="text-center text-sm-start">
+                        <span class="badge badge-verde-suave rounded-pill px-3 py-1 mb-2 d-inline-block">
+                            Credenciamento
+                        </span>
+                        <p class="small text-muted text-uppercase mb-1 fw-bold">Código do Crachá / Acesso</p>
+                        <p class="font-monospace fw-bold text-verde-escuro fs-4 mb-2">{{ inscricao.cracha|default:"---" }}</p>
+                        <p class="text-secondary small mb-0 lh-base">
+                            <i class="bi bi-info-circle me-1 text-verde-escuro"></i>
+                            Apresente este QR Code ou o código alfanumérico no balcão de credenciamento para registrar sua entrada no evento.
+                        </p>
+                    </div>
+                </div>
+
+                {% if participacoes %}
+
+                    <!-- Atividades confirmadas ou em andamento -->
+                    <div class="mb-4">
+                        <h3 class="h6 fw-bold mb-3 text-verde-escuro">
+                            <i class="bi bi-calendar-check me-2 text-verde-claro"></i>Atividades Confirmadas / Em Andamento
+                        </h3>
+
+                        <div class="table-responsive border rounded-3">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Atividade</th>
+                                        <th class="text-center">Tipo</th>
+                                        <th>Horário</th>
+                                        <th>Local / Complemento</th>
+                                        <th class="text-center">Sua Função</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for participa in participacoes %}
+                                        {% if not participa.atividade.horaFim or participa.atividade.horaFim >= agora %}
+                                            <tr>
+                                                <td class="align-middle fw-medium">
+                                                    <i class="bi bi-calendar2-event text-verde-escuro me-2"></i>
+                                                    <span>{{ participa.atividade.nome }}</span>
+                                                </td>
+
+                                                <td class="text-center align-middle">
+                                                    <span class="badge badge-verde-suave rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                        <i class="bi bi-tag-fill me-1"></i> {{ participa.atividade.get_tipoAtividade_display|default:participa.atividade.tipoAtividade }}
+                                                    </span>
+                                                </td>
+
+                                                <td class="align-middle">
+                                                    <div class="small">
+                                                        <i class="bi bi-clock me-1 text-muted"></i>
+                                                        <span>{{ participa.atividade.horaInicio|date:"d/m/Y H:i" }}</span> -
+                                                        <span class="text-muted">{{ participa.atividade.horaFim|date:"H:i" }}</span>
+                                                    </div>
+                                                </td>
+
+                                                <td class="align-middle">
+                                                    <span class="small text-secondary">
+                                                        <i class="bi bi-geo-alt me-1 text-vermelho"></i>
+                                                        {{ participa.atividade.complementoLocal|default:evento.local }}
+                                                    </span>
+                                                </td>
+
+                                                <td class="text-center align-middle">
+                                                    {% if participa.funcao == 'Palestrante' %}
+                                                        <span class="badge bg-verde-escuro text-white rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                            <i class="bi bi-mic-fill me-1"></i> Palestrante
+                                                        </span>
+                                                    {% elif participa.funcao == 'Organizador' %}
+                                                        <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                            <i class="bi bi-star-fill me-1"></i> Organizador
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="badge bg-light text-dark border rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                            <i class="bi bi-person-fill me-1"></i> {{ participa.get_funcao_display|default:participa.funcao|default:'Participante' }}
+                                                        </span>
+                                                    {% endif %}
+                                                </td>
+
+                                                <td class="text-center align-middle">
+                                                    {% if participa.atividade.horaInicio and participa.atividade.horaInicio <= agora and participa.atividade.horaFim >= agora %}
+                                                        <span class="badge bg-verde-claro text-dark rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                            <i class="bi bi-broadcast me-1"></i> Participando
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="badge badge-verde-suave rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                            <i class="bi bi-check2-circle me-1"></i> Confirmado
+                                                        </span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Atividades concluídas -->
+                    <div>
+                        <h3 class="h6 fw-bold mb-3 text-verde-escuro">
+                            <i class="bi bi-check-circle-fill me-2 text-verde-claro"></i>Atividades Concluídas
+                        </h3>
+
+                        <div class="table-responsive border rounded-3">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Atividade</th>
+                                        <th class="text-center">Tipo</th>
+                                        <th>Horário</th>
+                                        <th>Local / Complemento</th>
+                                        <th class="text-center">Sua Função</th>
+                                        <th class="text-center">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for participa in participacoes %}
+                                        {% if participa.atividade.horaFim and participa.atividade.horaFim < agora %}
+                                            <tr>
+                                                <td class="align-middle fw-medium">
+                                                    <i class="bi bi-calendar2-check text-muted me-2"></i>
+                                                    <span class="text-secondary">{{ participa.atividade.nome }}</span>
+                                                </td>
+
+                                                <td class="text-center align-middle">
+                                                    <span class="badge badge-verde-suave rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                        <i class="bi bi-tag-fill me-1"></i> {{ participa.atividade.get_tipoAtividade_display|default:participa.atividade.tipoAtividade }}
+                                                    </span>
+                                                </td>
+
+                                                <td class="align-middle">
+                                                    <div class="small text-muted">
+                                                        <i class="bi bi-clock me-1"></i>
+                                                        <span>{{ participa.atividade.horaInicio|date:"d/m/Y H:i" }}</span> -
+                                                        <span>{{ participa.atividade.horaFim|date:"H:i" }}</span>
+                                                    </div>
+                                                </td>
+
+                                                <td class="align-middle">
+                                                    <span class="small text-secondary">
+                                                        <i class="bi bi-geo-alt me-1 text-vermelho"></i>
+                                                        {{ participa.atividade.complementoLocal|default:evento.local }}
+                                                    </span>
+                                                </td>
+
+                                                <td class="text-center align-middle">
+                                                    {% if participa.funcao == 'Palestrante' %}
+                                                        <span class="badge bg-verde-escuro text-white rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                            <i class="bi bi-mic-fill me-1"></i> Palestrante
+                                                        </span>
+                                                    {% elif participa.funcao == 'Organizador' %}
+                                                        <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                            <i class="bi bi-star-fill me-1"></i> Organizador
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="badge bg-light text-dark border rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                            <i class="bi bi-person-fill me-1"></i> {{ participa.get_funcao_display|default:participa.funcao|default:'Participante' }}
+                                                        </span>
+                                                    {% endif %}
+                                                </td>
+
+                                                <td class="text-center align-middle">
+                                                    <span class="badge badge-verde-suave rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                        <i class="bi bi-check-circle-fill me-1"></i> Concluída
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                {% else %}
+                    <div class="alert alert-light border text-muted mb-0">
+                        <i class="bi bi-info-circle me-2"></i> Nenhuma atividade específica vinculada a este comprovante.
                     </div>
                 {% endif %}
 
-                <div class="{% if evento.imagemBanner %}col-lg-9 col-md-8{% else %}col-12{% endif %}">
-                    <h3 class="card-title fw-bold text-dark mb-2">{{ evento.nome }}</h3>
-                    <p class="card-text text-muted mb-3">{{ evento.descricao|default:"Sem descrição informada." }}</p>
-
-                    <div class="row g-3 text-secondary">
-                        <div class="col-sm-6">
-                            <i class="bi bi-person-circle me-2 text-success"></i>
-                            <strong>Participante:</strong> {{ usuario.nome|default:request.user.get_full_name|default:request.user.username }}
-                        </div>
-                        <div class="col-sm-6">
-                            <i class="bi bi-calendar-event me-2 text-success"></i>
-                            <strong>Data:</strong> {{ evento.dataInicio|date:"d/m/Y" }} até {{ evento.dataFim|date:"d/m/Y" }}
-                        </div>
-                        <div class="col-sm-6">
-                            <i class="bi bi-geo-alt me-2 text-success"></i>
-                            <strong>Endereço:</strong> {{ evento.local|default:"A definir" }}
-                        </div>
-                        <div class="col-sm-6">
-                            <i class="bi bi-ticket me-2 text-success"></i>
-                            <strong>Status:</strong> <span class="badge bg-success-subtle text-success border border-success fw-bold px-3 py-1 fs-6">Inscrição Confirmada</span>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <hr class="my-4 text-muted">
-
-            <!-- Credenciamento / QR Code -->
-            <div class="row g-4 align-items-center bg-light p-3 rounded-3 border mb-4 text-center text-md-start">
-                <div class="col-md-3 text-center">
-                    {% if inscricao.qrcode_imagem %}
-                        <img src="{{ inscricao.qrcode_imagem.url }}" alt="QR Code {{ inscricao.cracha }}" class="img-fluid rounded shadow-sm bg-white p-2 border" style="max-width: 160px;">
-                    {% else %}
-                        <div class="bg-white p-3 border rounded text-muted">
-                            <i class="bi bi-qr-code fs-1"></i>
-                            <p class="small mb-0">Sem QR Code</p>
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="col-md-9">
-                    <small class="text-muted text-uppercase fw-bold">Código do Crachá / Acesso</small>
-                    <h2 class="font-monospace fw-bold text-success my-1">{{ inscricao.cracha|default:"---" }}</h2>
-                    <p class="text-muted small mb-0">
-                        <i class="bi bi-info-circle me-1"></i>Apresente este QR Code ou o código no balcão de credenciamento para registrar sua entrada no evento.
-                    </p>
-                </div>
+            <div class="card-footer bg-light px-4 py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <small class="text-muted">SEA Eventos — Sistema de Eventos Acadêmicos</small>
+                <small class="text-muted">Gerado em {% now "d/m/Y H:i" %}</small>
             </div>
 
-            {% if participacoes %}
-
-                <!-- Atividades pendentes ou em andamento -->
-                <div class="mb-4">
-                    <h5 class="fw-bold mb-3 text-dark">
-                        <i class="bi bi-calendar-check me-2 text-success"></i>Atividades Confirmadas / Em Andamento
-                    </h5>
-
-                    <div class="table-responsive">
-                        <table class="table table-hover border rounded align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Atividade</th>
-                                    <th class="text-center">Tipo</th>
-                                    <th>Horário</th>
-                                    <th>Local / Complemento</th>
-                                    <th class="text-center">Sua Função</th>
-                                    <th class="text-center">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for participa in participacoes %}
-                                    {% if not participa.atividade.horaFim or participa.atividade.horaFim >= agora %}
-                                        <tr>
-                                            <td class="align-middle">
-                                                <div class="d-flex align-items-center">
-                                                    <i class="bi bi-calendar2-event text-success me-2"></i>
-                                                    <span class="fw-semibold">{{ participa.atividade.nome }}</span>
-                                                </div>
-                                            </td>
-
-                                            <td class="text-center align-middle">
-                                                <span class="badge bg-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                    <i class="bi bi-tag-fill me-1"></i> {{ participa.atividade.get_tipoAtividade_display|default:participa.atividade.tipoAtividade }}
-                                                </span>
-                                            </td>
-
-                                            <td class="align-middle">
-                                                <div class="small">
-                                                    <i class="bi bi-clock me-1 text-muted"></i>
-                                                    <span>{{ participa.atividade.horaInicio|date:"d/m/Y H:i" }}</span> -
-                                                    <span class="text-muted">{{ participa.atividade.horaFim|date:"H:i" }}</span>
-                                                </div>
-                                            </td>
-
-                                            <td class="align-middle">
-                                                <span class="small text-secondary">
-                                                    <i class="bi bi-geo-alt me-1 text-muted"></i>
-                                                    {{ participa.atividade.complementoLocal|default:evento.local }}
-                                                </span>
-                                            </td>
-
-                                            <td class="text-center align-middle">
-                                                {% if participa.funcao == 'Palestrante' %}
-                                                    <span class="badge bg-success text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                        <i class="bi bi-mic-fill me-1"></i> Palestrante
-                                                    </span>
-                                                {% elif participa.funcao == 'Organizador' %}
-                                                    <span class="badge bg-warning text-dark px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                        <i class="bi bi-star-fill me-1"></i> Organizador
-                                                    </span>
-                                                {% else %}
-                                                    <span class="badge bg-info text-dark px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                        <i class="bi bi-person-fill me-1"></i> {{ participa.get_funcao_display|default:participa.funcao|default:'Participante' }}
-                                                    </span>
-                                                {% endif %}
-                                            </td>
-
-                                            <td class="text-center align-middle">
-                                                {% if participa.atividade.horaInicio and participa.atividade.horaInicio <= agora and participa.atividade.horaFim >= agora %}
-                                                    <span class="badge bg-primary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                        <i class="bi bi-broadcast me-1"></i> Participando
-                                                    </span>
-                                                {% else %}
-                                                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                        <i class="bi bi-check2-circle me-1"></i> Confirmado
-                                                    </span>
-                                                {% endif %}
-                                            </td>
-                                        </tr>
-                                    {% endif %}
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Atividades concluídas -->
-                <div class="mt-5">
-                    <h5 class="fw-bold mb-3 text-dark">
-                        <i class="bi bi-check-circle-fill me-2 text-success"></i>Atividades Concluídas
-                    </h5>
-
-                    <div class="table-responsive">
-                        <table class="table table-hover border rounded align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Atividade</th>
-                                    <th class="text-center">Tipo</th>
-                                    <th>Horário</th>
-                                    <th>Local / Complemento</th>
-                                    <th class="text-center">Sua Função</th>
-                                    <th class="text-center">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for participa in participacoes %}
-                                    {% if participa.atividade.horaFim and participa.atividade.horaFim < agora %}
-                                        <tr>
-                                            <td class="align-middle">
-                                                <div class="d-flex align-items-center">
-                                                    <i class="bi bi-calendar2-check text-muted me-2"></i>
-                                                    <span class="fw-semibold text-secondary">{{ participa.atividade.nome }}</span>
-                                                </div>
-                                            </td>
-
-                                            <td class="text-center align-middle">
-                                                <span class="badge bg-secondary text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                    <i class="bi bi-tag-fill me-1"></i> {{ participa.atividade.get_tipoAtividade_display|default:participa.atividade.tipoAtividade }}
-                                                </span>
-                                            </td>
-
-                                            <td class="align-middle">
-                                                <div class="small text-muted">
-                                                    <i class="bi bi-clock me-1 text-muted"></i>
-                                                    <span>{{ participa.atividade.horaInicio|date:"d/m/Y H:i" }}</span> -
-                                                    <span>{{ participa.atividade.horaFim|date:"H:i" }}</span>
-                                                </div>
-                                            </td>
-
-                                            <td class="align-middle">
-                                                <span class="small text-secondary">
-                                                    <i class="bi bi-geo-alt me-1 text-muted"></i>
-                                                    {{ participa.atividade.complementoLocal|default:evento.local }}
-                                                </span>
-                                            </td>
-
-                                            <td class="text-center align-middle">
-                                                {% if participa.funcao == 'Palestrante' %}
-                                                    <span class="badge bg-success text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                        <i class="bi bi-mic-fill me-1"></i> Palestrante
-                                                    </span>
-                                                {% elif participa.funcao == 'Organizador' %}
-                                                    <span class="badge bg-warning text-dark px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                        <i class="bi bi-star-fill me-1"></i> Organizador
-                                                    </span>
-                                                {% else %}
-                                                    <span class="badge bg-info text-dark px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                        <i class="bi bi-person-fill me-1"></i> {{ participa.get_funcao_display|default:participa.funcao|default:'Participante' }}
-                                                    </span>
-                                                {% endif %}
-                                            </td>
-
-                                            <td class="text-center align-middle">
-                                                <span class="badge bg-success text-white px-3 py-2 fs-6 fw-semibold d-inline-flex align-items-center">
-                                                    <i class="bi bi-check-circle-fill me-1"></i> Concluída
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    {% endif %}
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            {% else %}
-                <div class="alert alert-light border text-muted mb-0">
-                    <i class="bi bi-info-circle me-2"></i>Nenhuma atividade específica vinculada a este comprovante.
-                </div>
-            {% endif %}
-
-        </div>
-
-        <div class="card-footer bg-light p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <small class="text-muted">SEA - Sistema de Eventos Acadêmicos</small>
-            <small class="text-muted">Gerado em {% now "d/m/Y H:i" %}</small>
-        </div>
+        </article>
 
     </div>
-</div>
+</section>
 {% endblock %}

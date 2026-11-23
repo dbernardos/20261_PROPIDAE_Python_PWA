@@ -134,7 +134,7 @@ def meu_usuario(request):
             return redirect('app_login:urllogin') 
 
         else:
-            # Edição de perfil (acao == 'editar_perfil' ou envio padrão do formulário)
+            # Edição de perfil
             form = EditarPerfilForm(request.POST, request.FILES, instance=usuario)
             if form.is_valid():
               
@@ -150,6 +150,8 @@ def meu_usuario(request):
             else:
                 messages.error(request, 'Não foi possível salvar. Verifique os erros no formulário.')
 
+    password_form.fields['old_password'].widget.attrs.pop('autofocus', None)
+    
     return render(request, 'app_evento/meu_usuario.html', {
         'usuario': usuario,
         'form': form,

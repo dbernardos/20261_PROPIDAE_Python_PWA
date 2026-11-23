@@ -63,23 +63,31 @@ class Usuario(models.Model):
 
     @property
     def total_eventos_participados(self):
-        """Quantidade total de eventos em que o usuário possui inscrição."""
-        from app_evento.models import Inscricao
+        """Quantidade de eventos distintos em que o usuário teve ao menos uma presença registrada."""
+        from app_evento.models import Participa
 
         return (
-            Inscricao.objects.filter(usuario=self)
-            .values('evento_id')
+            Participa.objects.filter(
+                Q(presente=True) | Q(data_hora_presenca__isnull=False),
+                inscricao__usuario=self,
+                inscricao__ativa=True,
+            )
+            .values('inscricao__evento_id')
             .distinct()
             .count()
         )
 
     @property
     def total_atividades(self):
-        """Quantidade total de atividades em que o usuário registrou participação."""
+        """Quantidade de atividades distintas em que o usuário registrou presença."""
         from app_evento.models import Participa
 
         return (
-            Participa.objects.filter(inscricao__usuario=self)
+            Participa.objects.filter(
+                Q(presente=True) | Q(data_hora_presenca__isnull=False),
+                inscricao__usuario=self,
+                inscricao__ativa=True,
+            )
             .values('atividade_id')
             .distinct()
             .count()

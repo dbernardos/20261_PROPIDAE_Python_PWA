@@ -1,19 +1,48 @@
-/* Palette de Cores Verde e Branco (IFSC / Eventos) */
-:root {
-  --verde-principal: #0d5c3a;
-  --verde-escuro: #0a3a25;
-  --verde-destaque: #25c274;
-  --verde-claro: #e8f5e9;
-  --branco: #ffffff;
+/* =========================================================
+   BANNER E QR CODE (MINHAS INSCRIÇÕES E COMPROVANTE)
+   ========================================================= */
+.banner-evento-container {
+  background-color: #f4f7f5;
+  aspect-ratio: 4 / 3;
+  border: 1px solid #e2e8e4;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.text-verde-escuro {
-  color: var(--verde-escuro) !important;
+.banner-evento-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
-.card-custom {
+.qrcode-container-destaque,
+.qrcode-indisponivel {
+  width: 140px;
+  height: 140px;
+  flex: 0 0 140px;
+  background-color: var(--branco);
+  border: 1px solid #d5e6da;
   border-radius: 12px;
-  border: 1px solid #e3e6f0;
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.qrcode-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.qrcode-modal {
+  max-width: 220px;
 }
 
 /* =========================================================
@@ -23,7 +52,7 @@
   width: 100%;
   max-width: 380px;
   background-color: var(--branco);
-  border: 2px solid var(--verde-principal);
+  border: 2px solid var(--verde-escuro);
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
@@ -33,12 +62,11 @@
   box-sizing: border-box;
 }
 
-/* Cabeçalho */
 .badge-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 2px solid var(--verde-claro);
+  border-bottom: 2px solid #edf5ef;
   padding-bottom: 12px;
 }
 
@@ -49,7 +77,7 @@
 }
 
 .badge-logo-placeholder {
-  background-color: var(--verde-principal);
+  background-color: var(--verde-escuro);
   color: var(--branco);
   font-weight: 800;
   padding: 4px 10px;
@@ -74,9 +102,8 @@
   font-size: 0.75rem;
 }
 
-/* Tag de Função */
 .badge-role-title {
-  background-color: var(--verde-principal);
+  background-color: var(--verde-escuro);
   color: var(--branco);
   font-weight: 700;
   font-size: 0.85rem;
@@ -88,7 +115,6 @@
   margin: 16px 0 12px 0;
 }
 
-/* Grid com Foto e QR Code */
 .badge-media-grid {
   display: flex;
   align-items: center;
@@ -102,7 +128,7 @@
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid var(--verde-destaque);
+  border: 3px solid var(--verde-claro);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -116,10 +142,9 @@
   justify-content: center;
   font-size: 3rem;
   color: #adb5bd;
-  border: 3px solid var(--verde-destaque);
+  border: 3px solid var(--verde-claro);
 }
 
-/* QR Code Wrapper */
 .badge-qrcode-wrapper {
   display: flex;
   flex-direction: column;
@@ -156,7 +181,6 @@
   color: var(--verde-escuro);
 }
 
-/* Nome do Utilizador */
 .badge-name-section {
   text-align: center;
   margin: 12px 0;
@@ -175,12 +199,11 @@
   color: #6c757d;
 }
 
-/* Rodapé do Crachá */
 .badge-footer-info {
-  background-color: var(--verde-claro);
+  background-color: #edf5ef;
   border-radius: 10px;
   padding: 10px 12px;
-  border-left: 4px solid var(--verde-principal);
+  border-left: 4px solid var(--verde-escuro);
   margin-top: 8px;
 }
 
@@ -198,66 +221,143 @@
 }
 
 /* =========================================================
-   PÁGINA: MINHAS INSCRIÇÕES / LISTAGEM DE EVENTOS
-   ========================================================= */
-.faixa-evento-header {
-  background: linear-gradient(135deg, var(--verde-escuro) 0%, var(--verde-principal) 100%) !important;
-}
-
-.badge-funcao-verde {
-  background-color: var(--verde-claro) !important;
-  color: var(--verde-escuro) !important;
-  border: 1px solid var(--verde-destaque) !important;
-  font-weight: 600;
-  padding: 6px 14px;
-  border-radius: 20px;
-}
-
-.qr-code-thumb {
-  width: 90px;
-  height: 90px;
-  object-fit: contain;
-}
-
-.tracking-wide {
-  letter-spacing: 0.5px;
-}
-
-/* =========================================================
-   REGRAS DE IMPRESSÃO (PDF / IMPRESSORA)
+   REGRAS DE IMPRESSÃO (CRACHÁ E COMPROVANTE )
    ========================================================= */
 @media print {
-  /* Esconde barras e atalhos da web */
-  .no-print,
-  nav,
-  footer {
-    display: none !important;
+  @page {
+    size: auto;
+    margin: 0;
   }
 
   body {
     background-color: var(--branco) !important;
-    padding: 0 !important;
     margin: 0 !important;
+    padding: 0 !important;
   }
 
-  .container {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 0 !important;
+  /* Oculta toda a tela de fundo */
+  body * {
+    visibility: hidden;
+  }
+
+  .no-print,
+  nav,
+  footer,
+  .modal-backdrop,
+  .modal-header,
+  .modal-footer {
+    display: none !important;
+  }
+
+  /* 1. Impressão da página dedicada comprovante.html */
+  .comprovante-printable,
+  .comprovante-printable * {
+    visibility: visible !important;
+  }
+
+  .comprovante-printable {
+    position: absolute;
+    left: 1cm;
+    top: 1cm;
+    width: calc(100% - 2cm);
+    box-shadow: none !important;
+    border: 1px solid #d5e6da !important;
+  }
+
+  .comprovante-printable .table-responsive {
+    overflow: visible !important;
+  }
+
+  /* Impressão do Crachá no modal aberto */
+  .modal.show,
+  .modal.show .modal-dialog,
+  .modal.show .modal-content {
+    position: static !important;
+    transform: none !important;
     margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
+  .modal.show .modal-body,
+  .modal.show .modal-body * {
+    visibility: visible !important;
+  }
+
+  .modal.show .modal-body {
+    position: fixed;
+    top: 1.5cm;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 390px;
+    background-color: var(--branco) !important;
+    border: 2px solid var(--verde-escuro) !important;
+    border-radius: 16px;
+    page-break-inside: avoid;
+  }
+
+  /* Compatibilidade com página dedicada do crachá */
+  .print-container,
+  .print-container * {
+    visibility: visible !important;
   }
 
   .print-container {
+    position: fixed;
+    top: 1.5cm;
+    left: 0;
+    width: 100%;
     display: flex !important;
     justify-content: center !important;
-    align-items: flex-start !important;
-    margin: 0 !important;
   }
 
   .badge-card {
     box-shadow: none !important;
-    border: 2px solid var(--verde-principal) !important;
+    border: 2px solid var(--verde-escuro) !important;
     page-break-inside: avoid;
-    margin-top: 20px;
   }
+
+
+
+  /* Reduz o tamanho do banner e do QR Code na impressão do comprovante */
+  .comprovante-printable .banner-evento-container {
+    max-width: 150px;
+    max-height: 105px;
+    aspect-ratio: auto;
+    padding: 4px;
+  }
+
+  .comprovante-printable .banner-evento-img {
+    max-height: 95px !important;
+    width: auto !important;
+  }
+
+  .comprovante-printable .qrcode-container-destaque,
+  .comprovante-printable .qrcode-indisponivel {
+    width: 100px;
+    height: 100px;
+    flex: 0 0 100px;
+  }
+
+  /* Mantém o banner ao lado dos detalhes mesmo na largura da folha A4 */
+  .comprovante-printable .card-body > .row:first-child {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+  }
+
+  .comprovante-printable .card-body > .row:first-child > [class*="col-"]:first-child {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  .comprovante-printable .card-body > .row:first-child > [class*="col-"]:last-child {
+    width: auto;
+    flex: 1 1 auto;
+  }
+
+
 }

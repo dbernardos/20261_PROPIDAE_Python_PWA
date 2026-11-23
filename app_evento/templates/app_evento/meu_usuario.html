@@ -7,295 +7,314 @@
 {% endblock %}
 
 {% block content %}
-<div class="container my-5 fade-in">
-  <div class="row justify-content-center">
-    <div class="col-lg-10">
+<section class="py-4 py-md-5">
+  <div class="container fade-in">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
 
-      <!-- Card do Perfil -->
-      <div class="card card-custom mb-4">
-        <div class="card-header card-header-custom py-3 text-center">
-          <h4 class="mb-0">Meu Perfil</h4>
+        <!-- Cabeçalho -->
+        <div class="mb-4">
+          <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1">Conta</span>
+          <h2 class="fw-bold text-dark mb-1">Meu <span class="text-verde-escuro">Perfil</span></h2>
+          <p class="text-muted mb-0">Visualize suas informações, edite seus dados ou altere sua senha.</p>
         </div>
-        <div class="card-body p-4">
-          
-          <div class="row align-items-center">
-            
-            <!-- COLUNA 1 -->
-            <div class="col-lg-7 mb-4 mb-lg-0">
-              <div class="d-flex align-items-center gap-3">
-                
-                <!-- Foto de Perfil -->
-                <div class="flex-shrink-0">
-                  {% if usuario.fotoPerfil %}
-                    <img src="{{ usuario.fotoPerfil.url }}" 
-                         alt="Foto de {{ usuario.nome }}" 
-                         class="rounded-circle img-thumbnail shadow" 
-                         style="width: 140px; height: 140px; min-width: 140px; object-fit: cover;">
-                  {% else %}
-                    <div class="rounded-circle bg-verde-escuro text-white d-flex align-items-center justify-content-center shadow" 
-                         style="width: 140px; height: 140px; min-width: 140px; font-size: 3rem;">
-                      {{ usuario.nome|slice:":1"|upper }}
-                    </div>
-                  {% endif %}
-                </div>
 
-                <!-- Dados Principais -->
-                <div class="text-start">
-                  <h4 class="text-verde-escuro fw-bold mb-1">{{ usuario.nome|default:"Não informado" }}</h4>
-                  <p class="text-muted mb-2 small">
-                    <strong>Cargo:</strong> {{ usuario.cargo|default:"Não informado" }}
-                  </p>
-                  {% if usuario.empresa %}
-                    <span class="badge bg-verde-claro text-verde-escuro px-2 py-1 fw-bold" style="font-size: 0.85rem;">
-                      {{ usuario.empresa }}
-                    </span>
-                  {% endif %}
+        <!-- Card Principal -->
+        <div class="card card-custom overflow-hidden">
 
-                  <br>
-                  <!- Nível e Pontuação -->
-                  <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
-                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3 py-1 fw-semibold d-inline-flex align-items-center gap-1">
-                      <i class="bi bi-shield-lock-fill text-warning"></i>
-                      Nível {{ usuario.nivel|default:"1" }}
-                    </span>
-
-                    <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle rounded-pill px-3 py-1 fw-bold d-inline-flex align-items-center gap-1">
-                      <i class="bi bi-star-fill text-success"></i>
-                      {{ usuario.pontos_totais|default:"0" }} pts
-                    </span>
-                  </div>
-                </div>
-                  
-              </div>
-            </div>
-
-            <!-- COLUNA 2 -->
-            <div class="col-lg-5">
-              <div class="row g-2 text-center">
-                <div class="col-4">
-                  <div class="card border-0 shadow-sm p-2 bg-white h-100">
-                    <h5 class="fw-bold text-primary mb-0">{{ usuario.total_eventos_participados|default:"0" }}</h5>
-                    <span class="text-muted" style="font-size: 0.75rem;">Eventos</span>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <div class="card border-0 shadow-sm p-2 bg-white h-100">
-                    <h5 class="fw-bold text-success mb-0">{{ usuario.total_atividades|default:"0" }}</h5>
-                    <span class="text-muted" style="font-size: 0.75rem;">Atividades</span>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <div class="card border-0 shadow-sm p-2 bg-white h-100">
-                    <h5 class="fw-bold text-warning mb-0">{{ usuario.pontos_totais|default:"0" }}</h5>
-                    <span class="text-muted" style="font-size: 0.75rem;">Pontos</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
+          <!-- Abas -->
+          <div class="card-header bg-light border-bottom p-3 px-4">
+            <ul class="nav nav-pills gap-2" id="perfilTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-pill px-3 py-1 small {% if not form.errors and not password_form.errors %}active{% endif %}"
+                        id="dados-tab" data-bs-toggle="tab" data-bs-target="#tab-dados" type="button" role="tab">
+                  <i class="bi bi-person me-1"></i> Meus Dados
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-pill px-3 py-1 small {% if form.errors %}active{% endif %}"
+                        id="editar-tab" data-bs-toggle="tab" data-bs-target="#tab-editar" type="button" role="tab">
+                  <i class="bi bi-pencil-square me-1"></i> Editar Perfil
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-pill px-3 py-1 small {% if password_form.errors %}active{% endif %}"
+                        id="senha-tab" data-bs-toggle="tab" data-bs-target="#tab-senha" type="button" role="tab">
+                  <i class="bi bi-key me-1"></i> Senha e Conta
+                </button>
+              </li>
+            </ul>
           </div>
 
-          <hr class="my-4">
-
-          <!-- Grade de Informações Detalhadas -->
-          <div class="row g-3">
-            <div class="col-md-6">
-              <p class="mb-1 text-muted small">E-mail</p>
-              <h6 class="fw-bold text-dark">{{ usuario.email|default:"-" }}</h6>
-            </div>
-
-            <div class="col-md-6">
-              <p class="mb-1 text-muted small">CPF</p>
-              <h6 class="fw-bold text-dark">{{ usuario.cpf|default:"-" }}</h6>
-            </div>
-
-            <div class="col-md-6">
-              <p class="mb-1 text-muted small">Telefone</p>
-              <h6 class="fw-bold text-dark">{{ usuario.telefone|default:"-" }}</h6>
-            </div>
-
-            <div class="col-md-6">
-              <p class="mb-1 text-muted small">Data de Nascimento</p>
-              <h6 class="fw-bold text-dark">
-                {% if usuario.dataNascimento %}
-                  {{ usuario.dataNascimento|date:"d/m/Y" }}
-                {% else %}
-                  -
-                {% endif %}
-              </h6>
-            </div>
-
-            <div class="col-md-6">
-              <p class="mb-1 text-muted small">Formação Acadêmica</p>
-              <h6 class="fw-bold text-dark">{{ usuario.formacao|default:"-" }}</h6>
-            </div>
-
-            <div class="col-12 mt-3">
-              <p class="mb-1 text-muted small">Biografia</p>
-              <p class="p-3 bg-light rounded border text-secondary mb-0">
-                {{ usuario.biografia|default:"Nenhuma biografia cadastrada." }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Botão de Edição -->
-          <div class="text-end mt-4">
-            <button class="btn btn-primary-custom px-4" type="button" data-bs-toggle="collapse" data-bs-target="#formEdicao" aria-expanded="false" aria-controls="formEdicao">
-              Editar Perfil
-            </button>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- Editar Informações -->
-      <div class="collapse {% if form.errors or password_form.errors %}show{% endif %}" id="formEdicao">
-        <div class="card card-custom border">
-          <div class="card-header bg-verde-escuro text-white py-3">
-            <h5 class="mb-0">Editar Informações</h5>
-          </div>
           <div class="card-body p-4">
+            <div class="tab-content" id="perfilTabsContent">
 
-            {% if form.errors %}
-              <div class="alert alert-danger shadow-sm mb-4">
-                <h6 class="fw-bold mb-2"><i class="bi bi-exclamation-triangle-fill me-2"></i>O formulário não foi salvo pelos seguintes motivos:</h6>
-                <ul class="mb-0 ps-3">
-                  {% for field, errors in form.errors.items %}
-                    {% for error in errors %}
-                      <li><strong>{{ field|capfirst }}:</strong> {{ error }}</li>
-                    {% endfor %}
-                  {% endfor %}
-                </ul>
+              <!-- MEUS DADOS -->
+              <div class="tab-pane fade {% if not form.errors and not password_form.errors %}show active{% endif %}" id="tab-dados" role="tabpanel">
+                <div class="row g-4 align-items-center">
+
+                  <!-- Avatar e Identificação -->
+                  <div class="col-lg-7">
+                    <div class="d-flex flex-column flex-sm-row align-items-center align-items-sm-start gap-3 text-center text-sm-start">
+                      <div class="flex-shrink-0">
+                        {% if usuario.fotoPerfil %}
+                          <img src="{{ usuario.fotoPerfil.url }}" alt="Foto de {{ usuario.nome }}" class="perfil-avatar">
+                        {% else %}
+                          <div class="perfil-avatar-placeholder">
+                            {{ usuario.nome|slice:":1"|upper }}
+                          </div>
+                        {% endif %}
+                      </div>
+
+                      <div>
+                        <h3 class="h4 text-verde-escuro fw-bold mb-1">{{ usuario.nome|default:"Não informado" }}</h3>
+                        <p class="text-muted small mb-2">
+                          <strong>Cargo:</strong> {{ usuario.cargo|default:"Não informado" }}
+                        </p>
+
+                        <div class="d-flex flex-wrap justify-content-center justify-content-sm-start gap-2">
+                          {% if usuario.empresa %}
+                            <span class="badge bg-light text-dark border rounded-pill px-3 py-1">
+                              <i class="bi bi-building text-verde-escuro me-1"></i> {{ usuario.empresa }}
+                            </span>
+                          {% endif %}
+                          <span class="badge badge-verde-suave rounded-pill px-3 py-1">
+                            <i class="bi bi-shield-check me-1"></i> Nível {{ usuario.nivel|default:"1" }}
+                          </span>
+                          <span class="badge badge-verde-suave rounded-pill px-3 py-1">
+                            <i class="bi bi-star-fill me-1"></i> {{ usuario.pontos_totais|default:"0" }} pts
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Contadores -->
+                  <div class="col-lg-5">
+                    <div class="row g-2 text-center">
+                      <div class="col-4">
+                        <div class="bg-light border rounded-3 p-2 p-sm-3 h-100">
+                          <span class="h4 fw-bold text-verde-escuro d-block mb-0">{{ usuario.total_eventos_participados|default:"0" }}</span>
+                          <span class="text-muted small">Eventos</span>
+                        </div>
+                      </div>
+                      <div class="col-4">
+                        <div class="bg-light border rounded-3 p-2 p-sm-3 h-100">
+                          <span class="h4 fw-bold text-verde-escuro d-block mb-0">{{ usuario.total_atividades|default:"0" }}</span>
+                          <span class="text-muted small">Atividades</span>
+                        </div>
+                      </div>
+                      <div class="col-4">
+                        <div class="bg-light border rounded-3 p-2 p-sm-3 h-100">
+                          <span class="h4 fw-bold text-verde-escuro d-block mb-0">{{ usuario.pontos_totais|default:"0" }}</span>
+                          <span class="text-muted small">Pontos</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Informações Detalhadas -->
+                <div class="row g-3 small">
+                  <div class="col-md-6">
+                    <div class="d-flex gap-2">
+                      <i class="bi bi-envelope text-verde-escuro mt-1"></i>
+                      <div>
+                        <span class="text-muted d-block">E-mail</span>
+                        <strong class="text-dark">{{ usuario.email|default:"-" }}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="d-flex gap-2">
+                      <i class="bi bi-person-vcard text-verde-escuro mt-1"></i>
+                      <div>
+                        <span class="text-muted d-block">CPF</span>
+                        <strong class="text-dark">{{ usuario.cpf|default:"-" }}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="d-flex gap-2">
+                      <i class="bi bi-telephone text-verde-escuro mt-1"></i>
+                      <div>
+                        <span class="text-muted d-block">Telefone</span>
+                        <strong class="text-dark">{{ usuario.telefone|default:"-" }}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="d-flex gap-2">
+                      <i class="bi bi-calendar-event text-verde-escuro mt-1"></i>
+                      <div>
+                        <span class="text-muted d-block">Data de Nascimento</span>
+                        <strong class="text-dark">
+                          {% if usuario.dataNascimento %}{{ usuario.dataNascimento|date:"d/m/Y" }}{% else %}-{% endif %}
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="d-flex gap-2">
+                      <i class="bi bi-mortarboard text-verde-escuro mt-1"></i>
+                      <div>
+                        <span class="text-muted d-block">Formação Acadêmica</span>
+                        <strong class="text-dark">{{ usuario.formacao|default:"-" }}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 mt-3">
+                    <span class="text-muted d-block mb-1">Biografia</span>
+                    <p class="p-3 bg-light rounded-3 border text-secondary mb-0">
+                      {{ usuario.biografia|default:"Nenhuma biografia cadastrada." }}
+                    </p>
+                  </div>
+                </div>
               </div>
-            {% endif %}
 
-            <!-- Formulário de Dados Pessoais -->
-            <form method="post" enctype="multipart/form-data" novalidate>
-              {% csrf_token %}
-              <input type="hidden" name="acao" value="editar_perfil">
+              <!-- EDITAR PERFIL -->
+              <div class="tab-pane fade {% if form.errors %}show active{% endif %}" id="tab-editar" role="tabpanel">
+                {% if form.errors %}
+                  <div class="alert alert-danger small mb-4">
+                    <strong>Não foi possível salvar:</strong> verifique os campos destacados abaixo.
+                  </div>
+                {% endif %}
 
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label for="{{ form.nome.id_for_label }}" class="form-label fw-bold">Nome Completo</label>
-                  {{ form.nome }}
-                  {% if form.nome.errors %}<div class="text-vermelho small mt-1">{{ form.nome.errors.0 }}</div>{% endif %}
-                </div>
+                <form method="post" enctype="multipart/form-data" novalidate>
+                  {% csrf_token %}
+                  <input type="hidden" name="acao" value="editar_perfil">
 
-                <div class="col-md-6">
-                  <label for="{{ form.email.id_for_label }}" class="form-label fw-bold">E-mail</label>
-                  {{ form.email }}
-                  {% if form.email.errors %}<div class="text-vermelho small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
-                </div>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="{{ form.nome.id_for_label }}" class="form-label fw-bold small">Nome Completo</label>
+                      {{ form.nome }}
+                      {% if form.nome.errors %}<div class="text-vermelho small mt-1">{{ form.nome.errors.0 }}</div>{% endif %}
+                    </div>
 
-                <div class="col-md-6">
-                  <label for="{{ form.telefone.id_for_label }}" class="form-label fw-bold">Telefone</label>
-                  {{ form.telefone }}
-                  {% if form.telefone.errors %}<div class="text-vermelho small mt-1">{{ form.telefone.errors.0 }}</div>{% endif %}
-                </div>
+                    <div class="col-md-6">
+                      <label for="{{ form.email.id_for_label }}" class="form-label fw-bold small">E-mail</label>
+                      {{ form.email }}
+                      {% if form.email.errors %}<div class="text-vermelho small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
+                    </div>
 
-                <div class="col-md-6">
-                  <label for="{{ form.dataNascimento.id_for_label }}" class="form-label fw-bold">Data de Nascimento</label>
-                  {{ form.dataNascimento }}
-                  {% if form.dataNascimento.errors %}<div class="text-vermelho small mt-1">{{ form.dataNascimento.errors.0 }}</div>{% endif %}
-                </div>
+                    <div class="col-md-6">
+                      <label for="{{ form.telefone.id_for_label }}" class="form-label fw-bold small">Telefone</label>
+                      {{ form.telefone }}
+                      {% if form.telefone.errors %}<div class="text-vermelho small mt-1">{{ form.telefone.errors.0 }}</div>{% endif %}
+                    </div>
 
-                <div class="col-md-6">
-                  <label for="{{ form.empresa.id_for_label }}" class="form-label fw-bold">Empresa / Instituição</label>
-                  {{ form.empresa }}
-                  {% if form.empresa.errors %}<div class="text-vermelho small mt-1">{{ form.empresa.errors.0 }}</div>{% endif %}
-                </div>
+                    <div class="col-md-6">
+                      <label for="{{ form.dataNascimento.id_for_label }}" class="form-label fw-bold small">Data de Nascimento</label>
+                      {{ form.dataNascimento }}
+                      {% if form.dataNascimento.errors %}<div class="text-vermelho small mt-1">{{ form.dataNascimento.errors.0 }}</div>{% endif %}
+                    </div>
 
-                <div class="col-md-6">
-                  <label for="{{ form.cargo.id_for_label }}" class="form-label fw-bold">Cargo</label>
-                  {{ form.cargo }}
-                  {% if form.cargo.errors %}<div class="text-vermelho small mt-1">{{ form.cargo.errors.0 }}</div>{% endif %}
-                </div>
+                    <div class="col-md-6">
+                      <label for="{{ form.empresa.id_for_label }}" class="form-label fw-bold small">Empresa / Instituição</label>
+                      {{ form.empresa }}
+                      {% if form.empresa.errors %}<div class="text-vermelho small mt-1">{{ form.empresa.errors.0 }}</div>{% endif %}
+                    </div>
 
-                <div class="col-md-6">
-                  <label for="{{ form.formacao.id_for_label }}" class="form-label fw-bold">Formação Acadêmica</label>
-                  {{ form.formacao }}
-                  {% if form.formacao.errors %}<div class="text-vermelho small mt-1">{{ form.formacao.errors.0 }}</div>{% endif %}
-                </div>
+                    <div class="col-md-6">
+                      <label for="{{ form.cargo.id_for_label }}" class="form-label fw-bold small">Cargo</label>
+                      {{ form.cargo }}
+                      {% if form.cargo.errors %}<div class="text-vermelho small mt-1">{{ form.cargo.errors.0 }}</div>{% endif %}
+                    </div>
 
-                <div class="col-md-6">
-                  <label for="{{ form.fotoPerfil.id_for_label }}" class="form-label fw-bold">Foto de Perfil (Máx. 2MB)</label>
-                  {{ form.fotoPerfil }}
-                  {% if form.fotoPerfil.errors %}<div class="text-vermelho small mt-1">{{ form.fotoPerfil.errors.0 }}</div>{% endif %}
-                </div>
+                    <div class="col-md-6">
+                      <label for="{{ form.formacao.id_for_label }}" class="form-label fw-bold small">Formação Acadêmica</label>
+                      {{ form.formacao }}
+                      {% if form.formacao.errors %}<div class="text-vermelho small mt-1">{{ form.formacao.errors.0 }}</div>{% endif %}
+                    </div>
 
-                <div class="col-12">
-                  <label for="{{ form.biografia.id_for_label }}" class="form-label fw-bold">Biografia</label>
-                  {{ form.biografia }}
-                  {% if form.biografia.errors %}<div class="text-vermelho small mt-1">{{ form.biografia.errors.0 }}</div>{% endif %}
-                </div>
+                    <div class="col-md-6">
+                      <label for="{{ form.fotoPerfil.id_for_label }}" class="form-label fw-bold small">Foto de Perfil (Máx. 2MB)</label>
+                      {{ form.fotoPerfil }}
+                      {% if form.fotoPerfil.errors %}<div class="text-vermelho small mt-1">{{ form.fotoPerfil.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="col-12">
+                      <label for="{{ form.biografia.id_for_label }}" class="form-label fw-bold small">Biografia</label>
+                      {{ form.biografia }}
+                      {% if form.biografia.errors %}<div class="text-vermelho small mt-1">{{ form.biografia.errors.0 }}</div>{% endif %}
+                    </div>
+                  </div>
+
+                  <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" class="btn btn-verde-escuro btn-sm px-4">
+                      <i class="bi bi-check2 me-1"></i> Salvar Alterações
+                    </button>
+                  </div>
+                </form>
               </div>
 
-              <div class="d-flex justify-content-end gap-2 mt-4">
-                <button type="button" class="btn btn-secondary-custom px-4" data-bs-toggle="collapse" data-bs-target="#formEdicao">
-                  Cancelar
-                </button>
-                <button type="submit" class="btn btn-primary-custom px-4">
-                  Salvar Alterações
-                </button>
-              </div>
-            </form>
+              <!-- SENHA E CONTA -->
+              <div class="tab-pane fade {% if password_form.errors %}show active{% endif %}" id="tab-senha" role="tabpanel">
+                <h6 class="fw-bold text-verde-escuro mb-3">
+                  <i class="bi bi-key-fill me-2"></i>Alterar Senha
+                </h6>
 
-            <hr class="my-4">
+                <form method="post" novalidate>
+                  {% csrf_token %}
+                  <input type="hidden" name="acao" value="alterar_senha">
+                  {% bootstrap_form password_form %}
 
-            <!-- Alterar Senha -->
-            <div class="bg-light border rounded-3 p-4">
-              <h6 class="fw-bold text-verde-escuro mb-3">
-                <i class="bi bi-key-fill me-2"></i>Alterar Senha
-              </h6>
+                  <div class="d-flex justify-content-end mt-3">
+                    <button type="submit" class="btn btn-verde-escuro btn-sm px-4">
+                      Atualizar Senha
+                    </button>
+                  </div>
+                </form>
 
-              <form method="post" novalidate>
-                {% csrf_token %}
-                <input type="hidden" name="acao" value="alterar_senha">
-                {% bootstrap_form password_form %}
+                <hr class="my-4">
 
-                <div class="d-flex justify-content-end mt-3">
-                  <button type="submit" class="btn btn-outline-success px-4">
-                    Atualizar Senha
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <small class="text-muted">Deseja encerrar permanentemente seu acesso ao portal?</small>
+                  <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalExclusaoConta">
+                    <i class="bi bi-trash me-1"></i> Excluir minha conta
                   </button>
                 </div>
-              </form>
-            </div>
+              </div>
 
-            <!-- Excluir Conta -->
-            <div class="d-flex justify-content-start align-items-center mt-4 pt-3 border-top">
-              <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExclusaoConta">
-                <i class="bi bi-trash me-1"></i>Excluir minha conta
-              </button>
             </div>
-
           </div>
         </div>
-      </div>
 
+      </div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- Modal de Confirmação de Exclusão de Conta -->
+<!-- Modal de Exclusão de Conta -->
 <div class="modal fade" id="modalExclusaoConta" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-danger">
+    <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
       <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Excluir Conta</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title fw-bold">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>Excluir Conta
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
-      <div class="modal-body text-start">
-        <p>Tem certeza que deseja excluir sua conta permanentemente?</p>
-        <p class="text-danger small mb-0">
-          <strong>Aviso:</strong> Esta ação não pode ser desfeita. Todos os seus pontos, inscrições e dados de perfil serão apagados.
+      <div class="modal-body p-4">
+        <p class="mb-2">Tem certeza que deseja excluir sua conta permanentemente?</p>
+        <p class="text-vermelho small mb-0">
+          <strong>Aviso:</strong> Esta ação não pode ser desfeita. Todos os seus pontos, inscrições e dados serão apagados.
         </p>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
         <form method="post">
           {% csrf_token %}
           <input type="hidden" name="acao" value="excluir_conta">
-          <button type="submit" class="btn btn-danger btn-sm">Sim, excluir minha conta</button>
+          <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3">Sim, excluir minha conta</button>
         </form>
       </div>
     </div>

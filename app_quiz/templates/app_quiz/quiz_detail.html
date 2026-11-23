@@ -8,7 +8,7 @@
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/quiz.css' %}" />
   <style>
-    /* Estilização focada no mobile para os botões de múltipla escolha */
+    /* estilização para Mobile */
     .quiz-btn {
         border: 2px solid #e9ecef;
         background-color: #fff;
@@ -28,8 +28,7 @@
         background-color: #198754 !important;
         color: white !important;
     }
-  </style><style>
-    /* Estilização focada no mobile */
+
     .challenge-card {
         background: #fff;
         border-radius: 1rem;
@@ -139,7 +138,7 @@
           {% csrf_token %}
           
           {% if quiz.tipo == 'MULTIPLA' %}
-            <!-- Layout de Múltipla Escolha (Mobile-First) -->
+            <!-- Layout de Múltipla Escolha  -->
             <div class="d-grid gap-2 mb-4">
               {% if quiz.opcao_a %}
                 <input type="radio" class="btn-check" name="resposta_multipla" id="opcaoA" value="A" required autocomplete="off">

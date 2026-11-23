@@ -1,0 +1,604 @@
+/* ==========================================================================
+   CATÁLOGO UNIFICADO (EVENTOS E MEUS EVENTOS) — SEA
+   ========================================================================== */
+
+.pagina-catalogo {
+    --cat-verde: var(--verde-escuro, #1b5e3a);
+    --cat-verde-hover: #154a2d;
+    --cat-verde-claro: var(--verde-claro, #8cc63f);
+    --cat-verde-suave: #edf5ef;
+    --cat-texto: #26352d;
+    --cat-texto-secundario: #68756d;
+    --cat-borda: #e3eae5;
+    --cat-fundo: #f7f9f7;
+
+    min-height: 100%;
+    padding: clamp(1.75rem, 3vw, 3rem) 0;
+    color: var(--cat-texto);
+    background: #f8faf8;
+}
+
+.pagina-catalogo .catalogo-container {
+    max-width: 1320px;
+}
+
+/* ==========================================================================
+   1. Cabeçalho da Página
+   ========================================================================== */
+.pagina-catalogo .catalogo-cabecalho {
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.pagina-catalogo .catalogo-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: .7rem;
+    color: var(--cat-verde);
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+}
+
+.pagina-catalogo .catalogo-titulo {
+    margin: 0 0 .65rem;
+    color: var(--cat-texto);
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -.045em;
+    line-height: 1.1;
+}
+
+.pagina-catalogo .catalogo-titulo span {
+    color: var(--cat-verde);
+}
+
+.pagina-catalogo .catalogo-subtitulo {
+    max-width: 680px;
+    color: var(--cat-texto-secundario);
+    font-size: .98rem;
+    line-height: 1.7;
+}
+
+/* Botão de destaque no topo (Criar Evento / Área Admin) */
+.pagina-catalogo .catalogo-topo-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+    border: 1px solid var(--cat-verde-claro);
+    border-radius: .75rem;
+    padding: .8rem 1.1rem;
+    background: var(--cat-verde-claro);
+    color: var(--cat-verde);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(24, 55, 36, .08);
+    transition: background-color .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+.pagina-catalogo .catalogo-topo-btn:hover {
+    background: #79ad32;
+    border-color: #79ad32;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   2. Caixa de Filtros
+   ========================================================================== */
+.pagina-catalogo .catalogo-filtros {
+    margin-bottom: 2.25rem;
+    overflow: hidden;
+    border: 1px solid var(--cat-borda) !important;
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow: 0 8px 28px rgba(24, 55, 36, .055);
+}
+
+.pagina-catalogo .catalogo-filtros .card-body {
+    padding: clamp(1.1rem, 2vw, 1.75rem);
+}
+
+.pagina-catalogo .catalogo-filtros-cabecalho {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    margin-bottom: 1.4rem;
+}
+
+.pagina-catalogo .catalogo-filtros-cabecalho h2 {
+    color: var(--cat-texto);
+    font-weight: 750;
+}
+
+.pagina-catalogo .catalogo-filtros-icone {
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex: 0 0 2.75rem;
+    place-items: center;
+    border-radius: .8rem;
+    background: var(--cat-verde-suave);
+    color: var(--cat-verde);
+    font-size: 1.15rem;
+}
+
+.pagina-catalogo .form-label {
+    margin-bottom: .45rem;
+    color: #34463a;
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.pagina-catalogo .form-control,
+.pagina-catalogo .form-select,
+.pagina-catalogo .input-group-text {
+    min-height: 2.85rem;
+    border-color: #dce5de;
+    border-radius: .65rem;
+    background-color: #fbfcfb;
+    color: var(--cat-texto);
+    font-size: .88rem;
+}
+
+.pagina-catalogo .input-group > .input-group-text {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    background: var(--cat-fundo);
+    color: var(--cat-verde);
+}
+
+.pagina-catalogo .input-group > .form-control {
+    min-width: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.pagina-catalogo .form-control:focus,
+.pagina-catalogo .form-select:focus {
+    border-color: #5e9872;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 .2rem rgba(27, 94, 58, .12);
+}
+
+/* Checkbox "Mostrar eventos encerrados" (exclusivo de eventos.html) */
+.pagina-catalogo .catalogo-encerrados {
+    display: flex;
+    min-height: 2.85rem;
+    align-items: center;
+    gap: .55rem;
+    margin: 0;
+    padding: .4rem .65rem;
+    border: 1px solid var(--cat-borda);
+    border-radius: .65rem;
+    background: var(--cat-fundo);
+}
+
+.pagina-catalogo .catalogo-encerrados .form-check-input {
+    margin: 0;
+    float: none;
+    flex: 0 0 auto;
+    cursor: pointer;
+}
+
+.pagina-catalogo .form-check-input:checked {
+    border-color: var(--cat-verde);
+    background-color: var(--cat-verde);
+}
+
+.pagina-catalogo .form-check-label {
+    color: #405247;
+    font-size: .78rem;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.pagina-catalogo .catalogo-acoes-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .65rem;
+    padding-top: .25rem;
+}
+
+.pagina-catalogo .catalogo-ajuda-filtro {
+    max-width: 48rem;
+    line-height: 1.5;
+}
+
+/* ==========================================================================
+   3. Cabeçalho da Listagem e Cartões Horizontais
+   ========================================================================== */
+.pagina-catalogo .catalogo-lista-cabecalho {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.pagina-catalogo .catalogo-lista-cabecalho h2 {
+    color: var(--cat-texto);
+    font-weight: 800;
+    letter-spacing: -.025em;
+}
+
+.pagina-catalogo .catalogo-contador {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    border: 1px solid #dce8df;
+    border-radius: 999px;
+    padding: .4rem .75rem;
+    background: #ffffff;
+    color: var(--cat-verde);
+    font-size: .78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.pagina-catalogo .catalogo-grid {
+    row-gap: 1.25rem;
+}
+
+.pagina-catalogo .catalogo-card {
+    overflow: hidden;
+    border: 1px solid var(--cat-borda) !important;
+    border-radius: 1rem;
+    background: #ffffff;
+    box-shadow: 0 4px 18px rgba(24, 55, 36, .045);
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.pagina-catalogo .catalogo-card:hover {
+    transform: translateY(-2px);
+    border-color: #c9dbce !important;
+    box-shadow: 0 12px 28px rgba(24, 55, 36, .09);
+}
+
+.pagina-catalogo .catalogo-banner {
+    min-height: 235px;
+    background: var(--cat-fundo);
+}
+
+.pagina-catalogo .catalogo-banner-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 235px;
+    object-fit: cover;
+}
+
+.pagina-catalogo .catalogo-banner-vazio {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    min-height: 235px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    padding: 1.5rem;
+    background: radial-gradient(circle at 20% 20%, rgba(27, 94, 58, .06), transparent 38%), var(--cat-fundo);
+    color: #849188;
+    font-size: .82rem;
+    text-align: center;
+}
+
+.pagina-catalogo .catalogo-banner-vazio i {
+    color: #7c9c85;
+    font-size: 2.6rem;
+}
+
+.pagina-catalogo .catalogo-card-conteudo {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    padding: 1.4rem;
+}
+
+.pagina-catalogo .catalogo-card-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .9rem;
+}
+
+.pagina-catalogo .catalogo-card-identificacao {
+    min-width: 0;
+}
+
+.pagina-catalogo .catalogo-card-etiqueta {
+    color: var(--cat-verde);
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.pagina-catalogo .catalogo-card-titulo {
+    color: var(--cat-texto);
+    font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+    font-weight: 800;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.pagina-catalogo .catalogo-topo-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .5rem;
+    flex: 0 0 auto;
+}
+
+.pagina-catalogo .catalogo-tipo-badge,
+.pagina-catalogo .catalogo-codigo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    border: 1px solid #d9e8dd;
+    border-radius: 999px;
+    padding: .45rem .7rem;
+    background: var(--cat-verde-suave);
+    color: var(--cat-verde);
+    font-size: .73rem;
+    font-weight: 750;
+    text-align: center;
+}
+
+.pagina-catalogo .catalogo-descricao {
+    margin-bottom: 1.1rem;
+    color: var(--cat-texto-secundario);
+    font-size: .9rem;
+    line-height: 1.65;
+}
+
+.pagina-catalogo .catalogo-descricao-vazia {
+    font-style: italic;
+}
+
+/* ==========================================================================
+   4. Metadados do Evento (Data, Local, Vagas)
+   ========================================================================== */
+.pagina-catalogo .catalogo-metadados {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.5rem;
+    margin: .2rem 0 1rem;
+    color: var(--cat-texto-secundario);
+    font-size: .82rem;
+    line-height: 1.5;
+}
+
+.pagina-catalogo .catalogo-metadado {
+    display: flex;
+    min-width: 0;
+    align-items: flex-start;
+    gap: .65rem;
+}
+
+.pagina-catalogo .catalogo-metadado > i {
+    flex: 0 0 auto;
+    margin-top: .15rem;
+    color: var(--cat-verde);
+    font-size: 1.05rem;
+}
+
+.pagina-catalogo .catalogo-metadado > div {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: .18rem;
+}
+
+.pagina-catalogo .catalogo-metadado span {
+    color: var(--cat-texto-secundario);
+    font-size: .72rem;
+    font-weight: 650;
+}
+
+.pagina-catalogo .catalogo-metadado strong,
+.pagina-catalogo .catalogo-metadados strong {
+    color: #34463a;
+    font-size: .82rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.pagina-catalogo .catalogo-metadado a {
+    color: var(--cat-verde);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+}
+
+/* ==========================================================================
+   5. Rodapé do Cartão e Botões (Busca, Detalhes e Gestão)
+   ========================================================================== */
+.pagina-catalogo .catalogo-card-rodape {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #edf1ee;
+}
+
+.pagina-catalogo .catalogo-btn-primario,
+.pagina-catalogo .catalogo-btn-limpar,
+.pagina-catalogo .catalogo-card-rodape .btn {
+    display: inline-flex;
+    min-height: 2.65rem;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    border-radius: .65rem;
+    padding: .65rem 1rem;
+    font-size: .85rem;
+    font-weight: 750;
+    text-decoration: none;
+    transition: all .2s ease;
+}
+
+.pagina-catalogo .catalogo-btn-primario,
+.pagina-catalogo .btn-success {
+    background: var(--cat-verde);
+    border: 1.5px solid var(--cat-verde);
+    color: #ffffff;
+}
+
+.pagina-catalogo .catalogo-btn-primario:hover,
+.pagina-catalogo .btn-success:hover {
+    background: var(--cat-verde-hover);
+    border-color: var(--cat-verde-hover);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.pagina-catalogo .catalogo-btn-limpar {
+    background-color: #ffffff !important;
+    border: 2px solid var(--cat-verde) !important;
+    color: var(--cat-verde) !important;
+    box-shadow: 0 2px 6px rgba(27, 94, 58, 0.1);
+}
+
+.pagina-catalogo .catalogo-btn-limpar:hover {
+    background-color: var(--cat-verde-suave) !important;
+    border-color: var(--cat-verde-hover) !important;
+    color: var(--cat-verde-hover) !important;
+    transform: translateY(-1px);
+}
+
+/* Botões administrativos de meus_eventos.html */
+.pagina-catalogo .btn-warning {
+    border-color: #e4ad22;
+    background: #f4c542;
+    color: #33270a;
+}
+
+.pagina-catalogo .btn-danger {
+    border-color: var(--vermelho, #e30613);
+    background: var(--vermelho, #e30613);
+    color: #ffffff;
+}
+
+/* ==========================================================================
+   6. Estado Vazio
+   ========================================================================== */
+.pagina-catalogo .catalogo-vazio {
+    padding: clamp(2rem, 5vw, 4rem) 1.25rem;
+    border: 1px dashed #cddbd0;
+    border-radius: 1rem;
+    background: #ffffff;
+    text-align: center;
+}
+
+.pagina-catalogo .catalogo-vazio-icone {
+    display: grid;
+    width: 4.25rem;
+    height: 4.25rem;
+    margin: 0 auto 1.25rem;
+    place-items: center;
+    border-radius: 1.2rem;
+    background: var(--cat-verde-suave);
+    color: var(--cat-verde);
+    font-size: 1.8rem;
+}
+
+.pagina-catalogo .catalogo-vazio h3,
+.pagina-catalogo .catalogo-vazio h4 {
+    color: var(--cat-texto);
+    font-weight: 800;
+}
+
+.pagina-catalogo .catalogo-vazio p {
+    max-width: 35rem;
+    margin: 0 auto 1.25rem;
+    color: var(--cat-texto-secundario);
+    line-height: 1.65;
+}
+
+/* ==========================================================================
+   7. Responsividade
+   ========================================================================== */
+@media (min-width: 1200px) {
+    .pagina-catalogo .catalogo-card-conteudo {
+        padding: 1.6rem 1.8rem;
+    }
+
+    .pagina-catalogo .catalogo-banner,
+    .pagina-catalogo .catalogo-banner-img,
+    .pagina-catalogo .catalogo-banner-vazio {
+        min-height: 250px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .pagina-catalogo .catalogo-banner {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--cat-borda);
+    }
+
+    .pagina-catalogo .catalogo-banner-img {
+        max-height: 320px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .pagina-catalogo .catalogo-cabecalho {
+        margin-bottom: 1.5rem;
+    }
+
+    .pagina-catalogo .catalogo-card-conteudo {
+        padding: 1.15rem;
+    }
+
+    .pagina-catalogo .catalogo-metadados {
+        grid-template-columns: 1fr;
+        gap: .8rem;
+    }
+
+    .pagina-catalogo .catalogo-lista-cabecalho {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .pagina-catalogo .catalogo-topo-btn,
+    .pagina-catalogo .catalogo-btn-limpar,
+    .pagina-catalogo .catalogo-btn-primario,
+    .pagina-catalogo .catalogo-card-rodape .btn {
+        width: 100%;
+    }
+
+    .pagina-catalogo .catalogo-acoes-filtros {
+        flex-direction: column-reverse;
+    }
+
+    .pagina-catalogo .catalogo-card-topo,
+    .pagina-catalogo .catalogo-lista-cabecalho,
+    .pagina-catalogo .catalogo-card-rodape {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pagina-catalogo .catalogo-card,
+    .pagina-catalogo .catalogo-topo-btn {
+        transition: none;
+    }
+
+    .pagina-catalogo .catalogo-card:hover,
+    .pagina-catalogo .catalogo-topo-btn:hover {
+        transform: none;
+    }
+}

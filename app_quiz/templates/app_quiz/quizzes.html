@@ -12,7 +12,7 @@
 
 {% block extra_css%}
 <style>
-    /* Libera a barra de rolagem vertical mesmo que basepwa.html use overflow: hidden */
+    /* Evita a barra de rolagem */
     html, body {
       height: auto !important;
       min-height: 100dvh !important;
@@ -25,7 +25,6 @@
       padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
     }
 
-    /* Card compacto responsivo */
     .desafio-card {
       background: #ffffff;
       border: 1px solid #e3eae5;

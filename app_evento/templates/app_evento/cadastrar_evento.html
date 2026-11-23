@@ -3,131 +3,163 @@
 {% load django_bootstrap5 %}
 
 {% block title %}
-    {% if editando %}Editar Evento{% else %}Criar Evento{% endif %}
+  {% if editando %}Editar Evento{% else %}Criar Evento{% endif %}
 {% endblock %}
 
 {% block content %}
-<section class="py-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
+<section class="py-4 py-md-5">
+  <div class="container fade-in">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
 
+        <!-- Cabeçalho -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+          <div>
+            <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1">
+              Gestão de Eventos
+            </span>
+            <h2 class="fw-bold text-dark mb-1">
+              {% if editando %}
+                Editar <span class="text-verde-escuro">Evento</span>
+              {% else %}
+                Cadastrar <span class="text-verde-escuro">Evento</span>
+              {% endif %}
+            </h2>
+            <p class="text-muted mb-0">
+              {% if editando %}
+                Atualize as informações, período e banner de "{{ evento.nome }}".
+              {% else %}
+                Preencha os dados abaixo para publicar um novo evento no portal.
+              {% endif %}
+            </p>
+          </div>
 
-                <h2 class="fw-bold text-verde-escuro mb-4 d-flex align-items-center">
-                    {% if editando %}
-                        <i class="bi bi-pencil-square me-2 text-verde-claro"></i>Editar Evento: {{ evento.nome }}
-                    {% else %}
-                        <i class="bi bi-calendar-plus me-2 text-verde-claro"></i>Cadastrar Novo Evento
-                    {% endif %}
-                </h2>
-
-                <form method="POST" enctype="multipart/form-data" class="card p-4 shadow-sm bg-white border-0">
-                    {% csrf_token %}
-
-                    <div class="row g-3">
-                        <!-- Dados básicos -->
-                        <div class="col-12">
-                            {% bootstrap_field form_evento.nome %}
-                        </div>
-                        <div class="col-12">
-                            {% bootstrap_field form_evento.descricao %}
-                        </div>
-
-                        <!-- Contato, local e apoio -->
-                        <div class="col-md-6">
-                            {% bootstrap_field form_evento.emailContato %}
-                        </div>
-                        <div class="col-md-6">
-                            {% bootstrap_field form_evento.local %}
-                        </div>
-                        <div class="col-12">
-                            {% bootstrap_field form_evento.apoiadores %}
-                        </div>
-
-                        <!-- Período -->
-                        <div class="col-md-6">
-                            {% bootstrap_field form_evento.dataInicio %}
-                        </div>
-                        <div class="col-md-6">
-                            {% bootstrap_field form_evento.dataFim %}
-                        </div>
-
-                        <!-- Classificação e banner -->
-                        <div class="col-md-6">
-                            {% bootstrap_field form_evento.tipoEvento %}
-                        </div>
-                        <div class="col-md-6">
-                            {% bootstrap_field form_evento.imagemBanner %}
-                        </div>
-                    </div>
-
-                    <!-- Ações -->
-                    <div class="d-flex justify-content-end gap-2 mt-4">
-                        <a href="{% url 'app_evento:urldis_myevento' %}" class="btn btn-outline-secondary">
-                            Cancelar
-                        </a>
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-check-circle me-1"></i>
-                            {% if editando %}Salvar Alterações{% else %}Salvar Evento{% endif %}
-                        </button>
-                    </div>
-                </form>
-
-            </div>
+          <a href="{% url 'app_evento:urldis_myevento' %}"
+             class="btn btn-outline-secondary btn-sm rounded-pill px-3 align-self-start align-self-md-center">
+            <i class="bi bi-arrow-left me-1"></i> Voltar
+          </a>
         </div>
-    </div>
-</section>
-{% endblock %}
 
-{% block extra_js %}
+        <!-- Card do Formulário -->
+        <div class="card card-custom overflow-hidden">
+          <div class="card-header bg-light border-bottom py-3 px-4">
+            <span class="fw-bold text-verde-escuro small">
+              <i class="bi {% if editando %}bi-pencil-square{% else %}bi-calendar-plus{% endif %} me-1"></i>
+              Dados do Evento
+            </span>
+          </div>
+
+          <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data" novalidate>
+              {% csrf_token %}
+
+              {% bootstrap_form_errors form_evento %}
+
+              <div class="row g-3">
+                <!-- Dados básicos -->
+                <div class="col-12">
+                  {% bootstrap_field form_evento.nome %}
+                </div>
+                <div class="col-12">
+                  {% bootstrap_field form_evento.descricao %}
+                </div>
+
+                <!-- Contato, local e apoio -->
+                <div class="col-md-6">
+                  {% bootstrap_field form_evento.emailContato %}
+                </div>
+                <div class="col-md-6">
+                  {% bootstrap_field form_evento.local %}
+                </div>
+                <div class="col-12">
+                  {% bootstrap_field form_evento.apoiadores %}
+                </div>
+
+                <!-- Período -->
+                <div class="col-md-6">
+                  {% bootstrap_field form_evento.dataInicio %}
+                </div>
+                <div class="col-md-6">
+                  {% bootstrap_field form_evento.dataFim %}
+                </div>
+
+                <!-- Classificação e banner -->
+                <div class="col-md-6">
+                  {% bootstrap_field form_evento.tipoEvento %}
+                </div>
+                <div class="col-md-6">
+                  {% bootstrap_field form_evento.imagemBanner %}
+                </div>
+              </div>
+
+              <!-- Ações -->
+              <div class="d-flex justify-content-end gap-2 pt-3 mt-4 border-top">
+                <a href="{% url 'app_evento:urldis_myevento' %}"
+                   class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                  Cancelar
+                </a>
+                <button type="submit" class="btn btn-verde-escuro btn-sm px-4">
+                  <i class="bi bi-check2 me-1"></i>
+                  {% if editando %}Salvar Alterações{% else %}Salvar Evento{% endif %}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const dataInicio = document.getElementById('id_dataInicio');
-    const dataFim = document.getElementById('id_dataFim');
+  const dataInicio = document.getElementById('id_dataInicio');
+  const dataFim = document.getElementById('id_dataFim');
 
-    if (!dataInicio || !dataFim) return;
+  if (!dataInicio || !dataFim) return;
 
-    const formulario = dataInicio.closest('form');
+  const formulario = dataInicio.closest('form');
 
-    function sincronizarLimites() {
-        dataFim.min = dataInicio.value || '';
-        dataInicio.max = dataFim.value || '';
+  function sincronizarLimites() {
+    dataFim.min = dataInicio.value || '';
+    dataInicio.max = dataFim.value || '';
+  }
+
+  function validarIntervaloDatas() {
+    dataFim.setCustomValidity('');
+
+    if (dataInicio.value && dataFim.value && dataInicio.value > dataFim.value) {
+      dataFim.setCustomValidity('A data final deve ser igual ou posterior à data inicial.');
+      dataFim.reportValidity();
+      return false;
     }
 
-    function validarIntervaloDatas() {
-        dataFim.setCustomValidity('');
+    return true;
+  }
 
-        if (dataInicio.value && dataFim.value && dataInicio.value > dataFim.value) {
-            dataFim.setCustomValidity('A data final deve ser igual ou posterior à data inicial.');
-            dataFim.reportValidity();
-            return false;
-        }
-
-        return true;
-    }
-
-    dataInicio.addEventListener('change', function () {
-        sincronizarLimites();
-        validarIntervaloDatas();
-    });
-
-    dataFim.addEventListener('change', function () {
-        sincronizarLimites();
-        validarIntervaloDatas();
-    });
-
-    // Garante os limites já aplicados ao abrir na tela de edição
+  dataInicio.addEventListener('change', function () {
     sincronizarLimites();
+    validarIntervaloDatas();
+  });
 
-    if (formulario) {
-        formulario.addEventListener('submit', function (evento) {
-            if (!validarIntervaloDatas()) {
-                evento.preventDefault();
-                evento.stopPropagation();
-                return false;
-            }
-        });
-    }
+  dataFim.addEventListener('change', function () {
+    sincronizarLimites();
+    validarIntervaloDatas();
+  });
+
+  // Garante os limites já aplicados ao abrir na tela de edição
+  sincronizarLimites();
+
+  if (formulario) {
+    formulario.addEventListener('submit', function (evento) {
+      if (!validarIntervaloDatas()) {
+        evento.preventDefault();
+        evento.stopPropagation();
+        return false;
+      }
+    });
+  }
 });
 </script>
 {% endblock %}

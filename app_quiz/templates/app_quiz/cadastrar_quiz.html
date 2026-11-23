@@ -2,213 +2,239 @@
 {% load static %}
 
 {% block title %}
-  {% if editando %}Editar Quiz - {{ quiz.titulo }}{% else %}Cadastrar Quiz - {{ atividade.nome }}{% endif %}
+  {% if editando %}Editar Quiz | {{ quiz.titulo }}{% else %}Cadastrar Quiz | {{ atividade.nome }}{% endif %}
 {% endblock %}
 
 {% block content %}
+<section class="py-4 py-md-5">
+  <div class="container fade-in">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
 
-
-  <section class="py-5">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-lg-8">
-
-          <!-- Cabeçalho -->
-          <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-4">
-            <div>
-              <span class="badge bg-light text-dark border rounded-pill px-3 py-1 mb-2">
-                <i class="bi bi-calendar-event text-verde-claro me-1"></i>{{ atividade.nome }}
-              </span>
-              <h2 class="fw-bold text-verde-escuro mb-0">
-                {% if editando %}
-                  Editar Quiz #{{ quiz.numero }}
-                {% else %}
-                  Cadastrar Novo Quiz
-                {% endif %}
-              </h2>
-            </div>
-
-            {% if evento %}
-              <a href="{% url 'app_evento:urldet_myevento' evento.id %}" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-arrow-left me-1"></i> Voltar
-              </a>
-            {% endif %}
+        <!-- Cabeçalho -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+          <div>
+            <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1">
+              {{ atividade.nome }}
+            </span>
+            <h2 class="fw-bold text-dark mb-1">
+              {% if editando %}
+                Editar <span class="text-verde-escuro">Quiz #{{ quiz.numero }}</span>
+              {% else %}
+                Cadastrar <span class="text-verde-escuro">Quiz</span>
+              {% endif %}
+            </h2>
+            <p class="text-muted mb-0">
+              {% if editando %}
+                Atualize o enunciado, o gabarito e as configurações de "{{ quiz.titulo }}".
+              {% else %}
+                Configure um novo desafio numérico ou de múltipla escolha para os participantes.
+              {% endif %}
+            </p>
           </div>
 
-          <form method="POST" class="card border-0 shadow-sm rounded-4 p-4 bg-white" novalidate>
-            {% csrf_token %}
-
-            {% if form_quiz.non_field_errors %}
-              <div class="alert alert-danger">
-                {{ form_quiz.non_field_errors }}
-              </div>
-            {% endif %}
-
-            <!-- 1. Informações Gerais -->
-            <h5 class="fw-bold text-verde-escuro border-bottom pb-2 mb-3">
-              <i class="bi bi-info-circle me-1"></i> Informações Gerais
-            </h5>
-
-            <div class="row g-3 mb-4">
-              <div class="col-md-5">
-                <label for="{{ form_quiz.tipo.id_for_label }}" class="form-label fw-semibold">Modalidade do Quiz *</label>
-                {{ form_quiz.tipo }}
-                {% for error in form_quiz.tipo.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-              </div>
-
-              <div class="col-md-7">
-                <label for="{{ form_quiz.titulo.id_for_label }}" class="form-label fw-semibold">Título *</label>
-                {{ form_quiz.titulo }}
-                {% for error in form_quiz.titulo.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-              </div>
-
-              <div class="col-12">
-                <label for="{{ form_quiz.subtitulo.id_for_label }}" class="form-label fw-semibold">Subtítulo</label>
-                {{ form_quiz.subtitulo }}
-                {% for error in form_quiz.subtitulo.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-              </div>
-
-              <div class="col-12">
-                <label for="{{ form_quiz.pergunta.id_for_label }}" class="form-label fw-semibold">Pergunta / Enunciado *</label>
-                {{ form_quiz.pergunta }}
-                {% for error in form_quiz.pergunta.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-              </div>
-
-              <div class="col-12">
-                <label for="{{ form_quiz.dica.id_for_label }}" class="form-label fw-semibold">Dica ao Participante</label>
-                {{ form_quiz.dica }}
-                {% for error in form_quiz.dica.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-              </div>
-            </div>
-
-            <!-- 2A. Configuração Numérica / Métrica -->
-            <div id="bloco-metrica" class="bg-light rounded-3 p-3 mb-4 border">
-              <h5 class="fw-bold text-verde-escuro mb-3">
-                <i class="bi bi-rulers me-1"></i> Parâmetros Numéricos
-              </h5>
-
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label for="{{ form_quiz.unidade_medida.id_for_label }}" class="form-label fw-semibold">Unidade de Medida *</label>
-                  {{ form_quiz.unidade_medida }}
-                  <div class="form-text">{{ form_quiz.unidade_medida.help_text }}</div>
-                  {% for error in form_quiz.unidade_medida.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-                </div>
-
-                <div class="col-md-6">
-                  <label for="{{ form_quiz.valor_ideal.id_for_label }}" class="form-label fw-semibold">Valor Ideal (Na Mosca)</label>
-                  {{ form_quiz.valor_ideal }}
-                  <div class="form-text">{{ form_quiz.valor_ideal.help_text }}</div>
-                  {% for error in form_quiz.valor_ideal.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-                </div>
-
-                <div class="col-md-6">
-                  <label for="{{ form_quiz.valor_minimo.id_for_label }}" class="form-label fw-semibold">Valor Mínimo Aceitável *</label>
-                  {{ form_quiz.valor_minimo }}
-                  {% for error in form_quiz.valor_minimo.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-                </div>
-
-                <div class="col-md-6">
-                  <label for="{{ form_quiz.valor_maximo.id_for_label }}" class="form-label fw-semibold">Valor Máximo Aceitável *</label>
-                  {{ form_quiz.valor_maximo }}
-                  {% for error in form_quiz.valor_maximo.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-                </div>
-              </div>
-            </div>
-
-            <!-- 2B. Configuração Múltipla Escolha -->
-            <div id="bloco-multipla" class="bg-light rounded-3 p-3 mb-4 border d-none">
-              <h5 class="fw-bold text-verde-escuro mb-3">
-                <i class="bi bi-ui-radios me-1"></i> Alternativas (Até 4 opções)
-              </h5>
-
-              <div class="row g-3">
-                <div class="col-12">
-                  <label for="{{ form_quiz.opcao_a.id_for_label }}" class="form-label fw-semibold">Alternativa A *</label>
-                  {{ form_quiz.opcao_a }}
-                  {% for error in form_quiz.opcao_a.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-                </div>
-
-                <div class="col-12">
-                  <label for="{{ form_quiz.opcao_b.id_for_label }}" class="form-label fw-semibold">Alternativa B *</label>
-                  {{ form_quiz.opcao_b }}
-                  {% for error in form_quiz.opcao_b.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-                </div>
-
-                <div class="col-12">
-                  <label for="{{ form_quiz.opcao_c.id_for_label }}" class="form-label fw-semibold">Alternativa C</label>
-                  {{ form_quiz.opcao_c }}
-                  {% for error in form_quiz.opcao_c.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-                </div>
-
-                <div class="col-12">
-                  <label for="{{ form_quiz.opcao_d.id_for_label }}" class="form-label fw-semibold">Alternativa D</label>
-                  {{ form_quiz.opcao_d }}
-                  {% for error in form_quiz.opcao_d.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-                </div>
-
-                <div class="col-md-6">
-                  <label for="{{ form_quiz.alternativa_correta.id_for_label }}" class="form-label fw-semibold text-success">
-                    <i class="bi bi-check-circle-fill me-1"></i>Gabarito (Alternativa Correta) *
-                  </label>
-                  {{ form_quiz.alternativa_correta }}
-                  {% for error in form_quiz.alternativa_correta.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-                </div>
-              </div>
-            </div>
-
-            <!-- 3. Status e Ações -->
-            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 pt-3 border-top">
-              <div class="form-check form-switch">
-                {{ form_quiz.ativo }}
-                <label class="form-check-label fw-semibold" for="{{ form_quiz.ativo.id_for_label }}">
-                  Quiz ativo para os participantes
-                </label>
-              </div>
-
-              <div class="d-flex justify-content-end gap-2">
-                {% if evento %}
-                  <a href="{% url 'app_evento:urldet_myevento' evento.id %}" class="btn btn-outline-secondary">Cancelar</a>
-                {% else %}
-                  <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-outline-secondary">Cancelar</a>
-                {% endif %}
-
-                <button type="submit" class="btn btn-success fw-semibold px-4">
-                  <i class="bi bi-check-lg me-1"></i>
-                  {% if editando %}Salvar Alterações{% else %}Salvar Quiz{% endif %}
-                </button>
-              </div>
-            </div>
-          </form>
-
+          {% if evento %}
+            <a href="{% url 'app_evento:urldet_myevento' evento.id %}"
+               class="btn btn-outline-secondary btn-sm rounded-pill px-3 align-self-start align-self-md-center">
+              <i class="bi bi-arrow-left me-1"></i> Voltar
+            </a>
+          {% endif %}
         </div>
+
+        <!-- Card do Formulário -->
+        <div class="card card-custom overflow-hidden">
+          <div class="card-header bg-light border-bottom py-3 px-4">
+            <span class="fw-bold text-verde-escuro small">
+              <i class="bi {% if editando %}bi-pencil-square{% else %}bi-patch-question-fill{% endif %} me-1"></i>
+              Dados do Quiz
+            </span>
+          </div>
+
+          <div class="card-body p-4">
+            <form method="POST" novalidate>
+              {% csrf_token %}
+
+              {% if form_quiz.non_field_errors %}
+                <div class="alert alert-danger small mb-4">
+                  {{ form_quiz.non_field_errors }}
+                </div>
+              {% endif %}
+
+              <!-- 1. Informações Gerais -->
+              <h6 class="fw-bold text-verde-escuro border-bottom pb-2 mb-3">
+                <i class="bi bi-info-circle me-1"></i> Informações Gerais
+              </h6>
+
+              <div class="row g-3 mb-4">
+                <div class="col-md-5">
+                  <label for="{{ form_quiz.tipo.id_for_label }}" class="form-label fw-bold small">Modalidade do Quiz *</label>
+                  {{ form_quiz.tipo }}
+                  {% for error in form_quiz.tipo.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+
+                <div class="col-md-7">
+                  <label for="{{ form_quiz.titulo.id_for_label }}" class="form-label fw-bold small">Título *</label>
+                  {{ form_quiz.titulo }}
+                  {% for error in form_quiz.titulo.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+
+                <div class="col-12">
+                  <label for="{{ form_quiz.subtitulo.id_for_label }}" class="form-label fw-bold small">Subtítulo</label>
+                  {{ form_quiz.subtitulo }}
+                  {% for error in form_quiz.subtitulo.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+
+                <div class="col-12">
+                  <label for="{{ form_quiz.pergunta.id_for_label }}" class="form-label fw-bold small">Pergunta / Enunciado *</label>
+                  {{ form_quiz.pergunta }}
+                  {% for error in form_quiz.pergunta.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+
+                <div class="col-12">
+                  <label for="{{ form_quiz.dica.id_for_label }}" class="form-label fw-bold small">Dica ao Participante</label>
+                  {{ form_quiz.dica }}
+                  {% for error in form_quiz.dica.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+              </div>
+
+              <!--  Configuração Numérica / Métrica -->
+              <div id="bloco-metrica" class="bg-light rounded-3 p-3 p-md-4 mb-4 border">
+                <h6 class="fw-bold text-verde-escuro mb-3">
+                  Parâmetros Numéricos
+                </h6>
+
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="{{ form_quiz.unidade_medida.id_for_label }}" class="form-label fw-bold small">Unidade de Medida *</label>
+                    {{ form_quiz.unidade_medida }}
+                    {% if form_quiz.unidade_medida.help_text %}
+                      <div class="form-text small">{{ form_quiz.unidade_medida.help_text }}</div>
+                    {% endif %}
+                    {% for error in form_quiz.unidade_medida.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="{{ form_quiz.valor_ideal.id_for_label }}" class="form-label fw-bold small">Valor Ideal</label>
+                    {{ form_quiz.valor_ideal }}
+                    {% if form_quiz.valor_ideal.help_text %}
+                      <div class="form-text small">{{ form_quiz.valor_ideal.help_text }}</div>
+                    {% endif %}
+                    {% for error in form_quiz.valor_ideal.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="{{ form_quiz.valor_minimo.id_for_label }}" class="form-label fw-bold small">Valor Mínimo Aceitável *</label>
+                    {{ form_quiz.valor_minimo }}
+                    {% for error in form_quiz.valor_minimo.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="{{ form_quiz.valor_maximo.id_for_label }}" class="form-label fw-bold small">Valor Máximo Aceitável *</label>
+                    {{ form_quiz.valor_maximo }}
+                    {% for error in form_quiz.valor_maximo.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. Configuração Múltipla Escolha -->
+              <div id="bloco-multipla" class="bg-light rounded-3 p-3 p-md-4 mb-4 border d-none">
+                <h6 class="fw-bold text-verde-escuro mb-3">
+                   Alternativas (Até 4 opções)
+                </h6>
+
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label for="{{ form_quiz.opcao_a.id_for_label }}" class="form-label fw-bold small">Alternativa A *</label>
+                    {{ form_quiz.opcao_a }}
+                    {% for error in form_quiz.opcao_a.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
+                  </div>
+
+                  <div class="col-12">
+                    <label for="{{ form_quiz.opcao_b.id_for_label }}" class="form-label fw-bold small">Alternativa B *</label>
+                    {{ form_quiz.opcao_b }}
+                    {% for error in form_quiz.opcao_b.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
+                  </div>
+
+                  <div class="col-12">
+                    <label for="{{ form_quiz.opcao_c.id_for_label }}" class="form-label fw-bold small">Alternativa C</label>
+                    {{ form_quiz.opcao_c }}
+                    {% for error in form_quiz.opcao_c.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
+                  </div>
+
+                  <div class="col-12">
+                    <label for="{{ form_quiz.opcao_d.id_for_label }}" class="form-label fw-bold small">Alternativa D</label>
+                    {{ form_quiz.opcao_d }}
+                    {% for error in form_quiz.opcao_d.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
+                  </div>
+
+                  <div class="col-md-6">
+                    <label for="{{ form_quiz.alternativa_correta.id_for_label }}" class="form-label fw-bold small text-verde-escuro">
+                      <i class="bi bi-check-circle-fill me-1"></i>Gabarito (Alternativa Correta) *
+                    </label>
+                    {{ form_quiz.alternativa_correta }}
+                    {% for error in form_quiz.alternativa_correta.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Status e Ações -->
+              <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 pt-3 border-top">
+                <div class="form-check form-switch">
+                  {{ form_quiz.ativo }}
+                  <label class="form-check-label fw-semibold small" for="{{ form_quiz.ativo.id_for_label }}">
+                    Quiz ativo para os participantes
+                  </label>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                  {% if evento %}
+                    <a href="{% url 'app_evento:urldet_myevento' evento.id %}"
+                       class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                      Cancelar
+                    </a>
+                  {% else %}
+                    <a href="{% url 'app_evento:urldis_evento' %}"
+                       class="btn btn-outline-secondary btn-sm rounded-pill px-4">
+                      Cancelar
+                    </a>
+                  {% endif %}
+
+                  <button type="submit" class="btn btn-verde-escuro btn-sm px-4">
+                    <i class="bi bi-check2 me-1"></i>
+                    {% if editando %}Salvar Alterações{% else %}Salvar Quiz{% endif %}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
       </div>
     </div>
-  </section>
-{% endblock %}
+  </div>
+</section>
 
-{% block extra_js %}
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const selectTipo = document.getElementById('id_tipo');
-      const blocoMetrica = document.getElementById('bloco-metrica');
-      const blocoMultipla = document.getElementById('bloco-multipla');
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const selectTipo = document.getElementById('{{ form_quiz.tipo.id_for_label }}');
+  const blocoMetrica = document.getElementById('bloco-metrica');
+  const blocoMultipla = document.getElementById('bloco-multipla');
 
-      function atualizarCamposPorTipo() {
-        if (!selectTipo) return;
-        if (selectTipo.value === 'MULTIPLA') {
-          blocoMetrica.classList.add('d-none');
-          blocoMultipla.classList.remove('d-none');
-        } else {
-          blocoMultipla.classList.add('d-none');
-          blocoMetrica.classList.remove('d-none');
-        }
-      }
+  function atualizarCamposPorTipo() {
+    if (!selectTipo || !blocoMetrica || !blocoMultipla) return;
+    if (selectTipo.value === 'MULTIPLA') {
+      blocoMetrica.classList.add('d-none');
+      blocoMultipla.classList.remove('d-none');
+    } else {
+      blocoMultipla.classList.add('d-none');
+      blocoMetrica.classList.remove('d-none');
+    }
+  }
 
-      if (selectTipo) {
-        selectTipo.addEventListener('change', atualizarCamposPorTipo);
-        atualizarCamposPorTipo();
-      }
-    });
-  </script>
+  if (selectTipo) {
+    selectTipo.addEventListener('change', atualizarCamposPorTipo);
+    atualizarCamposPorTipo();
+  }
+});
+</script>
 {% endblock %}
