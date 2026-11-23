@@ -1,20 +1,42 @@
-Manual para Instalação.
+MANUAL DE INSTALAÇÃO
 
-python -m venv venv 
+##Instalação e Configuração
+##Siga os passos abaixo para configurar o ambiente de desenvolvimento localmente:
 
-Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser 
+0. Execute todos os processos abaixo de uma vez
+.\iniciar.bat
 
-venv/Scripts/activate.ps1  
+##Se quiser fazer manualmente, execute os códigos passo a passo abaixo
 
-pip install -r requirements.txt 
+1. Execute todos os processos abaixo de uma vez (se já estiver dentro do venv)
+python setup.py
 
+2. Crie o ambiente virtual
+python -m venv venv
+
+3. Libere a política de execução de scripts (Windows)
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
+
+4. Ative o ambiente virtual
+venv\Scripts\activate.ps1
+
+5. Instale as dependências listadas
+pip install -r requirements.txt
+
+6. Lê as mudanças no banco
+python manage.py makemigrations
+
+7. efetua as mudanças no banco
+python manage.py migrate
+
+8. Popule o banco de dados
 python popular_banco.py
 
+9. Colete os arquivos estáticos
 python manage.py collectstatic
 
-python manage.py runserver 
-
-python manage.py runserver 8080
+10. Execute o servidor de desenvolvimento (8000, 8080, depende da sua porta)
+python manage.py runserver
 
 ------ 
 
@@ -25,13 +47,9 @@ pip install django-bootstrap-v5
 pip install django-pwa 
 pip install django-extensions 
 pip install django-smart-selects 
-pip install uuid6 
 pip install pillow
 
-
-
 pip install --upgrade django (caso de algum erro no django admin)
-
 
 // Remover algo do cache do GIT
 git rm --cached caminho/para/o/arquivo.css

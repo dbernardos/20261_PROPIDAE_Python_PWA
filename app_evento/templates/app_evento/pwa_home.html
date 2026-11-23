@@ -1,57 +1,68 @@
 {% extends 'basepwa.html' %}
 {% load static %}
-{% load django_bootstrap5 %}
 
-{% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/pwa_home.css' %}">
+{% block title %}Acessar Evento | Portal SEA Eventos{% endblock %}
+
+
+{% block pwa_messages %}{% endblock %}
+
+{% block pre_script %}
 {% endblock %}
 
 {% block content %}
-<main class="pwa-screen-container">
-  
-  <div class="pwa-card-wrapper">
-    
+<div class="pwa-screen-container fade-in">
+
+  <div class="pwa-card-wrapper card card-custom border-0 border-md p-4 p-md-5 bg-white">
+
     <!-- Cabeçalho -->
     <div class="text-center">
       <div class="icon-circle-pwa shadow-sm">
-        <i class="bi bi-qr-code-scan" style="font-size: 2.1rem; color: #1b5e3a;"></i>
+        <i class="bi bi-qr-code-scan"></i>
       </div>
-      <h1 class="h4 fw-bold mb-1" style="color: #1b5e3a;">Acessar Evento</h1>
-      <p class="text-muted small px-1 mb-0" style="font-size: 0.88rem; line-height: 1.3;">
-        Digite o código do evento para acessar a programação e registrar sua presença.
+      <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1">
+        Portal SEA Eventos
+      </span>
+      <h1 class="h4 fw-bold text-dark mb-1">
+        Acessar <span class="text-verde-escuro">Evento</span>
+      </h1>
+      <p class="text-muted small mb-0">
+        Digite o código do evento para acessar a programação e abrir o leitor de presença.
       </p>
     </div>
 
+    <!-- Alertas de Erro / Aviso -->
     {% if messages %}
-    <div>
-      {% for message in messages %}
-      <div class="alert alert-danger fade show text-center border-0 shadow-sm rounded-3 small py-2 px-4 position-relative mb-0" role="alert">
-      
-        <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ message }}
-        
-       
-        <button type="button" 
-                class="btn-close position-absolute top-50 end-0 translate-middle-y me-2" 
-                data-bs-dismiss="alert" 
-                aria-label="Fechar"
-                style="font-size: 0.65rem;"></button>
+      <div class="d-flex flex-column gap-2">
+        {% for message in messages %}
+          <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'danger' }}{% endif %} alert-dismissible fade show text-center border-0 rounded-3 small py-2 px-3 mb-0 pwa-alert-auto"
+               role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ message }}
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Fechar"></button>
+          </div>
+        {% endfor %}
       </div>
-      {% endfor %}
-    </div>
     {% endif %}
 
-    <!-- Form com busca -->
-    <form method="POST" action="{% url 'app_evento:urlpwa_home' %}" autocomplete="off" class="d-flex flex-column gap-2">
+    <!-- Formulário de Busca -->
+    <form method="POST"
+          action="{% url 'app_evento:urlpwa_home' %}"
+          onsubmit="sessionStorage.removeItem('pwa_saiu_por_pin');"
+          autocomplete="off"
+          class="d-flex flex-column gap-3">
       {% csrf_token %}
 
       <div>
-        <input type="text" 
+        <label for="codigo_evento" class="visually-hidden">Código do Evento</label>
+        <input type="text"
                id="codigo_evento"
-               name="codigo_evento" 
+               name="codigo_evento"
                class="form-control custom-pwa-input shadow-sm"
-               placeholder="CÓDIGO DO EVENTO" 
-               required 
-               autocapitalize="characters" 
+               placeholder="CÓDIGO DO EVENTO"
+               required
+               autocapitalize="characters"
                autocomplete="off"
                enterkeyhint="search"
                oninput="this.value = this.value.toUpperCase()"
@@ -63,28 +74,11 @@
         <span>Buscar Evento</span>
       </button>
     </form>
+
   </div>
 
-
-
-</main>
+</div>
 {% endblock %}
 
 {% block extra_js %}
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(function (alert) {
-      setTimeout(function () {
-        alert.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-        alert.style.opacity = '0';
-        alert.style.transform = 'translateY(-6px)';
-        
-        setTimeout(function () {
-          alert.remove();
-        }, 400); // Remove do DOM após a animação
-      }, 4000); // Mantém visível por 4 segundos
-    });
-  });
-</script>
 {% endblock %}

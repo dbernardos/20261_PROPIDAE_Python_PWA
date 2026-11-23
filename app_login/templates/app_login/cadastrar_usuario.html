@@ -2,69 +2,125 @@
 {% load django_bootstrap5 %}
 {% load static %}
 
+{% block title %}
+  {% if etapa == 2 %}Completar Perfil{% else %}Criar Nova Conta{% endif %} - Portal SEA Eventos
+{% endblock %}
+
 {% block content %}
-<div class="container shadow rounded p-4 my-4" style="max-width: 650px;">
-  
-  <figure class="figure d-flex justify-content-center mb-3">
-    <img src="{% static 'images/images-default/logo-sea-fill-512t.svg'%}" alt="logo do SEA" style="height: 10vh;" />
-  </figure>
+<section class="py-4 py-md-5">
+  <div class="container fade-in">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-9 col-lg-7 col-xl-6">
 
-  <!-- BARRA DE PROGRESSO DO CADASTRO -->
-  <div class="progress mb-4" style="height: 6px;">
-    <div class="progress-bar bg-success" role="progressbar" style="width: {% if etapa == 2 %}100%{% else %}50%{% endif %};"></div>
-  </div>
+        <div class="card card-custom overflow-hidden">
+          <!-- Barra de Progresso no Topo do Card -->
+          <div class="progress rounded-0" style="height: 6px;">
+            <div class="progress-bar bg-verde-escuro"
+                 role="progressbar"
+                 style="width: {% if etapa == 2 %}100%{% else %}50%{% endif %};"
+                 aria-valuenow="{% if etapa == 2 %}100{% else %}50{% endif %}"
+                 aria-valuemin="0"
+                 aria-valuemax="100"></div>
+          </div>
 
-  <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
+          <div class="card-body p-4 p-md-5">
 
-    {% if etapa == 1 or not etapa %}
-      <!-- ==================== ETAPA 1: OBRIGATÓRIA ==================== -->
-      <h4 class="text-center mb-1">Criar nova conta</h4>
-      <p class="text-center text-muted small mb-4">Passo 1 de 2: Dados obrigatórios</p>
+            <!-- Logo -->
+            <div class="text-center mb-3">
+              <img src="{% static 'images/images-default/logo-sea-fill-512t.svg' %}"
+                   alt="Portal SEA Eventos"
+                   height="64" />
+            </div>
 
-      {% bootstrap_form form %}
+            <form method="POST" enctype="multipart/form-data" novalidate>
+              {% csrf_token %}
 
-      <div class="d-flex justify-content-between mt-4">
-        <a href="{% url 'app_login:urllogin' %}" class="btn btn-outline-secondary">Voltar ao Login</a>
-        <button type="submit" class="btn btn-primary px-4">Cadastrar e Continuar</button>
+              {% if etapa == 1 or not etapa %}
+                <!-- ==================== ETAPA 1: OBRIGATÓRIA ==================== -->
+                <div class="text-center mb-4">
+                  <span class="badge badge-verde-suave border rounded-pill px-3 py-1 mb-2">
+                    Passo 1 de 2 • Dados Obrigatórios
+                  </span>
+                  <h2 class="fw-bold text-dark mb-1">
+                    Criar <span class="text-verde-escuro">Nova Conta</span>
+                  </h2>
+                  <p class="text-muted small mb-0">
+                    Preencha suas informações básicas de acesso ao portal.
+                  </p>
+                </div>
+
+                {% bootstrap_form form %}
+
+                <div class="d-flex flex-column-reverse flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 mt-4 pt-3 border-top">
+                  <a href="{% url 'app_login:urllogin' %}"
+                     class="btn btn-outline-secondary rounded-pill px-4 text-center">
+                    <i class="bi bi-arrow-left me-1"></i> Voltar ao Login
+                  </a>
+                  <button type="submit" class="btn btn-verde-escuro fw-semibold px-4">
+                    Cadastrar e Continuar <i class="bi bi-arrow-right ms-1"></i>
+                  </button>
+                </div>
+
+              {% else %}
+                <!-- ==================== ETAPA 2: OPCIONAL ==================== -->
+                <input type="hidden" name="usuario_id" value="{{ usuario_id }}">
+
+                <div class="text-center mb-4">
+                  <span class="badge badge-verde-suave border rounded-pill px-3 py-1 mb-2">
+                    Passo 2 de 2 • Informações Opcionais
+                  </span>
+                  <h2 class="fw-bold text-dark mb-1">
+                    Completar <span class="text-verde-escuro">Perfil</span>
+                  </h2>
+                  <p class="text-muted small mb-0">
+                    Adicione dados complementares ou pule esta etapa para fazer depois.
+                  </p>
+                </div>
+
+                <div class="alert alert-success border-0 rounded-3 py-2 small mb-4">
+                  <i class="bi bi-check-circle-fill me-1"></i>
+                  Conta criada com sucesso! Complete seu perfil se desejar.
+                </div>
+
+                {% bootstrap_form form %}
+
+                <div class="d-flex flex-column-reverse flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 mt-4 pt-3 border-top">
+                  <button type="submit"
+                          name="pular"
+                          value="1"
+                          class="btn btn-outline-secondary rounded-pill px-4"
+                          formnovalidate>
+                    Pular por enquanto
+                  </button>
+                  <button type="submit" class="btn btn-verde-escuro fw-semibold px-4">
+                    <i class="bi bi-check2 me-1"></i> Salvar Perfil
+                  </button>
+                </div>
+              {% endif %}
+
+            </form>
+
+          </div>
+        </div>
+
       </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
 
-    {% else %}
-      <!-- ==================== ETAPA 2 ==================== -->
-        <input type="hidden" name="usuario_id" value="{{ usuario_id }}">
+{% block extra_js %}
+  {% if etapa == 2 %}
+    <script>
+      (function () {
+        // Substitui a requisição POST anterior e trava o botão Voltar para evitar reenvio
+        history.replaceState({ etapa: 2 }, document.title, window.location.href);
+        history.pushState({ etapa: '2_trava' }, document.title, window.location.href);
 
-        <h4 class="text-center mb-1">Completar Perfil</h4>
-        <p class="text-center text-muted small mb-4">Passo 2 de 2: Informações opcionais</p>
-
-        <div class="alert alert-success py-2 small mb-3">
-          <i class="bi bi-check-circle me-1"></i> Conta criada com sucesso! Complete seu perfil se desejar.
-        </div>
-
-        {% bootstrap_form form %}
-
-        <div class="d-flex justify-content-between align-items-center mt-4">
-          <button type="submit" name="pular" value="1" class="btn btn-outline-secondary" formnovalidate>
-            Pular por enquanto
-          </button>
-          <button type="submit" class="btn btn-success px-4">Salvar Perfil</button>
-        </div>
-
-        <!-- SCRIPT ETAPA 2: LIMPA O HISTÓRICO POST E FORÇA DESLOGAR AO VOLTAR -->
-        <script>
-          (function () {
-            // 1. Substitui a requisição POST anterior por um estado limpo
-            history.replaceState({ etapa: 2 }, document.title, window.location.href);
-            // 2. Trava a navegação empurrando um novo estado
-            history.pushState({ etapa: 2_trava }, document.title, window.location.href);
-
-            // 3. Ao clicar em "Voltar", dispara o logout via URL
-            window.addEventListener('popstate', function () {
-              window.location.href = "{% url 'app_login:urlcad_usuario' %}?deslogar=1";
-            });
-          })();
-        </script>
-     {% endif %}
-
-  </form>
-</div>
+        window.addEventListener('popstate', function () {
+          window.location.href = "{% url 'app_login:urlcad_usuario' %}?deslogar=1";
+        });
+      })();
+    </script>
+  {% endif %}
 {% endblock %}

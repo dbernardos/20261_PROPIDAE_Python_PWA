@@ -3,70 +3,94 @@
 {% load static %}
 
 {% block title %}
-  Login - SEA
+  Entrar - Portal SEA Eventos
 {% endblock %}
 
 {% block content %}
-  <section class="d-flex justify-content-center py-3 bg-light mt-2">
-    
-    <div class="card shadow-sm border-0" style="width: 100%; max-width: 400px;">
-      <div class="card-body p-3 p-md-4">
-        <div class="text-center mb-3">
-          <h2 class="fw-bold mb-1">
-           
-            Portal SEA Eventos
-          </h2>
-          <p class="text-muted small text-uppercase fw-semibold" style="letter-spacing: 1px;">Sistema de Eventos Acadêmicos</p>
-        </div>
-        <hr class="my-4 border-2 border-primary opacity-25" />
-        <!-- Alerta de Erro -->
-        {% if form.errors %}
-          <div class="alert alert-danger text-center shadow-sm" role="alert">Usuário ou senha incorretos. Tente novamente.</div>
-        {% endif %}
+<section class="py-5">
+  <div class="container fade-in">
+    <div class="row justify-content-center">
+      <div class="col-12 col-sm-10 col-md-7 col-lg-5 col-xl-4">
 
-        <!-- Formulário -->
-        <form action="" method="POST">
-          {% csrf_token %}
+        <div class="card card-custom overflow-hidden">
+          <div class="card-body p-4 p-md-5">
 
-          {% bootstrap_form form %}
+            <!-- Cabeçalho -->
+            <div class="text-center mb-4">
+              <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1">
+                Sistema de Eventos Acadêmicos
+              </span>
+              <h2 class="fw-bold text-dark mb-1">
+                Portal <span class="text-verde-escuro">SEA Eventos</span>
+              </h2>
+              <p class="text-muted small mb-0">
+                Entre com suas credenciais para acessar sua conta.
+              </p>
+            </div>
 
-          
-          <div class="d-grid gap-3 mt-4">
-            <button type="submit" class="btn btn-primary btn-lg">Entrar</button>
-            <a href="{% url 'app_login:urlcad_usuario' %}" class="btn btn-outline-secondary">Cadastrar nova conta</a>
+            <hr class="my-4 opacity-10" />
+
+            <!-- Alerta de Erro -->
+            {% if form.errors %}
+              <div class="alert alert-danger small text-center border-0 rounded-3 py-2 mb-3" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-1"></i>
+                Usuário ou senha incorretos. Tente novamente.
+              </div>
+            {% endif %}
+
+            <!-- Formulário -->
+            <form action="" method="POST" novalidate>
+              {% csrf_token %}
+
+              {% bootstrap_form form %}
+
+              <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-verde-escuro fw-semibold py-2">
+                  <i class="bi bi-box-arrow-in-right me-1"></i> Entrar
+                </button>
+                <a href="{% url 'app_login:urlcad_usuario' %}"
+                   class="btn btn-outline-secondary rounded-pill py-2">
+                  Cadastrar nova conta
+                </a>
+              </div>
+            </form>
+
           </div>
-        </form>
+        </div>
+
       </div>
     </div>
-  </section>
-
-  {% if request.GET.expirado or request.GET.next %}
-      <script>
-           const tempoRenovacao = ({{ SESSION_COOKIE_AGE }} - 5) * 1000;
-          
-          if (tempoRenovacao > 0) {
-              setTimeout(function() {
-                  window.location.reload();
-              }, tempoRenovacao);
-          }
-      </script>
-  {% endif %}
-  
+  </div>
+</section>
 {% endblock %}
 
-{% block scripts %}
+{% block extra_js %}
+  {% if request.GET.expirado or request.GET.next %}
+    <script>
+      (function () {
+        const sessionAge = Number("{{ SESSION_COOKIE_AGE|default:3600 }}");
+        const tempoRenovacao = (sessionAge - 5) * 1000;
 
+        if (tempoRenovacao > 0) {
+          setTimeout(function () {
+            window.location.reload();
+          }, tempoRenovacao);
+        }
+      })();
+    </script>
+  {% endif %}
 
+  <script>
+    (function () {
+      // Evita exibir a tela de login em cache ao usar o botão Voltar do navegador
+      window.addEventListener('pageshow', function (event) {
+        const navEntries = performance.getEntriesByType('navigation');
+        const isBackForward = navEntries.length > 0 && navEntries[0].type === 'back_forward';
 
-
-<script>
-  (function() {
-    // Se a página for restaurada da memória RAM ao clicar em 'Voltar'
-    window.addEventListener('pageshow', function (event) {
-      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
-        window.location.reload(); // Reconsulta o Django, que redirecionará para eventos
-      }
-    });
-  })();
-</script>
+        if (event.persisted || isBackForward) {
+          window.location.reload();
+        }
+      });
+    })();
+  </script>
 {% endblock %}

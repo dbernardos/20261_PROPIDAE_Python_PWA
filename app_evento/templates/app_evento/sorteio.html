@@ -2,7 +2,7 @@
 {% load static %}
 {% load django_bootstrap5 %}
 
-{% block title %}Sorteio {% if atividade %}- {{ atividade.nome }}{% endif %}{% endblock %}
+{% block title %}Sorteio {% if atividade %} | {{ atividade.nome }}{% endif %}{% endblock %}
 
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/sorteio_piao.css' %}?v=2">

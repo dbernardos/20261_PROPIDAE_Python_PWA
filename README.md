@@ -105,7 +105,6 @@ pip install django-bootstrap-v5
 pip install django-pwa
 pip install django-extensions
 pip install django-smart-selects
-pip install uuid6
 pip install pillow
 ```
 

@@ -17,9 +17,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-9q#0(2@c0a%f%4quo!ea(d6u2u=zjt64cjq4wvvgd!qrgf^#g3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-# Permite que o Django responda às requisições do ngrok
+# Permite que o Django responda às requisições do ngrok e outros
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'portalseaeventos.com.br', '//portalseaeventos.com.br','*']
 
 CSRF_TRUSTED_ORIGINS = [
@@ -152,15 +152,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # URL para onde o usuário será enviado se tentar acessar uma página restrita
 LOGIN_URL = "app_login:urllogin"
-# (Opcional) URL para onde o usuário vai DEPOIS de fazer o login com sucesso
+
+# URL para onde o usuário vai DEPOIS de fazer o login com sucesso
 LOGIN_REDIRECT_URL = "app_evento:urldis_evento"
 LOGOUT_REDIRECT_URL = "app_login:urllogin"
 CSRF_USE_SESSIONS = True
 
 
 # Ative estas configurações se estiver navegando pela URL HTTPS do Ngrok
-CSRF_COOKIE_SECURE = True  # Defina como True se estiver usando HTTPS no Ngrok
-SESSION_COOKIE_SECURE = True  # Defina como True se estiver usando HTTPS no Ngrok
+CSRF_COOKIE_SECURE = True  # True se estiver usando HTTPS no Ngrok
+SESSION_COOKIE_SECURE = True  #True se estiver usando HTTPS no Ngrok
 
 # Garante que o navegador no celular aceite o cookie de origem cruzada/túnel
 CSRF_COOKIE_SAMESITE = 'Lax'

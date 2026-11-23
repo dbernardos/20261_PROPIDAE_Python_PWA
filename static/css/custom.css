@@ -1,4 +1,4 @@
-/* Variáveis de cores baseadas na logo */
+/*cores */
 :root {
     --verde-escuro: #1b5e3a;
     --verde-claro: #8cc63f;
@@ -38,7 +38,7 @@
     background-color: rgba(255, 255, 255, 0.14);
 }
 
-/* Main Content */
+/* Main */
 main {
     background-color: #f8f9fa;
 }
@@ -141,13 +141,10 @@ main {
     font-weight: 600;
 }
 
-/* Utilitários de cor */
 .text-verde-escuro {
     color: var(--verde-escuro) !important;
 }
 
-/* Verde-claro é reservado para destaques em fundos adequados.
-   Em textos sobre fundo branco, prefira .text-verde-escuro. */
 .text-verde-claro {
     color: #527d20 !important;
 }
@@ -212,7 +209,7 @@ main {
     }
 }
 
-/* Scrollbar personalizada */
+/* Scrollbar verde*/
 ::-webkit-scrollbar {
     width: 10px;
 }
@@ -269,7 +266,7 @@ textarea:focus-visible {
    PADRONIZAÇÃO DE CATÁLOGO (EVENTOS E MEUS EVENTOS)
    ========================================================================== */
 
-/* Botões arredondados no verde-escuro institucional */
+/* Botões arredondados no verde-escuro */
 .btn-verde-escuro {
     background-color: var(--verde-escuro);
     border: 1px solid var(--verde-escuro);
@@ -301,14 +298,14 @@ textarea:focus-visible {
     transform: translateY(-1px);
 }
 
-/* Etiqueta suave (tipo do evento e contador) */
+/* Etiqueta (tipo do evento e contador) */
 .badge-verde-suave {
     background-color: #edf5ef;
     color: var(--verde-escuro);
     border: 1px solid #d5e6da;
     font-weight: 600;
 }
-/* Banner lateral dos cards de evento (estendido lateralmente, imagem 4:3 inteira) */
+/* Banner lateral dos cards de evento (imagem 4:3) */
 .evento-banner {
     background-color: #f4f7f5;
     display: flex;
@@ -353,7 +350,7 @@ textarea:focus-visible {
 }
 
 /* =========================================================
-   AVATAR DE PERFIL (MEU USUÁRIO)
+   MEU USUÁRIO
    ========================================================= */
 .perfil-avatar,
 .perfil-avatar-placeholder {

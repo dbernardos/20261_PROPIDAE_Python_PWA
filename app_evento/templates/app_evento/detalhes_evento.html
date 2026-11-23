@@ -18,7 +18,7 @@
 
       {% if user.is_authenticated and atividades_inscritas_ids %}
         <a href="{% url 'app_evento:urlcomprovante_inscricao' evento.id %}" class="btn btn-primary-custom rounded-pill px-4">
-          <i class="bi bi-person-badge me-1"></i> Ver Meu Crachá / Comprovante
+          <i class="bi bi-person-badge me-1"></i> Ver Meu Comprovante
         </a>
       {% endif %}
     </div>
@@ -59,7 +59,7 @@
               </p>
             {% endif %}
 
-            <!-- Grade 2x2 de Metadados -->
+            <!-- Detalhes -->
             <div class="row g-3 small mb-3">
               <div class="col-12 col-sm-6">
                 <div class="d-flex align-items-start gap-2">
