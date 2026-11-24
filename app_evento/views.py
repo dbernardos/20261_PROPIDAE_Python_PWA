@@ -17,6 +17,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 from django.db import models as django_models
+from django.urls import reverse
 
 from app_login.models import Usuario
 from app_quiz.models import Quiz, Resposta
@@ -60,7 +61,7 @@ def parse_data_segura(val):
     except ValueError:
         return None
 
-
+'''
 @never_cache
 def home_root(request):
     if request.user_agent.is_mobile or request.user_agent.is_tablet:        
@@ -69,7 +70,24 @@ def home_root(request):
         return redirect('app_evento:urldis_evento')
     else:
         return redirect('app_login:urllogin')
+'''
 
+@never_cache
+def home_root(request):
+    eh_dispositivo_movel = (
+        getattr(request, 'user_agent', None)
+        and (request.user_agent.is_mobile or request.user_agent.is_tablet)
+    )
+
+    # Acessos pelo celular/tablet na raiz (/) iniciam sempre no pwa_home limpo
+    if eh_dispositivo_movel and request.GET.get('web') != '1':
+        url_pwa = reverse('app_evento:urlpwa_home')
+        return redirect(f'{url_pwa}?inicio=1')
+
+    if request.user.is_authenticated:
+        return redirect('app_evento:urldis_evento')
+
+    return redirect('app_login:urllogin')
 
 @never_cache
 def pwa_home(request):

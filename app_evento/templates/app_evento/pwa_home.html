@@ -9,8 +9,54 @@
 {% block pre_script %}
 {% endblock %}
 
+{% block extra_css %}
+  <style>
+    .btn-login-discreto {
+      position: fixed;
+      top: max(50px, env(safe-area-inset-top));
+      left: max(20px, env(safe-area-inset-left));
+      z-index: 1030;
+      opacity: 0.65;
+      background-color: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(4px);
+      transition: opacity 0.2s ease;
+      font-size: 0.8rem;
+    }
+
+    .btn-login-discreto:hover,
+    .btn-login-discreto:focus {
+      opacity: 1;
+    }
+
+    /* No navegador desktop (onde já existe a barra de navegação superior), oculta o botão */
+    @media (min-width: 992px) {
+      .btn-login-discreto {
+        display: none !important;
+      }
+    }
+
+    /* No PWA instalado (standalone/fullscreen), mantém visível em qualquer tamanho de tela */
+    @media all and (display-mode: standalone),
+           all and (display-mode: fullscreen),
+           all and (display-mode: minimal-ui) {
+      .btn-login-discreto {
+        display: inline-flex !important;
+      }
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
 <div class="pwa-screen-container fade-in">
+
+ <!-- Botão de Página Login -->
+  <a href="{% url 'app_login:urllogin' %}?next={% url 'app_evento:urldis_evento' %}"
+     onclick="sessionStorage.removeItem('pwa_modo_ativo'); sessionStorage.removeItem('pwa_saiu_por_pin'); sessionStorage.removeItem('pwa_quiosque_url');"
+     class="btn btn-light btn-sm rounded-pill border shadow-sm text-secondary px-3 py-1 d-inline-flex align-items-center gap-1 btn-login-discreto"
+     title="Ir para a tela de login">
+    <i class="bi bi-house-door me-1"></i>
+    <span>Entrar</span>
+  </a>
 
   <div class="pwa-card-wrapper card card-custom border-0 border-md p-4 p-md-5 bg-white">
 
@@ -81,4 +127,12 @@
 {% endblock %}
 
 {% block extra_js %}
+  <script>
+    // Renova o token CSRF e rearma a proteção de histórico se voltar da tela de login
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted) {
+        window.location.reload();
+      }
+    });
+  </script>
 {% endblock %}

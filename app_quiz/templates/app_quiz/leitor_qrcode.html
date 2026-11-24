@@ -68,25 +68,25 @@
   </div>
 </div>
 
-<!-- Modal Oculto de Saída do Modo Quiosque (Equipe / Staff) -->
+<!-- Modal Oculto de Saída do Modo Quiosque-->
 <div class="modal fade" id="modalSaidaQuiosque" tabindex="-1" aria-labelledby="modalSaidaLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
     <div class="modal-content border-0 shadow rounded-4">
       <div class="modal-header border-0 pb-0">
         <h6 class="modal-title fw-bold text-verde-escuro" id="modalSaidaLabel">
-          <i class="bi bi-shield-lock-fill me-1"></i> Acesso da Equipe
+          <i class="bi bi-shield-lock-fill me-1"></i> Acesso da Staff
         </h6>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
       <form id="formPinSaida" autocomplete="off">
         <div class="modal-body pt-2">
           <p class="text-muted small mb-2">
-            Informe o <strong>código do leitor</strong> desta atividade para sair do modo quiosque:
+            Informe o <strong>código do leitor</strong> desta atividade para voltar ao Acessar Eventos:
           </p>
           <input type="password"
                  id="inputPinSaida"
                  class="form-control text-center fw-bold text-uppercase"
-                 placeholder="CÓDIGO DA ATIVIDADE"
+                 placeholder="CÓDIGO DO LEITOR"
                  autocapitalize="characters"
                  autocomplete="off"
                  required />
@@ -118,5 +118,5 @@
       csrfToken: "{{ csrf_token }}"
     };
   </script>
- <script src="{% static 'js/leitor_qrcode.js' %}?v=9"></script>
+ <script src="{% static 'js/leitor_qrcode.js' %}?v=10"></script>
 {% endblock %}

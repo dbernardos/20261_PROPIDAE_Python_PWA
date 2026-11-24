@@ -72,10 +72,11 @@
             <ul class="navbar-nav ms-auto align-items-lg-center mb-2 mb-lg-0 gap-1 gap-lg-2 pt-2 pt-lg-0">
 
               <li class="nav-item">
+                
                 <a class="nav-link rounded-pill px-3 {% if request.resolver_match.url_name == 'urldis_evento' %}active{% endif %}"
                    aria-current="page"
                    href="{% url 'app_evento:urldis_evento' %}">
-                  Início
+                  <i class="bi bi-house-door me-1"></i>Início
                 </a>
               </li>
 
@@ -116,6 +117,11 @@
                   <a class="nav-link rounded-pill px-3 {% if 'login' in request.resolver_match.url_name %}active{% endif %}"
                      href="{% url 'app_login:urllogin' %}">
                     <i class="bi bi-box-arrow-in-right me-1"></i> Entrar
+                  </a>
+                </li>
+                <li>
+                  <a href="{% url 'app_evento:urlpwa_home' %}" class="nav-link rounded-pill px-3">
+                    <i class="bi bi-qr-code-scan me-1"></i> Acessar Evento
                   </a>
                 </li>
               {% endif %}

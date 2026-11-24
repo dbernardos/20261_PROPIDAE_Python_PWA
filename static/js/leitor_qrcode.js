@@ -53,7 +53,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // =========================================================
   sessionStorage.removeItem(PARTICIPANT_FLOW_KEY);
   sessionStorage.removeItem(PIN_EXIT_KEY);
-  localStorage.setItem(LOCK_KEY, urlAtualLimpa);
+  localStorage.removeItem(LOCK_KEY);
+  sessionStorage.setItem(LOCK_KEY, urlAtualLimpa);
 
   window.history.pushState({ pwaKiosk: true }, '', urlAtualLimpa);
   window.addEventListener('popstate', function () {
@@ -307,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // =========================================================
-  // 6. GATILHO DOS 5 CLIQUES (#kioskSecretTrigger e título)
+  // 6. GATILHO DOS 5 CLIQUES (#kioskSecretTrigger)
   // =========================================================
   const modalPinEl = document.getElementById('modalSaidaQuiosque');
   const formPinSaida = document.getElementById('formPinSaida');
@@ -316,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const triggers = [
     document.getElementById('kioskSecretTrigger'),
-    document.querySelector('.cabecalho-pwa h2'),
+    
   ].filter(Boolean);
 
   let cliquesSecretos = 0;
@@ -376,6 +377,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (valorDigitado === pinConfigurado) {
         saindoPeloPin = true;
         localStorage.removeItem(LOCK_KEY);
+        sessionStorage.removeItem(LOCK_KEY);
         sessionStorage.removeItem(PARTICIPANT_FLOW_KEY);
         sessionStorage.setItem(PIN_EXIT_KEY, '1');
         await pararCameraSeAtiva();
