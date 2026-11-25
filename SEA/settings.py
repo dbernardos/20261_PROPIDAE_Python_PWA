@@ -5,35 +5,54 @@ import dj_database_url
 # SETTINGS do SEA.
 # -----------------------------------------------
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Segurança e Ambiente
-SECRET_KEY = os.environ.get(
-    'SECRET_KEY',
-    'django-insecure-9q#0(2@c0a%f%4quo!ea(d6u2u=zjt64cjq4wvvgd!qrgf^#g3',
-)
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
-USE_HTTPS = os.environ.get('USE_HTTPS', str(not DEBUG)) == 'True'
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 't')
+USE_HTTPS = os.environ.get('USE_HTTPS', str(not DEBUG)).lower() in ('true', '1', 't')
+
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = 'django-insecure-chave-apenas-para-desenvolvimento-local'
+    else:
+        raise ValueError('A variável de ambiente SECRET_KEY deve ser definida em produção!')
 
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     'portalseaeventos.com.br',
-    'www.portalseaeventos.com.br',
-    '.ngrok-free.app',
-    '.ngrok-free.dev',
-    '.ngrok.io',
+    '://portalseaeventos.com.br',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://*.ngrok-free.app',
-    'https://*.ngrok-free.dev',
-    'https://*.ngrok.io',
     'https://portalseaeventos.com.br',
-    'https://www.portalseaeventos.com.br',
+    'https://://portalseaeventos.com.br',
 ]
 
+if DEBUG:
+    ALLOWED_HOSTS += ['.ngrok-free.app', '.ngrok-free.dev', '.ngrok.io']
+    CSRF_TRUSTED_ORIGINS += [
+        'https://*.ngrok-free.app',
+        'https://*.ngrok-free.dev',
+        'https://*.ngrok.io',
+    ]
+
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+
+if USE_HTTPS:
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 3600  # 1 ano
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # Aplicações
 INSTALLED_APPS = [
@@ -43,11 +62,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-  
+
     'app_login',
     'app_evento',
     'app_quiz',
-  
+
     'django_bootstrap5',
     'smart_selects',
     'django_user_agents',
@@ -126,7 +145,7 @@ STORAGES = {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
     },
     'staticfiles': {
-        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
     },
 }
 
