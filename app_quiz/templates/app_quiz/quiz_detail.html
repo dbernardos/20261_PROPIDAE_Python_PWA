@@ -9,12 +9,6 @@
 
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/quiz.css' %}?v=2" />
-  <style>
-    header.site-header,
-    footer.site-footer {
-      display: none !important;
-    }
-  </style>
 {% endblock %}
 
 {% block pre_script %}
@@ -29,7 +23,6 @@
       <!-- Cabeçalho Superior (Voltar + Atividade) -->
       <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
         <a href="{% url 'app_quiz:urlquizzes_atividade' cracha=cracha atividade_id=atividade.id %}"
-           onclick="window.location.replace(this.href); return false;"
            class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center pwa-back-btn flex-shrink-0"
            title="Voltar aos desafios">
           <i class="bi bi-arrow-left fs-5"></i>
@@ -58,7 +51,7 @@
           <p class="quiz-pergunta-pwa">{{ quiz.pergunta }}</p>
 
           <!-- Mensagens de Erro / Aviso -->
-          {% if messages %}
+          {% if messages %}hr
             <div class="mb-3 d-flex flex-column gap-2">
               {% for message in messages %}
                 <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show border-0 rounded-3 small py-2 px-3 mb-0"
@@ -169,7 +162,6 @@
               </p>
 
               <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}"
-                 onclick="window.location.replace(this.href); return false;"
                  class="btn-pwa-primary text-decoration-none shadow-sm gap-2">
                 <i class="bi bi-qr-code-scan fs-5"></i>
                 <span>Voltar ao Leitor</span>
@@ -182,7 +174,6 @@
       <!-- Botão Inferior Voltar aos Desafios -->
       <div class="text-center pb-3">
         <a href="{% url 'app_quiz:urlquizzes_atividade' cracha=cracha atividade_id=atividade.id %}"
-           onclick="window.location.replace(this.href); return false;"
            class="btn btn-outline-secondary btn-sm rounded-pill px-4">
           <i class="bi bi-arrow-left me-1"></i> Voltar aos Desafios
         </a>
