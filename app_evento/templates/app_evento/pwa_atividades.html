@@ -3,37 +3,34 @@
 
 {% block title %}Atividades | {{ evento.nome }}{% endblock %}
 
-{% block extra_css %}
-
-{% endblock %}
-
 {% block content %}
 <section class="py-4 pwa-scroll-safe-bottom">
   <div class="container fade-in">
 
-    <!-- Cabeçalho do Evento  -->
+    <!-- Cabeçalho do Evento -->
     <div class="d-flex justify-content-between align-items-start gap-3 mb-4 pb-3 border-bottom">
       <div class="d-flex align-items-start gap-3 flex-grow-1 min-w-0">
         <a href="{% url 'app_evento:urlpwa_home' %}"
            onclick="window.location.replace(this.href); return false;"
            class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center pwa-back-btn flex-shrink-0 mt-1"
-           title="Voltar para eventos">
-          <i class="bi bi-arrow-left fs-5"></i>
+           title="Voltar para eventos"
+           aria-label="Voltar para eventos">
+          <i class="bi bi-arrow-left fs-5" aria-hidden="true"></i>
         </a>
 
         <div class="min-w-0">
           <span class="text-verde-escuro fw-bold small text-uppercase d-block">
             Check-in de Participantes
           </span>
-          <h2 class="h4 fw-bold text-dark mb-2 text-break">{{ evento.nome }}</h2>
+          <h1 class="h4 fw-bold text-dark mb-2 text-break">{{ evento.nome }}</h1>
 
           <!-- Datas e Endereço do Evento -->
-          <div class="d-flex flex-wrap gap-x-3 gap-y-1 text-secondary small">
-            <span class="me-3">
+          <div class="d-flex flex-wrap column-gap-3 row-gap-1 text-secondary small">
+            <span>
               <i class="bi bi-calendar-event text-verde-escuro me-1"></i>
               <strong>Início:</strong> {{ evento.dataInicio|date:'d/m/Y' }}
             </span>
-            <span class="me-3">
+            <span>
               <i class="bi bi-calendar-check text-vermelho me-1"></i>
               <strong>Término:</strong> {{ evento.dataFim|date:'d/m/Y' }}
             </span>
@@ -48,13 +45,14 @@
       <button type="button"
               onclick="window.location.reload();"
               class="btn btn-outline-verde-escuro btn-sm rounded-pill px-3 ms-auto flex-shrink-0"
-              title="Atualizar lista de atividades">
-        <i class="bi bi-arrow-clockwise me-1"></i>
+              title="Atualizar lista de atividades"
+              aria-label="Atualizar lista de atividades">
+        <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>
         <span class="d-none d-sm-inline">Atualizar</span>
       </button>
     </div>
 
-    <!-- 1 coluna no celular e tablet e 2 no PC  -->
+    <!-- 1 coluna no celular e tablet e 2 no PC -->
     {% if atividades_info %}
       <div class="row g-3 pb-4">
         {% for item in atividades_info %}
@@ -74,33 +72,39 @@
                       </span>
                     </div>
 
-                    <h6 class="fw-bold text-dark mb-2">{{ item.obj.nome }}</h6>
+                    <h2 class="h6 fw-bold text-dark mb-2">{{ item.obj.nome }}</h2>
 
                     <div class="text-secondary small d-flex flex-column gap-1">
                       <span>
                         <i class="bi bi-calendar-event text-verde-escuro me-1"></i>
-                        <strong>Início:</strong> {{ item.obj.dataInicio|default:evento.dataInicio|date:'d/m/Y' }} às {{ item.obj.horaInicio|time:'H:i' }}
+                        <strong>Início:</strong> {{ item.obj.dataInicio|default:item.obj.horaInicio|default:evento.dataInicio|date:'d/m/Y' }} às {{ item.obj.horaInicio|time:'H:i' }}
                       </span>
                       <span>
                         <i class="bi bi-calendar-x text-vermelho me-1"></i>
-                        <strong>Fim:</strong> {{ item.obj.dataFim|default:evento.dataFim|date:'d/m/Y' }} às {{ item.obj.horaFim|time:'H:i' }}
+                        <strong>Fim:</strong> {{ item.obj.dataFim|default:item.obj.horaFim|default:evento.dataFim|date:'d/m/Y' }} às {{ item.obj.horaFim|time:'H:i' }}
                       </span>
                       <span>
                         <i class="bi bi-geo-alt text-vermelho me-1"></i>
-                        {{ item.obj.complementoLocal|default:'Local a definir' }}
+                        {{ item.obj.complementoLocal|default:evento.local|default:'Local a definir' }}
                       </span>
                     </div>
                   </div>
 
                   {% if item.obj.codigo_leitor %}
                     <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=item.obj.codigo_leitor %}"
-                        onclick="window.location.replace(this.href); return false;"   
-                        class="stretched-link text-decoration-none flex-shrink-0">
+                       onclick="window.location.replace(this.href); return false;"
+                       class="stretched-link text-decoration-none flex-shrink-0"
+                       aria-label="Abrir leitor de QR Code para {{ item.obj.nome }}">
                       <div class="pwa-qr-action p-3 text-center">
-                        <i class="bi bi-qr-code-scan fs-3 d-block mb-1"></i>
+                        <i class="bi bi-qr-code-scan fs-3 d-block mb-1" aria-hidden="true"></i>
                         <span class="d-block fw-bold pwa-qr-action-label">LER QR CODE</span>
                       </div>
                     </a>
+                  {% else %}
+                    <span class="text-muted small text-center flex-shrink-0" title="Leitor indisponível">
+                      <i class="bi bi-qr-code fs-4 d-block opacity-50"></i>
+                      <small>Indisponível</small>
+                    </span>
                   {% endif %}
                 </div>
               </div>
@@ -119,24 +123,24 @@
                       </span>
                     </div>
 
-                    <h6 class="fw-bold text-dark mb-2">{{ item.obj.nome }}</h6>
+                    <h2 class="h6 fw-bold text-dark mb-2">{{ item.obj.nome }}</h2>
 
                     <div class="small d-flex flex-column gap-1">
                       <span>
                         <i class="bi bi-calendar-event me-1"></i>
-                        <strong>Início:</strong> {{ item.obj.dataInicio|default:evento.dataInicio|date:'d/m/Y' }} às {{ item.obj.horaInicio|time:'H:i' }}
+                        <strong>Início:</strong> {{ item.obj.dataInicio|default:item.obj.horaInicio|default:evento.dataInicio|date:'d/m/Y' }} às {{ item.obj.horaInicio|time:'H:i' }}
                       </span>
                       <span>
                         <i class="bi bi-calendar-x me-1"></i>
-                        <strong>Fim:</strong> {{ item.obj.dataFim|default:evento.dataFim|date:'d/m/Y' }} às {{ item.obj.horaFim|time:'H:i' }}
+                        <strong>Fim:</strong> {{ item.obj.dataFim|default:item.obj.horaFim|default:evento.dataFim|date:'d/m/Y' }} às {{ item.obj.horaFim|time:'H:i' }}
                       </span>
                       <span>
                         <i class="bi bi-geo-alt me-1"></i>
-                        {{ item.obj.complementoLocal|default:'Local a definir' }}
+                        {{ item.obj.complementoLocal|default:evento.local|default:'Local a definir' }}
                       </span>
                     </div>
                   </div>
-                  <i class="bi bi-lock-fill fs-4 text-secondary flex-shrink-0"></i>
+                  <i class="bi bi-lock-fill fs-4 text-secondary flex-shrink-0" aria-hidden="true"></i>
                 </div>
               </div>
 
@@ -154,24 +158,24 @@
                       </span>
                     </div>
 
-                    <h6 class="fw-bold text-decoration-line-through mb-2">{{ item.obj.nome }}</h6>
+                    <h2 class="h6 fw-bold text-decoration-line-through mb-2">{{ item.obj.nome }}</h2>
 
                     <div class="small d-flex flex-column gap-1">
                       <span>
                         <i class="bi bi-calendar-event me-1"></i>
-                        <strong>Início:</strong> {{ item.obj.dataInicio|default:evento.dataInicio|date:'d/m/Y' }} às {{ item.obj.horaInicio|time:'H:i' }}
+                        <strong>Início:</strong> {{ item.obj.dataInicio|default:item.obj.horaInicio|default:evento.dataInicio|date:'d/m/Y' }} às {{ item.obj.horaInicio|time:'H:i' }}
                       </span>
                       <span class="text-danger">
                         <i class="bi bi-clock-history me-1"></i>
-                        <strong>Encerrada:</strong> {{ item.obj.dataFim|default:evento.dataFim|date:'d/m/Y' }} às {{ item.obj.horaFim|time:'H:i' }}
+                        <strong>Encerrada:</strong> {{ item.obj.dataFim|default:item.obj.horaFim|default:evento.dataFim|date:'d/m/Y' }} às {{ item.obj.horaFim|time:'H:i' }}
                       </span>
                       <span>
                         <i class="bi bi-geo-alt me-1"></i>
-                        {{ item.obj.complementoLocal|default:'Local a definir' }}
+                        {{ item.obj.complementoLocal|default:evento.local|default:'Local a definir' }}
                       </span>
                     </div>
                   </div>
-                  <i class="bi bi-check-circle-fill fs-4 text-danger flex-shrink-0"></i>
+                  <i class="bi bi-check-circle-fill fs-4 text-danger flex-shrink-0" aria-hidden="true"></i>
                 </div>
               </div>
             {% endif %}

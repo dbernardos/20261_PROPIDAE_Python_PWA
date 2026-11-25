@@ -1,42 +1,34 @@
 import json
 import random
-import re
 import unicodedata
-from datetime import datetime, timedelta
-from django.utils import timezone
+from datetime import datetime, time, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
-from django.http import HttpResponse, JsonResponse
-from django.middleware.csrf import rotate_token
+from django.db import models as django_models
+from django.db import transaction
+from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
-from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
-from django.db import models as django_models
-from django.urls import reverse
 
 from app_login.models import Usuario
 from app_quiz.models import Quiz, Resposta
 from .form import AtividadeForm, EventoForm
-
 from .models import (
-    Apoiador,
     Atividade,
     Evento,
     Inscricao,
     Participa,
+    Premio,
     StatusParticipa,
     tipoEvento,
 )
 
-
-
-# Views do EVENTO.
-# -----------------------------------------------
 
 # ==========================================================
 # FUNÇÕES AUXILIARES
@@ -61,16 +53,16 @@ def parse_data_segura(val):
     except ValueError:
         return None
 
-'''
-@never_cache
-def home_root(request):
-    if request.user_agent.is_mobile or request.user_agent.is_tablet:        
-        return redirect('app_evento:urlpwa_home')
-    if request.user.is_authenticated:
-        return redirect('app_evento:urldis_evento')
-    else:
-        return redirect('app_login:urllogin')
-'''
+
+def _garantir_administrador_evento(request, evento):
+    """Garante que apenas o administrador do evento ou superusuário acesse a ação."""
+    if request.user.is_superuser:
+        return
+    if evento.administrador.user_django_id != request.user.id:
+        raise PermissionDenied(
+            'Você não tem permissão para gerenciar este evento.'
+        )
+
 
 @never_cache
 def home_root(request):
@@ -79,7 +71,6 @@ def home_root(request):
         and (request.user_agent.is_mobile or request.user_agent.is_tablet)
     )
 
-    # Acessos pelo celular/tablet na raiz (/) iniciam sempre no pwa_home limpo
     if eh_dispositivo_movel and request.GET.get('web') != '1':
         url_pwa = reverse('app_evento:urlpwa_home')
         return redirect(f'{url_pwa}?inicio=1')
@@ -89,29 +80,28 @@ def home_root(request):
 
     return redirect('app_login:urllogin')
 
+
 @never_cache
 def pwa_home(request):
     """Tela inicial do PWA para buscar evento pelo código."""
     if request.method == 'POST':
-        codigo = request.POST.get('codigo_evento')
-        
+        codigo = (request.POST.get('codigo_evento') or '').strip().upper()
         try:
-            evento = Evento.objects.get(codigo_evento=codigo)
+            evento = Evento.objects.get(codigo_evento__iexact=codigo)
             return redirect('app_evento:urlpwa_atividades', evento_id=evento.id)
         except Evento.DoesNotExist:
             messages.error(request, "Evento não encontrado. Verifique o código.")
-            
+
     return render(request, 'app_evento/pwa_home.html')
 
 
 def pwa_atividades_evento(request, evento_id):
     """Lista as atividades do evento no PWA, bloqueando as fora do horário."""
     evento = get_object_or_404(Evento, id=evento_id)
-    
     atividades = evento.atividade_set.all().order_by('horaInicio')
     agora = timezone.now()
     atividades_info = []
-    
+
     for ativ in atividades:
         try:
             if ativ.horaFim and ativ.horaFim < agora:
@@ -121,32 +111,27 @@ def pwa_atividades_evento(request, evento_id):
             else:
                 status = 'ativa'
         except TypeError:
-            hora_atual = agora.time()
-            if ativ.horaFim < hora_atual:
+            hora_atual = timezone.localtime(agora).time()
+            if ativ.horaFim and ativ.horaFim < hora_atual:
                 status = 'encerrada'
-            elif ativ.horaInicio > hora_atual:
+            elif ativ.horaInicio and ativ.horaInicio > hora_atual:
                 status = 'futura'
             else:
                 status = 'ativa'
-            
+
         atividades_info.append({
             'obj': ativ,
-            'status': status
+            'status': status,
         })
 
-    context = {
+    return render(request, 'app_evento/pwa_atividades.html', {
         'evento': evento,
         'atividades_info': atividades_info,
-    }
-    
-    return render(request, 'app_evento/pwa_atividades.html', context)
+    })
 
 
 def filtrar_eventos_por_parametros(eventos, request):
-    """
-    Aplica os filtros de busca, tipo, período e encerramento
-    a um queryset de eventos de forma segura.
-    """
+    """Aplica filtros de busca, tipo, período e encerramento de forma segura."""
     hoje = timezone.localdate()
 
     query_busca = request.GET.get('busca', '').strip()
@@ -156,80 +141,59 @@ def filtrar_eventos_por_parametros(eventos, request):
     query_data_fim = request.GET.get('data_fim', '').strip()
     query_apenas_encerrados = request.GET.get('encerrados') == '1'
 
-    # Busca pelo nome ou pela descrição, ignorando acentos e maiúsculas.
     if query_busca:
         termo = sem_acento(query_busca)
         ids_encontrados = [
             pk
-            for pk, nome, descricao in eventos.values_list(
-                'id', 'nome', 'descricao'
-            )
+            for pk, nome, descricao in eventos.values_list('id', 'nome', 'descricao')
             if termo in sem_acento(nome) or termo in sem_acento(descricao)
         ]
         eventos = eventos.filter(id__in=ids_encontrados)
 
-    # Aceita somente os tipos definidos no modelo.
-    tipos_validos = {
-        valor for valor, rotulo in tipoEvento.choices
-    }
-
+    tipos_validos = {valor for valor, _ in tipoEvento.choices}
     if query_tipo in tipos_validos:
         eventos = eventos.filter(tipoEvento=query_tipo)
 
-    # Eventos encerrados ou eventos atuais/futuros.
     if query_apenas_encerrados:
         eventos = eventos.filter(dataFim__lt=hoje)
-    elif not (
-        query_periodo
-        or query_data_inicio
-        or query_data_fim
-    ):
+    elif not (query_periodo or query_data_inicio or query_data_fim):
         eventos = eventos.filter(dataFim__gte=hoje)
 
-    # Filtros por períodos predefinidos.
     if query_periodo == 'hoje':
-        eventos = eventos.filter(
-            dataInicio__lte=hoje,
-            dataFim__gte=hoje,
-        )
+        eventos = eventos.filter(dataInicio__lte=hoje, dataFim__gte=hoje)
 
     elif query_periodo == 'amanha':
         amanha = hoje + timedelta(days=1)
-        eventos = eventos.filter(
-            dataInicio__lte=amanha,
-            dataFim__gte=amanha,
-        )
+        eventos = eventos.filter(dataInicio__lte=amanha, dataFim__gte=amanha)
 
     elif query_periodo == 'fim_semana':
-        dias_ate_sabado = (5 - hoje.weekday()) % 7
-        sabado = hoje + timedelta(days=dias_ate_sabado)
-        domingo = sabado + timedelta(days=1)
+        if hoje.weekday() == 6:  # Domingo: inclui o fim de semana atual
+            sabado = hoje - timedelta(days=1)
+            domingo = hoje
+        else:
+            dias_ate_sabado = (5 - hoje.weekday()) % 7
+            sabado = hoje + timedelta(days=dias_ate_sabado)
+            domingo = sabado + timedelta(days=1)
 
-        eventos = eventos.filter(
-            dataInicio__lte=domingo,
-            dataFim__gte=sabado,
-        )
+        eventos = eventos.filter(dataInicio__lte=domingo, dataFim__gte=sabado)
 
     elif query_periodo == '7_dias':
         limite = hoje + timedelta(days=7)
-        eventos = eventos.filter(
-            dataInicio__lte=limite,
-            dataFim__gte=hoje,
-        )
+        eventos = eventos.filter(dataInicio__lte=limite, dataFim__gte=hoje)
 
     elif query_periodo == '30_dias':
         limite = hoje + timedelta(days=30)
-        eventos = eventos.filter(
-            dataInicio__lte=limite,
-            dataFim__gte=hoje,
-        )
+        eventos = eventos.filter(dataInicio__lte=limite, dataFim__gte=hoje)
 
     elif query_periodo == 'custom':
         dt_inicio = parse_data_segura(query_data_inicio)
         dt_fim = parse_data_segura(query_data_fim)
 
         if dt_inicio and dt_fim and dt_inicio > dt_fim:
-            messages.warning(request, "A data inicial não pode ser posterior à data final.")
+            messages.warning(
+                request,
+                "A data inicial não pode ser posterior à data final.",
+            )
             eventos = eventos.none()
         else:
             if dt_inicio:
@@ -260,207 +224,110 @@ def home(request):
 @never_cache
 def eventos_disponiveis(request):
     """Exibe os eventos públicos disponíveis no catálogo."""
-    eventos = Evento.objects.all()
+    eventos = Evento.objects.all().order_by('dataInicio')
 
     if request.user.is_authenticated:
-        eventos = eventos.exclude(
-            administrador__user_django=request.user
-        )
+        eventos = eventos.exclude(administrador__user_django=request.user)
 
-    eventos, filtros = filtrar_eventos_por_parametros(
-        eventos,
-        request,
-    )
+    eventos, filtros = filtrar_eventos_por_parametros(eventos, request)
 
-    context = {
+    return render(request, 'app_evento/eventos.html', {
         'eventos': eventos,
         'tipos_evento': tipoEvento.choices,
         **filtros,
-    }
-
-    return render(
-        request,
-        'app_evento/eventos.html',
-        context,
-    )
+    })
 
 
 @never_cache
 @login_required
 def cadastrar_evento(request):
-  """Cadastra um evento para o administrador autenticado."""
-  try:
-    usuario_perfil = Usuario.objects.get(user_django=request.user)
-  except Usuario.DoesNotExist:
-    messages.warning(
-        request,
-        'Você precisa completar seu perfil de Usuário antes de criar um evento.',
-    )
-    return redirect('app_login:urlcad_usuario')
-
-  if request.method == 'POST':
-    form = EventoForm(request.POST, request.FILES)
-
-    if form.is_valid():
-      evento = form.save(commit=False)
-
-      # Bloqueia data final anterior à data de início
-      if (
-          evento.dataInicio
-          and evento.dataFim
-          and evento.dataFim < evento.dataInicio
-      ):
-        form.add_error(
-            'dataFim',
-            'A data de término não pode ser anterior à data de início.',
-        )
-        messages.error(
+    """Cadastra um evento para o administrador autenticado."""
+    try:
+        usuario_perfil = Usuario.objects.get(user_django=request.user)
+    except Usuario.DoesNotExist:
+        messages.warning(
             request,
-            'A data de término não pode ser anterior à data de início.',
+            'Você precisa completar seu perfil de Usuário antes de criar um evento.',
         )
-      else:
-        evento.administrador = usuario_perfil
-        evento.save()
+        return redirect('app_login:urlcad_usuario')
 
-        nomes_apoiadores = form.cleaned_data.get('apoiadores')
+    if request.method == 'POST':
+        form = EventoForm(request.POST, request.FILES)
+        if form.is_valid():
+            evento = form.save(commit=False)
+            evento.administrador = usuario_perfil
+            evento.save()
+            form.save_m2m()
 
-        if nomes_apoiadores:
-          objetos_apoiadores = []
-          for nome in nomes_apoiadores:
-            apoiador_obj, criado = Apoiador.objects.get_or_create(nome=nome)
-            objetos_apoiadores.append(apoiador_obj)
+            messages.success(request, 'Evento cadastrado com sucesso!')
+            return redirect('app_evento:urlcad_atividade', evento_id=evento.id)
+    else:
+        form = EventoForm()
 
-          evento.apoiadores.set(objetos_apoiadores)
-
-        messages.success(
-            request,
-            'Evento cadastrado com sucesso!',
-        )
-
-        return redirect(
-            'app_evento:urlcad_atividade',
-            evento_id=evento.id,
-        )
-  else:
-    form = EventoForm()
-
-  return render(
-      request,
-      'app_evento/cadastrar_evento.html',
-      {'form_evento': form},
-  )
+    return render(request, 'app_evento/cadastrar_evento.html', {
+        'form_evento': form,
+    })
 
 
 @never_cache
 @login_required
 def editar_evento(request, evento_id):
-    """Edita um evento existente."""
-    evento = get_object_or_404(
-        Evento,
-        id=evento_id,
-    )
+    """Edita um evento existente (apenas administrador ou superusuário)."""
+    evento = get_object_or_404(Evento, id=evento_id)
+    _garantir_administrador_evento(request, evento)
 
     if request.method == 'POST':
-        form = EventoForm(
-            request.POST,
-            request.FILES,
-            instance=evento,
-        )
-
+        form = EventoForm(request.POST, request.FILES, instance=evento)
         if form.is_valid():
-            evento = form.save()
-
-            nomes_apoiadores = form.cleaned_data.get('apoiadores')
-
-            if nomes_apoiadores:
-                objetos_apoiadores = [
-                    Apoiador.objects.get_or_create(nome=nome)[0]
-                    for nome in nomes_apoiadores
-                ]
-                evento.apoiadores.set(objetos_apoiadores)
-            else:
-                evento.apoiadores.clear()
-
-            messages.success(
-                request,
-                'Evento atualizado com sucesso!',
-            )
-
-            return redirect(
-                'app_evento:urldet_myevento',
-                evento_id=evento.id,
-            )
+            evento = form.save()  # Já salva apoiadores via EventoForm.save()
+            messages.success(request, 'Evento atualizado com sucesso!')
+            return redirect('app_evento:urldet_myevento', evento_id=evento.id)
     else:
         form = EventoForm(instance=evento)
-
         messages.info(
             request,
             f'Edite as informações do evento "{evento.nome}" abaixo:',
         )
 
-    return render(
-        request,
-        'app_evento/cadastrar_evento.html',
-        {
-            'form_evento': form,
-            'evento': evento,
-            'editando': True,
-        },
-    )
+    return render(request, 'app_evento/cadastrar_evento.html', {
+        'form_evento': form,
+        'evento': evento,
+        'editando': True,
+    })
 
 
 @never_cache
 @login_required
+@require_POST
 def excluir_evento(request, evento_id):
-    """Exclui um evento após uma solicitação POST."""
-    evento = get_object_or_404(
-        Evento,
-        id=evento_id,
-    )
+    """Exclui um evento após solicitação POST do administrador."""
+    evento = get_object_or_404(Evento, id=evento_id)
+    _garantir_administrador_evento(request, evento)
 
-    if request.method == 'POST':
-        evento.delete()
-
-        messages.success(
-            request,
-            'Evento excluído com sucesso!',
-        )
-
+    evento.delete()
+    messages.success(request, 'Evento excluído com sucesso!')
     return redirect('app_evento:urldis_myevento')
 
 
 @never_cache
 def detalhes_evento(request, evento_id):
-    """
-    Exibe os detalhes de um evento e identifica as atividades
-    nas quais o usuário está inscrito.
-    """
-    evento = get_object_or_404(
-        Evento,
-        id=evento_id,
-    )
+    """Exibe os detalhes de um evento e identifica as atividades inscritas."""
+    evento = get_object_or_404(Evento, id=evento_id)
 
-    atividades = Atividade.objects.filter(
-        evento=evento
-    ).order_by('horaInicio')
+    atividades = (
+        Atividade.objects.filter(evento=evento)
+        .annotate(total_participantes=Count('participa'))
+        .order_by('horaInicio')
+    )
 
     atividades_inscritas_ids = []
     esta_inscrito_no_evento = False
 
     if request.user.is_authenticated:
-        usuario_perfil = getattr(
-            request.user,
-            'user_django',
-            None,
-        )
-
-        if not usuario_perfil:
-            try:
-                usuario_perfil = Usuario.objects.get(
-                    user_django=request.user
-                )
-            except Usuario.DoesNotExist:
-                usuario_perfil = None
+        try:
+            usuario_perfil = Usuario.objects.get(user_django=request.user)
+        except Usuario.DoesNotExist:
+            usuario_perfil = None
 
         if usuario_perfil:
             esta_inscrito_no_evento = Inscricao.objects.filter(
@@ -469,72 +336,48 @@ def detalhes_evento(request, evento_id):
                 ativa=True,
             ).exists()
 
-            atividades_inscritas_ids = Participa.objects.filter(
-                inscricao__usuario=usuario_perfil,
-                inscricao__ativa=True,
-                atividade__evento=evento,
-            ).values_list(
-                'atividade_id',
-                flat=True,
+            atividades_inscritas_ids = list(
+                Participa.objects.filter(
+                    inscricao__usuario=usuario_perfil,
+                    inscricao__ativa=True,
+                    atividade__evento=evento,
+                ).values_list('atividade_id', flat=True)
             )
 
     agora = timezone.now()
-    agora_tolerancia = agora + timedelta(minutes=15)   
-        
-    context = {
+    agora_tolerancia = agora + timedelta(minutes=15)
+
+    return render(request, 'app_evento/detalhes_evento.html', {
         'evento': evento,
         'atividades': atividades,
-        'atividades_inscritas_ids': list(atividades_inscritas_ids),
+        'atividades_inscritas_ids': atividades_inscritas_ids,
         'esta_inscrito_no_evento': esta_inscrito_no_evento,
-        'agora': agora,  # necessária para validar os horários no HTML
+        'agora': agora,
         'agora_tolerancia': agora_tolerancia,
-    }
-
-    return render(
-        request,
-        'app_evento/detalhes_evento.html',
-        context,
-    )
+        'hoje': timezone.localdate(),
+    })
 
 
 @never_cache
 @login_required
 def detalhes_meus_evento(request, evento_id):
     """Exibe os detalhes de um evento administrado pelo usuário."""
-    try:
-        usuario_perfil = Usuario.objects.get(
-            user_django=request.user
-        )
-    except Usuario.DoesNotExist:
-        raise PermissionDenied(
-            'Você precisa completar seu perfil de usuário para acessar esta página.'
-        )
+    evento = get_object_or_404(Evento, id=evento_id)
+    _garantir_administrador_evento(request, evento)
 
-    evento = get_object_or_404(
-        Evento,
-        id=evento_id,
-        administrador=usuario_perfil,
+    atividades = (
+        Atividade.objects.filter(evento=evento)
+        .annotate(total_participantes=Count('participa'))
+        .order_by('horaInicio')
     )
 
-    atividades = Atividade.objects.filter(
-        evento=evento
-    ).order_by('horaInicio')
+    total_inscritos = Inscricao.objects.filter(evento=evento, ativa=True).count()
 
-    total_inscritos = Participa.objects.filter(
-        atividade__evento=evento
-    ).count()
-
-    context = {
+    return render(request, 'app_evento/detalhes_meus_evento.html', {
         'evento': evento,
         'atividades': atividades,
         'total_inscritos': total_inscritos,
-    }
-
-    return render(
-        request,
-        'app_evento/detalhes_meus_evento.html',
-        context,
-    )
+    })
 
 
 @login_required
@@ -542,14 +385,10 @@ def detalhes_meus_evento(request, evento_id):
 def meus_eventos_disponiveis(request):
     """Exibe e filtra os eventos administrados pelo usuário."""
     try:
-        usuario_perfil = Usuario.objects.get(
-            user_django=request.user
-        )
-
+        usuario_perfil = Usuario.objects.get(user_django=request.user)
         eventos_do_usuario = Evento.objects.filter(
             administrador=usuario_perfil
         ).order_by('dataInicio')
-
     except Usuario.DoesNotExist:
         eventos_do_usuario = Evento.objects.none()
 
@@ -558,17 +397,12 @@ def meus_eventos_disponiveis(request):
         request,
     )
 
-    context = {
+    return render(request, 'app_evento/meus_eventos.html', {
         'eventos': eventos_do_usuario,
         'tipos_evento': tipoEvento.choices,
         **filtros,
-    }
+    })
 
-    return render(
-        request,
-        'app_evento/meus_eventos.html',
-        context,
-    )
 
 def obter_foto_perfil(usuario):
     """Detecta automaticamente o campo de foto no model Usuario e retorna sua URL."""
@@ -584,7 +418,10 @@ def obter_foto_perfil(usuario):
                 except ValueError:
                     pass
 
-    for attr in ('foto', 'foto_perfil', 'foto_usuario', 'fotoUsuario', 'avatar', 'imagem', 'imagem_perfil', 'url_foto'):
+    for attr in (
+        'foto', 'foto_perfil', 'foto_usuario', 'fotoUsuario',
+        'avatar', 'imagem', 'imagem_perfil', 'url_foto',
+    ):
         valor = getattr(usuario, attr, None)
         if not valor:
             continue
@@ -600,7 +437,7 @@ def obter_foto_perfil(usuario):
 
 
 def extrair_dados_completos(usuario):
-    """Coleta todas as informações cadastradas no perfil Usuario para exibir na Ficha."""
+    """Coleta informações cadastradas no perfil Usuario para exibir na Ficha."""
     campos_possiveis = [
         ('cpf', 'CPF'),
         ('telefone', 'Telefone'),
@@ -621,58 +458,74 @@ def extrair_dados_completos(usuario):
 
 
 def calcular_nivel(pontos, pontos_por_nivel=100):
-    """Calcula o nível inteiro a partir da pontuação (ex: 0-99 pts = Nível 1, 100-199 = Nível 2)."""
+    """Calcula o nível inteiro a partir da pontuação."""
     pontos = max(0, pontos or 0)
     nivel = (pontos // pontos_por_nivel) + 1
     progresso = round(((pontos % pontos_por_nivel) / pontos_por_nivel) * 100)
+    return {'numero': nivel, 'progresso': progresso}
 
-    return {
-        'numero': nivel,
-        'progresso': progresso,
-    }
 
 def status_presenca_atividade(participa, atividade, agora):
-    """
-    Define o status de presença na atividade com base no registro via QR Code:
-    - Presente: inscrito e registrou presença até o término da atividade
-    - Não iniciado: não registrou presença e a atividade ainda não começou
-    - Em Espera: não registrou presença e a atividade está em andamento
-    - Ausente: não registrou presença até o término da atividade
-    """
-
-    data_presenca = getattr(participa, 'dataHoraPresenca', None)
-    registrou = bool(getattr(participa, 'presente' , False) or data_presenca)
+    """Define o status de presença na atividade com base no registro via QR Code."""
+    data_presenca = getattr(participa, 'data_hora_presenca', None)
+    registrou = bool(getattr(participa, 'presente', False) or data_presenca)
 
     inicio = atividade.horaInicio
     fim = atividade.horaFim
 
     tz = timezone.get_current_timezone()
     if not hasattr(inicio, 'hour'):
-        inicio = datetime.datetime.combine(inicio, getattr(atividade, 'horaInicio', datetime.time.min))
-        fim = datetime.datetime.combine(fim, getattr(atividade, 'horaFim', datetime.time(23, 59, 59)))
+        inicio = datetime.combine(inicio, time.min)
+    if not hasattr(fim, 'hour'):
+        fim = datetime.combine(fim, time(23, 59, 59))
     if timezone.is_naive(inicio):
         inicio = timezone.make_aware(inicio, tz)
     if timezone.is_naive(fim):
         fim = timezone.make_aware(fim, tz)
+    if data_presenca and timezone.is_naive(data_presenca):
+        data_presenca = timezone.make_aware(data_presenca, tz)
 
     if registrou:
         if data_presenca and data_presenca > fim:
-            return {'texto': 'Ausente', 'classe': 'bg-danger-subtle text-danger border-danger-subtle', 'icone': 'bi-x-circle-fill'}
-        return {'texto': 'Presente', 'classe': 'bg-success-subtle text-success border-success-subtle', 'icone': 'bi-check-circle-fill'}
+            return {
+                'texto': 'Ausente',
+                'classe': 'bg-danger-subtle text-danger border-danger-subtle',
+                'icone': 'bi-x-circle-fill',
+            }
+        return {
+            'texto': 'Presente',
+            'classe': 'bg-success-subtle text-success border-success-subtle',
+            'icone': 'bi-check-circle-fill',
+        }
 
     if agora < inicio:
-        return {'texto': 'Não iniciado', 'classe': 'bg-secondary-subtle text-secondary border-secondary-subtle', 'icone': 'bi-clock'}
+        return {
+            'texto': 'Não iniciado',
+            'classe': 'bg-secondary-subtle text-secondary border-secondary-subtle',
+            'icone': 'bi-clock',
+        }
 
     if agora > fim:
-        return {'texto': 'Ausente', 'classe': 'bg-danger-subtle text-danger border-danger-subtle', 'icone': 'bi-x-circle-fill'}
+        return {
+            'texto': 'Ausente',
+            'classe': 'bg-danger-subtle text-danger border-danger-subtle',
+            'icone': 'bi-x-circle-fill',
+        }
 
-    return {'texto': 'Em Espera', 'classe': 'bg-warning-subtle text-warning-emphasis border-warning-subtle', 'icone': 'bi-hourglass-split'}
+    return {
+        'texto': 'Em Espera',
+        'classe': 'bg-warning-subtle text-warning-emphasis border-warning-subtle',
+        'icone': 'bi-hourglass-split',
+    }
 
+
+@never_cache
 @login_required
 def gerenciar_participantes(request, evento_id, atividade_id=None):
     evento = get_object_or_404(Evento, id=evento_id)
-    atividade = None
+    _garantir_administrador_evento(request, evento)
 
+    atividade = None
     if atividade_id:
         atividade = get_object_or_404(Atividade, id=atividade_id, evento=evento)
 
@@ -684,10 +537,9 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
                 atividade_id=atividade.id,
             )
         return redirect('app_evento:urlgerenciar_participantes', evento_id=evento.id)
-    # Ação POST: Remoção do participante (bloqueada se já houver presença registrada)
+
     if request.method == 'POST':
         acao = request.POST.get('acao')
-
         if acao == 'remover_participante':
             inscricao_id = request.POST.get('inscricao_id')
             inscricao = get_object_or_404(Inscricao, id=inscricao_id, evento=evento)
@@ -706,7 +558,14 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
                     return redirecionar_retorno()
 
                 Participa.objects.filter(inscricao=inscricao, atividade=atividade).delete()
-                messages.success(request, f'Participante removido da atividade "{atividade.nome}".')
+                if not Participa.objects.filter(inscricao=inscricao).exists():
+                    inscricao.ativa = False
+                    inscricao.save(update_fields=['ativa'])
+
+                messages.success(
+                    request,
+                    f'Participante removido da atividade "{atividade.nome}".',
+                )
             else:
                 ja_presente_evento = (
                     Participa.objects.filter(inscricao=inscricao, atividade__evento=evento)
@@ -724,9 +583,11 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
                 messages.success(request, 'Participante removido do evento com sucesso.')
 
             return redirecionar_retorno()
-    # Consulta GET: Geral do evento ou filtrada por atividade
+
     if atividade:
-        inscricoes_ids = Participa.objects.filter(atividade=atividade).values_list('inscricao_id', flat=True)
+        inscricoes_ids = Participa.objects.filter(
+            atividade=atividade
+        ).values_list('inscricao_id', flat=True)
         participantes_qs = (
             Inscricao.objects.filter(id__in=inscricoes_ids, evento=evento)
             .select_related('usuario', 'usuario__user_django')
@@ -739,7 +600,7 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
         ).select_related('quiz', 'participa')
     else:
         participantes_qs = (
-            Inscricao.objects.filter(evento=evento)
+            Inscricao.objects.filter(evento=evento, ativa=True)
             .select_related('usuario', 'usuario__user_django')
         )
         quizzes_ativos = list(Quiz.objects.filter(atividade__evento=evento, ativo=True))
@@ -749,7 +610,6 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
             completo=True,
         ).select_related('quiz', 'participa', 'participa__atividade')
 
-    # Pontuação máxima possível nos desafios ativos
     max_pontos_possiveis = 0
     for q in quizzes_ativos:
         resp_simulada = Resposta(quiz=q, status='certo', correto=True, completo=True)
@@ -757,10 +617,8 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
 
     respostas_por_inscricao = {}
     for resp in respostas_qs:
-        insc_id = resp.participa.inscricao_id
-        respostas_por_inscricao.setdefault(insc_id, []).append(resp)
+        respostas_por_inscricao.setdefault(resp.participa.inscricao_id, []).append(resp)
 
-    # Busca respostas GLOBAIS (de todos os eventos e atividades) para o Nível da Conta
     participantes = list(participantes_qs)
     usuarios_ids = [insc.usuario_id for insc in participantes]
     respostas_globais_qs = Resposta.objects.filter(
@@ -783,7 +641,10 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
     if atividade:
         participacoes_map = {
             p.inscricao_id: p
-            for p in Participa.objects.filter(inscricao__in=participantes_qs, atividade=atividade)
+            for p in Participa.objects.filter(
+                inscricao__in=participantes_qs,
+                atividade=atividade,
+            )
         }
     else:
         inscricoes_com_presenca_ids = set(
@@ -795,7 +656,6 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
             .values_list('inscricao_id', flat=True)
         )
 
-    # Monta métricas locais (pontuação/ranking) e globais (nível da conta)
     for inscricao in participantes:
         resps = respostas_por_inscricao.get(inscricao.id, [])
         pontos_locais = sum((getattr(r, 'pontos_conquistados', 0) or 0) for r in resps)
@@ -809,7 +669,7 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
         if atividade:
             part_atual = participacoes_map.get(inscricao.id)
             ja_presente = bool(
-                part_atual and (part_atual.presente or getattr(part_atual, 'data_hora_presenca', None))
+                part_atual and (part_atual.presente or part_atual.data_hora_presenca)
             )
         else:
             ja_presente = inscricao.id in inscricoes_com_presenca_ids
@@ -829,19 +689,18 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
         )
         inscricao.foto_perfil_url = obter_foto_perfil(inscricao.usuario)
         inscricao.dados_completos = extrair_dados_completos(inscricao.usuario)
-    
-    # Ordena do maior para o menor score (desempate pela inscrição mais antiga)
+
     participantes.sort(key=lambda i: (-i.pontuacao_total, i.dataHora))
 
-    context = {
+    return render(request, 'app_evento/gerenciar_participantes.html', {
         'evento': evento,
         'atividade': atividade,
         'participantes': participantes,
         'max_pontos_possiveis': max_pontos_possiveis,
-    }
+    })
 
-    return render(request, 'app_evento/gerenciar_participantes.html', context)
 
+# ==========================================================
 # VIEWS DE ATIVIDADES E INSCRIÇÕES
 # ==========================================================
 
@@ -849,10 +708,8 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
 @login_required
 def cadastrar_atividade(request, evento_id):
     """Cadastra uma atividade vinculada a um evento."""
-    evento_atual = get_object_or_404(
-        Evento,
-        id=evento_id,
-    )
+    evento_atual = get_object_or_404(Evento, id=evento_id)
+    _garantir_administrador_evento(request, evento_atual)
 
     if request.method == 'POST':
         form = AtividadeForm(request.POST)
@@ -860,127 +717,70 @@ def cadastrar_atividade(request, evento_id):
 
         if form.is_valid():
             form.save()
+            messages.success(request, 'Atividade cadastrada com sucesso!')
+            return redirect('app_evento:urldet_myevento', evento_id=evento_atual.id)
 
-            messages.success(
-                request,
-                'Atividade cadastrada com sucesso!',
-            )
-
-            return redirect(
-                'app_evento:urldet_myevento',
-                evento_id=evento_atual.id,
-            )
-
-        messages.error(
-            request,
-            'Por favor, corrija os erros destacados no formulário.',
-        )
+        messages.error(request, 'Por favor, corrija os erros destacados no formulário.')
     else:
         form = AtividadeForm()
 
-    context = {
+    return render(request, 'app_evento/cadastrar_atividade.html', {
         'form_atividade': form,
         'evento': evento_atual,
-    }
-
-    return render(
-        request,
-        'app_evento/cadastrar_atividade.html',
-        context,
-    )
+    })
 
 
 @never_cache
 @login_required
 def editar_atividade(request, atividade_id):
     """Edita uma atividade existente."""
-    atividade = get_object_or_404(
-        Atividade,
-        pk=atividade_id,
-    )
-
+    atividade = get_object_or_404(Atividade, pk=atividade_id)
     evento = atividade.evento
+    _garantir_administrador_evento(request, evento)
 
     if request.method == 'POST':
-        form = AtividadeForm(
-            request.POST,
-            instance=atividade,
-        )
-
+        form = AtividadeForm(request.POST, instance=atividade)
         if form.is_valid():
             form.save()
-
             messages.success(
                 request,
                 f'Atividade "{atividade.nome}" atualizada com sucesso!',
             )
-
-            return redirect(
-                'app_evento:urldet_myevento',
-                evento_id=evento.id,
-            )
+            return redirect('app_evento:urldet_myevento', evento_id=evento.id)
     else:
         form = AtividadeForm(instance=atividade)
 
-    context = {
+    return render(request, 'app_evento/cadastrar_atividade.html', {
         'form_atividade': form,
         'atividade': atividade,
         'evento': evento,
         'editando': True,
-    }
-
-    return render(
-        request,
-        'app_evento/cadastrar_atividade.html',
-        context,
-    )
+    })
 
 
+@never_cache
 @login_required
+@require_POST
 def excluir_atividade(request, atividade_id):
-    """Exclui uma atividade mediante solicitação POST."""
-    atividade = get_object_or_404(
-        Atividade,
-        pk=atividade_id,
-    )
+    """Exclui uma atividade mediante solicitação POST do administrador."""
+    atividade = get_object_or_404(Atividade, pk=atividade_id)
+    evento = atividade.evento
+    _garantir_administrador_evento(request, evento)
 
-    evento_id = atividade.evento.id
-
-    if request.method == 'POST':
-        atividade.delete()
-
-    return redirect(
-        'app_evento:urldet_myevento',
-        evento_id=evento_id,
-    )
+    atividade.delete()
+    messages.success(request, 'Atividade excluída com sucesso!')
+    return redirect('app_evento:urldet_myevento', evento_id=evento.id)
 
 
 @never_cache
 @login_required
 @require_POST
 def alternar_participacao_atividade(request, atividade_id):
-    atividade = get_object_or_404(Atividade, id=atividade_id)
-    evento = atividade.evento
     agora = timezone.now()
     agora_tolerancia = agora + timedelta(minutes=15)
 
-    # Bloqueia inscrições se o evento ou a atividade específica já encerrou
-    if (evento.dataFim and evento.dataFim < timezone.localdate()) or (atividade.horaFim and atividade.horaFim < agora):
-        messages.error(request, f'A atividade "{atividade.nome}" já foi encerrada.')
-        return redirect('app_evento:urldet_evento', evento_id=evento.id)
-
-    # Bloqueia alterações dentro da janela de 15 min antes do início (credenciamento aberto)
-    if atividade.horaInicio and atividade.horaInicio <= agora_tolerancia:
-        messages.error(
-            request,
-            f'O prazo para alterar a inscrição na atividade "{atividade.nome}" encerrou 15 minutos antes do início.',
-        )
-        return redirect('app_evento:urldet_evento', evento_id=evento.id)
-    
     try:
-        usuario_perfil = Usuario.objects.get(
-            user_django=request.user
-        )
+        usuario_perfil = Usuario.objects.get(user_django=request.user)
     except Usuario.DoesNotExist:
         messages.warning(
             request,
@@ -988,89 +788,92 @@ def alternar_participacao_atividade(request, atividade_id):
         )
         return redirect('app_login:urlcad_usuario')
 
-    inscricao, _ = Inscricao.objects.get_or_create(
-        usuario=usuario_perfil,
-        evento=evento,
-    )
-
-    participacao = Participa.objects.filter(
-        inscricao=inscricao,
-        atividade=atividade,
-    ).first()
-
-    # Se já participa, remove a participação.
-    if participacao:
-        participacao.delete()
-
-        atividades_restantes = Participa.objects.filter(
-            inscricao=inscricao,
-        ).count()
-
-        if atividades_restantes == 0:
-            inscricao.ativa = False
-            inscricao.save()
-
-            messages.warning(
-                request,
-                f'Sua inscrição no evento "{evento.nome}" foi desativada porque você removeu todas as atividades.',
-            )
-        else:
-            messages.warning(
-                request,
-                f'Você se desinscreveu da atividade "{atividade.nome}".',
-            )
-
-        return redirect(
-            'app_evento:urldet_evento',
-            evento_id=evento.id,
+    with transaction.atomic():
+        atividade = get_object_or_404(
+            Atividade.objects.select_for_update().select_related('evento'),
+            id=atividade_id,
         )
+        evento = atividade.evento
 
-    # Verifica se ainda existem vagas.
-    if atividade.limitePessoas:
-        total_inscritos = Participa.objects.filter(
-            atividade=atividade,
-        ).count()
+        if (evento.dataFim and evento.dataFim < timezone.localdate()) or (
+            atividade.horaFim and atividade.horaFim < agora
+        ):
+            messages.error(request, f'A atividade "{atividade.nome}" já foi encerrada.')
+            return redirect('app_evento:urldet_evento', evento_id=evento.id)
 
-        if total_inscritos >= atividade.limitePessoas:
+        if atividade.horaInicio and atividade.horaInicio <= agora_tolerancia:
             messages.error(
                 request,
-                f'A atividade "{atividade.nome}" está com as vagas esgotadas.',
+                f'O prazo para alterar a inscrição na atividade "{atividade.nome}" encerrou 15 minutos antes do início.',
             )
+            return redirect('app_evento:urldet_evento', evento_id=evento.id)
 
-            return redirect(
-                'app_evento:urldet_evento',
-                evento_id=evento.id,
-            )
+        inscricao, _ = Inscricao.objects.get_or_create(
+            usuario=usuario_perfil,
+            evento=evento,
+        )
 
-    # Reativa a inscrição se estava desativada.
-    if not inscricao.ativa:
-        inscricao.ativa = True
-        inscricao.save()
+        participacao = Participa.objects.filter(
+            inscricao=inscricao,
+            atividade=atividade,
+        ).first()
 
-    Participa.objects.create(
-        inscricao=inscricao,
-        atividade=atividade,
-        funcao=StatusParticipa.PARTICIPANTE,
-    )
+        if participacao:
+            if participacao.presente or participacao.data_hora_presenca:
+                messages.error(
+                    request,
+                    f'Não é possível cancelar a inscrição em "{atividade.nome}" pois sua presença já foi registrada.',
+                )
+                return redirect('app_evento:urldet_evento', evento_id=evento.id)
+
+            participacao.delete()
+
+            if not Participa.objects.filter(inscricao=inscricao).exists():
+                inscricao.ativa = False
+                inscricao.save(update_fields=['ativa'])
+                messages.warning(
+                    request,
+                    f'Sua inscrição no evento "{evento.nome}" foi desativada porque você removeu todas as atividades.',
+                )
+            else:
+                messages.warning(
+                    request,
+                    f'Você se desinscreveu da atividade "{atividade.nome}".',
+                )
+
+            return redirect('app_evento:urldet_evento', evento_id=evento.id)
+
+        if atividade.limitePessoas:
+            total_inscritos = Participa.objects.filter(atividade=atividade).count()
+            if total_inscritos >= atividade.limitePessoas:
+                messages.error(
+                    request,
+                    f'A atividade "{atividade.nome}" está com as vagas esgotadas.',
+                )
+                return redirect('app_evento:urldet_evento', evento_id=evento.id)
+
+        if not inscricao.ativa:
+            inscricao.ativa = True
+            inscricao.save()
+
+        Participa.objects.create(
+            inscricao=inscricao,
+            atividade=atividade,
+            funcao=StatusParticipa.PARTICIPANTE,
+        )
 
     messages.success(
         request,
         f'Inscrição confirmada na atividade "{atividade.nome}"!',
     )
-
-    return redirect(
-        'app_evento:urlcomprovante_inscricao',
-        evento_id=evento.id,
-    )
+    return redirect('app_evento:urlcomprovante_inscricao', evento_id=evento.id)
 
 
 @login_required
 def minhas_inscricoes(request):
     """Exibe todas as inscrições ativas do usuário autenticado."""
     try:
-        usuario = Usuario.objects.get(
-            user_django=request.user
-        )
+        usuario = Usuario.objects.get(user_django=request.user)
     except Usuario.DoesNotExist:
         messages.warning(
             request,
@@ -1078,21 +881,19 @@ def minhas_inscricoes(request):
         )
         return redirect('app_login:urlcad_usuario')
 
-    inscricoes = Inscricao.objects.filter(
-        usuario=usuario,
-        ativa=True,
-    ).select_related(
-        'evento',
-    ).prefetch_related(
-        'participa_set__atividade',
+    inscricoes = (
+        Inscricao.objects.filter(usuario=usuario, ativa=True)
+        .select_related('evento')
+        .prefetch_related('participa_set__atividade')
+        .order_by('-dataHora')
     )
 
     for inscricao in inscricoes:
-        if inscricao.qrcode_imagem:
-            if not inscricao.qrcode_imagem.storage.exists(
-                inscricao.qrcode_imagem.name
-            ):
-                inscricao.save()
+        if (
+            not inscricao.qrcode_imagem
+            or not inscricao.qrcode_imagem.storage.exists(inscricao.qrcode_imagem.name)
+        ):
+            inscricao.save()
 
     total_atividades = sum(
         len(inscricao.participa_set.all())
@@ -1102,8 +903,8 @@ def minhas_inscricoes(request):
     return render(request, 'app_evento/minhas_inscricoes.html', {
         'inscricoes': inscricoes,
         'total_atividades': total_atividades,
-        'agora': timezone.now(),        # Para validar horário de término das Atividades
-        'hoje': timezone.localdate(),   # Para validar a data de encerramento dos Eventos
+        'agora': timezone.now(),
+        'hoje': timezone.localdate(),
     })
 
 
@@ -1112,50 +913,40 @@ def minhas_inscricoes(request):
 def comprovante_inscricao(request, evento_id):
     """Exibe o comprovante e o crachá do participante."""
     try:
-        usuario_perfil = Usuario.objects.get(
-            user_django=request.user
-        )
+        usuario_perfil = Usuario.objects.get(user_django=request.user)
     except Usuario.DoesNotExist:
-        messages.warning(
-            request,
-            'Você precisa completar seu perfil de usuário.',
-        )
+        messages.warning(request, 'Você precisa completar seu perfil de usuário.')
         return redirect('app_login:urlcad_usuario')
 
-    evento = get_object_or_404(
-        Evento,
-        id=evento_id,
-    )
-
+    evento = get_object_or_404(Evento, id=evento_id)
     inscricao = get_object_or_404(
         Inscricao,
         usuario=usuario_perfil,
         evento=evento,
+        ativa=True,
     )
+
+    if (
+        not inscricao.qrcode_imagem
+        or not inscricao.qrcode_imagem.storage.exists(inscricao.qrcode_imagem.name)
+    ):
+        inscricao.save()
 
     participacoes = Participa.objects.filter(
         inscricao=inscricao,
-    ).select_related(
-        'atividade',
-    )
+    ).select_related('atividade')
 
-    context = {
+    return render(request, 'app_evento/comprovante.html', {
         'evento': evento,
         'inscricao': inscricao,
         'participacoes': participacoes,
         'usuario': usuario_perfil,
-        'agora': timezone.now(),  # <--- Adicionado para separar ativas de concluídas no comprovante
-    }
-
-    return render(
-        request,
-        'app_evento/comprovante.html',
-        context,
-    )
+        'agora': timezone.now(),
+    })
 
 
 # ==========================================================
-# OUTRAS VIEWS E SORTEIO
+# SORTEIO (persistido no model Premio)
 # ==========================================================
 
 @never_cache
@@ -1163,149 +954,72 @@ def comprovante_inscricao(request, evento_id):
 def sorteio(request, atividade_id=None):
     """Gerencia os prêmios e os participantes de uma atividade."""
     if not atividade_id:
-        messages.warning(
-            request,
-            'Nenhuma atividade selecionada.',
-        )
+        messages.warning(request, 'Nenhuma atividade selecionada.')
         return redirect('app_evento:urldis_myevento')
 
-    atividade = get_object_or_404(
-        Atividade,
-        id=atividade_id,
-    )
+    atividade = get_object_or_404(Atividade.objects.select_related('evento'), id=atividade_id)
+    _garantir_administrador_evento(request, atividade.evento)
 
-    participacoes = Participa.objects.filter(
-        atividade=atividade,
-    ).select_related(
-        'inscricao__usuario__user_django',
-    )
-
-    lista_participantes = []
-
-    for participacao in participacoes:
-        if (
-            participacao.inscricao
-            and participacao.inscricao.usuario
-            and participacao.inscricao.usuario.user_django
-        ):
-            user = participacao.inscricao.usuario.user_django
-            nome = user.get_full_name().strip() or user.username
-            lista_participantes.append(nome)
-
-    session_key = f'premios_atividade_{atividade.id}'
-
-    if session_key not in request.session:
-        request.session[session_key] = []
+    lista_participantes = atividade.get_participantes_nomes()
 
     if request.method == 'POST':
-        if not (
-            request.user.is_staff
-            or request.user.is_superuser
-        ):
-            messages.error(
-                request,
-                'Apenas administradores podem gerenciar prêmios.',
-            )
-
-            return redirect(
-                'app_evento:urlsorteio_atividade',
-                atividade_id=atividade.id,
-            )
-
         action = request.POST.get('action', 'add')
-        premios = request.session.get(session_key, [])
+        premios_objs = list(Premio.objects.filter(atividade=atividade).order_by('id'))
 
         if action == 'add':
-            premio_nome = request.POST.get(
-                'premio',
-                '',
-            ).strip()
-
+            premio_nome = request.POST.get('premio', '').strip()
             try:
-                qtd_ganhadores = int(
-                    request.POST.get('qtd_ganhadores', 1)
-                )
+                qtd_ganhadores = int(request.POST.get('qtd_ganhadores', 1))
             except (ValueError, TypeError):
-                qtd_ganhadores = 1
+                qtd_ganhadores = 0
 
             if premio_nome and qtd_ganhadores > 0:
-                premios.append({
-                    'nome': premio_nome,
-                    'quantidade': qtd_ganhadores,
-                })
-
-                messages.success(
-                    request,
-                    f'Prêmio "{premio_nome}" cadastrado!',
+                Premio.objects.create(
+                    atividade=atividade,
+                    nome=premio_nome,
+                    quantidade=qtd_ganhadores,
                 )
+                messages.success(request, f'Prêmio "{premio_nome}" cadastrado!')
             else:
-                messages.error(
-                    request,
-                    'Informe um nome de prêmio e uma quantidade válida.',
-                )
+                messages.error(request, 'Informe um nome de prêmio e uma quantidade válida.')
 
         elif action == 'edit':
             try:
                 index = int(request.POST.get('premio_index'))
                 nova_qtd = int(request.POST.get('nova_qtd', 1))
-
-                if (
-                    0 <= index < len(premios)
-                    and nova_qtd > 0
-                ):
-                    premios[index]['quantidade'] = nova_qtd
-
-                    messages.success(
-                        request,
-                        'Quantidade alterada!',
-                    )
-
+                if 0 <= index < len(premios_objs) and nova_qtd > 0:
+                    premio = premios_objs[index]
+                    premio.quantidade = nova_qtd
+                    premio.save(update_fields=['quantidade'])
+                    messages.success(request, 'Quantidade alterada!')
+                else:
+                    messages.error(request, 'Informe uma quantidade válida.')
             except (ValueError, TypeError):
-                messages.error(
-                    request,
-                    'Não foi possível alterar a quantidade do prêmio.',
-                )
+                messages.error(request, 'Não foi possível alterar a quantidade do prêmio.')
 
         elif action == 'delete':
             try:
                 index = int(request.POST.get('premio_index'))
-
-                if 0 <= index < len(premios):
-                    removido = premios.pop(index)
-
-                    messages.success(
-                        request,
-                        f'Prêmio "{removido["nome"]}" removido!',
-                    )
-
+                if 0 <= index < len(premios_objs):
+                    removido = premios_objs[index]
+                    nome_removido = removido.nome
+                    removido.delete()
+                    messages.success(request, f'Prêmio "{nome_removido}" removido!')
             except (ValueError, TypeError):
-                messages.error(
-                    request,
-                    'Não foi possível remover o prêmio.',
-                )
+                messages.error(request, 'Não foi possível remover o prêmio.')
 
         elif action == 'clear_all':
-            premios = []
+            Premio.objects.filter(atividade=atividade).delete()
+            messages.success(request, 'Todos os prêmios desta atividade foram apagados!')
 
-            messages.success(
-                request,
-                'Todos os prêmios desta atividade foram apagados!',
-            )
+        return redirect('app_evento:urlsorteio_atividade', atividade_id=atividade.id)
 
-        request.session[session_key] = premios
-        request.session.modified = True
+    premios = [
+        {'id': p.id, 'nome': p.nome, 'quantidade': p.quantidade}
+        for p in Premio.objects.filter(atividade=atividade).order_by('id')
+    ]
 
-        return redirect(
-            'app_evento:urlsorteio_atividade',
-            atividade_id=atividade.id,
-        )
-
-    premios = request.session.get(
-        session_key,
-        [],
-    )
-
-    context = {
+    return render(request, 'app_evento/sorteio.html', {
         'atividade': atividade,
         'premios': premios,
         'sorteio': random.choice(premios) if premios else {
@@ -1314,10 +1028,4 @@ def sorteio(request, atividade_id=None):
         },
         'participantes_json': json.dumps(lista_participantes),
         'premios_json': json.dumps(premios),
-    }
-
-    return render(
-        request,
-        'app_evento/sorteio.html',
-        context,
-    )
+    })

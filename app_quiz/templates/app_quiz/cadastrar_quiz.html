@@ -34,7 +34,7 @@
           </div>
 
           {% if evento %}
-            <a href="{% url 'app_evento:urldet_myevento' evento.id %}"
+            <a href="{% url 'app_quiz:urlgerenciar_quizzes' atividade.id %}"
                class="btn btn-outline-secondary btn-sm rounded-pill px-3 align-self-start align-self-md-center">
               <i class="bi bi-arrow-left me-1"></i> Voltar
             </a>
@@ -188,7 +188,7 @@
 
                 <div class="d-flex justify-content-end gap-2">
                   {% if evento %}
-                    <a href="{% url 'app_evento:urldet_myevento' evento.id %}"
+                    <a href="{% url 'app_quiz:urlgerenciar_quizzes' atividade.id %}"
                        class="btn btn-outline-secondary btn-sm rounded-pill px-4">
                       Cancelar
                     </a>
@@ -214,27 +214,29 @@
   </div>
 </section>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const selectTipo = document.getElementById('{{ form_quiz.tipo.id_for_label }}');
-  const blocoMetrica = document.getElementById('bloco-metrica');
-  const blocoMultipla = document.getElementById('bloco-multipla');
+{% block extra_js %}
+  <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const selectTipo = document.getElementById('{{ form_quiz.tipo.id_for_label }}');
+        const blocoMetrica = document.getElementById('bloco-metrica');
+        const blocoMultipla = document.getElementById('bloco-multipla');
 
-  function atualizarCamposPorTipo() {
-    if (!selectTipo || !blocoMetrica || !blocoMultipla) return;
-    if (selectTipo.value === 'MULTIPLA') {
-      blocoMetrica.classList.add('d-none');
-      blocoMultipla.classList.remove('d-none');
-    } else {
-      blocoMultipla.classList.add('d-none');
-      blocoMetrica.classList.remove('d-none');
-    }
-  }
+        function atualizarCamposPorTipo() {
+          if (!selectTipo || !blocoMetrica || !blocoMultipla) return;
+          if (selectTipo.value === 'MULTIPLA') {
+            blocoMetrica.classList.add('d-none');
+            blocoMultipla.classList.remove('d-none');
+          } else {
+            blocoMultipla.classList.add('d-none');
+            blocoMetrica.classList.remove('d-none');
+          }
+        }
 
-  if (selectTipo) {
-    selectTipo.addEventListener('change', atualizarCamposPorTipo);
-    atualizarCamposPorTipo();
-  }
-});
-</script>
+        if (selectTipo) {
+          selectTipo.addEventListener('change', atualizarCamposPorTipo);
+          atualizarCamposPorTipo();
+        }
+      });
+    </script>
+  {% endblock%}
 {% endblock %}

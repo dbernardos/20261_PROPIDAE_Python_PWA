@@ -3,18 +3,14 @@
 
 {% block title %}Acessar Evento | Portal SEA Eventos{% endblock %}
 
-
 {% block pwa_messages %}{% endblock %}
-
-{% block pre_script %}
-{% endblock %}
 
 {% block extra_css %}
   <style>
     .btn-login-discreto {
       position: fixed;
-      top: max(50px, env(safe-area-inset-top));
-      left: max(20px, env(safe-area-inset-left));
+      top: max(60px, env(safe-area-inset-top));
+      left: max(60px, env(safe-area-inset-left));
       z-index: 1030;
       opacity: 0.65;
       background-color: rgba(255, 255, 255, 0.88);
@@ -28,6 +24,12 @@
       opacity: 1;
     }
 
+    @media (min-width: 768px) {
+      .pwa-card-wrapper {
+        border: var(--bs-border-width, 1px) solid var(--bs-border-color, #dee2e6) !important;
+      }
+    }
+
     /* No navegador desktop (onde já existe a barra de navegação superior), oculta o botão */
     @media (min-width: 992px) {
       .btn-login-discreto {
@@ -36,29 +38,28 @@
     }
 
     /* No PWA instalado (standalone/fullscreen), mantém visível em qualquer tamanho de tela */
-    @media all and (display-mode: standalone),
-           all and (display-mode: fullscreen),
-           all and (display-mode: minimal-ui) {
+    @media all and (display-mode: standalone) and (min-width: 992px) {
       .btn-login-discreto {
-        display: inline-flex !important;
+        display: none !important;
       }
     }
+
   </style>
 {% endblock %}
 
 {% block content %}
 <div class="pwa-screen-container fade-in">
 
- <!-- Botão de Página Login -->
+  <!-- Botão de Página Login -->
   <a href="{% url 'app_login:urllogin' %}?next={% url 'app_evento:urldis_evento' %}"
-     onclick="sessionStorage.removeItem('pwa_modo_ativo'); sessionStorage.removeItem('pwa_saiu_por_pin'); sessionStorage.removeItem('pwa_quiosque_url');"
+     id="btnLoginDiscreto"
      class="btn btn-light btn-sm rounded-pill border shadow-sm text-secondary px-3 py-1 d-inline-flex align-items-center gap-1 btn-login-discreto"
      title="Ir para a tela de login">
     <i class="bi bi-house-door me-1"></i>
     <span>Entrar</span>
   </a>
 
-  <div class="pwa-card-wrapper card card-custom border-0 border-md p-4 p-md-5 bg-white">
+  <div class="pwa-card-wrapper card card-custom border-0 p-4 p-md-5 bg-white">
 
     <!-- Cabeçalho -->
     <div class="text-center">
@@ -80,9 +81,16 @@
     {% if messages %}
       <div class="d-flex flex-column gap-2">
         {% for message in messages %}
-          <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'danger' }}{% endif %} alert-dismissible fade show text-center border-0 rounded-3 small py-2 px-3 mb-0 pwa-alert-auto"
+          <div class="alert alert-{% if 'error' in message.tags %}danger{% elif 'warning' in message.tags %}warning{% elif 'success' in message.tags %}success{% elif 'info' in message.tags %}info{% else %}danger{% endif %} alert-dismissible fade show text-center border-0 rounded-3 small py-2 px-3 mb-0 pwa-alert-auto"
                role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ message }}
+            {% if 'success' in message.tags %}
+              <i class="bi bi-check-circle-fill me-1"></i>
+            {% elif 'info' in message.tags %}
+              <i class="bi bi-info-circle-fill me-1"></i>
+            {% else %}
+              <i class="bi bi-exclamation-triangle-fill me-1"></i>
+            {% endif %}
+            {{ message }}
             <button type="button"
                     class="btn-close"
                     data-bs-dismiss="alert"
@@ -95,7 +103,7 @@
     <!-- Formulário de Busca -->
     <form method="POST"
           action="{% url 'app_evento:urlpwa_home' %}"
-          onsubmit="sessionStorage.removeItem('pwa_saiu_por_pin');"
+          id="formBuscaEventoPwa"
           autocomplete="off"
           class="d-flex flex-column gap-3">
       {% csrf_token %}
@@ -105,13 +113,13 @@
         <input type="text"
                id="codigo_evento"
                name="codigo_evento"
-               class="form-control custom-pwa-input shadow-sm"
+               class="form-control custom-pwa-input shadow-sm text-uppercase"
                placeholder="CÓDIGO DO EVENTO"
                required
                autocapitalize="characters"
                autocomplete="off"
+               spellcheck="false"
                enterkeyhint="search"
-               oninput="this.value = this.value.toUpperCase()"
                maxlength="20">
       </div>
 
@@ -128,6 +136,24 @@
 
 {% block extra_js %}
   <script>
+    const btnLoginDiscreto = document.getElementById('btnLoginDiscreto');
+    if (btnLoginDiscreto) {
+      btnLoginDiscreto.addEventListener('click', function () {
+        sessionStorage.removeItem('pwa_modo_ativo');
+        sessionStorage.removeItem('pwa_saiu_por_pin');
+        sessionStorage.removeItem('pwa_quiosque_url');
+      });
+    }
+
+    const formBuscaEvento = document.getElementById('formBuscaEventoPwa');
+    const inputCodigo = document.getElementById('codigo_evento');
+    if (formBuscaEvento && inputCodigo) {
+      formBuscaEvento.addEventListener('submit', function () {
+        inputCodigo.value = inputCodigo.value.trim().toUpperCase();
+        sessionStorage.removeItem('pwa_saiu_por_pin');
+      });
+    }
+
     // Renova o token CSRF e rearma a proteção de histórico se voltar da tela de login
     window.addEventListener('pageshow', function (event) {
       if (event.persisted) {

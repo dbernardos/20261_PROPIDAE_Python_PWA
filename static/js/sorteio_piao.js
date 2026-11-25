@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', function () {
     return copia;
   }
 
-  // Guarda a lista completa original para reiniciar caso os elegíveis acabem antes dos prêmios
   const participantesIniciais = [...(window.participantesData || [])];
   let participantes = embaralharArray(participantesIniciais);
 
@@ -62,11 +61,13 @@ document.addEventListener('DOMContentLoaded', function () {
   let indiceAtual = 0;
   let premioSorteadoAtual = null;
   let intervalEmbaralharPremio = null;
+  let timerAnimacao = null;
+  let timerProximaRodada = null;
   let rafSyncId = null;
   let audioCtx = null;
 
   function escapeHtml(texto) {
-    return String(texto)
+    return String(texto ?? '')
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
@@ -86,6 +87,30 @@ document.addEventListener('DOMContentLoaded', function () {
     return null;
   }
 
+  function resolverUrlBaixa() {
+    if (window.urlBaixaSorteio) return window.urlBaixaSorteio;
+    if (window.atividadeId) {
+      return `/eventos/atividade/${window.atividadeId}/sorteio/baixa/`;
+    }
+    const pathSegs = window.location.pathname.split('/').filter(Boolean);
+    const idNumerico = pathSegs.find((seg) => /^\d+$/.test(seg));
+    const atividadeId = idNumerico || pathSegs[pathSegs.length - 1];
+    return `/eventos/atividade/${atividadeId}/sorteio/baixa/`;
+  }
+
+  function notificarErroBaixa(ganhador, premio) {
+    if (!piaoCard) return;
+    let alerta = document.getElementById('alertaErroBaixaSorteio');
+    if (!alerta) {
+      alerta = document.createElement('div');
+      alerta.id = 'alertaErroBaixaSorteio';
+      alerta.className = 'alert alert-warning small fw-semibold py-2 px-3 mt-3 mb-0 text-start';
+      alerta.setAttribute('role', 'alert');
+      piaoCard.appendChild(alerta);
+    }
+    alerta.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> Atenção: não foi possível salvar no servidor a baixa de <strong>${escapeHtml(premio)}</strong> para <strong>${escapeHtml(ganhador)}</strong>. Verifique a conexão.`;
+  }
+
   function getItemTotalWidth() {
     const primeiroItem = track ? track.querySelector('.item-participante') : null;
     if (primeiroItem) {
@@ -94,13 +119,16 @@ document.addEventListener('DOMContentLoaded', function () {
         parseFloat(estilo.marginLeft || 0) + parseFloat(estilo.marginRight || 0);
       return primeiroItem.offsetWidth + margemHorizontal;
     }
-    const isFS = document.fullscreenElement !== null;
+    const isFS = Boolean(document.fullscreenElement || document.webkitFullscreenElement);
     return (isFS ? 540 : 230) + 20;
   }
 
   function getAudioContext() {
     if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        audioCtx = new AudioCtx();
+      }
     }
     return audioCtx;
   }
@@ -108,6 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function tocarTick() {
     try {
       const ctx = getAudioContext();
+      if (!ctx) return;
       if (ctx.state === 'suspended') ctx.resume();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -120,12 +149,13 @@ document.addEventListener('DOMContentLoaded', function () {
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.028);
-    } catch (e) {}
+    } catch (_) {}
   }
 
   function tocarFanfarra() {
     try {
       const ctx = getAudioContext();
+      if (!ctx) return;
       if (ctx.state === 'suspended') ctx.resume();
       const notas = [261.63, 329.63, 392.0, 523.25, 659.25];
       notas.forEach((freq, idx) => {
@@ -142,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
           osc.stop(ctx.currentTime + 0.4);
         }, idx * 100);
       });
-    } catch (e) {}
+    } catch (_) {}
   }
 
   function iniciarSincronizacaoSom() {
@@ -238,9 +268,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const nomes = Object.keys(contagem);
 
-    // 1. Lista da coluna lateral
+    // 1. Lista da coluna lateral e badge do cabeçalho
     const listaEsquerda = document.getElementById('listaPremiosEsquerda');
     if (listaEsquerda) {
+      const cardLateral = listaEsquerda.closest('.card');
+      const badgeCabecalho = cardLateral ? cardLateral.querySelector('.card-header .badge') : null;
+      if (badgeCabecalho) {
+        badgeCabecalho.textContent = nomes.length;
+      }
+
       listaEsquerda.innerHTML = '';
       if (nomes.length === 0) {
         listaEsquerda.innerHTML = `
@@ -347,6 +383,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const indexPremioSorteado = randomInt(poolPremios.length);
     premioSorteadoAtual = poolPremios[indexPremioSorteado];
 
+    clearInterval(intervalEmbaralharPremio);
     if (nomePremioAtualEl) {
       intervalEmbaralharPremio = setInterval(() => {
         if (poolPremios.length > 0) {
@@ -380,7 +417,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     iniciarSincronizacaoSom();
 
-    setTimeout(() => {
+    clearTimeout(timerAnimacao);
+    timerAnimacao = setTimeout(() => {
       pararSincronizacaoSom();
       clearInterval(intervalEmbaralharPremio);
 
@@ -406,49 +444,44 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       }
 
-      // 1. Remove participante da rodada atual e desconta o prêmio sorteado
+      const premioGanho = premioSorteadoAtual;
+
+      // Remove participante da rodada atual e desconta o prêmio sorteado
       participantes.splice(ganhadorIndexOriginal, 1);
       poolPremios.splice(indexPremioSorteado, 1);
 
-      // 2. Atualiza interface
       if (totalParticipantesEl) {
         totalParticipantesEl.textContent = participantes.length;
       }
       atualizarListasPremiosUI();
-      adicionarAoHistorico(ganhadorNome, premioSorteadoAtual);
+      adicionarAoHistorico(ganhadorNome, premioGanho);
 
-      // 3. Registra baixa no Django
-      const pathSegs = window.location.pathname.split('/').filter(Boolean);
-      const atividadeId =
-        window.atividadeId ||
-        pathSegs[pathSegs.length - 2] ||
-        pathSegs[pathSegs.length - 1];
-      const urlBaixa =
-        window.urlBaixaSorteio ||
-        `/eventos/atividade/${atividadeId}/sorteio/baixa/`;
-
-      fetch(urlBaixa, {
+      // Registra baixa no Django
+      fetch(resolverUrlBaixa(), {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': getCookie('csrftoken'),
         },
         body: JSON.stringify({
           ganhador_nome: ganhadorNome,
-          premio_nome: premioSorteadoAtual,
+          premio_nome: premioGanho,
         }),
       })
         .then((res) => {
           if (!res.ok) {
-            console.error('Erro na resposta da baixa:', res.statusText);
+            throw new Error(`HTTP ${res.status} ${res.statusText}`);
           }
         })
-        .catch((err) =>
-          console.error('Erro ao dar baixa no banco de dados:', err)
-        );
+        .catch((err) => {
+          console.error('Erro ao dar baixa no banco de dados:', err);
+          notificarErroBaixa(ganhadorNome, premioGanho);
+        });
 
-      // 4. Prepara próxima rodada após 2.5s
-      setTimeout(() => {
+      // Prepara próxima rodada após 2.5s
+      clearTimeout(timerProximaRodada);
+      timerProximaRodada = setTimeout(() => {
         if (poolPremios.length === 0) {
           construirEsteira();
           estaRodando = false;
@@ -459,7 +492,6 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
 
-        // Se todos os elegíveis já foram sorteados mas ainda há prêmios, reinicia os elegíveis
         let elegiveisReiniciados = false;
         if (participantes.length === 0 && participantesIniciais.length > 0) {
           participantes = embaralharArray(participantesIniciais);
@@ -500,20 +532,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (btnFullscreen && piaoCard) {
     btnFullscreen.addEventListener('click', function () {
-      if (!document.fullscreenElement) {
-        piaoCard
-          .requestFullscreen()
-          .catch((err) => alert(`Erro ao ativar tela cheia: ${err.message}`));
+      const isFS = document.fullscreenElement || document.webkitFullscreenElement;
+      if (!isFS) {
+        const req = piaoCard.requestFullscreen || piaoCard.webkitRequestFullscreen;
+        if (req) {
+          Promise.resolve(req.call(piaoCard)).catch((err) =>
+            alert(`Erro ao ativar tela cheia: ${err.message}`)
+          );
+        }
       } else {
-        document.exitFullscreen();
+        const exit = document.exitFullscreen || document.webkitExitFullscreen;
+        if (exit) exit.call(document);
       }
     });
   }
 
-  document.addEventListener('fullscreenchange', () => {
-    if (!estaRodando) {
-      requestAnimationFrame(() => posicionarNoItem(indiceAtual, false));
-    }
+  ['fullscreenchange', 'webkitfullscreenchange'].forEach((ev) => {
+    document.addEventListener(ev, () => {
+      if (!estaRodando) {
+        requestAnimationFrame(() => posicionarNoItem(indiceAtual, false));
+      }
+    });
   });
 
   window.addEventListener('resize', () => {
@@ -522,7 +561,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // Recarrega ignorando o cache do Service Worker/PWA e limpando o canvas
   if (btnReiniciar) {
     btnReiniciar.addEventListener('click', () => {
       if (lancarConfetes && typeof lancarConfetes.reset === 'function') {
@@ -531,4 +569,11 @@ document.addEventListener('DOMContentLoaded', function () {
       window.location.replace(window.location.pathname + '?r=' + Date.now());
     });
   }
+
+  window.addEventListener('pagehide', () => {
+    pararSincronizacaoSom();
+    clearInterval(intervalEmbaralharPremio);
+    clearTimeout(timerAnimacao);
+    clearTimeout(timerProximaRodada);
+  });
 });

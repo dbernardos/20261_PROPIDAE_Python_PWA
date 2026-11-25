@@ -1,41 +1,34 @@
-from django import forms
-from .models import Resposta, Quiz
 
-# FORMS do QUIZ.
-# -----------------------------------------------
+from django import forms
+from .models import Quiz, Resposta
+
+
 class RespostaQuizForm(forms.ModelForm):
-    """Form para resposta do quiz"""
+    valor_resposta = forms.DecimalField(
+        required=True,
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control form-control-lg',
+            'step': '0.01',
+            'placeholder': 'Digite sua resposta',
+        }),
+    )
+
     class Meta:
         model = Resposta
         fields = ['valor_resposta']
-        widgets = {
-            'valor_resposta': forms.NumberInput(attrs={
-                'class': 'form-control form-control-lg',
-                'step': '0.01',
-                'placeholder': 'Digite sua resposta'
-            })
-        }
 
 class CadastroQuizForm(forms.ModelForm):
-    """Form para cadastro e edição de desafio único (Métrica ou Múltipla Escolha)"""
+    CAMPOS_METRICA = ['unidade_medida', 'valor_minimo', 'valor_maximo', 'valor_ideal']
+    CAMPOS_MULTIPLA = ['opcao_a', 'opcao_b', 'opcao_c', 'opcao_d', 'alternativa_correta']
+
     class Meta:
         model = Quiz
         fields = [
-            'tipo',
-            'titulo',
-            'subtitulo',
-            'pergunta',
-            'dica',
-            'unidade_medida',
-            'valor_minimo',
-            'valor_maximo',
-            'valor_ideal',
-            'opcao_a',
-            'opcao_b',
-            'opcao_c',
-            'opcao_d',
-            'alternativa_correta',
-            'ativo',
+            'tipo', 'titulo', 'subtitulo', 'pergunta', 'dica',
+            'unidade_medida', 'valor_minimo', 'valor_maximo', 'valor_ideal',
+            'opcao_a', 'opcao_b', 'opcao_c', 'opcao_d', 'alternativa_correta', 'ativo',
         ]
         widgets = {
             'tipo': forms.Select(attrs={'class': 'form-select', 'id': 'id_tipo'}),
@@ -57,35 +50,24 @@ class CadastroQuizForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        campos_condicionais = [
-            'unidade_medida', 'valor_minimo', 'valor_maximo', 'valor_ideal',
-            'opcao_a', 'opcao_b', 'opcao_c', 'opcao_d', 'alternativa_correta'
-        ]
-        for campo in campos_condicionais:
-            if campo in self.fields:
-                self.fields[campo].required = False
+        for campo in self.CAMPOS_METRICA + self.CAMPOS_MULTIPLA:
+            self.fields[campo].required = False
 
     def clean(self):
         cleaned_data = super().clean()
         tipo = cleaned_data.get('tipo')
 
         if tipo == 'METRICA':
-            # Limpa campos de múltipla escolha
-            for opt in ['opcao_a', 'opcao_b', 'opcao_c', 'opcao_d', 'alternativa_correta']:
-                cleaned_data[opt] = None
+            for campo in self.CAMPOS_MULTIPLA:
+                cleaned_data[campo] = None
 
-            unidade = cleaned_data.get('unidade_medida')
-            vmin = cleaned_data.get('valor_minimo')
-            vmax = cleaned_data.get('valor_maximo')
-            videal = cleaned_data.get('valor_ideal')
-
-            if not unidade:
+            vmin, vmax, videal = cleaned_data.get('valor_minimo'), cleaned_data.get('valor_maximo'), cleaned_data.get('valor_ideal')
+            if not cleaned_data.get('unidade_medida'):
                 self.add_error('unidade_medida', 'Informe a unidade de medida.')
             if vmin is None:
                 self.add_error('valor_minimo', 'Informe o valor mínimo.')
             if vmax is None:
                 self.add_error('valor_maximo', 'Informe o valor máximo.')
-
             if vmin is not None and vmax is not None:
                 if vmin > vmax:
                     self.add_error('valor_maximo', 'O valor máximo não pode ser menor que o mínimo.')
@@ -93,18 +75,11 @@ class CadastroQuizForm(forms.ModelForm):
                     self.add_error('valor_ideal', 'O valor ideal deve estar entre o mínimo e o máximo.')
 
         elif tipo == 'MULTIPLA':
-            # Limpa campos numéricos
             cleaned_data['unidade_medida'] = ''
-            cleaned_data['valor_minimo'] = None
-            cleaned_data['valor_maximo'] = None
-            cleaned_data['valor_ideal'] = None
+            for campo in ['valor_minimo', 'valor_maximo', 'valor_ideal']:
+                cleaned_data[campo] = None
 
-            opcoes = {
-                'A': (cleaned_data.get('opcao_a') or '').strip(),
-                'B': (cleaned_data.get('opcao_b') or '').strip(),
-                'C': (cleaned_data.get('opcao_c') or '').strip(),
-                'D': (cleaned_data.get('opcao_d') or '').strip(),
-            }
+            opcoes = {letra: (cleaned_data.get(f'opcao_{letra.lower()}') or '').strip() for letra in 'ABCD'}
             correta = cleaned_data.get('alternativa_correta')
 
             if not opcoes['A']:

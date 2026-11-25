@@ -1,141 +1,118 @@
 from django.db import models
 
 
-
-# MODELS do QUIZ.
-# -----------------------------------------------
 class Quiz(models.Model):
-    """Model para os desafios/quiz"""
-    
     TIPO_CHOICES = (
         ('METRICA', 'Numérica/Métrica (Faixa de valores)'),
         ('MULTIPLA', 'Múltipla Escolha'),
     )
-    
-    
+    OPCOES_CHOICES = [('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D')]
+
     atividade = models.ForeignKey('app_evento.Atividade', on_delete=models.CASCADE, blank=True, null=True)
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='METRICA')
-    titulo = models.CharField(max_length=200)
+    titulo = models.CharField(max_length=200, blank=True, null=True)
     numero = models.PositiveIntegerField(blank=True, null=True, editable=False)
     subtitulo = models.CharField(max_length=300, blank=True, null=True)
-    
-    pergunta = models.TextField()
-    dica = models.TextField(blank=True, null=True, help_text="Dica para o participante")
-    
-    unidade_medida = models.CharField(verbose_name="Unidade de Medida", max_length=50, help_text="Ex: mm, gramas, unidades")
-    valor_minimo = models.DecimalField(verbose_name="Valor Mínimo", max_digits=10, decimal_places=2, help_text="Valor mínimo aceitável", blank=True, null=True)
-    valor_maximo = models.DecimalField(verbose_name="Valor Máximo", max_digits=10, decimal_places=2, help_text="Valor máximo aceitável", blank=True, null=True)
-    valor_ideal = models.DecimalField(verbose_name="Valor Ideal", max_digits=10, decimal_places=2, blank=True, null=True, help_text="Valor ideal/resposta correta")
+    pergunta = models.TextField(max_length=300, blank=True, null=True)
+    dica = models.TextField(max_length=300, blank=True, null=True, help_text="Dica para o participante")
 
-    
-    #Alternativas para Múltipla Escolha
+    # Campos numéricos
+    unidade_medida = models.CharField( "Unidade de Medida", max_length=50, blank=True, default='', help_text="Ex: mm, gramas, unidades")
+    valor_minimo = models.DecimalField("Valor Mínimo", max_digits=10, decimal_places=2, blank=True, null=True)
+    valor_maximo = models.DecimalField("Valor Máximo", max_digits=10, decimal_places=2, blank=True, null=True)
+    valor_ideal = models.DecimalField("Valor Ideal", max_digits=10, decimal_places=2, blank=True, null=True)
+
+    # Campos de múltipla escolha
     opcao_a = models.CharField(max_length=255, blank=True, null=True)
     opcao_b = models.CharField(max_length=255, blank=True, null=True)
     opcao_c = models.CharField(max_length=255, blank=True, null=True)
     opcao_d = models.CharField(max_length=255, blank=True, null=True)
-    alternativa_correta = models.CharField(
-        max_length=1, 
-        choices=[('A','A'), ('B','B'), ('C','C'), ('D','D')], 
-        blank=True, null=True
-    )
-    
-    ## CORRIGIR FALTA DE INTEGRIDADE NAS ATIVIDADES (remover blank=True, null=True)
-   
+    alternativa_correta = models.CharField(max_length=1, choices=OPCOES_CHOICES, blank=True, null=True)
+
+    #Info
     data_criacao = models.DateTimeField(auto_now_add=True)
-    ativo = models.BooleanField(verbose_name="Quiz Ativo", default=True, help_text="Quiz disponível para resposta")
-    
+    ativo = models.BooleanField("Quiz Ativo", default=True)
+
     class Meta:
         verbose_name = "Quiz/Desafio"
         verbose_name_plural = "Quizzes/Desafios"
         unique_together = ('atividade', 'numero')
         ordering = ['atividade', 'numero']
-    
+
     def __str__(self):
         return f"Desafio {self.numero}: {self.titulo}"
-    
-    def get_faixa_resposta(self):
-        """Retorna a faixa de resposta formatada"""
-        return f"{self.valor_minimo} a {self.valor_maximo} {self.unidade_medida}"
 
     def save(self, *args, **kwargs):
-        # Faz a verificação ee é um Quiz novo e não tem número definido
         if not self.pk and not self.numero:
-            # Pega o último número cadastrado NESTA atividade
-            ultimo_quiz = Quiz.objects.filter(atividade=self.atividade).order_by('-numero').first()
-            if ultimo_quiz and ultimo_quiz.numero:
-                self.numero = ultimo_quiz.numero + 1
-            else:
-                self.numero = 1 
-                
+            ultimo = Quiz.objects.filter(atividade=self.atividade).aggregate(
+                max_num=models.Max('numero')
+            )['max_num'] or 0
+            self.numero = ultimo + 1
         super().save(*args, **kwargs)
-    
-"""Model da tabela Resposta"""
+
+
 class Resposta(models.Model):
-    
     STATUS_CHOICES = (
-        ('certo', ' Correta'),
+        ('certo', 'Correta'),
         ('aproximado', 'Aproximado (Na faixa)'),
         ('errado', 'Errado'),
     )
-    
+
     participa = models.ForeignKey("app_evento.Participa", on_delete=models.CASCADE, related_name='respostas')
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='respostas')
-    
     valor_resposta = models.DecimalField(null=True, blank=True, max_digits=10, decimal_places=2)
-    resposta_texto = models.CharField(max_length=2, blank=True, null=True, help_text="Letra escolhida na múltipla escolha")
-    
+    resposta_texto = models.CharField(max_length=2, blank=True, null=True)
     data_resposta = models.DateTimeField(auto_now_add=True)
     correto = models.BooleanField(default=False)
-    completo = models.BooleanField(default=False, help_text="Indica se o quiz foi completado com sucesso")
+    completo = models.BooleanField(default=False)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='errado')
+
     class Meta:
         verbose_name = "Resposta do Quiz"
         verbose_name_plural = "Respostas dos Quizzes"
         unique_together = ['participa', 'quiz']
         ordering = ['-data_resposta']
-    
+
     def __str__(self):
         return f"Resposta de {self.participa} para {self.quiz}"
-    
-    def verificar_resposta(self):
-        """Verifica se a resposta está dentro da faixa aceitável"""
-        self.completo = self.quiz.valor_minimo <= self.valor_resposta <= self.quiz.valor_maximo
-        self.save()
-        return self.correto
+
+    def avaliar(self):
+        """Centraliza a regra de correção para ambos os tipos de quiz."""
+        if self.quiz.tipo == 'MULTIPLA':
+            self.correto = self.resposta_texto == self.quiz.alternativa_correta
+            self.status = 'certo' if self.correto else 'errado'
+        else:
+            val, vmin, vmax = self.valor_resposta, self.quiz.valor_minimo, self.quiz.valor_maximo
+            na_faixa = val is not None and vmin is not None and vmax is not None and vmin <= val <= vmax
+            self.correto = na_faixa
+            if na_faixa:
+                self.status = 'certo' if (self.quiz.valor_ideal is not None and val == self.quiz.valor_ideal) else 'aproximado'
+            else:
+                self.status = 'errado'
+        self.completo = True
 
     @property
     def pontos_conquistados(self):
-        """Retorna o bônus de acerto baseado na precisão da resposta (entre 20 e 50 pts)"""
         if not self.correto:
             return 0
-
-        quiz = self.quiz
-
-        # Múltipla Escolha(30 pts)
-        if quiz.tipo in ('MULTIPLA', 'MULTIPLA_ESCOLHA'):
+        if self.quiz.tipo == 'MULTIPLA':
             return 30
 
-        # Métrica: calcula proporcionalmente a proximidade do valor_ideal
-        if (
-            quiz.tipo == 'METRICA'
-            and quiz.valor_ideal is not None
-            and quiz.valor_minimo is not None
-            and quiz.valor_maximo is not None
-            and self.valor_resposta is not None
-        ):
-            diferenca = abs(float(self.valor_resposta) - float(quiz.valor_ideal))
-            tolerancia_max = max(
-                abs(float(quiz.valor_maximo) - float(quiz.valor_ideal)),
-                abs(float(quiz.valor_ideal) - float(quiz.valor_minimo)),
+        q = self.quiz
+        if None not in (q.valor_ideal, q.valor_minimo, q.valor_maximo, self.valor_resposta):
+            diferenca = abs(float(self.valor_resposta) - float(q.valor_ideal))
+            tolerancia = max(
+                abs(float(q.valor_maximo) - float(q.valor_ideal)),
+                abs(float(q.valor_ideal) - float(q.valor_minimo)),
             )
+            if tolerancia == 0 or diferenca == 0:
+                return 50
+            proporcao_erro = min(1.0, diferenca / tolerancia)
+            return max(20, round(50 - (proporcao_erro * 30)))
 
-            if tolerancia_max == 0 or diferenca == 0:
-                return 50  # Acerto exato = 50 pts
-
-            # 50 pts (exato) caindo até 20 pts (na borda da tolerância)
-            proporcao_erro = min(1.0, diferenca / tolerancia_max)
-            bonus = 50 - (proporcao_erro * 30)
-            return max(20, round(bonus))
-
-        # Fallback caso o quiz métrico não tenha valor_ideal configurado (ex: simulação de pontuação máxima)
         return 20
+    
+    
+    
+    
+    

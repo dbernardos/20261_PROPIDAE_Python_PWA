@@ -1,5 +1,6 @@
 from datetime import datetime
 from django import forms
+from django.utils import timezone
 from .models import Apoiador, Atividade, Evento
 
 
@@ -93,7 +94,36 @@ class EventoForm(forms.ModelForm):
         data_fim = cleaned_data.get('dataFim')
 
         if data_inicio and data_fim and data_inicio > data_fim:
-            self.add_error('dataFim', 'A data de término não pode ser anterior à data de início.')
+            self.add_error(
+                'dataFim',
+                'A data de término não pode ser anterior à data de início.',
+            )
+
+        # Ao editar, garante que atividades já cadastradas não fiquem fora do novo período
+        if self.instance and self.instance.pk and data_inicio and data_fim and data_inicio <= data_fim:
+            for ativ in self.instance.atividade_set.all():
+                ativ_inicio = (
+                    timezone.localtime(ativ.horaInicio).date()
+                    if timezone.is_aware(ativ.horaInicio)
+                    else ativ.horaInicio.date()
+                )
+                ativ_fim = (
+                    timezone.localtime(ativ.horaFim).date()
+                    if timezone.is_aware(ativ.horaFim)
+                    else ativ.horaFim.date()
+                )
+                if ativ_inicio < data_inicio:
+                    self.add_error(
+                        'dataInicio',
+                        f'Existe atividade ("{ativ.nome}") iniciando em {ativ_inicio.strftime("%d/%m/%Y")}, antes da nova data inicial.',
+                    )
+                    break
+                if ativ_fim > data_fim:
+                    self.add_error(
+                        'dataFim',
+                        f'Existe atividade ("{ativ.nome}") terminando em {ativ_fim.strftime("%d/%m/%Y")}, após a nova data final.',
+                    )
+                    break
 
         return cleaned_data
 
@@ -118,6 +148,23 @@ class EventoForm(forms.ModelForm):
 
 
 class AtividadeForm(forms.ModelForm):
+    horaInicio = forms.DateTimeField(
+        label='Hora de Início',
+        input_formats=['%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M'],
+        widget=forms.DateTimeInput(
+            format='%Y-%m-%dT%H:%M',
+            attrs={'type': 'datetime-local'},
+        ),
+    )
+    horaFim = forms.DateTimeField(
+        label='Hora de Término',
+        input_formats=['%Y-%m-%dT%H:%M', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M'],
+        widget=forms.DateTimeInput(
+            format='%Y-%m-%dT%H:%M',
+            attrs={'type': 'datetime-local'},
+        ),
+    )
+
     class Meta:
         model = Atividade
         fields = [
@@ -134,8 +181,6 @@ class AtividadeForm(forms.ModelForm):
             'descricao': 'Descrição',
             'tipoAtividade': 'Tipo de Atividade',
             'complementoLocal': 'Complemento do Local',
-            'horaInicio': 'Hora de Início',
-            'horaFim': 'Hora de Término',
             'limitePessoas': 'Limite de Participantes',
         }
         widgets = {
@@ -150,16 +195,9 @@ class AtividadeForm(forms.ModelForm):
             'complementoLocal': forms.TextInput(attrs={
                 'placeholder': 'Ex.: Sala 204 - Bloco B',
             }),
-            'horaInicio': forms.DateTimeInput(
-                format='%Y-%m-%dT%H:%M',
-                attrs={'type': 'datetime-local'},
-            ),
-            'horaFim': forms.DateTimeInput(
-                format='%Y-%m-%dT%H:%M',
-                attrs={'type': 'datetime-local'},
-            ),
             'limitePessoas': forms.NumberInput(attrs={
                 'placeholder': 'Ex.: 50',
+                'min': 1,
             }),
         }
 
@@ -167,18 +205,50 @@ class AtividadeForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             if self.instance.horaInicio:
-                self.initial['horaInicio'] = self.instance.horaInicio.strftime('%Y-%m-%dT%H:%M')
+                dt_inicio = (
+                    timezone.localtime(self.instance.horaInicio)
+                    if timezone.is_aware(self.instance.horaInicio)
+                    else self.instance.horaInicio
+                )
+                self.initial['horaInicio'] = dt_inicio.strftime('%Y-%m-%dT%H:%M')
             if self.instance.horaFim:
-                self.initial['horaFim'] = self.instance.horaFim.strftime('%Y-%m-%dT%H:%M')
+                dt_fim = (
+                    timezone.localtime(self.instance.horaFim)
+                    if timezone.is_aware(self.instance.horaFim)
+                    else self.instance.horaFim
+                )
+                self.initial['horaFim'] = dt_fim.strftime('%Y-%m-%dT%H:%M')
 
     @staticmethod
     def _para_data(valor):
-        return valor.date() if isinstance(valor, datetime) else valor
+        if isinstance(valor, datetime):
+            if timezone.is_aware(valor):
+                valor = timezone.localtime(valor)
+            return valor.date()
+        return valor
 
     @staticmethod
     def _formatar_data(valor):
-        formato = '%d/%m/%Y às %H:%M' if isinstance(valor, datetime) else '%d/%m/%Y'
-        return valor.strftime(formato)
+        if isinstance(valor, datetime):
+            if timezone.is_aware(valor):
+                valor = timezone.localtime(valor)
+            return valor.strftime('%d/%m/%Y às %H:%M')
+        return valor.strftime('%d/%m/%Y')
+
+    def clean_limitePessoas(self):
+        limite = self.cleaned_data.get('limitePessoas')
+        if limite is not None:
+            if limite < 1:
+                raise forms.ValidationError(
+                    'O limite deve ser de pelo menos 1 participante (ou deixe vazio para ilimitado).'
+                )
+            if self.instance and self.instance.pk:
+                inscritos_atuais = self.instance.participa_set.count()
+                if limite < inscritos_atuais:
+                    raise forms.ValidationError(
+                        f'Já existem {inscritos_atuais} participantes inscritos; o limite não pode ser menor que esse número.'
+                    )
+        return limite
 
     def clean(self):
         cleaned_data = super().clean()
@@ -186,8 +256,11 @@ class AtividadeForm(forms.ModelForm):
         hora_fim = cleaned_data.get('horaFim')
         evento = cleaned_data.get('evento') or getattr(self.instance, 'evento', None)
 
-        if hora_inicio and hora_fim and hora_fim < hora_inicio:
-            self.add_error('horaFim', 'A hora de término não pode ser anterior à hora de início.')
+        if hora_inicio and hora_fim and hora_fim <= hora_inicio:
+            self.add_error(
+                'horaFim',
+                'A hora de término deve ser posterior à hora de início.',
+            )
 
         if evento and hora_inicio and hora_fim:
             if self._para_data(hora_inicio) < self._para_data(evento.dataInicio):

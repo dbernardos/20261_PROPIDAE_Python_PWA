@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load django_bootstrap5 %}
 
-{% block title %}Sorteio {% if atividade %} | {{ atividade.nome }}{% endif %}{% endblock %}
+{% block title %}Sorteio{% if atividade %} | {{ atividade.nome }}{% endif %}{% endblock %}
 
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/sorteio_piao.css' %}?v=2">
@@ -18,9 +17,9 @@
         <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1">
           {% if atividade %}{{ atividade.nome }}{% else %}Atividade do Evento{% endif %}
         </span>
-        <h2 class="fw-bold text-dark mb-1">
+        <h1 class="h2 fw-bold text-dark mb-1">
           Painel de <span class="text-verde-escuro">Sorteio</span>
-        </h2>
+        </h1>
         <p class="text-muted mb-0">
           Realize o sorteio entre os participantes com presença confirmada.
         </p>
@@ -115,29 +114,29 @@
             </span>
 
             <div class="d-flex gap-1">
-              <button type="button" id="btnFullscreen" class="btn btn-sm btn-outline-light rounded-pill px-3" title="Tela Cheia (Projetor)">
-                <i class="bi bi-arrows-fullscreen"></i>
+              <button type="button" id="btnFullscreen" class="btn btn-sm btn-outline-light rounded-pill px-3" title="Tela Cheia (Projetor)" aria-label="Alternar tela cheia">
+                <i class="bi bi-arrows-fullscreen" aria-hidden="true"></i>
               </button>
-              <button type="button" id="btnReiniciar" class="btn btn-sm btn-outline-light rounded-pill px-3" title="Reiniciar Sorteio">
-                <i class="bi bi-arrow-counterclockwise"></i>
+              <button type="button" id="btnReiniciar" class="btn btn-sm btn-outline-light rounded-pill px-3" title="Reiniciar Sorteio" aria-label="Reiniciar sorteio">
+                <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
               </button>
             </div>
           </div>
 
           <!-- Status e Prêmio Atual -->
-          <h3 class="fw-bold mt-2 mb-1" id="statusText">
+          <h2 class="h3 fw-bold mt-2 mb-1" id="statusText">
             {% if premios %}
               PRONTO PARA O SORTEIO!
             {% else %}
               CADASTRE UM PRÊMIO PARA INICIAR
             {% endif %}
-          </h3>
+          </h2>
 
           <p class="text-white opacity-75 mb-2">
             Prêmio da rodada:
             <strong id="nomePremioAtual" class="text-warning fs-5">
               {% if premios %}
-                {{ sorteio.nome|default:"A Definir" }}
+                {{ sorteio.nome|default:premios.0.nome|default:"A Definir" }}
               {% else %}
                 Nenhum prêmio disponível
               {% endif %}
@@ -208,7 +207,7 @@
             <div class="row g-2 align-items-end">
               <div class="col-md-7">
                 <label for="premio" class="form-label fw-bold small">Nome do Prêmio</label>
-                <input type="text" id="premio" name="premio" class="form-control" required placeholder="Ex: Caneta, Caderno, Kit">
+                <input type="text" id="premio" name="premio" class="form-control" maxlength="120" required placeholder="Ex: Caneta, Caderno, Kit">
               </div>
               <div class="col-md-3">
                 <label for="qtd_ganhadores" class="form-label fw-bold small">Quantidade</label>
@@ -247,20 +246,20 @@
                              style="width: 70px;"
                              aria-label="Quantidade de {{ p.nome }}"
                              required>
-                      <button type="submit" class="btn btn-sm btn-outline-verde-escuro rounded-pill px-2" title="Salvar nova quantidade">
-                        <i class="bi bi-check-lg"></i>
+                      <button type="submit" class="btn btn-sm btn-outline-verde-escuro rounded-pill px-2" title="Salvar nova quantidade" aria-label="Salvar nova quantidade de {{ p.nome }}">
+                        <i class="bi bi-check-lg" aria-hidden="true"></i>
                       </button>
                     </form>
 
-                    <form method="POST" action="" class="mb-0">
+                    <form method="POST" action="" class="mb-0" data-confirm="Deseja realmente remover o prêmio {{ p.nome }}?">
                       {% csrf_token %}
                       <input type="hidden" name="action" value="delete">
                       <input type="hidden" name="premio_index" value="{{ forloop.counter0 }}">
                       <button type="submit"
                               class="btn btn-sm btn-outline-danger rounded-pill px-2"
-                              onclick="return confirm('Deseja realmente remover o prêmio {{ p.nome }}?');"
-                              title="Remover prêmio">
-                        <i class="bi bi-trash-fill"></i>
+                              title="Remover prêmio"
+                              aria-label="Remover prêmio {{ p.nome }}">
+                        <i class="bi bi-trash-fill" aria-hidden="true"></i>
                       </button>
                     </form>
                   </div>
@@ -274,12 +273,10 @@
           </div>
 
           {% if premios %}
-            <form method="POST" action="" class="mt-3 text-end">
+            <form method="POST" action="" class="mt-3 text-end" data-confirm="Tem certeza que deseja apagar TODOS os prêmios desta atividade?">
               {% csrf_token %}
               <input type="hidden" name="action" value="clear_all">
-              <button type="submit"
-                      class="btn btn-sm btn-outline-danger rounded-pill px-3"
-                      onclick="return confirm('Tem certeza que deseja apagar TODOS os prêmios desta atividade?');">
+              <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
                 <i class="bi bi-trash3-fill me-1"></i> Limpar Todos os Prêmios
               </button>
             </form>
@@ -297,18 +294,40 @@
 
 {% block extra_js %}
   <div id="dados-sorteio"
-       data-participantes='{{ participantes_json|default:"[]" }}'
-       data-premios='{{ premios_json|default:"[]" }}'
-       data-atividade-id="{{ atividade.id }}"
+       data-participantes="{{ participantes_json|default:'[]' }}"
+       data-premios="{{ premios_json|default:'[]' }}"
+       data-atividade-id="{{ atividade.id|default:'' }}"
        hidden></div>
 
   <script>
-    const dadosSorteio = document.getElementById('dados-sorteio');
-    window.participantesData = JSON.parse(dadosSorteio.dataset.participantes || '[]');
-    window.premiosData = JSON.parse(dadosSorteio.dataset.premios || '[]');
-    window.atividadeId = dadosSorteio.dataset.atividadeId;
+    (function () {
+      const dadosSorteio = document.getElementById('dados-sorteio');
+      try {
+        window.participantesData = JSON.parse(dadosSorteio?.dataset.participantes || '[]');
+      } catch (e) {
+        console.error('Erro ao interpretar participantes_json:', e);
+        window.participantesData = [];
+      }
+
+      try {
+        window.premiosData = JSON.parse(dadosSorteio?.dataset.premios || '[]');
+      } catch (e) {
+        console.error('Erro ao interpretar premios_json:', e);
+        window.premiosData = [];
+      }
+
+      window.atividadeId = dadosSorteio?.dataset.atividadeId || '';
+
+      document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!window.confirm(form.dataset.confirm)) {
+            event.preventDefault();
+          }
+        });
+      });
+    })();
   </script>
 
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" crossorigin="anonymous"></script>
   <script src="{% static 'js/sorteio_piao.js' %}"></script>
 {% endblock %}

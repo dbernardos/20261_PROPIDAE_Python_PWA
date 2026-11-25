@@ -141,14 +141,26 @@ document.addEventListener('DOMContentLoaded', function () {
       return false;
     }
 
+    if (maxEvento && horaInicio.value && horaInicio.value > maxEvento) {
+      horaInicio.setCustomValidity('A atividade não pode começar após o encerramento do evento.');
+      horaInicio.reportValidity();
+      return false;
+    }
+
+    if (minEvento && horaFim.value && horaFim.value < minEvento) {
+      horaFim.setCustomValidity('A atividade não pode terminar antes do início do evento.');
+      horaFim.reportValidity();
+      return false;
+    }
+
     if (maxEvento && horaFim.value && horaFim.value > maxEvento) {
       horaFim.setCustomValidity('A atividade não pode terminar após o encerramento do evento.');
       horaFim.reportValidity();
       return false;
     }
 
-    if (horaInicio.value && horaFim.value && horaInicio.value > horaFim.value) {
-      horaFim.setCustomValidity('A hora de término deve ser igual ou posterior à hora de início.');
+    if (horaInicio.value && horaFim.value && horaInicio.value >= horaFim.value) {
+      horaFim.setCustomValidity('A hora de término deve ser posterior à hora de início.');
       horaFim.reportValidity();
       return false;
     }

@@ -1,15 +1,13 @@
-import qrcode
 from io import BytesIO
-from django.core.files.base import ContentFile
+import qrcode
 
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.db import models
 from django.utils import timezone
-from django.utils.timezone import localtime 
+from django.utils.timezone import localtime
 from nanoid import generate
-from django.contrib.auth.models import User
 from smart_selects.db_fields import ChainedForeignKey
-from django.core.exceptions import ValidationError
-from django.conf import settings
 
 
 # MODELS do EVENTO.
@@ -21,11 +19,14 @@ def gerar_codigo():
     parte2 = generate(alfabeto, size=3)
     return f"{parte1}-{parte2}"
 
-def gerar_codigo_alt():
-    numeros = "123456789"
-    parte1 = generate(alfabeto, size=4)
-    parte2 = generate(alfabeto, size=4)
-    return f"{parte1}{parte2}"
+
+def gerar_codigo_unico(model_cls, field_name):
+    """Garante unicidade do código gerado antes de persistir."""
+    codigo = gerar_codigo()
+    while model_cls.objects.filter(**{field_name: codigo}).exists():
+        codigo = gerar_codigo()
+    return codigo
+
 
 class Apoiador(models.Model):
     nome = models.CharField(max_length=255, unique=True)
@@ -38,107 +39,151 @@ class Apoiador(models.Model):
         return self.nome
 
 
-class tipoEvento(models.TextChoices):   
+class tipoEvento(models.TextChoices):
     COLOQUIO = 'Coloquio', 'Colóquio'
     FORUM = 'Forum', 'Fórum'
-    SIMPOSIO = 'Simposio', 'Simpósio'  
+    SIMPOSIO = 'Simposio', 'Simpósio'
     SEMANA = 'SemanaAcademica', 'Semana Acadêmica'
     ENCONTRO = 'Encontro', 'Encontro'
     CONGRESSO = 'Congresso', 'Congresso'
     FEIRA = 'Feira', 'Feira'
     OUTRO = 'Outro', 'Outro'
 
+
 def validar_tamanho_banner(imagem):
-    limite_mb = 4  # Limite de 2 MegaBytes por imagem
+    limite_mb = 4  # Limite de 4 MegaBytes por imagem
     if imagem.size > limite_mb * 1024 * 1024:
-        raise ValidationError(f"O banner não pode exceder {limite_mb}MB. Escolha um arquivo menor.")
-    
+        raise ValidationError(
+            f"O banner não pode exceder {limite_mb}MB. Escolha um arquivo menor."
+        )
+
+
 class Evento(models.Model):
-    administrador = models.ForeignKey('app_login.Usuario', on_delete=models.CASCADE, related_name='administrador')
+    administrador = models.ForeignKey(
+        'app_login.Usuario',
+        on_delete=models.CASCADE,
+        related_name='administrador',
+    )
     nome = models.CharField(max_length=200)
     descricao = models.TextField(max_length=500, blank=True, null=True)
-    emailContato = models.EmailField(verbose_name="Email de Contato", max_length=50, blank=True, null=True)
-    apoiadores = models.ManyToManyField(Apoiador, related_name='apoiadores', blank=True)
-    local = models.CharField(max_length=45, blank=True, null=True)
-    imagemBanner = models.ImageField(verbose_name="Banner", upload_to='banners/', validators=[validar_tamanho_banner], blank=True, null=True)
+    emailContato = models.EmailField(
+        verbose_name="Email de Contato",
+        max_length=254,
+        blank=True,
+        null=True,
+    )
+    apoiadores = models.ManyToManyField(
+        Apoiador,
+        related_name='apoiadores',
+        blank=True,
+    )
+    local = models.CharField(max_length=255, blank=True, null=True)
+    imagemBanner = models.ImageField(
+        verbose_name="Banner",
+        upload_to='banners/',
+        validators=[validar_tamanho_banner],
+        blank=True,
+        null=True,
+    )
 
     dataInicio = models.DateField(verbose_name="Data de Início")
     dataFim = models.DateField(verbose_name="Data de Término")
 
-    tipoEvento = models.CharField(verbose_name="Tipo de Evento", choices=tipoEvento.choices, max_length=20, default=tipoEvento.SEMANA)
+    tipoEvento = models.CharField(
+        verbose_name="Tipo de Evento",
+        choices=tipoEvento.choices,
+        max_length=20,
+        default=tipoEvento.SEMANA,
+    )
 
-    
-    codigo_evento = models.CharField(max_length=7, unique=True, default=gerar_codigo, editable=False)
+    codigo_evento = models.CharField(
+        max_length=7,
+        unique=True,
+        default=gerar_codigo,
+        editable=False,
+    )
 
     def save(self, *args, **kwargs):
         if not self.codigo_evento:
-            self.codigo_evento = gerar_codigo()
-
+            self.codigo_evento = gerar_codigo_unico(Evento, 'codigo_evento')
         super().save(*args, **kwargs)
 
     def clean(self):
         super().clean()
-        if self.dataInicio and self.dataFim:
-            if self.dataFim < self.dataInicio:
-                raise ValidationError({
-                    'dataFim': 'A data e hora de término não podem ser anteriores à data de início.'
-                })
+        if self.dataInicio and self.dataFim and self.dataFim < self.dataInicio:
+            raise ValidationError({
+                'dataFim': 'A data de término não pode ser anterior à data de início.'
+            })
 
     def __str__(self):
         return self.nome
-    
+
 
 # -----------------------------------------------
 # MODELS DE INSCRIÇÃO E PARTICIPAÇÃO
 # -----------------------------------------------
 
-
 class Inscricao(models.Model):
-    usuario = models.ForeignKey('app_login.Usuario', on_delete=models.CASCADE, related_name='usuario')
+    usuario = models.ForeignKey(
+        'app_login.Usuario',
+        on_delete=models.CASCADE,
+        related_name='usuario',
+    )
     evento = models.ForeignKey('Evento', on_delete=models.CASCADE)
 
     dataHora = models.DateTimeField(auto_now_add=True)
-    cracha = models.CharField(max_length=7, unique=True, default=gerar_codigo, editable=False)
-    qrcode_imagem = models.ImageField(upload_to='qrcodes/', blank=True, null=True)  
-
+    cracha = models.CharField(
+        max_length=7,
+        unique=True,
+        default=gerar_codigo,
+        editable=False,
+    )
+    qrcode_imagem = models.ImageField(upload_to='qrcodes/', blank=True, null=True)
     ativa = models.BooleanField(default=True)
-    
-    def save(self, *args, **kwargs):
-        if not self.cracha:
-            self.cracha = gerar_codigo()
-        
-        # Só processa e verifica o QR Code se a inscrição estiver ATIVA
-        if self.ativa:
-            if self.qrcode_imagem and self.qrcode_imagem.name:
-                arquivo_existe = self.qrcode_imagem.storage.exists(self.qrcode_imagem.name)
-                if not arquivo_existe:
-                    self.qrcode_imagem = None
-            
-            # Gera o QR Code apenas se o campo estiver vazio/resetado
-            if not self.qrcode_imagem and self.cracha:
-                qr = qrcode.QRCode(
-                    version=1,
-                    error_correction=qrcode.constants.ERROR_CORRECT_L,
-                    box_size=10,    
-                    border=4,
-                )
-                qr.add_data(self.cracha)
-                qr.make(fit=True)
-                
-                img = qr.make_image(fill_color="black", back_color="white")
-                buffer = BytesIO()
-                img.save(buffer, format='PNG')
-                buffer.seek(0)
-                
-                nome_arquivo = f'qrcode_{self.cracha}.png'
-                self.qrcode_imagem.save(nome_arquivo, ContentFile(buffer.read()), save=False)
-
-        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Inscrição"
         verbose_name_plural = "Inscrições"
-    
+        constraints = [
+            models.UniqueConstraint(
+                fields=['usuario', 'evento'],
+                name='unique_inscricao_usuario_evento',
+            )
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.cracha:
+            self.cracha = gerar_codigo_unico(Inscricao, 'cracha')
+
+        if self.ativa:
+            if self.qrcode_imagem and self.qrcode_imagem.name:
+                if not self.qrcode_imagem.storage.exists(self.qrcode_imagem.name):
+                    self.qrcode_imagem = None
+
+            if not self.qrcode_imagem and self.cracha:
+                qr = qrcode.QRCode(
+                    version=1,
+                    error_correction=qrcode.constants.ERROR_CORRECT_L,
+                    box_size=10,
+                    border=4,
+                )
+                qr.add_data(self.cracha)
+                qr.make(fit=True)
+
+                img = qr.make_image(fill_color="black", back_color="white")
+                buffer = BytesIO()
+                img.save(buffer, format='PNG')
+                buffer.seek(0)
+
+                nome_arquivo = f'qrcode_{self.cracha}.png'
+                self.qrcode_imagem.save(
+                    nome_arquivo,
+                    ContentFile(buffer.read()),
+                    save=False,
+                )
+
+        super().save(*args, **kwargs)
+
     def __str__(self):
         nome_usuario = getattr(self.usuario, 'nome', str(self.usuario))
         return f"{nome_usuario} - {self.evento.nome}"
@@ -151,7 +196,6 @@ class StatusParticipa(models.TextChoices):
 
 class Participa(models.Model):
     inscricao = models.ForeignKey('Inscricao', on_delete=models.CASCADE)
-    
     atividade = ChainedForeignKey(
         'Atividade',
         chained_field='inscricao',
@@ -161,12 +205,20 @@ class Participa(models.Model):
         sort=True,
         on_delete=models.CASCADE,
     )
-    
-    funcao = models.CharField('Funcao', choices=StatusParticipa.choices, max_length=20, default=StatusParticipa.PARTICIPANTE)
+    funcao = models.CharField(
+        'Funcao',
+        choices=StatusParticipa.choices,
+        max_length=20,
+        default=StatusParticipa.PARTICIPANTE,
+    )
     data_hora = models.DateTimeField('Data de Inscrição', auto_now_add=True)
     presente = models.BooleanField('Presente', default=False)
-    data_hora_presenca = models.DateTimeField('Data/Hora da Validação pelo QR Code', null=True, blank=True)
-    
+    data_hora_presenca = models.DateTimeField(
+        'Data/Hora da Validação pelo QR Code',
+        null=True,
+        blank=True,
+    )
+
     class Meta:
         verbose_name = "Participa"
         verbose_name_plural = "Participam"
@@ -178,19 +230,14 @@ class Participa(models.Model):
         if self.inscricao_id and self.atividade_id:
             if self.atividade.evento != self.inscricao.evento:
                 raise ValidationError({
-                    'atividade': (
-                        'A atividade selecionada não pertence ao evento desta inscrição.'
-                    )
+                    'atividade': 'A atividade selecionada não pertence ao evento desta inscrição.'
                 })
 
-        # Validação de consistência do Check-in
         if self.presente and not self.data_hora_presenca:
-            # Atribui o horário atual a presenca caso não tenha
             self.data_hora_presenca = timezone.now()
         elif not self.presente and self.data_hora_presenca:
-            # Limpa a data se o registro for resetado para não presente
             self.data_hora_presenca = None
-    
+
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
@@ -199,11 +246,9 @@ class Participa(models.Model):
         status = (
             f'Presente em {localtime(self.data_hora_presenca).strftime("%d/%m/%Y %H:%M")}'
             if self.presente and self.data_hora_presenca
-                else 'Ausente'
+            else 'Ausente'
         )
-        return (
-            f'{self.inscricao} | {self.atividade} | {self.funcao} | Status: {status}'
-        )
+        return f'{self.inscricao} | {self.atividade} | {self.funcao} | Status: {status}'
 
 
 # -----------------------------------------------
@@ -227,27 +272,83 @@ class tipoAtividade(models.TextChoices):
 class Atividade(models.Model):
     evento = models.ForeignKey('Evento', on_delete=models.CASCADE)
     nome = models.CharField(max_length=200)
-    descricao = models.TextField(verbose_name="Descrição", max_length=500, blank=True, null=True)
-    tipoAtividade = models.CharField(verbose_name="Tipo de Atividade", choices=tipoAtividade.choices, max_length=20, default=tipoAtividade.PALESTRA)
-    complementoLocal = models.CharField(verbose_name="Complemento do Local", max_length=45, blank=True, null=True)
+    descricao = models.TextField(
+        verbose_name="Descrição",
+        max_length=500,
+        blank=True,
+        null=True,
+    )
+    tipoAtividade = models.CharField(
+        verbose_name="Tipo de Atividade",
+        choices=tipoAtividade.choices,
+        max_length=20,
+        default=tipoAtividade.PALESTRA,
+    )
+    complementoLocal = models.CharField(
+        verbose_name="Complemento do Local",
+        max_length=150,
+        blank=True,
+        null=True,
+    )
     horaInicio = models.DateTimeField(verbose_name="Hora de Início")
     horaFim = models.DateTimeField(verbose_name="Hora de Término")
-    limitePessoas = models.PositiveIntegerField(verbose_name="Limite de Pessoas", blank=True, null=True)
+    limitePessoas = models.PositiveIntegerField(
+        verbose_name="Limite de Pessoas",
+        blank=True,
+        null=True,
+    )
+    codigo_leitor = models.CharField(
+        max_length=7,
+        unique=True,
+        default=gerar_codigo,
+        editable=False,
+    )
 
-    codigo_leitor = models.CharField(max_length=7, unique=True, default=gerar_codigo, editable=False)
-    
+    def clean(self):
+        super().clean()
+        if self.horaInicio and self.horaFim and self.horaFim <= self.horaInicio:
+            raise ValidationError({
+                'horaFim': 'A hora de término deve ser posterior à hora de início.'
+            })
+
+        if self.limitePessoas is not None and self.limitePessoas < 1:
+            raise ValidationError({
+                'limitePessoas': 'O limite de participantes deve ser de pelo menos 1 pessoa (ou deixe em branco para ilimitado).'
+            })
+
+        if self.evento_id and self.horaInicio and self.horaFim:
+            dt_inicio = (
+                localtime(self.horaInicio).date()
+                if timezone.is_aware(self.horaInicio)
+                else self.horaInicio.date()
+            )
+            dt_fim = (
+                localtime(self.horaFim).date()
+                if timezone.is_aware(self.horaFim)
+                else self.horaFim.date()
+            )
+            if dt_inicio < self.evento.dataInicio:
+                raise ValidationError({
+                    'horaInicio': f'A atividade não pode começar antes do evento ({self.evento.dataInicio.strftime("%d/%m/%Y")}).'
+                })
+            if dt_fim > self.evento.dataFim:
+                raise ValidationError({
+                    'horaFim': f'A atividade não pode terminar após o encerramento do evento ({self.evento.dataFim.strftime("%d/%m/%Y")}).'
+                })
+
     def save(self, *args, **kwargs):
         if not self.codigo_leitor:
-            self.codigo_leitor = gerar_codigo()
-
+            self.codigo_leitor = gerar_codigo_unico(Atividade, 'codigo_leitor')
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.nome} - {self.evento.nome}"
 
     def get_participantes_nomes(self):
-        """Retorna a lista com os nomes de todos os inscritos desta atividade"""
-        participacoes = self.participa_set.select_related('inscricao__usuario')
+        """Retorna a lista com os nomes de todos os inscritos desta atividade."""
+        participacoes = self.participa_set.filter(
+            inscricao__ativa=True
+        ).select_related('inscricao__usuario__user_django')
         nomes = []
         for p in participacoes:
             if p.inscricao and p.inscricao.usuario:
@@ -255,7 +356,7 @@ class Atividade(models.Model):
                 if hasattr(usr, 'nome') and usr.nome:
                     nome = usr.nome
                 elif hasattr(usr, 'user_django') and usr.user_django:
-                    nome = usr.user_django.get_full_name() or usr.user_django.username
+                    nome = usr.user_django.get_full_name().strip() or usr.user_django.username
                 else:
                     nome = str(usr)
                 nomes.append(nome)
@@ -263,8 +364,12 @@ class Atividade(models.Model):
 
 
 class Premio(models.Model):
-    """Model para armazenar os prêmios exclusivos de cada atividade no banco de dados"""
-    atividade = models.ForeignKey(Atividade, on_delete=models.CASCADE, related_name='premios')
+    """Model para armazenar os prêmios exclusivos de cada atividade no banco de dados."""
+    atividade = models.ForeignKey(
+        Atividade,
+        on_delete=models.CASCADE,
+        related_name='premios',
+    )
     nome = models.CharField(max_length=200, verbose_name="Nome do Prêmio")
     quantidade = models.PositiveIntegerField(default=1, verbose_name="Quantidade")
 

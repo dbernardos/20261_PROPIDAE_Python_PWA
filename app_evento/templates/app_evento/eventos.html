@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load django_bootstrap5 %}
 
 {% block title %}Catálogo de Eventos | PORTAL SEA EVENTOS{% endblock %}
 
@@ -14,7 +13,7 @@
         <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1">
           <i class="bi bi-calendar2-week me-1"></i> Descubra o que acontece
         </span>
-        <h1 class="fw-bold text-dark mb-1">
+        <h1 class="h2 fw-bold text-dark mb-1">
           Catálogo de <span class="text-verde-escuro">Eventos</span>
         </h1>
         <p class="text-muted mb-0">
@@ -137,7 +136,7 @@
       </div>
       <span class="badge badge-verde-suave rounded-pill px-3 py-2">
         <i class="bi bi-calendar-event me-1"></i>
-        {{ eventos|length }} evento{{ eventos|length|pluralize:"s" }}
+        {{ eventos|length }} evento{{ eventos|length|pluralize }}
       </span>
     </div>
 
@@ -148,17 +147,17 @@
           <div class="row g-0 align-items-stretch">
 
             <div class="col-12 col-md-5 col-xl-4 evento-banner">
-            {% if item.imagemBanner %}
+              {% if item.imagemBanner %}
                 <img src="{{ item.imagemBanner.url }}" alt="Banner do evento {{ item.nome }}" loading="lazy">
-            {% else %}
+              {% else %}
                 <div class="evento-banner-vazio">
-                <i class="bi bi-calendar2-event text-verde-escuro fs-1 mb-1"></i>
-                <span>Sem banner</span>
+                  <i class="bi bi-calendar2-event text-verde-escuro fs-1 mb-1"></i>
+                  <span>Sem banner</span>
                 </div>
-            {% endif %}
+              {% endif %}
             </div>
 
-           <div class="col-12 col-md-7 col-xl-8">
+            <div class="col-12 col-md-7 col-xl-8">
               <div class="p-3 p-md-4 d-flex flex-column h-100">
 
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
@@ -168,7 +167,7 @@
                   </div>
 
                   <span class="badge badge-verde-suave rounded-pill px-3 py-2">
-                    {{ item.get_tipoEvento_display }}
+                    {{ item.get_tipoEvento_display|default:item.tipoEvento }}
                   </span>
                 </div>
 
@@ -180,54 +179,52 @@
                   {% endif %}
                 </p>
 
-                <!-- -->
-                <div class="row g-2 small mb-3">
-                <div class="col-12 col-sm-6">
+                <!-- 4 itens de detalhamento do evento -->
+                <div class="row g-3 small mb-3">
+                  <div class="col-12 col-sm-6">
                     <div class="d-flex align-items-start gap-2">
-                    <i class="bi bi-calendar-event text-verde-escuro mt-1"></i>
-                    <div>
+                      <i class="bi bi-calendar-event text-verde-escuro mt-1"></i>
+                      <div>
                         <span class="text-muted d-block">Data de início</span>
-                        <strong>{{ item.dataInicio|date:'d/m/Y' }}</strong>
+                        <strong class="text-dark">{{ item.dataInicio|date:'d/m/Y' }}</strong>
+                      </div>
                     </div>
-                    </div>
-                </div>
+                  </div>
 
-                <div class="col-12 col-sm-6">
+                  <div class="col-12 col-sm-6">
                     <div class="d-flex align-items-start gap-2">
-                    <i class="bi bi-calendar-check text-verde-escuro mt-1"></i>
-                    <div>
+                      <i class="bi bi-calendar-check text-verde-escuro mt-1"></i>
+                      <div>
                         <span class="text-muted d-block">Data de término</span>
-                        <strong>{{ item.dataFim|date:'d/m/Y' }}</strong>
+                        <strong class="text-dark">{{ item.dataFim|date:'d/m/Y' }}</strong>
+                      </div>
                     </div>
-                    </div>
-                </div>
+                  </div>
 
-                <div class="col-12 col-sm-6">
+                  <div class="col-12 col-sm-6">
                     <div class="d-flex align-items-start gap-2">
-                    <i class="bi bi-geo-alt text-vermelho mt-1"></i>
-                    <div>
+                      <i class="bi bi-geo-alt text-vermelho mt-1"></i>
+                      <div>
                         <span class="text-muted d-block">Local</span>
-                        <strong>{{ item.local|default:"A definir" }}</strong>
+                        <strong class="text-dark">{{ item.local|default:'A definir' }}</strong>
+                      </div>
                     </div>
-                    </div>
-                </div>
+                  </div>
 
-                {% if item.emailContato %}
-                    <div class="col-12 col-sm-6">
+                  <div class="col-12 col-sm-6">
                     <div class="d-flex align-items-start gap-2">
-                        <i class="bi bi-envelope text-verde-escuro mt-1"></i>
-                        <div>
+                      <i class="bi bi-envelope text-verde-escuro mt-1"></i>
+                      <div>
                         <span class="text-muted d-block">Contato</span>
-                        <strong>{{ item.emailContato }}</strong>
-                        </div>
+                        <strong class="text-dark">{{ item.emailContato|default:'Não informado' }}</strong>
+                      </div>
                     </div>
-                    </div>
-                {% endif %}
+                  </div>
                 </div>
 
                 <div class="mt-auto pt-3 border-top d-flex justify-content-start">
-                  <a href="{% url 'app_evento:urldet_evento' item.id %}" class="btn btn-verde-escuro btn-sm px-4 py-2">
-                    Ver detalhes <i class="bi bi-arrow-right ms-1"></i>
+                  <a href="{% url 'app_evento:urldet_evento' item.id %}" class="btn btn-verde-escuro btn-sm py-2">
+                    Ver detalhes e atividades <i class="bi bi-arrow-right ms-1"></i>
                   </a>
                 </div>
 
@@ -238,83 +235,50 @@
         </article>
       {% empty %}
         <div class="card card-custom p-5 text-center">
-          <i class="bi bi-calendar2-x text-verde-escuro fs-1 mb-2"></i>
+          <i class="bi bi-calendar-x text-verde-escuro fs-1 mb-2"></i>
           <h3 class="h5 fw-bold">Nenhum evento encontrado</h3>
-          <p class="text-muted small mb-3">
-            Não encontramos eventos com os filtros selecionados. Experimente alterar a pesquisa ou limpar os filtros.
+          <p class="text-muted small mb-0">
+            Tente ajustar ou limpar os filtros para visualizar outros eventos disponíveis.
           </p>
-          <div>
-            <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-outline-verde-escuro px-4">
-              <i class="bi bi-arrow-counterclockwise me-1"></i> Limpar filtros
-            </a>
-          </div>
         </div>
       {% endfor %}
     </div>
 
   </div>
 </section>
-{% endblock %}
 
-{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const periodo = document.getElementById('periodo');
-    const containerDatas = document.getElementById('containerDatasCustom');
-    const dataInicio = document.getElementById('data_inicio');
-    const dataFim = document.getElementById('data_fim');
-    const formulario = document.getElementById('formFiltrosEventos');
-    const btnBuscar = document.getElementById('btnBuscarEventos');
+  const selectPeriodo = document.getElementById('periodo');
+  const containerCustom = document.getElementById('containerDatasCustom');
+  const inputInicio = document.getElementById('data_inicio');
+  const inputFim = document.getElementById('data_fim');
 
-    function atualizarDatasPersonalizadas() {
-        const personalizado = periodo && periodo.value === 'custom';
-        if (containerDatas) containerDatas.classList.toggle('d-none', !personalizado);
-        if (dataInicio) dataInicio.disabled = !personalizado;
-        if (dataFim) dataFim.disabled = !personalizado;
-    }
+  if (!selectPeriodo || !containerCustom || !inputInicio || !inputFim) return;
 
-    function validarIntervaloDatas() {
-        if (!dataInicio || !dataFim || !periodo || periodo.value !== 'custom') return true;
-        dataFim.setCustomValidity('');
-        if (dataInicio.value && dataFim.value && dataInicio.value > dataFim.value) {
-            dataFim.setCustomValidity('A data final deve ser igual ou posterior à data inicial.');
-            dataFim.reportValidity();
-            return false;
-        }
-        return true;
-    }
+  function atualizarPeriodoCustom() {
+    const ehCustom = selectPeriodo.value === 'custom';
+    containerCustom.classList.toggle('d-none', !ehCustom);
+    inputInicio.disabled = !ehCustom;
+    inputFim.disabled = !ehCustom;
 
-    if (periodo) {
-        periodo.addEventListener('change', function () {
-            atualizarDatasPersonalizadas();
-            if (periodo.value === 'custom') validarIntervaloDatas();
-        });
-        atualizarDatasPersonalizadas();
+    if (!ehCustom) {
+      inputInicio.value = '';
+      inputFim.value = '';
     }
+  }
 
-    if (dataInicio && dataFim) {
-        dataInicio.addEventListener('change', function () {
-            dataFim.min = dataInicio.value || '';
-            validarIntervaloDatas();
-        });
-        dataFim.addEventListener('change', function () {
-            dataInicio.max = dataFim.value || '';
-            validarIntervaloDatas();
-        });
-    }
+  function sincronizarLimites() {
+    inputFim.min = inputInicio.value || '';
+    inputInicio.max = inputFim.value || '';
+  }
 
-    if (formulario) {
-        formulario.addEventListener('submit', function (evento) {
-            if (!validarIntervaloDatas()) {
-                evento.preventDefault();
-                return;
-            }
-            if (btnBuscar) {
-                btnBuscar.disabled = true;
-                btnBuscar.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Buscando...';
-            }
-        });
-    }
+  selectPeriodo.addEventListener('change', atualizarPeriodoCustom);
+  inputInicio.addEventListener('change', sincronizarLimites);
+  inputFim.addEventListener('change', sincronizarLimites);
+
+  atualizarPeriodoCustom();
+  sincronizarLimites();
 });
 </script>
 {% endblock %}

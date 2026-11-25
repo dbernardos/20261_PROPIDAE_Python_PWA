@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load django_bootstrap5 %}
 
 {% block title %}
     Minhas Inscrições | PORTAL SEA EVENTOS
@@ -18,7 +17,7 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
             <div>
                 <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1">Participação</span>
-                <h2 class="fw-bold text-dark mb-1">Minhas <span class="text-verde-escuro">Inscrições</span></h2>
+                <h1 class="h2 fw-bold text-dark mb-1">Minhas <span class="text-verde-escuro">Inscrições</span></h1>
                 <p class="text-muted mb-0">Gerencie suas participações, acompanhe horários e acesse seus comprovantes e crachá.</p>
             </div>
 
@@ -27,7 +26,6 @@
             </a>
         </div>
 
-        
         {% if inscricoes %}
             <!-- Resumo -->
             <div class="row g-3 mb-4">
@@ -42,15 +40,15 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-12 col-sm-6 col-lg-6">
                     <div class="card card-custom p-3 d-flex flex-row align-items-center gap-3">
                         <div class="badge badge-verde-suave rounded-3 p-3 fs-4">
                             <i class="bi bi-list-check"></i>
                         </div>
                         <div>
-                            <span class="h4 fw-bold text-dark d-block mb-0">{{ total_atividades }}</span>
-                            <span class="text-muted small">Atividade(s) inscrita(s)</span>
+                            <span class="h4 fw-bold text-dark d-block mb-0">{{ total_atividades|default:0 }}</span>
+                            <span class="text-muted small">Atividade{{ total_atividades|pluralize }} inscrita{{ total_atividades|pluralize }}</span>
                         </div>
                     </div>
                 </div>
@@ -59,10 +57,11 @@
             <!-- Lista de inscrições -->
             <div class="row g-4" id="listaInscricoes">
                 {% for item in inscricoes %}
+                    {% with participacoes=item.participa_set.all %}
                     <div class="col-12 inscricao-item">
                         <div class="card card-custom overflow-hidden {% if item.evento.dataFim and item.evento.dataFim < hoje %}border-secondary border-opacity-50{% endif %}">
 
-                           <div class="card-header card-header-custom d-flex justify-content-between align-items-center py-3 px-4 flex-wrap gap-2">
+                            <div class="card-header card-header-custom d-flex justify-content-between align-items-center py-3 px-4 flex-wrap gap-2">
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
                                     <span class="badge bg-white text-verde-escuro rounded-pill px-3 py-1 text-uppercase">
                                         {{ item.evento.get_tipoEvento_display|default:item.evento.tipoEvento }}
@@ -99,15 +98,15 @@
                                     {% endif %}
 
                                     <div class="{% if item.evento.imagemBanner %}col-12 col-md-8 col-lg-9{% else %}col-12{% endif %}">
-                                        <h3 class="h4 fw-bold text-verde-escuro mb-2">
+                                        <h2 class="h4 fw-bold text-verde-escuro mb-2">
                                             {{ item.evento.nome }}
-                                        </h3>
+                                        </h2>
 
                                         <p class="text-secondary small mb-3">
                                             {{ item.evento.descricao|default:'Sem descrição informada.' }}
                                         </p>
 
-                                        <!-- Mesmos detalhes do evento (grade 2x2) -->
+                                        <!-- Detalhes do evento (grade 2x2) -->
                                         <div class="row g-3 small">
                                             <div class="col-12 col-sm-6">
                                                 <div class="d-flex align-items-start gap-2">
@@ -158,16 +157,16 @@
 
                                 <!-- Atividades inscritas -->
                                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                                    <h5 class="fw-bold mb-0 text-verde-escuro">
+                                    <h3 class="h5 fw-bold mb-0 text-verde-escuro">
                                         <i class="bi bi-list-check me-2 text-verde-claro"></i>Atividades Inscritas
-                                    </h5>
+                                    </h3>
 
                                     <span class="badge badge-verde-suave rounded-pill px-3 py-2">
-                                        {{ item.participa_set.all|length }} atividade(s)
+                                        {{ participacoes|length }} atividade{{ participacoes|length|pluralize }}
                                     </span>
                                 </div>
 
-                                {% if item.participa_set.all %}
+                                {% if participacoes %}
                                     <div class="table-responsive border rounded-3">
                                         <table class="table table-hover align-middle mb-0">
                                             <thead class="table-light">
@@ -181,7 +180,7 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {% for participa in item.participa_set.all %}
+                                                {% for participa in participacoes %}
                                                     <tr>
                                                         <td class="align-middle fw-medium">
                                                             <i class="bi bi-calendar2-event text-verde-escuro me-2"></i>
@@ -205,7 +204,7 @@
                                                         <td class="align-middle">
                                                             <span class="text-secondary small">
                                                                 <i class="bi bi-geo-alt me-1 text-vermelho"></i>
-                                                                {{ participa.atividade.complementoLocal|default:item.evento.local }}
+                                                                {{ participa.atividade.complementoLocal|default:item.evento.local|default:'A definir' }}
                                                             </span>
                                                         </td>
 
@@ -230,9 +229,17 @@
                                                                 <span class="badge badge-verde-suave rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
                                                                     <i class="bi bi-check-circle-fill me-1"></i> Concluída
                                                                 </span>
-                                                            {% elif participa.atividade.horaInicio and participa.atividade.horaInicio <= agora and participa.atividade.horaFim >= agora %}
+                                                            {% elif participa.atividade.horaInicio and participa.atividade.horaFim and participa.atividade.horaInicio <= agora and participa.atividade.horaFim >= agora %}
                                                                 <span class="badge bg-verde-claro text-dark rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
                                                                     <i class="bi bi-broadcast me-1"></i> Participando
+                                                                </span>
+                                                            {% elif not item.ativa %}
+                                                                <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2 fw-semibold">
+                                                                    Inativa
+                                                                </span>
+                                                            {% elif item.evento.dataFim and item.evento.dataFim < hoje %}
+                                                                <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2 fw-semibold">
+                                                                    Encerrado
                                                                 </span>
                                                             {% else %}
                                                                 <form action="{% url 'app_evento:urlparticipar_atividade' participa.atividade.id %}" method="POST" class="d-inline form-cancelar-atividade">
@@ -250,7 +257,7 @@
                                     </div>
                                 {% else %}
                                     <div class="alert alert-light border text-muted mb-0">
-                                        <i class="bi bi-info-circle me-2"></i> Ainda não se inscreveu em nenhuma atividade específica deste evento.
+                                        <i class="bi bi-info-circle me-2"></i> Você ainda não se inscreveu em nenhuma atividade específica deste evento.
                                     </div>
                                 {% endif %}
                             </div>
@@ -299,11 +306,11 @@
                         </div>
 
                         <!-- Modal do crachá -->
-                        <div class="modal fade modal-cracha" id="modalCracha{{ item.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal fade modal-cracha" id="modalCracha{{ item.id }}" tabindex="-1" aria-labelledby="modalCrachaLabel{{ item.id }}" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content text-center border-0 shadow rounded-4 overflow-hidden">
                                     <div class="modal-header bg-verde-escuro text-white">
-                                        <h5 class="modal-title fw-bold">
+                                        <h5 class="modal-title fw-bold" id="modalCrachaLabel{{ item.id }}">
                                             <i class="bi bi-person-badge me-2"></i> Crachá de Acesso
                                         </h5>
                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
@@ -351,13 +358,14 @@
                         </div>
 
                     </div>
+                    {% endwith %}
                 {% endfor %}
             </div>
 
         {% else %}
             <div class="card card-custom p-5 text-center text-muted my-4">
                 <i class="bi bi-calendar-x display-3 mb-3 text-verde-escuro opacity-50 d-block"></i>
-                <h4 class="text-dark fw-semibold">Ainda não possui inscrições.</h4>
+                <h2 class="h4 text-dark fw-semibold">Você ainda não possui inscrições.</h2>
                 <p class="text-muted mb-3">Explore a lista de eventos disponíveis e garanta a sua vaga!</p>
                 <div>
                     <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-verde-escuro px-4">
