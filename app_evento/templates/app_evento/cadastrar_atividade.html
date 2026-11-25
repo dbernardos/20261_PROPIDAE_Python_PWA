@@ -71,7 +71,6 @@
                   {% bootstrap_field form_atividade.descricao %}
                 </div>
 
-                <!-- Classificação e local -->
                 <div class="col-md-6">
                   {% bootstrap_field form_atividade.tipoAtividade %}
                 </div>
@@ -79,7 +78,6 @@
                   {% bootstrap_field form_atividade.complementoLocal %}
                 </div>
 
-                <!-- Período e capacidade -->
                 <div class="col-md-6">
                   {% bootstrap_field form_atividade.horaInicio %}
                 </div>
@@ -111,84 +109,86 @@
   </div>
 </section>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const horaInicio = document.getElementById('id_horaInicio');
-  const horaFim = document.getElementById('id_horaFim');
+{% block extra_css %}
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const horaInicio = document.getElementById('id_horaInicio');
+    const horaFim = document.getElementById('id_horaFim');
 
-  if (!horaInicio || !horaFim) return;
+    if (!horaInicio || !horaFim) return;
 
-  const formulario = horaInicio.closest('form');
+    const formulario = horaInicio.closest('form');
 
-  const minEvento = "{% if evento.dataInicio %}{{ evento.dataInicio|date:'Y-m-d' }}T00:00{% endif %}";
-  const maxEvento = "{% if evento.dataFim %}{{ evento.dataFim|date:'Y-m-d' }}T23:59{% endif %}";
+    const minEvento = "{% if evento.dataInicio %}{{ evento.dataInicio|date:'Y-m-d' }}T00:00{% endif %}";
+    const maxEvento = "{% if evento.dataFim %}{{ evento.dataFim|date:'Y-m-d' }}T23:59{% endif %}";
 
-  function sincronizarLimites() {
-    horaInicio.min = minEvento;
-    horaInicio.max = horaFim.value || maxEvento;
+    function sincronizarLimites() {
+      horaInicio.min = minEvento;
+      horaInicio.max = horaFim.value || maxEvento;
 
-    horaFim.min = horaInicio.value || minEvento;
-    horaFim.max = maxEvento;
-  }
-
-  function validarIntervaloHorarios() {
-    horaInicio.setCustomValidity('');
-    horaFim.setCustomValidity('');
-
-    if (minEvento && horaInicio.value && horaInicio.value < minEvento) {
-      horaInicio.setCustomValidity('A atividade não pode começar antes do início do evento.');
-      horaInicio.reportValidity();
-      return false;
+      horaFim.min = horaInicio.value || minEvento;
+      horaFim.max = maxEvento;
     }
 
-    if (maxEvento && horaInicio.value && horaInicio.value > maxEvento) {
-      horaInicio.setCustomValidity('A atividade não pode começar após o encerramento do evento.');
-      horaInicio.reportValidity();
-      return false;
-    }
+    function validarIntervaloHorarios() {
+      horaInicio.setCustomValidity('');
+      horaFim.setCustomValidity('');
 
-    if (minEvento && horaFim.value && horaFim.value < minEvento) {
-      horaFim.setCustomValidity('A atividade não pode terminar antes do início do evento.');
-      horaFim.reportValidity();
-      return false;
-    }
-
-    if (maxEvento && horaFim.value && horaFim.value > maxEvento) {
-      horaFim.setCustomValidity('A atividade não pode terminar após o encerramento do evento.');
-      horaFim.reportValidity();
-      return false;
-    }
-
-    if (horaInicio.value && horaFim.value && horaInicio.value >= horaFim.value) {
-      horaFim.setCustomValidity('A hora de término deve ser posterior à hora de início.');
-      horaFim.reportValidity();
-      return false;
-    }
-
-    return true;
-  }
-
-  horaInicio.addEventListener('change', function () {
-    sincronizarLimites();
-    validarIntervaloHorarios();
-  });
-
-  horaFim.addEventListener('change', function () {
-    sincronizarLimites();
-    validarIntervaloHorarios();
-  });
-
-  sincronizarLimites();
-
-  if (formulario) {
-    formulario.addEventListener('submit', function (evento) {
-      if (!validarIntervaloHorarios()) {
-        evento.preventDefault();
-        evento.stopPropagation();
+      if (minEvento && horaInicio.value && horaInicio.value < minEvento) {
+        horaInicio.setCustomValidity('A atividade não pode começar antes do início do evento.');
+        horaInicio.reportValidity();
         return false;
       }
+
+      if (maxEvento && horaInicio.value && horaInicio.value > maxEvento) {
+        horaInicio.setCustomValidity('A atividade não pode começar após o encerramento do evento.');
+        horaInicio.reportValidity();
+        return false;
+      }
+
+      if (minEvento && horaFim.value && horaFim.value < minEvento) {
+        horaFim.setCustomValidity('A atividade não pode terminar antes do início do evento.');
+        horaFim.reportValidity();
+        return false;
+      }
+
+      if (maxEvento && horaFim.value && horaFim.value > maxEvento) {
+        horaFim.setCustomValidity('A atividade não pode terminar após o encerramento do evento.');
+        horaFim.reportValidity();
+        return false;
+      }
+
+      if (horaInicio.value && horaFim.value && horaInicio.value >= horaFim.value) {
+        horaFim.setCustomValidity('A hora de término deve ser posterior à hora de início.');
+        horaFim.reportValidity();
+        return false;
+      }
+
+      return true;
+    }
+
+    horaInicio.addEventListener('change', function () {
+      sincronizarLimites();
+      validarIntervaloHorarios();
     });
-  }
-});
-</script>
+
+    horaFim.addEventListener('change', function () {
+      sincronizarLimites();
+      validarIntervaloHorarios();
+    });
+
+    sincronizarLimites();
+
+    if (formulario) {
+      formulario.addEventListener('submit', function (evento) {
+        if (!validarIntervaloHorarios()) {
+          evento.preventDefault();
+          evento.stopPropagation();
+          return false;
+        }
+      });
+    }
+  });
+  </script>
+  {% endblock %}
 {% endblock %}

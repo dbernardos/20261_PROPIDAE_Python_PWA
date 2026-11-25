@@ -22,7 +22,9 @@
       </div>
 
       {% if user.is_staff or user.is_superuser %}
-        <a href="{% url 'app_evento:urldis_myevento' %}" class="btn btn-outline-verde-escuro px-4 align-self-start align-self-md-center">
+        <a href="{% url 'app_evento:urldis_myevento' %}"
+           class="btn btn-outline-verde-escuro px-4 align-self-start align-self-md-center"
+           data-tooltip="Acessar e gerenciar os eventos que você organiza">
           <i class="bi bi-gear me-1"></i> Meus eventos
         </a>
       {% endif %}
@@ -51,13 +53,14 @@
                      name="busca"
                      placeholder="Nome ou palavra-chave"
                      value="{{ busca_atual }}"
-                     autocomplete="off">
+                     autocomplete="off"
+                     title="Digite o nome ou palavras-chave do evento">
             </div>
           </div>
 
           <div class="col-12 col-md-6 col-xl-3">
             <label for="tipo" class="form-label small fw-semibold">Tipo de evento</label>
-            <select class="form-select" id="tipo" name="tipo">
+            <select class="form-select" id="tipo" name="tipo" title="Filtrar eventos por categoria">
               <option value="">Todos os tipos</option>
               {% for valor, rotulo in tipos_evento %}
                 <option value="{{ valor }}" {% if tipo_atual == valor %}selected{% endif %}>{{ rotulo }}</option>
@@ -67,7 +70,7 @@
 
           <div class="col-12 col-md-6 col-xl-3">
             <label for="periodo" class="form-label small fw-semibold">Quando?</label>
-            <select class="form-select" id="periodo" name="periodo">
+            <select class="form-select" id="periodo" name="periodo" title="Filtrar eventos por intervalo de datas">
               <option value="">Qualquer data</option>
               <option value="hoje" {% if periodo_atual == 'hoje' %}selected{% endif %}>Hoje</option>
               <option value="amanha" {% if periodo_atual == 'amanha' %}selected{% endif %}>Amanhã</option>
@@ -79,7 +82,8 @@
           </div>
 
           <div class="col-12 col-md-6 col-xl-2">
-            <div class="form-check form-switch mb-2">
+            <div class="form-check form-switch mb-2"
+                 data-tooltip="Exibir apenas eventos que já foram finalizados">
               <input class="form-check-input"
                      type="checkbox"
                      id="encerrados"
@@ -100,6 +104,7 @@
                        id="data_inicio"
                        name="data_inicio"
                        value="{{ data_inicio_atual }}"
+                       title="Selecione a data inicial do período"
                        {% if periodo_atual != 'custom' %}disabled{% endif %}>
               </div>
 
@@ -110,16 +115,22 @@
                        id="data_fim"
                        name="data_fim"
                        value="{{ data_fim_atual }}"
+                       title="Selecione a data final do período"
                        {% if periodo_atual != 'custom' %}disabled{% endif %}>
               </div>
             </div>
           </div>
 
           <div class="col-12 d-flex flex-wrap justify-content-end gap-2 pt-1">
-            <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-outline-verde-escuro px-4">
+            <a href="{% url 'app_evento:urldis_evento' %}"
+               class="btn btn-outline-verde-escuro px-4"
+               data-tooltip="Remover todos os filtros aplicados">
               <i class="bi bi-eraser me-1"></i> Limpar filtros
             </a>
-            <button type="submit" id="btnBuscarEventos" class="btn btn-verde-escuro px-4">
+            <button type="submit"
+                    id="btnBuscarEventos"
+                    class="btn btn-verde-escuro px-4"
+                    data-tooltip="Aplicar filtros e pesquisar eventos">
               <i class="bi bi-search me-1"></i> Buscar eventos
             </button>
           </div>
@@ -134,7 +145,8 @@
         <h2 class="h5 fw-bold mb-0">Eventos disponíveis</h2>
         <small class="text-muted">Confira as informações e acesse os detalhes de cada evento.</small>
       </div>
-      <span class="badge badge-verde-suave rounded-pill px-3 py-2">
+      <span class="badge badge-verde-suave rounded-pill px-3 py-2"
+            data-tooltip="Total de eventos encontrados com os filtros atuais">
         <i class="bi bi-calendar-event me-1"></i>
         {{ eventos|length }} evento{{ eventos|length|pluralize }}
       </span>
@@ -143,14 +155,17 @@
     <!-- Cards de Eventos -->
     <div class="d-flex flex-column gap-3">
       {% for item in eventos %}
-        <article class="card card-custom overflow-hidden">
+        <article class="card card-custom">
           <div class="row g-0 align-items-stretch">
 
-            <div class="col-12 col-md-5 col-xl-4 evento-banner">
+            <div class="col-12 col-md-5 col-xl-4 evento-banner overflow-hidden">
               {% if item.imagemBanner %}
-                <img src="{{ item.imagemBanner.url }}" alt="Banner do evento {{ item.nome }}" loading="lazy">
+                <img src="{{ item.imagemBanner.url }}"
+                     alt="Banner do evento {{ item.nome }}"
+                     title="Banner do evento {{ item.nome }}"
+                     loading="lazy">
               {% else %}
-                <div class="evento-banner-vazio">
+                <div class="evento-banner-vazio" title="Este evento não possui imagem de banner">
                   <i class="bi bi-calendar2-event text-verde-escuro fs-1 mb-1"></i>
                   <span>Sem banner</span>
                 </div>
@@ -163,15 +178,17 @@
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
                   <div>
                     <span class="text-verde-escuro fw-bold small text-uppercase d-block">Evento acadêmico</span>
-                    <h3 class="h5 fw-bold mb-0">{{ item.nome }}</h3>
+                    <h3 class="h5 fw-bold mb-0" title="{{ item.nome }}">{{ item.nome }}</h3>
                   </div>
 
-                  <span class="badge badge-verde-suave rounded-pill px-3 py-2">
+                  <span class="badge badge-verde-suave rounded-pill px-3 py-2"
+                        data-tooltip="Categoria do evento">
                     {{ item.get_tipoEvento_display|default:item.tipoEvento }}
                   </span>
                 </div>
 
-                <p class="text-muted small mb-3">
+                <p class="text-muted small mb-3"
+                   title="{{ item.descricao|default:'Mais informações disponíveis na página de detalhes.' }}">
                   {% if item.descricao %}
                     {{ item.descricao|truncatewords:30 }}
                   {% else %}
@@ -182,7 +199,7 @@
                 <!-- 4 itens de detalhamento do evento -->
                 <div class="row g-3 small mb-3">
                   <div class="col-12 col-sm-6">
-                    <div class="d-flex align-items-start gap-2">
+                    <div class="d-flex align-items-start gap-2" title="Data de início do evento">
                       <i class="bi bi-calendar-event text-verde-escuro mt-1"></i>
                       <div>
                         <span class="text-muted d-block">Data de início</span>
@@ -192,7 +209,7 @@
                   </div>
 
                   <div class="col-12 col-sm-6">
-                    <div class="d-flex align-items-start gap-2">
+                    <div class="d-flex align-items-start gap-2" title="Data de término do evento">
                       <i class="bi bi-calendar-check text-verde-escuro mt-1"></i>
                       <div>
                         <span class="text-muted d-block">Data de término</span>
@@ -202,7 +219,7 @@
                   </div>
 
                   <div class="col-12 col-sm-6">
-                    <div class="d-flex align-items-start gap-2">
+                    <div class="d-flex align-items-start gap-2" title="Local: {{ item.local|default:'A definir' }}">
                       <i class="bi bi-geo-alt text-vermelho mt-1"></i>
                       <div>
                         <span class="text-muted d-block">Local</span>
@@ -212,7 +229,7 @@
                   </div>
 
                   <div class="col-12 col-sm-6">
-                    <div class="d-flex align-items-start gap-2">
+                    <div class="d-flex align-items-start gap-2" title="Contato: {{ item.emailContato|default:'Não informado' }}">
                       <i class="bi bi-envelope text-verde-escuro mt-1"></i>
                       <div>
                         <span class="text-muted d-block">Contato</span>
@@ -223,7 +240,9 @@
                 </div>
 
                 <div class="mt-auto pt-3 border-top d-flex justify-content-start">
-                  <a href="{% url 'app_evento:urldet_evento' item.id %}" class="btn btn-verde-escuro btn-sm py-2">
+                  <a href="{% url 'app_evento:urldet_evento' item.id %}"
+                     class="btn btn-verde-escuro btn-sm py-2"
+                     data-tooltip="Abrir página do evento, programação e inscrições">
                     Ver detalhes e atividades <i class="bi bi-arrow-right ms-1"></i>
                   </a>
                 </div>

@@ -14,10 +14,14 @@
     <!-- Cabeçalho -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
       <div>
-        <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1">
+        <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1"
+              title="{% if atividade %}{{ atividade.nome }}{% else %}Atividade do Evento{% endif %}"
+              data-tooltip="{% if atividade %}{{ atividade.nome }}{% else %}Atividade do Evento{% endif %}">
           {% if atividade %}{{ atividade.nome }}{% else %}Atividade do Evento{% endif %}
         </span>
-        <h1 class="h2 fw-bold text-dark mb-1">
+        <h1 class="h2 fw-bold text-dark mb-1"
+            title="Painel de Sorteio"
+            data-tooltip="Painel de Sorteio">
           Painel de <span class="text-verde-escuro">Sorteio</span>
         </h1>
         <p class="text-muted mb-0">
@@ -30,13 +34,18 @@
           <button type="button"
                   class="btn btn-verde-escuro btn-sm rounded-pill px-3"
                   data-bs-toggle="modal"
-                  data-bs-target="#modalPremios">
+                  data-bs-target="#modalPremios"
+                  title="Cadastrar, editar ou remover prêmios"
+                  data-tooltip="Cadastrar, editar ou remover prêmios">
             <i class="bi bi-gift-fill me-1"></i> Gerenciar Prêmios
           </button>
         {% endif %}
 
         <a href="{% url 'app_evento:urldis_evento' %}"
-           class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+           class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+           title="Voltar para a listagem de eventos"
+           data-tooltip="Voltar para a listagem de eventos"
+           data-tooltip-pos="bottom">
           <i class="bi bi-arrow-left me-1"></i> Voltar
         </a>
       </div>
@@ -46,12 +55,16 @@
 
       <!-- Coluna Lateral: Prêmios -->
       <div class="col-lg-4">
-        <div class="card card-custom overflow-hidden">
+        <div class="card card-custom">
           <div class="card-header bg-light border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
-            <span class="fw-bold text-verde-escuro small">
+            <span class="fw-bold text-verde-escuro small"
+                  title="Lista de prêmios cadastrados"
+                  data-tooltip="Lista de prêmios cadastrados">
               <i class="bi bi-gift-fill me-1"></i> Prêmios deste Sorteio
             </span>
-            <span class="badge badge-verde-suave rounded-pill px-2">
+            <span class="badge badge-verde-suave rounded-pill px-2"
+                  title="Total de tipos de prêmios: {{ premios|length }}"
+                  data-tooltip="Total de tipos de prêmios: {{ premios|length }}">
               {{ premios|length }}
             </span>
           </div>
@@ -60,10 +73,14 @@
             <ul class="list-group list-group-flush" id="listaPremiosEsquerda">
               {% for p in premios %}
                 <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
-                  <span class="fw-semibold text-dark">
+                  <span class="fw-semibold text-dark"
+                        title="{{ p.nome }}"
+                        data-tooltip="{{ p.nome }}">
                     <i class="bi bi-gift-fill text-verde-escuro me-2"></i>{{ p.nome }}
                   </span>
-                  <span class="badge badge-verde-suave border rounded-pill px-3 py-1">
+                  <span class="badge badge-verde-suave border rounded-pill px-3 py-1"
+                        title="Quantidade disponível: {{ p.quantidade }}"
+                        data-tooltip="Quantidade disponível: {{ p.quantidade }}">
                     {{ p.quantidade }} un.
                   </span>
                 </li>
@@ -90,15 +107,26 @@
           <div class="fullscreen-prizes-panel">
             <div class="fw-bold mb-2 text-warning small d-flex justify-content-between align-items-center">
               <span><i class="bi bi-gift-fill me-1"></i> Prêmios Disponíveis</span>
-              <span class="badge bg-warning text-dark">{{ premios|length }}</span>
+              <span class="badge bg-warning text-dark"
+                    title="Total de prêmios: {{ premios|length }}"
+                    data-tooltip="Total de prêmios: {{ premios|length }}">
+                {{ premios|length }}
+              </span>
             </div>
             <ul class="list-unstyled mb-0 small">
               {% for p in premios %}
                 <li class="d-flex justify-content-between align-items-center py-1">
-                  <span class="text-truncate text-white" style="max-width: 170px;" title="{{ p.nome }}">
+                  <span class="text-truncate text-white" 
+                        style="max-width: 170px;" 
+                        title="{{ p.nome }}"
+                        data-tooltip="{{ p.nome }}">
                     <i class="bi bi-gift me-1 text-warning"></i>{{ p.nome }}
                   </span>
-                  <span class="badge bg-light text-dark fw-bold">{{ p.quantidade }} un.</span>
+                  <span class="badge bg-light text-dark fw-bold"
+                        title="{{ p.quantidade }} unidade(s)"
+                        data-tooltip="{{ p.quantidade }} unidade(s)">
+                    {{ p.quantidade }} un.
+                  </span>
                 </li>
               {% empty %}
                 <li class="text-white-50 py-2">Nenhum prêmio cadastrado.</li>
@@ -108,16 +136,31 @@
 
           <!-- Barra Superior da Esteira -->
           <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2 w-100">
-            <span class="badge bg-white text-verde-escuro rounded-pill px-3 py-2 fw-semibold">
+            <span class="badge bg-white text-verde-escuro rounded-pill px-3 py-2 fw-semibold"
+                  title="Total de participantes aptos a concorrer"
+                  data-tooltip="Total de participantes aptos a concorrer"
+                  data-tooltip-pos="bottom">
               <i class="bi bi-people-fill me-1"></i>
               Participantes Presentes: <strong id="totalParticipantes">0</strong>
             </span>
 
             <div class="d-flex gap-1">
-              <button type="button" id="btnFullscreen" class="btn btn-sm btn-outline-light rounded-pill px-3" title="Tela Cheia (Projetor)" aria-label="Alternar tela cheia">
+              <button type="button" 
+                      id="btnFullscreen" 
+                      class="btn btn-sm btn-outline-light rounded-pill px-3" 
+                      title="Tela Cheia (Projetor)" 
+                      data-tooltip="Tela Cheia (Projetor)"
+                      data-tooltip-pos="bottom"
+                      aria-label="Alternar tela cheia">
                 <i class="bi bi-arrows-fullscreen" aria-hidden="true"></i>
               </button>
-              <button type="button" id="btnReiniciar" class="btn btn-sm btn-outline-light rounded-pill px-3" title="Reiniciar Sorteio" aria-label="Reiniciar sorteio">
+              <button type="button" 
+                      id="btnReiniciar" 
+                      class="btn btn-sm btn-outline-light rounded-pill px-3" 
+                      title="Reiniciar Sorteio" 
+                      data-tooltip="Reiniciar Sorteio"
+                      data-tooltip-pos="bottom"
+                      aria-label="Reiniciar sorteio">
                 <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
               </button>
             </div>
@@ -134,7 +177,10 @@
 
           <p class="text-white opacity-75 mb-2">
             Prêmio da rodada:
-            <strong id="nomePremioAtual" class="text-warning fs-5">
+            <strong id="nomePremioAtual" 
+                    class="text-warning fs-5"
+                    title="Prêmio sendo sorteado nesta rodada"
+                    data-tooltip="Prêmio sendo sorteado nesta rodada">
               {% if premios %}
                 {{ sorteio.nome|default:premios.0.nome|default:"A Definir" }}
               {% else %}
@@ -156,16 +202,19 @@
             <button type="button"
                     id="btnSorteio"
                     class="btn btn-light btn-lg rounded-pill px-5 py-3 text-verde-escuro fw-bold shadow-sm"
+                    title="{% if premios %}Iniciar giro da roleta de sorteio{% else %}Cadastre um prêmio antes de sortear{% endif %}"
+                    data-tooltip="{% if premios %}Iniciar giro da roleta de sorteio{% else %}Cadastre um prêmio antes de sortear{% endif %}"
                     {% if not premios %}disabled{% endif %}>
               <i class="bi bi-play-circle-fill me-2"></i>SORTEAR
             </button>
           </div>
         </div>
-
-        <!-- Histórico de Ganhadores -->
-        <div class="card card-custom overflow-hidden mt-4">
+<!-- Histórico de Ganhadores -->
+        <div class="card card-custom mt-4">
           <div class="card-header bg-light border-bottom py-3 px-4">
-            <span class="fw-bold text-verde-escuro small">
+            <span class="fw-bold text-verde-escuro small"
+                  title="Registro dos participantes já contemplados"
+                  data-tooltip="Registro dos participantes já contemplados">
               <i class="bi bi-trophy-fill text-warning me-1"></i> Ganhadores do Sorteio
             </span>
           </div>
@@ -190,10 +239,20 @@
     <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
       <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
         <div class="modal-header bg-verde-escuro text-white border-0 p-4">
-          <h5 class="modal-title fw-bold" id="modalPremiosLabel">
+          <h5 class="modal-title fw-bold" 
+              id="modalPremiosLabel"
+              title="Gerenciar Prêmios da Atividade"
+              data-tooltip="Gerenciar Prêmios da Atividade"
+              data-tooltip-pos="bottom">
             <i class="bi bi-gift-fill me-2"></i>Gerenciar Prêmios da Atividade
           </h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          <button type="button" 
+                  class="btn-close btn-close-white" 
+                  data-bs-dismiss="modal" 
+                  title="Fechar janela"
+                  data-tooltip="Fechar janela"
+                  data-tooltip-pos="bottom"
+                  aria-label="Fechar"></button>
         </div>
 
         <div class="modal-body p-4 bg-light">
@@ -207,14 +266,33 @@
             <div class="row g-2 align-items-end">
               <div class="col-md-7">
                 <label for="premio" class="form-label fw-bold small">Nome do Prêmio</label>
-                <input type="text" id="premio" name="premio" class="form-control" maxlength="120" required placeholder="Ex: Caneta, Caderno, Kit">
+                <input type="text" 
+                       id="premio" 
+                       name="premio" 
+                       class="form-control" 
+                       maxlength="120" 
+                       required 
+                       placeholder="Ex: Caneta, Caderno, Kit"
+                       title="Digite o nome ou descrição do prêmio">
               </div>
               <div class="col-md-3">
                 <label for="qtd_ganhadores" class="form-label fw-bold small">Quantidade</label>
-                <input type="number" id="qtd_ganhadores" name="qtd_ganhadores" class="form-control" value="1" min="1" required>
+                <input type="number" 
+                       id="qtd_ganhadores" 
+                       name="qtd_ganhadores" 
+                       class="form-control" 
+                       value="1" 
+                       min="1" 
+                       required
+                       title="Informe a quantidade de unidades deste prêmio">
               </div>
               <div class="col-md-2">
-                <button type="submit" class="btn btn-verde-escuro w-100 fw-bold">Cadastrar</button>
+                <button type="submit" 
+                        class="btn btn-verde-escuro w-100 fw-bold"
+                        title="Adicionar prêmio à lista do sorteio"
+                        data-tooltip="Adicionar prêmio à lista">
+                  Cadastrar
+                </button>
               </div>
             </div>
           </form>
@@ -224,11 +302,13 @@
             <i class="bi bi-list-ul me-1"></i> Prêmios Cadastrados
           </h6>
 
-          <div class="bg-white border rounded-3 overflow-hidden">
+          <div class="bg-white border rounded-3">
             <ul class="list-group list-group-flush">
               {% for p in premios %}
                 <li class="list-group-item d-flex align-items-center justify-content-between gap-2 flex-wrap py-3 px-3">
-                  <span class="fw-bold text-dark">
+                  <span class="fw-bold text-dark"
+                        title="{{ p.nome }}"
+                        data-tooltip="{{ p.nome }}">
                     <i class="bi bi-gift-fill text-verde-escuro me-2"></i>{{ p.nome }}
                   </span>
 
@@ -244,9 +324,14 @@
                              min="1"
                              class="form-control form-control-sm"
                              style="width: 70px;"
+                             title="Alterar quantidade de {{ p.nome }}"
                              aria-label="Quantidade de {{ p.nome }}"
                              required>
-                      <button type="submit" class="btn btn-sm btn-outline-verde-escuro rounded-pill px-2" title="Salvar nova quantidade" aria-label="Salvar nova quantidade de {{ p.nome }}">
+                      <button type="submit" 
+                              class="btn btn-sm btn-outline-verde-escuro rounded-pill px-2" 
+                              title="Salvar nova quantidade" 
+                              data-tooltip="Salvar nova quantidade"
+                              aria-label="Salvar nova quantidade de {{ p.nome }}">
                         <i class="bi bi-check-lg" aria-hidden="true"></i>
                       </button>
                     </form>
@@ -257,7 +342,8 @@
                       <input type="hidden" name="premio_index" value="{{ forloop.counter0 }}">
                       <button type="submit"
                               class="btn btn-sm btn-outline-danger rounded-pill px-2"
-                              title="Remover prêmio"
+                              title="Remover prêmio {{ p.nome }}"
+                              data-tooltip="Remover prêmio"
                               aria-label="Remover prêmio {{ p.nome }}">
                         <i class="bi bi-trash-fill" aria-hidden="true"></i>
                       </button>
@@ -276,7 +362,10 @@
             <form method="POST" action="" class="mt-3 text-end" data-confirm="Tem certeza que deseja apagar TODOS os prêmios desta atividade?">
               {% csrf_token %}
               <input type="hidden" name="action" value="clear_all">
-              <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+              <button type="submit" 
+                      class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                      title="Excluir todos os prêmios cadastrados"
+                      data-tooltip="Excluir todos os prêmios cadastrados">
                 <i class="bi bi-trash3-fill me-1"></i> Limpar Todos os Prêmios
               </button>
             </form>
@@ -284,7 +373,13 @@
         </div>
 
         <div class="modal-footer border-0 bg-white p-3">
-          <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Fechar</button>
+          <button type="button" 
+                  class="btn btn-outline-secondary btn-sm rounded-pill px-4" 
+                  data-bs-dismiss="modal"
+                  title="Fechar gerenciamento de prêmios"
+                  data-tooltip="Fechar gerenciamento">
+            Fechar
+          </button>
         </div>
       </div>
     </div>
@@ -328,6 +423,6 @@
     })();
   </script>
 
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" crossorigin="anonymous"></script>
+  <script src="{% static 'js/confetti.browser.min.js' %}" crossorigin="anonymous"></script>
   <script src="{% static 'js/sorteio_piao.js' %}"></script>
 {% endblock %}

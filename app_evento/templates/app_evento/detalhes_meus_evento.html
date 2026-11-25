@@ -12,25 +12,30 @@
 
     <!-- Navegação Superior -->
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
-      <a href="{% url 'app_evento:urldis_myevento' %}" class="btn btn-outline-verde-escuro px-4">
+      <a href="{% url 'app_evento:urldis_myevento' %}"
+         class="btn btn-outline-verde-escuro px-4"
+         data-tooltip="Retornar para a listagem dos seus eventos">
         <i class="bi bi-arrow-left me-1"></i> Voltar para Meus Eventos
       </a>
 
       {% if user.is_staff or user.is_superuser %}
-        <a href="{% url 'app_evento:urlcad_atividade' evento.id %}" class="btn btn-primary-custom rounded-pill px-4">
+        <a href="{% url 'app_evento:urlcad_atividade' evento.id %}"
+           class="btn btn-primary-custom rounded-pill px-4"
+           data-tooltip="Cadastrar uma nova atividade neste evento">
           <i class="bi bi-plus-circle me-1"></i> Nova Atividade
         </a>
       {% endif %}
     </div>
 
     <!-- Card Principal do Evento -->
-    <article class="card card-custom overflow-hidden mb-5">
+    <article class="card card-custom mb-5">
       <div class="row g-0 align-items-stretch">
 
         {% if evento.imagemBanner %}
           <div class="col-12 col-md-5 col-xl-4 evento-banner">
             <img src="{{ evento.imagemBanner.url }}"
                  alt="Banner do evento {{ evento.nome }}"
+                 title="Banner de {{ evento.nome }}"
                  loading="lazy">
           </div>
         {% endif %}
@@ -42,16 +47,18 @@
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
               <div>
                 <span class="text-verde-escuro fw-bold small text-uppercase d-block">Evento acadêmico</span>
-                <h1 class="h3 fw-bold text-dark mb-0">{{ evento.nome }}</h1>
+                <h1 class="h3 fw-bold text-dark mb-0" title="{{ evento.nome }}">{{ evento.nome }}</h1>
               </div>
 
               <div class="d-flex flex-wrap gap-2">
                 {% if evento.codigo_evento %}
-                  <span class="badge badge-verde-suave rounded-pill px-3 py-2 font-monospace" title="Código do Evento">
+                  <span class="badge badge-verde-suave rounded-pill px-3 py-2 font-monospace"
+                        data-tooltip="Código único de identificação do evento">
                     <i class="bi bi-key me-1"></i>Código do Evento: {{ evento.codigo_evento }}
                   </span>
                 {% endif %}
-                <span class="badge badge-verde-suave rounded-pill px-3 py-2">
+                <span class="badge badge-verde-suave rounded-pill px-3 py-2"
+                      data-tooltip="Categoria do evento">
                   {% firstof evento.get_tipoEvento_display evento.tipoEvento 'Evento' %}
                 </span>
               </div>
@@ -59,7 +66,7 @@
 
             <!-- Descrição -->
             {% if evento.descricao %}
-              <p class="text-muted small mb-4">{{ evento.descricao }}</p>
+              <p class="text-muted small mb-4" title="Descrição do evento">{{ evento.descricao }}</p>
             {% else %}
               <p class="text-muted fst-italic small mb-4">
                 Mais informações sobre este evento estão disponíveis nesta página.
@@ -68,7 +75,7 @@
 
             <!-- Grade com Detalhes -->
             <div class="row g-3 small mb-3">
-              <div class="col-12 col-sm-6">
+              <div class="col-12 col-sm-6" title="Início em {{ evento.dataInicio|date:'d/m/Y' }}">
                 <div class="d-flex align-items-start gap-2">
                   <i class="bi bi-calendar-event text-verde-escuro mt-1"></i>
                   <div>
@@ -78,7 +85,7 @@
                 </div>
               </div>
 
-              <div class="col-12 col-sm-6">
+              <div class="col-12 col-sm-6" title="Término em {{ evento.dataFim|date:'d/m/Y' }}">
                 <div class="d-flex align-items-start gap-2">
                   <i class="bi bi-calendar-check text-verde-escuro mt-1"></i>
                   <div>
@@ -88,7 +95,7 @@
                 </div>
               </div>
 
-              <div class="col-12 col-sm-6">
+              <div class="col-12 col-sm-6" title="Local: {{ evento.local|default:'A definir' }}">
                 <div class="d-flex align-items-start gap-2">
                   <i class="bi bi-geo-alt text-vermelho mt-1"></i>
                   <div>
@@ -99,7 +106,7 @@
               </div>
 
               {% if evento.emailContato %}
-                <div class="col-12 col-sm-6">
+                <div class="col-12 col-sm-6" title="E-mail de contato: {{ evento.emailContato }}">
                   <div class="d-flex align-items-start gap-2">
                     <i class="bi bi-envelope text-verde-escuro mt-1"></i>
                     <div>
@@ -119,7 +126,8 @@
                 </span>
                 <div class="d-flex flex-wrap gap-2">
                   {% for apoiador in evento.apoiadores.all %}
-                    <span class="badge bg-light text-dark border fw-medium py-2 px-3 rounded-pill">
+                    <span class="badge bg-light text-dark border fw-medium py-2 px-3 rounded-pill"
+                          title="Apoiador: {{ apoiador.nome }}">
                       {{ apoiador.nome }}
                     </span>
                   {% endfor %}
@@ -141,7 +149,8 @@
         </h2>
         <small class="text-muted">Gerencie presença, quizzes, sorteios e participantes de cada atividade.</small>
       </div>
-      <span class="badge badge-verde-suave rounded-pill px-3 py-2">
+      <span class="badge badge-verde-suave rounded-pill px-3 py-2"
+            data-tooltip="Total de atividades cadastradas neste evento">
         {{ atividades|length }} atividade{{ atividades|length|pluralize:"s" }}
       </span>
     </div>
@@ -150,7 +159,7 @@
     {% if atividades %}
       <div class="d-flex flex-column gap-3">
         {% for atividade in atividades %}
-          <article class="card card-custom overflow-hidden">
+          <article class="card card-custom">
             <div class="p-3 p-md-4">
 
               <!-- Topo da Atividade -->
@@ -159,11 +168,12 @@
                   <span class="text-verde-escuro fw-bold small text-uppercase d-block">
                     {% firstof atividade.get_tipoAtividade_display atividade.tipoAtividade 'Atividade' %}
                   </span>
-                  <h3 class="h5 fw-bold mb-0">{{ atividade.nome }}</h3>
+                  <h3 class="h5 fw-bold mb-0" title="{{ atividade.nome }}">{{ atividade.nome }}</h3>
                 </div>
 
                 {% if atividade.codigo_leitor %}
-                  <span class="badge badge-verde-suave rounded-pill px-3 py-2 font-monospace" title="Código do Leitor">
+                  <span class="badge badge-verde-suave rounded-pill px-3 py-2 font-monospace"
+                        data-tooltip="Código usado para registrar presença via leitor de QR Code">
                     <i class="bi bi-key me-1"></i>Código do Leitor: {{ atividade.codigo_leitor }}
                   </span>
                 {% endif %}
@@ -171,12 +181,12 @@
 
               <!-- Descrição da Atividade -->
               {% if atividade.descricao %}
-                <p class="text-muted small mb-3">{{ atividade.descricao }}</p>
+                <p class="text-muted small mb-3" title="Descrição da atividade">{{ atividade.descricao }}</p>
               {% endif %}
 
               <!-- Grade de Detalhes da Atividade -->
               <div class="row g-3 bg-light rounded-3 p-3 mx-0 mb-3 small">
-                <div class="col-12 col-sm-6 col-lg-3">
+                <div class="col-12 col-sm-6 col-lg-3" title="Início: {{ atividade.horaInicio|date:'d/m/Y H:i' }}">
                   <div class="d-flex align-items-start gap-2">
                     <i class="bi bi-calendar-event text-verde-escuro mt-1"></i>
                     <div>
@@ -186,7 +196,7 @@
                   </div>
                 </div>
 
-                <div class="col-12 col-sm-6 col-lg-3">
+                <div class="col-12 col-sm-6 col-lg-3" title="Término: {{ atividade.horaFim|date:'d/m/Y H:i' }}">
                   <div class="d-flex align-items-start gap-2">
                     <i class="bi bi-clock text-verde-escuro mt-1"></i>
                     <div>
@@ -196,7 +206,7 @@
                   </div>
                 </div>
 
-                <div class="col-12 col-sm-6 col-lg-3">
+                <div class="col-12 col-sm-6 col-lg-3" title="Local: {{ atividade.complementoLocal|default:'A definir' }}">
                   <div class="d-flex align-items-start gap-2">
                     <i class="bi bi-geo-alt text-vermelho mt-1"></i>
                     <div>
@@ -206,7 +216,7 @@
                   </div>
                 </div>
 
-                <div class="col-12 col-sm-6 col-lg-3">
+                <div class="col-12 col-sm-6 col-lg-3" title="Vagas ocupadas nesta atividade">
                   <div class="d-flex align-items-start gap-2">
                     <i class="bi bi-people text-verde-escuro mt-1"></i>
                     <div>
@@ -224,22 +234,26 @@
                 
                 <div class="d-flex flex-wrap gap-2">
                   <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}"
-                     class="btn btn-verde-escuro btn-sm px-3 py-2">
+                     class="btn btn-verde-escuro btn-sm px-3 py-2"
+                     data-tooltip="Abrir leitor de QR Code para registrar presenças">
                     <i class="bi bi-qr-code-scan me-1"></i> QR Code
                   </a>
 
                   <a href="{% url 'app_quiz:urlgerenciar_quizzes' atividade.id %}"
-                     class="btn btn-outline-verde-escuro btn-sm px-3 py-2">
+                     class="btn btn-outline-verde-escuro btn-sm px-3 py-2"
+                     data-tooltip="Criar e gerenciar quizzes desta atividade">
                     <i class="bi bi-controller me-1"></i> Quizzes
                   </a>
 
                   <a href="{% url 'app_evento:urlsorteio_atividade' atividade.id %}"
-                     class="btn btn-outline-verde-escuro btn-sm px-3 py-2">
+                     class="btn btn-outline-verde-escuro btn-sm px-3 py-2"
+                     data-tooltip="Realizar sorteios entre os participantes presentes">
                     <i class="bi bi-gift me-1"></i> Sorteio
                   </a>
 
                   <a href="{% url 'app_evento:urlgerenciar_participantes_atividade' evento.id atividade.id %}"
-                     class="btn btn-outline-verde-escuro btn-sm px-3 py-2">
+                     class="btn btn-outline-verde-escuro btn-sm px-3 py-2"
+                     data-tooltip="Visualizar e gerenciar inscritos nesta atividade">
                     <i class="bi bi-people-fill me-1"></i> Participantes
                   </a>
                 </div>
@@ -247,14 +261,16 @@
                 <!-- Ações de edição/exclusão -->
                 <div class="d-flex flex-wrap gap-2">
                   <a href="{% url 'app_evento:urleditar_atividade' atividade.id %}"
-                     class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2">
+                     class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2"
+                     data-tooltip="Editar informações desta atividade">
                     <i class="bi bi-pencil me-1"></i> Editar
                   </a>
 
                   <button type="button"
                           class="btn btn-secondary-custom btn-sm rounded-pill px-3 py-2"
                           data-bs-toggle="modal"
-                          data-bs-target="#modalExcluirAtividade{{ atividade.id }}">
+                          data-bs-target="#modalExcluirAtividade{{ atividade.id }}"
+                          data-tooltip="Excluir permanentemente esta atividade">
                     <i class="bi bi-trash me-1"></i> Excluir
                   </button>
                 </div>
@@ -271,18 +287,23 @@
                   <h5 class="modal-title fw-bold">
                     <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão
                   </h5>
-                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar" title="Fechar janela"></button>
                 </div>
                 <div class="modal-body text-start">
                   Tem certeza que deseja excluir a atividade <strong>{{ atividade.nome }}</strong>? Esta ação não poderá ser desfeita.
                 </div>
                 <div class="modal-footer bg-light border-0">
-                  <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">
+                  <button type="button"
+                          class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                          data-bs-dismiss="modal"
+                          title="Cancelar e manter a atividade">
                     Cancelar
                   </button>
                   <form method="POST" action="{% url 'app_evento:urlexcluir_atividade' atividade.id %}" class="d-inline">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-secondary-custom btn-sm rounded-pill px-3">
+                    <button type="submit"
+                            class="btn btn-secondary-custom btn-sm rounded-pill px-3"
+                            data-tooltip="Confirmar a exclusão definitiva desta atividade">
                       Excluir Atividade
                     </button>
                   </form>

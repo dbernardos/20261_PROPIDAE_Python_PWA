@@ -10,7 +10,7 @@
     <!-- Cabeçalho -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
       <div>
-        <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1">
+        <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1" title="Atividade selecionada">
           {{ atividade.nome }}
         </span>
         <h2 class="fw-bold text-dark mb-1">
@@ -23,12 +23,14 @@
 
       <div class="d-flex flex-wrap gap-2">
         <a href="{% url 'app_quiz:urlcad_quiz' atividade.id %}"
-           class="btn btn-verde-escuro btn-sm rounded-pill px-3">
+           class="btn btn-verde-escuro btn-sm rounded-pill px-3"
+           data-tooltip="Cadastrar um novo quiz ou desafio nesta atividade">
           <i class="bi bi-plus-circle me-1"></i> Criar Novo Quiz
         </a>
 
         <a href="{% url 'app_evento:urldet_myevento' evento.id %}"
-           class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+           class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+           data-tooltip="Retornar para os detalhes do evento e suas atividades">
           <i class="bi bi-arrow-left me-1"></i> Voltar
         </a>
       </div>
@@ -38,20 +40,21 @@
     {% if quizzes %}
       <div class="d-flex flex-column gap-3">
         {% for quiz in quizzes %}
-          <div class="card card-custom overflow-hidden">
+          <div class="card card-custom">
 
             <!-- Topo do Card -->
             <div class="p-3 p-md-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
 
               <!-- Informações do Desafio -->
               <div class="d-flex align-items-center gap-3">
-                <span class="badge badge-verde-suave border rounded-circle d-flex align-items-center justify-content-center fw-bold quiz-badge-num">
+                <span class="badge badge-verde-suave border rounded-circle d-flex align-items-center justify-content-center fw-bold quiz-badge-num"
+                      title="Número de ordem do desafio">
                   #{{ quiz.numero }}
                 </span>
 
                 <div>
-                  <h5 class="mb-1 fw-bold text-dark">{{ quiz.titulo }}</h5>
-                  <small class="text-muted d-block">
+                  <h5 class="mb-1 fw-bold text-dark" title="{{ quiz.titulo }}">{{ quiz.titulo }}</h5>
+                  <small class="text-muted d-block" title="Gabarito e total de respostas recebidas">
                     {% if quiz.tipo == 'MULTIPLA' %}
                       Gabarito: <strong class="text-dark">Alternativa {{ quiz.alternativa_correta }}</strong>
                     {% else %}
@@ -70,11 +73,13 @@
               <!-- Ações -->
               <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
                 {% if quiz.ativo %}
-                  <span class="badge badge-verde-suave border rounded-pill px-3 py-1 fw-semibold">
+                  <span class="badge badge-verde-suave border rounded-pill px-3 py-1 fw-semibold"
+                        data-tooltip="Quiz aberto para receber respostas dos participantes">
                     <i class="bi bi-check-circle-fill me-1"></i>Ativo
                   </span>
                 {% else %}
-                  <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-3 py-1 fw-semibold">
+                  <span class="badge bg-secondary-subtle text-secondary border rounded-pill px-3 py-1 fw-semibold"
+                        data-tooltip="Quiz pausado e indisponível para novas respostas">
                     Inativo
                   </span>
                 {% endif %}
@@ -86,7 +91,7 @@
                   <input type="hidden" name="acao" value="alternar_status">
                   <button type="submit"
                           class="btn btn-sm {% if quiz.ativo %}btn-outline-secondary{% else %}btn-outline-verde-escuro{% endif %} rounded-pill px-2"
-                          title="{% if quiz.ativo %}Pausar Quiz{% else %}Ativar Quiz{% endif %}">
+                          data-tooltip="{% if quiz.ativo %}Pausar este quiz{% else %}Ativar este quiz para respostas{% endif %}">
                     <i class="bi {% if quiz.ativo %}bi-pause-fill{% else %}bi-play-fill{% endif %}"></i>
                   </button>
                 </form>
@@ -94,7 +99,7 @@
                 <!-- Editar -->
                 <a href="{% url 'app_quiz:urleditar_quiz' quiz.id %}"
                    class="btn btn-sm btn-outline-verde-escuro rounded-pill px-2"
-                   title="Editar Quiz">
+                   data-tooltip="Editar perguntas e configurações deste quiz">
                   <i class="bi bi-pencil"></i>
                 </a>
 
@@ -103,7 +108,7 @@
                         class="btn btn-sm btn-outline-danger rounded-pill px-2"
                         data-bs-toggle="modal"
                         data-bs-target="#modalExcluir{{ quiz.id }}"
-                        title="Excluir Quiz">
+                        data-tooltip="Excluir permanentemente este quiz">
                   <i class="bi bi-trash"></i>
                 </button>
 
@@ -113,7 +118,8 @@
                         data-bs-toggle="collapse"
                         data-bs-target="#respostasQuiz{{ quiz.id }}"
                         aria-expanded="false"
-                        aria-controls="respostasQuiz{{ quiz.id }}">
+                        aria-controls="respostasQuiz{{ quiz.id }}"
+                        data-tooltip="Exibir ou ocultar a tabela de respostas enviadas">
                   <i class="bi bi-chevron-down me-1"></i> Respostas
                 </button>
               </div>
@@ -138,22 +144,25 @@
                         {% for resposta in quiz.respostas.all %}
                           {% with usuario_resp=resposta.participa.inscricao.usuario %}
                             <tr>
-                              <td class="ps-3 fw-semibold text-dark">
+                              <td class="ps-3 fw-semibold text-dark"
+                                  title="Participante: {{ usuario_resp.nome|default:usuario_resp.user_django.get_full_name|default:usuario_resp.user_django.username }}">
                                 {{ usuario_resp.nome|default:usuario_resp.user_django.get_full_name|default:usuario_resp.user_django.username }}
                               </td>
 
                               <td class="text-center font-monospace fw-bold">
                                 {% if resposta.participa.inscricao.cracha %}
-                                  <span class="badge badge-verde-suave border px-2 py-1 rounded text-nowrap">
+                                  <span class="badge badge-verde-suave border px-2 py-1 rounded text-nowrap"
+                                        title="Número do crachá do participante">
                                     {{ resposta.participa.inscricao.cracha }}
                                   </span>
                                 {% else %}
-                                  <span class="text-muted fw-normal">---</span>
+                                  <span class="text-muted fw-normal" title="Sem crachá registrado">---</span>
                                 {% endif %}
                               </td>
 
                               <td class="text-center small">
-                                <span class="badge bg-light text-dark border px-3 py-1 fw-normal">
+                                <span class="badge bg-light text-dark border px-3 py-1 fw-normal"
+                                      title="Resposta registrada pelo participante">
                                   {% if quiz.tipo == 'MULTIPLA' %}
                                     Alternativa {{ resposta.resposta_texto }}
                                   {% else %}
@@ -164,21 +173,25 @@
 
                               <td class="text-center">
                                 {% if resposta.status == 'certo' %}
-                                  <span class="badge bg-success rounded-pill px-3 py-1">
+                                  <span class="badge bg-success rounded-pill px-3 py-1"
+                                        title="Resposta exatamente igual ao gabarito">
                                     <i class="bi bi-bullseye me-1"></i> Exato
                                   </span>
                                 {% elif resposta.status == 'aproximado' %}
-                                  <span class="badge bg-warning text-dark rounded-pill px-3 py-1">
+                                  <span class="badge bg-warning text-dark rounded-pill px-3 py-1"
+                                        title="Resposta dentro da faixa aceitável">
                                     <i class="bi bi-check-circle me-1"></i> Aceitável
                                   </span>
                                 {% else %}
-                                  <span class="badge bg-danger rounded-pill px-3 py-1">
+                                  <span class="badge bg-danger rounded-pill px-3 py-1"
+                                        title="Resposta fora do gabarito esperado">
                                     <i class="bi bi-x-circle-fill me-1"></i> Errou
                                   </span>
                                 {% endif %}
                               </td>
 
-                              <td class="pe-3 text-end text-muted small">
+                              <td class="pe-3 text-end text-muted small"
+                                  title="Enviada em {{ resposta.data_resposta|date:'d/m/Y H:i' }}">
                                 {{ resposta.data_resposta|date:"d/m/Y H:i" }}
                               </td>
                             </tr>
@@ -208,7 +221,8 @@
         <p class="small mb-3">Esta atividade ainda não possui quizzes ou desafios cadastrados.</p>
         <div>
           <a href="{% url 'app_quiz:urlcad_quiz' atividade.id %}"
-             class="btn btn-verde-escuro btn-sm rounded-pill px-4">
+             class="btn btn-verde-escuro btn-sm rounded-pill px-4"
+             data-tooltip="Cadastrar o primeiro quiz desta atividade">
             <i class="bi bi-plus-circle me-1"></i> Criar Primeiro Quiz
           </a>
         </div>
@@ -226,7 +240,7 @@
             <h5 class="modal-title fw-bold">
               <i class="bi bi-exclamation-triangle-fill me-2"></i>Excluir Quiz
             </h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar" title="Fechar janela"></button>
           </div>
           <div class="modal-body text-center p-4">
             <i class="bi bi-trash text-vermelho fs-1 d-block mb-2"></i>
@@ -239,12 +253,21 @@
             </div>
           </div>
           <div class="modal-footer border-0 bg-light p-3">
-            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button"
+                    class="btn btn-outline-secondary btn-sm rounded-pill px-4"
+                    data-bs-dismiss="modal"
+                    title="Cancelar e manter o quiz">
+              Cancelar
+            </button>
             <form method="POST" action="{% url 'app_quiz:urlgerenciar_quizzes' atividade.id %}">
               {% csrf_token %}
               <input type="hidden" name="quiz_id" value="{{ quiz.id }}">
               <input type="hidden" name="acao" value="excluir">
-              <button type="submit" class="btn btn-danger btn-sm rounded-pill px-4">Sim, Excluir</button>
+              <button type="submit"
+                      class="btn btn-danger btn-sm rounded-pill px-4"
+                      data-tooltip="Confirmar a exclusão definitiva deste quiz e de suas respostas">
+                Sim, Excluir
+              </button>
             </form>
           </div>
         </div>

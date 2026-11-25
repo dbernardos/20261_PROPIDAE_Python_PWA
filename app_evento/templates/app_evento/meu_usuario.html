@@ -20,7 +20,7 @@
         </div>
 
         <!-- Card Principal -->
-        <div class="card card-custom overflow-hidden">
+        <div class="card card-custom">
 
           <!-- Abas -->
           <div class="card-header bg-light border-bottom p-3 px-4">
@@ -28,21 +28,24 @@
               <li class="nav-item" role="presentation">
                 <button class="nav-link rounded-pill px-3 py-1 small {% if not form.errors and not password_form.errors %}active{% endif %}"
                         id="dados-tab" data-bs-toggle="tab" data-bs-target="#tab-dados" type="button" role="tab"
-                        aria-controls="tab-dados" aria-selected="{% if not form.errors and not password_form.errors %}true{% else %}false{% endif %}">
+                        aria-controls="tab-dados" aria-selected="{% if not form.errors and not password_form.errors %}true{% else %}false{% endif %}"
+                        data-tooltip="Visualizar resumo do seu perfil">
                   <i class="bi bi-person me-1"></i> Meus Dados
                 </button>
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link rounded-pill px-3 py-1 small {% if form.errors %}active{% endif %}"
                         id="editar-tab" data-bs-toggle="tab" data-bs-target="#tab-editar" type="button" role="tab"
-                        aria-controls="tab-editar" aria-selected="{% if form.errors %}true{% else %}false{% endif %}">
+                        aria-controls="tab-editar" aria-selected="{% if form.errors %}true{% else %}false{% endif %}"
+                        data-tooltip="Atualizar informações pessoais e foto">
                   <i class="bi bi-pencil-square me-1"></i> Editar Perfil
                 </button>
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link rounded-pill px-3 py-1 small {% if password_form.errors and not form.errors %}active{% endif %}"
                         id="senha-tab" data-bs-toggle="tab" data-bs-target="#tab-senha" type="button" role="tab"
-                        aria-controls="tab-senha" aria-selected="{% if password_form.errors and not form.errors %}true{% else %}false{% endif %}">
+                        aria-controls="tab-senha" aria-selected="{% if password_form.errors and not form.errors %}true{% else %}false{% endif %}"
+                        data-tooltip="Alterar senha ou encerrar conta">
                   <i class="bi bi-key me-1"></i> Senha e Conta
                 </button>
               </li>
@@ -64,32 +67,36 @@
                         {% if usuario.fotoPerfil %}
                           <img src="{{ usuario.fotoPerfil.url }}"
                                alt="Foto de {{ usuario.nome|default:request.user.username }}"
+                               title="Foto de {{ usuario.nome|default:request.user.username }}"
                                class="perfil-avatar"
                                onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
-                          <div class="perfil-avatar-placeholder d-none">{{ inicial_usuario }}</div>
+                          <div class="perfil-avatar-placeholder d-none" title="Sem foto de perfil">{{ inicial_usuario }}</div>
                         {% else %}
-                          <div class="perfil-avatar-placeholder">
+                          <div class="perfil-avatar-placeholder" title="Sem foto de perfil">
                             {{ inicial_usuario }}
                           </div>
                         {% endif %}
                       </div>
 
                       <div>
-                        <h2 class="h4 text-verde-escuro fw-bold mb-1">{{ usuario.nome|default:"Não informado" }}</h2>
-                        <p class="text-muted small mb-2">
+                        <h2 class="h4 text-verde-escuro fw-bold mb-1" title="{{ usuario.nome|default:'Não informado' }}">{{ usuario.nome|default:"Não informado" }}</h2>
+                        <p class="text-muted small mb-2" title="Cargo: {{ usuario.cargo|default:'Não informado' }}">
                           <strong>Cargo:</strong> {{ usuario.cargo|default:"Não informado" }}
                         </p>
 
                         <div class="d-flex flex-wrap justify-content-center justify-content-sm-start gap-2">
                           {% if usuario.empresa %}
-                            <span class="badge bg-light text-dark border rounded-pill px-3 py-1">
+                            <span class="badge bg-light text-dark border rounded-pill px-3 py-1"
+                                  data-tooltip="Empresa ou instituição vinculada">
                               <i class="bi bi-building text-verde-escuro me-1"></i> {{ usuario.empresa }}
                             </span>
                           {% endif %}
-                          <span class="badge badge-verde-suave rounded-pill px-3 py-1">
+                          <span class="badge badge-verde-suave rounded-pill px-3 py-1"
+                                data-tooltip="Seu nível atual de engajamento no portal">
                             <i class="bi bi-shield-check me-1"></i> Nível {{ usuario.nivel|default:"1" }}
                           </span>
-                          <span class="badge badge-verde-suave rounded-pill px-3 py-1">
+                          <span class="badge badge-verde-suave rounded-pill px-3 py-1"
+                                data-tooltip="Total de pontos acumulados em eventos e atividades">
                             <i class="bi bi-star-fill me-1"></i> {{ usuario.pontos_totais|default:"0" }} pts
                           </span>
                         </div>
@@ -101,19 +108,22 @@
                   <div class="col-lg-5">
                     <div class="row g-2 text-center">
                       <div class="col-4">
-                        <div class="bg-light border rounded-3 p-2 p-sm-3 h-100">
+                        <div class="bg-light border rounded-3 p-2 p-sm-3 h-100"
+                             data-tooltip="Quantidade de eventos em que você participou">
                           <span class="h4 fw-bold text-verde-escuro d-block mb-0">{{ usuario.total_eventos_participados|default:"0" }}</span>
                           <span class="text-muted small">Eventos</span>
                         </div>
                       </div>
                       <div class="col-4">
-                        <div class="bg-light border rounded-3 p-2 p-sm-3 h-100">
+                        <div class="bg-light border rounded-3 p-2 p-sm-3 h-100"
+                             data-tooltip="Quantidade de atividades concluídas">
                           <span class="h4 fw-bold text-verde-escuro d-block mb-0">{{ usuario.total_atividades|default:"0" }}</span>
                           <span class="text-muted small">Atividades</span>
                         </div>
                       </div>
                       <div class="col-4">
-                        <div class="bg-light border rounded-3 p-2 p-sm-3 h-100">
+                        <div class="bg-light border rounded-3 p-2 p-sm-3 h-100"
+                             data-tooltip="Pontuação total acumulada no portal">
                           <span class="h4 fw-bold text-verde-escuro d-block mb-0">{{ usuario.pontos_totais|default:"0" }}</span>
                           <span class="text-muted small">Pontos</span>
                         </div>
@@ -128,7 +138,7 @@
 
                 <!-- Informações Detalhadas -->
                 <div class="row g-3 small">
-                  <div class="col-md-6">
+                  <div class="col-md-6" title="E-mail: {{ usuario.email|default:'Não informado' }}">
                     <div class="d-flex gap-2">
                       <i class="bi bi-envelope text-verde-escuro mt-1"></i>
                       <div>
@@ -138,7 +148,7 @@
                     </div>
                   </div>
 
-                  <div class="col-md-6">
+                  <div class="col-md-6" title="CPF: {{ usuario.cpf|default:'Não informado' }}">
                     <div class="d-flex gap-2">
                       <i class="bi bi-person-vcard text-verde-escuro mt-1"></i>
                       <div>
@@ -148,7 +158,7 @@
                     </div>
                   </div>
 
-                  <div class="col-md-6">
+                  <div class="col-md-6" title="Telefone: {{ usuario.telefone|default:'Não informado' }}">
                     <div class="d-flex gap-2">
                       <i class="bi bi-telephone text-verde-escuro mt-1"></i>
                       <div>
@@ -158,7 +168,7 @@
                     </div>
                   </div>
 
-                  <div class="col-md-6">
+                  <div class="col-md-6" title="Data de Nascimento: {% if usuario.dataNascimento %}{{ usuario.dataNascimento|date:'d/m/Y' }}{% else %}Não informada{% endif %}">
                     <div class="d-flex gap-2">
                       <i class="bi bi-calendar-event text-verde-escuro mt-1"></i>
                       <div>
@@ -170,7 +180,7 @@
                     </div>
                   </div>
 
-                  <div class="col-md-6">
+                  <div class="col-md-6" title="Formação Acadêmica: {{ usuario.formacao|default:'Não informada' }}">
                     <div class="d-flex gap-2">
                       <i class="bi bi-mortarboard text-verde-escuro mt-1"></i>
                       <div>
@@ -182,7 +192,7 @@
 
                   <div class="col-12 mt-3">
                     <span class="text-muted d-block mb-1">Biografia</span>
-                    <p class="p-3 bg-light rounded-3 border text-secondary mb-0">
+                    <p class="p-3 bg-light rounded-3 border text-secondary mb-0" title="Biografia do usuário">
                       {{ usuario.biografia|default:"Nenhuma biografia cadastrada." }}
                     </p>
                   </div>
@@ -210,62 +220,64 @@
 
                   <div class="row g-3">
                     <div class="col-md-6">
-                      <label for="{{ form.nome.id_for_label }}" class="form-label fw-bold small">Nome Completo</label>
+                      <label for="{{ form.nome.id_for_label }}" class="form-label fw-bold small" title="Seu nome completo para exibição e certificados">Nome Completo</label>
                       {{ form.nome }}
                       {% for error in form.nome.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
                     </div>
 
                     <div class="col-md-6">
-                      <label for="{{ form.email.id_for_label }}" class="form-label fw-bold small">E-mail</label>
+                      <label for="{{ form.email.id_for_label }}" class="form-label fw-bold small" title="E-mail utilizado para contato e notificações">E-mail</label>
                       {{ form.email }}
                       {% for error in form.email.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
                     </div>
 
                     <div class="col-md-6">
-                      <label for="{{ form.telefone.id_for_label }}" class="form-label fw-bold small">Telefone</label>
+                      <label for="{{ form.telefone.id_for_label }}" class="form-label fw-bold small" title="Telefone com DDD para contato">Telefone</label>
                       {{ form.telefone }}
                       {% for error in form.telefone.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
                     </div>
 
                     <div class="col-md-6">
-                      <label for="{{ form.dataNascimento.id_for_label }}" class="form-label fw-bold small">Data de Nascimento</label>
+                      <label for="{{ form.dataNascimento.id_for_label }}" class="form-label fw-bold small" title="Informe sua data de nascimento">Data de Nascimento</label>
                       {{ form.dataNascimento }}
                       {% for error in form.dataNascimento.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
                     </div>
 
                     <div class="col-md-6">
-                      <label for="{{ form.empresa.id_for_label }}" class="form-label fw-bold small">Empresa / Instituição</label>
+                      <label for="{{ form.empresa.id_for_label }}" class="form-label fw-bold small" title="Nome da empresa ou instituição onde trabalha/estuda">Empresa / Instituição</label>
                       {{ form.empresa }}
                       {% for error in form.empresa.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
                     </div>
 
                     <div class="col-md-6">
-                      <label for="{{ form.cargo.id_for_label }}" class="form-label fw-bold small">Cargo</label>
+                      <label for="{{ form.cargo.id_for_label }}" class="form-label fw-bold small" title="Seu cargo ou função atual">Cargo</label>
                       {{ form.cargo }}
                       {% for error in form.cargo.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
                     </div>
 
                     <div class="col-md-6">
-                      <label for="{{ form.formacao.id_for_label }}" class="form-label fw-bold small">Formação Acadêmica</label>
+                      <label for="{{ form.formacao.id_for_label }}" class="form-label fw-bold small" title="Sua escolaridade ou área de formação">Formação Acadêmica</label>
                       {{ form.formacao }}
                       {% for error in form.formacao.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
                     </div>
 
                     <div class="col-md-6">
-                      <label for="{{ form.fotoPerfil.id_for_label }}" class="form-label fw-bold small">Foto de Perfil (Máx. 2MB)</label>
+                      <label for="{{ form.fotoPerfil.id_for_label }}" class="form-label fw-bold small" title="Envie uma imagem JPG ou PNG de até 2MB">Foto de Perfil (Máx. 2MB)</label>
                       {{ form.fotoPerfil }}
                       {% for error in form.fotoPerfil.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
                     </div>
 
                     <div class="col-12">
-                      <label for="{{ form.biografia.id_for_label }}" class="form-label fw-bold small">Biografia</label>
+                      <label for="{{ form.biografia.id_for_label }}" class="form-label fw-bold small" title="Escreva um breve resumo sobre você">Biografia</label>
                       {{ form.biografia }}
                       {% for error in form.biografia.errors %}<div class="text-vermelho small mt-1">{{ error }}</div>{% endfor %}
                     </div>
                   </div>
 
                   <div class="d-flex justify-content-end mt-4">
-                    <button type="submit" class="btn btn-verde-escuro btn-sm px-4">
+                    <button type="submit"
+                            class="btn btn-verde-escuro btn-sm px-4"
+                            data-tooltip="Salvar as alterações feitas no seu perfil">
                       <i class="bi bi-check2 me-1"></i> Salvar Alterações
                     </button>
                   </div>
@@ -284,7 +296,9 @@
                   {% bootstrap_form password_form %}
 
                   <div class="d-flex justify-content-end mt-3">
-                    <button type="submit" class="btn btn-verde-escuro btn-sm px-4">
+                    <button type="submit"
+                            class="btn btn-verde-escuro btn-sm px-4"
+                            data-tooltip="Confirmar a alteração da sua senha de acesso">
                       Atualizar Senha
                     </button>
                   </div>
@@ -294,7 +308,11 @@
 
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                   <small class="text-muted">Deseja encerrar permanentemente seu acesso ao portal?</small>
-                  <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#modalExclusaoConta">
+                  <button type="button"
+                          class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                          data-bs-toggle="modal"
+                          data-bs-target="#modalExclusaoConta"
+                          data-tooltip="Abrir confirmação para exclusão permanente da conta">
                     <i class="bi bi-trash me-1"></i> Excluir minha conta
                   </button>
                 </div>
@@ -317,7 +335,7 @@
         <h5 class="modal-title fw-bold" id="modalExclusaoContaLabel">
           <i class="bi bi-exclamation-triangle-fill me-2"></i>Excluir Conta
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar" title="Fechar janela"></button>
       </div>
       <div class="modal-body p-4">
         <p class="mb-2">Tem certeza que deseja excluir sua conta permanentemente?</p>
@@ -326,11 +344,20 @@
         </p>
       </div>
       <div class="modal-footer bg-light">
-        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button"
+                class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                data-bs-dismiss="modal"
+                title="Cancelar e manter a conta ativa">
+          Cancelar
+        </button>
         <form method="post">
           {% csrf_token %}
           <input type="hidden" name="acao" value="excluir_conta">
-          <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3">Sim, excluir minha conta</button>
+          <button type="submit"
+                  class="btn btn-danger btn-sm rounded-pill px-3"
+                  data-tooltip="Apagar definitivamente sua conta e todos os dados">
+            Sim, excluir minha conta
+          </button>
         </form>
       </div>
     </div>

@@ -17,9 +17,10 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
       <div>
         <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-          <span class="text-verde-escuro fw-bold small text-uppercase">{{ evento.nome }}</span>
+          <span class="text-verde-escuro fw-bold small text-uppercase" title="Evento: {{ evento.nome }}">{{ evento.nome }}</span>
           {% if atividade %}
-            <span class="badge badge-verde-suave rounded-pill px-3 py-1">
+            <span class="badge badge-verde-suave rounded-pill px-3 py-1"
+                  data-tooltip="Listagem filtrada por esta atividade">
               <i class="bi bi-funnel-fill me-1"></i>{{ atividade.nome }}
             </span>
           {% endif %}
@@ -36,7 +37,7 @@
           Total {% if atividade %}nesta atividade{% else %}de inscritos{% endif %}:
           <strong class="text-dark">{{ participantes|length }}</strong>
           {% if max_pontos_possiveis > 0 %}
-            <span class="mx-2">•</span> Pontuação máxima: <strong class="text-dark">{{ max_pontos_possiveis }} pts</strong>
+            <span class="mx-2">•</span> Pontuação máxima: <strong class="text-dark" title="Máximo de pontos alcançáveis nos desafios">{{ max_pontos_possiveis }} pts</strong>
           {% endif %}
         </p>
       </div>
@@ -44,33 +45,35 @@
       <div class="d-flex flex-wrap gap-2">
         {% if atividade %}
           <a href="{% url 'app_evento:urlgerenciar_participantes' evento.id %}"
-             class="btn btn-outline-verde-escuro btn-sm rounded-pill px-3">
+             class="btn btn-outline-verde-escuro btn-sm rounded-pill px-3"
+             data-tooltip="Remover filtro e listar todos os inscritos do evento">
             <i class="bi bi-people me-1"></i> Ver Todos do Evento
           </a>
         {% endif %}
 
         <a href="{% url 'app_evento:urldet_myevento' evento.id %}"
-           class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+           class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+           data-tooltip="Retornar aos detalhes do evento">
           <i class="bi bi-arrow-left me-1"></i> Voltar
         </a>
       </div>
     </div>
 
     <!-- Card da Tabela -->
-    <div class="card card-custom overflow-hidden">
+    <div class="card card-custom">
       {% if participantes %}
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
             <thead class="table-light text-verde-escuro small text-uppercase border-bottom">
               <tr>
-                <th class="ps-4 py-3 text-center">#</th>
+                <th class="ps-4 py-3 text-center" title="Posição no ranking">#</th>
                 <th class="py-3">Participante</th>
-                <th class="py-3 text-center">Crachá</th>
+                <th class="py-3 text-center" title="Código identificador do crachá">Crachá</th>
                 {% if atividade %}
-                  <th class="py-3 text-center">Presença</th>
+                  <th class="py-3 text-center" title="Status de presença na atividade">Presença</th>
                 {% endif %}
-                <th class="py-3 text-center">Pontuação</th>
-                <th class="py-3 text-center">Inscrição</th>
+                <th class="py-3 text-center" title="Pontuação acumulada em desafios">Pontuação</th>
+                <th class="py-3 text-center" title="Data e hora da inscrição">Inscrição</th>
                 <th class="pe-4 py-3 text-end">Ações</th>
               </tr>
             </thead>
@@ -81,25 +84,29 @@
                     <!-- Posição no Ranking -->
                     <td class="ps-4 py-3 text-center">
                       {% if forloop.counter == 1 and inscricao.pontuacao_total > 0 %}
-                        <span class="rank-badge bg-warning text-dark" title="1º Lugar">
+                        <span class="rank-badge bg-warning text-dark"
+                              data-tooltip="1º Lugar no ranking">
                           <i class="bi bi-trophy-fill"></i>
                         </span>
                       {% elif forloop.counter == 2 and inscricao.pontuacao_total > 0 %}
-                        <span class="rank-badge bg-secondary text-white" title="2º Lugar">2º</span>
+                        <span class="rank-badge bg-secondary text-white"
+                              data-tooltip="2º Lugar no ranking">2º</span>
                       {% elif forloop.counter == 3 and inscricao.pontuacao_total > 0 %}
-                        <span class="rank-badge bg-light text-dark border" title="3º Lugar">3º</span>
+                        <span class="rank-badge bg-light text-dark border"
+                              data-tooltip="3º Lugar no ranking">3º</span>
                       {% else %}
-                        <span class="text-muted fw-semibold small">{{ forloop.counter }}º</span>
+                        <span class="text-muted fw-semibold small" title="{{ forloop.counter }}º lugar no ranking">{{ forloop.counter }}º</span>
                       {% endif %}
                     </td>
 
                     <!-- Foto, Nome e E-mail -->
                     <td class="py-3">
                       <div class="d-flex align-items-center gap-3">
-                        <div class="avatar-circle">
+                        <div class="avatar-circle" title="{{ nome_participante }}">
                           {% if inscricao.foto_perfil_url %}
                             <img src="{{ inscricao.foto_perfil_url }}"
                                  alt="Foto de {{ nome_participante }}"
+                                 title="Foto de {{ nome_participante }}"
                                  onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
                             <span class="d-none">{{ nome_participante|slice:":1"|upper }}</span>
                           {% else %}
@@ -110,10 +117,12 @@
                           <button type="button"
                                   class="btn btn-link p-0 text-start fw-bold text-dark text-decoration-none d-block"
                                   data-bs-toggle="modal"
-                                  data-bs-target="#modalDetalhes{{ inscricao.id }}">
+                                  data-bs-target="#modalDetalhes{{ inscricao.id }}"
+                                  title="Clique para abrir a ficha de {{ nome_participante }}">
                             {{ nome_participante }}
                           </button>
-                          <small class="text-muted d-block">
+                          <small class="text-muted d-block"
+                                 title="E-mail: {{ inscricao.usuario.email|default:inscricao.usuario.user_django.email|default:'Sem e-mail' }}">
                             {{ inscricao.usuario.email|default:inscricao.usuario.user_django.email|default:"Sem e-mail" }}
                           </small>
                         </div>
@@ -123,24 +132,27 @@
                     <!-- Crachá -->
                     <td class="text-center font-monospace fw-bold">
                       {% if inscricao.cracha %}
-                        <span class="badge badge-verde-suave border px-2 py-1 rounded text-nowrap">
+                        <span class="badge badge-verde-suave border px-2 py-1 rounded text-nowrap"
+                              data-tooltip="Código do crachá do participante">
                           {{ inscricao.cracha }}
                         </span>
                       {% else %}
-                        <span class="text-muted fw-normal">---</span>
+                        <span class="text-muted fw-normal" title="Crachá não definido">---</span>
                       {% endif %}
                     </td>
 
                     {% if atividade %}
                       <td class="text-center">
-                        <span class="badge {{ inscricao.presenca_info.classe }} border rounded-pill px-3 py-1 fw-semibold">
+                        <span class="badge {{ inscricao.presenca_info.classe }} border rounded-pill px-3 py-1 fw-semibold"
+                              data-tooltip="Situação de presença nesta atividade">
                           <i class="bi {{ inscricao.presenca_info.icone }} me-1"></i>{{ inscricao.presenca_info.texto }}
                         </span>
                       </td>
                     {% endif %}
 
                     <!-- Pontuação -->
-                    <td class="text-center">
+                    <td class="text-center"
+                        title="{{ inscricao.pontuacao_total }} pontos acumulados em {{ inscricao.total_respondidos }} desafio{{ inscricao.total_respondidos|pluralize }}">
                       <span class="fw-bold text-verde-escuro">{{ inscricao.pontuacao_total }}</span>
                       <small class="text-muted">pts</small>
                       <small class="text-muted d-block">
@@ -149,30 +161,38 @@
                     </td>
 
                     <!-- Data Inscrição -->
-                    <td class="text-center text-muted small">
+                    <td class="text-center text-muted small"
+                        title="Inscrito em {{ inscricao.dataHora|date:'d/m/Y' }} às {{ inscricao.dataHora|date:'H:i' }}">
                       {{ inscricao.dataHora|date:"d/m/Y H:i" }}
                     </td>
 
                     <!-- Ações -->
                     <td class="pe-4 text-end">
                       <div class="d-inline-flex gap-1">
-                        <button type="button" class="btn btn-sm btn-outline-verde-escuro rounded-pill px-3"
-                                data-bs-toggle="modal" data-bs-target="#modalDetalhes{{ inscricao.id }}"
-                                title="Ver Ficha Completa">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-verde-escuro rounded-pill px-3"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalDetalhes{{ inscricao.id }}"
+                                data-tooltip="Ver ficha completa e histórico de desafios">
                           <i class="bi bi-person-vcard me-1"></i> Ficha
                         </button>
 
                         {% if inscricao.pode_excluir %}
-                          <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3"
-                                  data-bs-toggle="modal" data-bs-target="#modalExcluir{{ inscricao.id }}"
-                                  title="Remover Participante">
+                          <button type="button"
+                                  class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                  data-bs-toggle="modal"
+                                  data-bs-target="#modalExcluir{{ inscricao.id }}"
+                                  data-tooltip="Remover inscrição deste participante">
                             <i class="bi bi-person-x me-1"></i> Excluir
                           </button>
                         {% else %}
-                          <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" disabled
-                                  title="Participante com presença registrada não pode ser removido">
-                            <i class="bi bi-lock me-1"></i> Excluir
-                          </button>
+                          <span class="d-inline-block"
+                                tabindex="0"
+                                data-tooltip="Participante com presença registrada não pode ser removido">
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" disabled>
+                              <i class="bi bi-lock me-1"></i> Excluir
+                            </button>
+                          </span>
                         {% endif %}
                       </div>
                     </td>
@@ -209,10 +229,11 @@
           <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
             <div class="modal-header bg-verde-escuro text-white border-0 p-4">
               <div class="d-flex align-items-center gap-3">
-                <div class="avatar-circle avatar-modal bg-white text-verde-escuro">
+                <div class="avatar-circle avatar-modal bg-white text-verde-escuro" title="{{ nome_participante }}">
                   {% if inscricao.foto_perfil_url %}
                     <img src="{{ inscricao.foto_perfil_url }}"
                          alt="Foto de {{ nome_participante }}"
+                         title="Foto de {{ nome_participante }}"
                          onerror="this.classList.add('d-none'); this.nextElementSibling.classList.remove('d-none');">
                     <span class="d-none">{{ nome_participante|slice:":1"|upper }}</span>
                   {% else %}
@@ -220,18 +241,19 @@
                   {% endif %}
                 </div>
                 <div>
-                  <h5 class="modal-title fw-bold mb-1" id="modalDetalhesLabel{{ inscricao.id }}">{{ nome_participante }}</h5>
+                  <h5 class="modal-title fw-bold mb-1" id="modalDetalhesLabel{{ inscricao.id }}" title="{{ nome_participante }}">{{ nome_participante }}</h5>
                   <div class="d-flex flex-wrap align-items-center gap-2 small">
-                    <span class="badge bg-warning text-dark rounded-pill px-3 fw-semibold">
+                    <span class="badge bg-warning text-dark rounded-pill px-3 fw-semibold"
+                          title="Nível atual de engajamento do usuário no portal">
                       <i class="bi bi-shield-fill me-1"></i>Nível {{ inscricao.nivel }}
                     </span>
                     {% if inscricao.usuario.user_django.username %}
-                      <span class="opacity-75">@{{ inscricao.usuario.user_django.username }}</span>
+                      <span class="opacity-75" title="Nome de usuário">@{{ inscricao.usuario.user_django.username }}</span>
                     {% endif %}
                   </div>
                 </div>
               </div>
-              <button type="button" class="btn-close btn-close-white align-self-start" data-bs-dismiss="modal" aria-label="Fechar"></button>
+              <button type="button" class="btn-close btn-close-white align-self-start" data-bs-dismiss="modal" aria-label="Fechar" title="Fechar janela"></button>
             </div>
 
             <div class="modal-body p-4 bg-light">
@@ -239,7 +261,8 @@
               <!-- Resumo de Desempenho -->
               <div class="row g-2 mb-4 text-center">
                 <div class="col-6 col-md-3">
-                  <div class="bg-white border rounded-3 p-3 h-100">
+                  <div class="bg-white border rounded-3 p-3 h-100"
+                       data-tooltip="Pontuação obtida {% if atividade %}nesta atividade{% else %}neste evento{% endif %}">
                     <span class="text-muted small d-block">
                       {% if atividade %}Pts na Atividade{% else %}Pts no Evento{% endif %}
                     </span>
@@ -248,21 +271,24 @@
                   </div>
                 </div>
                 <div class="col-6 col-md-3">
-                  <div class="bg-white border rounded-3 p-3 h-100">
+                  <div class="bg-white border rounded-3 p-3 h-100"
+                       data-tooltip="Nível e pontuação global no portal">
                     <span class="text-muted small d-block">Nível da Conta</span>
                     <strong class="fs-4 text-dark">{{ inscricao.nivel }}</strong>
                     <small class="text-muted d-block">{{ inscricao.pontos_globais }} pts totais</small>
                   </div>
                 </div>
                 <div class="col-6 col-md-3">
-                  <div class="bg-white border rounded-3 p-3 h-100">
+                  <div class="bg-white border rounded-3 p-3 h-100"
+                       data-tooltip="Total de desafios respondidos">
                     <span class="text-muted small d-block">Respondidos</span>
                     <strong class="fs-4 text-dark">{{ inscricao.total_respondidos }}</strong>
                     <small class="text-muted d-block">desafios</small>
                   </div>
                 </div>
                 <div class="col-6 col-md-3">
-                  <div class="bg-white border rounded-3 p-3 h-100">
+                  <div class="bg-white border rounded-3 p-3 h-100"
+                       data-tooltip="Respostas exatas e aproximadas">
                     <span class="text-muted small d-block">Acertos</span>
                     <strong class="fs-4 text-verde-escuro">{{ inscricao.acertos_exatos }}</strong>
                     <small class="text-muted d-block">+ {{ inscricao.aproximados }} aprox.</small>
@@ -276,29 +302,29 @@
               </h6>
               <div class="bg-white border rounded-3 p-3 mb-4">
                 <div class="row g-3 small">
-                  <div class="col-sm-6">
+                  <div class="col-sm-6" title="E-mail: {{ inscricao.usuario.email|default:inscricao.usuario.user_django.email|default:'Não informado' }}">
                     <span class="text-muted d-block">E-mail</span>
                     <strong class="text-dark">{{ inscricao.usuario.email|default:inscricao.usuario.user_django.email|default:"Não informado" }}</strong>
                   </div>
-                  <div class="col-sm-6">
+                  <div class="col-sm-6" title="Crachá: {{ inscricao.cracha|default:'Não definido' }}">
                     <span class="text-muted d-block">Crachá</span>
                     <strong class="text-verde-escuro font-monospace">{{ inscricao.cracha|default:"Não definido" }}</strong>
                   </div>
-                  <div class="col-sm-6">
+                  <div class="col-sm-6" title="Inscrito em {{ inscricao.dataHora|date:'d/m/Y' }} às {{ inscricao.dataHora|date:'H:i' }}">
                     <span class="text-muted d-block">Data de Inscrição</span>
                     <strong class="text-dark">{{ inscricao.dataHora|date:"d/m/Y H:i" }}</strong>
                   </div>
                   <div class="col-sm-6">
                     <span class="text-muted d-block">Status da Inscrição</span>
                     {% if inscricao.ativa %}
-                      <span class="badge badge-verde-suave border">Ativa</span>
+                      <span class="badge badge-verde-suave border" title="Inscrição ativa no evento">Ativa</span>
                     {% else %}
-                      <span class="badge bg-secondary-subtle text-secondary">Inativa</span>
+                      <span class="badge bg-secondary-subtle text-secondary" title="Inscrição inativa ou cancelada">Inativa</span>
                     {% endif %}
                   </div>
 
                   {% for item in inscricao.dados_completos %}
-                    <div class="{% if item.label == 'Biografia' %}col-12{% else %}col-sm-6{% endif %}">
+                    <div class="{% if item.label == 'Biografia' %}col-12{% else %}col-sm-6{% endif %}" title="{{ item.label }}: {{ item.valor }}">
                       <span class="text-muted d-block">{{ item.label }}</span>
                       <strong class="text-dark">{{ item.valor }}</strong>
                     </div>
@@ -326,12 +352,12 @@
                         {% for resp in inscricao.respostas_lista %}
                           <tr>
                             <td class="ps-3">
-                              <strong class="text-dark d-block small">#{{ resp.quiz.numero }} - {{ resp.quiz.titulo }}</strong>
+                              <strong class="text-dark d-block small" title="Desafio #{{ resp.quiz.numero }}: {{ resp.quiz.titulo }}">#{{ resp.quiz.numero }} - {{ resp.quiz.titulo }}</strong>
                               {% if not atividade %}
-                                <small class="text-muted">{{ resp.participa.atividade.nome }}</small>
+                                <small class="text-muted" title="Atividade: {{ resp.participa.atividade.nome }}">{{ resp.participa.atividade.nome }}</small>
                               {% endif %}
                             </td>
-                            <td class="text-center small">
+                            <td class="text-center small" title="Resposta enviada pelo participante">
                               {% if resp.quiz.tipo == 'MULTIPLA' %}
                                 Alt. {{ resp.resposta_texto }}
                               {% else %}
@@ -340,14 +366,14 @@
                             </td>
                             <td class="text-center">
                               {% if resp.status == 'certo' %}
-                                <span class="badge bg-success rounded-pill">Certo</span>
+                                <span class="badge bg-success rounded-pill" title="Resposta correta">Certo</span>
                               {% elif resp.status == 'aproximado' %}
-                                <span class="badge bg-warning text-dark rounded-pill">Aproximado</span>
+                                <span class="badge bg-warning text-dark rounded-pill" title="Resposta dentro da margem de aproximação">Aproximado</span>
                               {% else %}
-                                <span class="badge bg-danger rounded-pill">Errado</span>
+                                <span class="badge bg-danger rounded-pill" title="Resposta incorreta">Errado</span>
                               {% endif %}
                             </td>
-                            <td class="pe-3 text-end fw-bold text-verde-escuro small">
+                            <td class="pe-3 text-end fw-bold text-verde-escuro small" title="{{ resp.pontos_conquistados }} pontos conquistados">
                               +{{ resp.pontos_conquistados }}
                             </td>
                           </tr>
@@ -362,7 +388,12 @@
             </div>
 
             <div class="modal-footer border-0 bg-white p-3">
-              <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Fechar</button>
+              <button type="button"
+                      class="btn btn-outline-secondary btn-sm rounded-pill px-4"
+                      data-bs-dismiss="modal"
+                      title="Fechar ficha do participante">
+                Fechar
+              </button>
             </div>
           </div>
         </div>
@@ -377,7 +408,7 @@
                 <h5 class="modal-title fw-bold" id="modalExcluirLabel{{ inscricao.id }}">
                   <i class="bi bi-exclamation-triangle-fill me-2"></i>Remover Participante
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar" title="Fechar janela"></button>
               </div>
               <div class="modal-body text-center p-4">
                 <div class="avatar-circle avatar-modal mx-auto mb-3 text-vermelho bg-danger-subtle border-danger-subtle">
@@ -402,12 +433,21 @@
                 </div>
               </div>
               <div class="modal-footer border-0 bg-light p-3">
-                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button"
+                        class="btn btn-outline-secondary btn-sm rounded-pill px-4"
+                        data-bs-dismiss="modal"
+                        title="Cancelar e manter o participante inscrito">
+                  Cancelar
+                </button>
                 <form method="POST" action="{% if atividade %}{% url 'app_evento:urlgerenciar_participantes_atividade' evento.id atividade.id %}{% else %}{% url 'app_evento:urlgerenciar_participantes' evento.id %}{% endif %}">
                   {% csrf_token %}
                   <input type="hidden" name="inscricao_id" value="{{ inscricao.id }}">
                   <input type="hidden" name="acao" value="remover_participante">
-                  <button type="submit" class="btn btn-danger btn-sm rounded-pill px-4">Sim, Remover</button>
+                  <button type="submit"
+                          class="btn btn-danger btn-sm rounded-pill px-4"
+                          data-tooltip="Confirmar remoção definitiva do participante">
+                    Sim, Remover
+                  </button>
                 </form>
               </div>
             </div>

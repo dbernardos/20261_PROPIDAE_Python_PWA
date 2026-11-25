@@ -17,10 +17,12 @@
 
             <!-- Cabeçalho -->
             <div class="text-center mb-4">
-              <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1">
+              <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1"
+                    data-bs-toggle="tooltip"
+                    title="Sistema de Eventos Acadêmicos">
                 Sistema de Eventos Acadêmicos
               </span>
-              <h2 class="fw-bold text-dark mb-1">
+              <h2 class="fw-bold text-dark mb-1" title="Portal SEA Eventos">
                 Portal <span class="text-verde-escuro">SEA Eventos</span>
               </h2>
               <p class="text-muted small mb-0">
@@ -32,7 +34,10 @@
 
             <!-- Alerta de Erro -->
             {% if form.errors %}
-              <div class="alert alert-danger small text-center border-0 rounded-3 py-2 mb-3" role="alert">
+              <div class="alert alert-danger small text-center border-0 rounded-3 py-2 mb-3"      
+                   role="alert"
+                   data-bs-toggle="tooltip" 
+                   title="Erro na validação das credenciais">
                 <i class="bi bi-exclamation-circle-fill me-1"></i>
                 Usuário ou senha incorretos. Tente novamente.
               </div>
@@ -45,11 +50,15 @@
               {% bootstrap_form form %}
 
               <div class="d-grid gap-2 mt-4">
-                <button type="submit" class="btn btn-verde-escuro fw-semibold py-2">
+                <button type="submit" 
+                        class="btn btn-verde-escuro fw-semibold py-2" 
+                        data-bs-toggle="tooltip"
+                        title="Clique para entrar no sistema">
                   <i class="bi bi-box-arrow-in-right me-1"></i> Entrar
                 </button>
                 <a href="{% url 'app_login:urlcad_usuario' %}"
-                   class="btn btn-outline-secondary rounded-pill py-2">
+                   class="btn btn-outline-secondary rounded-pill py-2"
+                   title="Ir para a página de cadastro de usuário">
                   Cadastrar nova conta
                 </a>
               </div>

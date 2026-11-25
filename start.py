@@ -33,10 +33,13 @@ def main():
         executar([pip_venv, "install", "-r", "requirements.txt"])
     else:
         print("[Aviso] requirements.txt não encontrado. Instalando pacotes básicos...")
-        executar([pip_venv, "install", "django", "dj-database-url"])
+        executar([pip_venv, "install", "django", "dj-database-url", "qrcode"])
+    if os.path.exists("requirements-dev.txt"):
+        executar([pip_venv, "install", "-r", "requirements-dev.txt"])
+    else:
+        print("[Aviso] requirements.txt não encontrado. Instalando pacotes básicos...")
+        executar([pip_venv, "install", "django-debug-toolbar", "django-extensions"])
 
-    # Garante o dj-database-url caso tenha sido esquecido no requirements.txt
-    executar([pip_venv, "install", "dj-database-url"])
 
     # 3. Aplica as migrações do Django
     executar([python_venv, "manage.py", "makemigrations"])

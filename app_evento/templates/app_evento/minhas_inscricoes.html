@@ -16,12 +16,23 @@
         <!-- Cabeçalho -->
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
             <div>
-                <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1">Participação</span>
-                <h1 class="h2 fw-bold text-dark mb-1">Minhas <span class="text-verde-escuro">Inscrições</span></h1>
+                <span class="text-verde-escuro fw-bold small text-uppercase d-block mb-1"
+                      title="Área de participação do usuário"
+                      data-tooltip="Área de participação do usuário">
+                    Participação
+                </span>
+                <h1 class="h2 fw-bold text-dark mb-1"
+                    title="Minhas Inscrições"
+                    data-tooltip="Minhas Inscrições">
+                    Minhas <span class="text-verde-escuro">Inscrições</span>
+                </h1>
                 <p class="text-muted mb-0">Gerencie suas participações, acompanhe horários e acesse seus comprovantes e crachá.</p>
             </div>
 
-            <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-outline-verde-escuro px-4 align-self-start align-self-md-center">
+            <a href="{% url 'app_evento:urldis_evento' %}" 
+               class="btn btn-outline-verde-escuro px-4 align-self-start align-self-md-center"
+               title="Ver todos os eventos disponíveis para inscrição"
+               data-tooltip="Ver todos os eventos disponíveis">
                 <i class="bi bi-compass me-1"></i> Explorar Novos Eventos
             </a>
         </div>
@@ -30,7 +41,9 @@
             <!-- Resumo -->
             <div class="row g-3 mb-4">
                 <div class="col-12 col-sm-6 col-lg-6">
-                    <div class="card card-custom p-3 d-flex flex-row align-items-center gap-3">
+                    <div class="card card-custom p-3 d-flex flex-row align-items-center gap-3"
+                         title="Total de eventos em que você está inscrito"
+                         data-tooltip="Total de eventos em que você está inscrito">
                         <div class="badge badge-verde-suave rounded-3 p-3 fs-4">
                             <i class="bi bi-calendar-event"></i>
                         </div>
@@ -42,7 +55,9 @@
                 </div>
 
                 <div class="col-12 col-sm-6 col-lg-6">
-                    <div class="card card-custom p-3 d-flex flex-row align-items-center gap-3">
+                    <div class="card card-custom p-3 d-flex flex-row align-items-center gap-3"
+                         title="Total de atividades vinculadas às suas inscrições"
+                         data-tooltip="Total de atividades vinculadas às suas inscrições">
                         <div class="badge badge-verde-suave rounded-3 p-3 fs-4">
                             <i class="bi bi-list-check"></i>
                         </div>
@@ -59,30 +74,40 @@
                 {% for item in inscricoes %}
                     {% with participacoes=item.participa_set.all %}
                     <div class="col-12 inscricao-item">
-                        <div class="card card-custom overflow-hidden {% if item.evento.dataFim and item.evento.dataFim < hoje %}border-secondary border-opacity-50{% endif %}">
+                        <div class="card card-custom {% if item.evento.dataFim and item.evento.dataFim < hoje %}border-secondary border-opacity-50{% endif %}">
 
                             <div class="card-header card-header-custom d-flex justify-content-between align-items-center py-3 px-4 flex-wrap gap-2">
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <span class="badge bg-white text-verde-escuro rounded-pill px-3 py-1 text-uppercase">
+                                    <span class="badge bg-white text-verde-escuro rounded-pill px-3 py-1 text-uppercase"
+                                          title="Categoria do evento"
+                                          data-tooltip="Categoria do evento">
                                         {{ item.evento.get_tipoEvento_display|default:item.evento.tipoEvento }}
                                     </span>
 
                                     {% if not item.ativa %}
-                                        <span class="badge bg-danger text-white rounded-pill px-3 py-1">
+                                        <span class="badge bg-danger text-white rounded-pill px-3 py-1"
+                                              title="Esta inscrição foi cancelada ou desativada"
+                                              data-tooltip="Inscrição cancelada ou desativada">
                                             <i class="bi bi-x-circle-fill me-1"></i> Inscrição Inativa
                                         </span>
                                     {% elif item.evento.dataFim and item.evento.dataFim < hoje %}
-                                        <span class="badge bg-secondary text-white rounded-pill px-3 py-1">
+                                        <span class="badge bg-secondary text-white rounded-pill px-3 py-1"
+                                              title="O período deste evento já foi finalizado"
+                                              data-tooltip="O período deste evento já foi finalizado">
                                             <i class="bi bi-clock-history me-1"></i> Evento Encerrado
                                         </span>
                                     {% else %}
-                                        <span class="badge bg-verde-claro text-verde-escuro rounded-pill px-3 py-1">
+                                        <span class="badge bg-verde-claro text-verde-escuro rounded-pill px-3 py-1"
+                                              title="Sua inscrição está confirmada e ativa"
+                                              data-tooltip="Inscrição confirmada e ativa">
                                             <i class="bi bi-check-circle-fill me-1"></i> {{ item.status|default:"Ativa" }}
                                         </span>
                                     {% endif %}
                                 </div>
 
-                                <small class="text-white opacity-75">
+                                <small class="text-white opacity-75"
+                                       title="Data e hora em que a inscrição foi realizada"
+                                       data-tooltip="Data e hora da inscrição">
                                     <i class="bi bi-clock me-1"></i> Inscrito em {{ item.dataHora|date:'d/m/Y \à\s H:i' }}
                                 </small>
                             </div>
@@ -91,14 +116,18 @@
                                 <div class="row g-4 align-items-center mb-4">
                                     {% if item.evento.imagemBanner %}
                                         <div class="col-12 col-md-4 col-lg-3">
-                                            <div class="banner-evento-container">
+                                            <div class="banner-evento-container"
+                                                 title="Banner: {{ item.evento.nome }}"
+                                                 data-tooltip="{{ item.evento.nome }}">
                                                 <img src="{{ item.evento.imagemBanner.url }}" alt="{{ item.evento.nome }}" class="banner-evento-img" loading="lazy">
                                             </div>
                                         </div>
                                     {% endif %}
 
                                     <div class="{% if item.evento.imagemBanner %}col-12 col-md-8 col-lg-9{% else %}col-12{% endif %}">
-                                        <h2 class="h4 fw-bold text-verde-escuro mb-2">
+                                        <h2 class="h4 fw-bold text-verde-escuro mb-2"
+                                            title="{{ item.evento.nome }}"
+                                            data-tooltip="{{ item.evento.nome }}">
                                             {{ item.evento.nome }}
                                         </h2>
 
@@ -109,7 +138,9 @@
                                         <!-- Detalhes do evento (grade 2x2) -->
                                         <div class="row g-3 small">
                                             <div class="col-12 col-sm-6">
-                                                <div class="d-flex align-items-start gap-2">
+                                                <div class="d-flex align-items-start gap-2"
+                                                     title="Data de abertura do evento"
+                                                     data-tooltip="Data de abertura do evento">
                                                     <i class="bi bi-calendar-event text-verde-escuro mt-1"></i>
                                                     <div>
                                                         <span class="text-muted d-block">Data de início</span>
@@ -119,7 +150,9 @@
                                             </div>
 
                                             <div class="col-12 col-sm-6">
-                                                <div class="d-flex align-items-start gap-2">
+                                                <div class="d-flex align-items-start gap-2"
+                                                     title="Data de encerramento do evento"
+                                                     data-tooltip="Data de encerramento do evento">
                                                     <i class="bi bi-calendar-check text-verde-escuro mt-1"></i>
                                                     <div>
                                                         <span class="text-muted d-block">Data de término</span>
@@ -127,9 +160,10 @@
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            <div class="col-12 col-sm-6">
-                                                <div class="d-flex align-items-start gap-2">
+<div class="col-12 col-sm-6">
+                                                <div class="d-flex align-items-start gap-2"
+                                                     title="Local de realização do evento"
+                                                     data-tooltip="Local de realização do evento">
                                                     <i class="bi bi-geo-alt text-vermelho mt-1"></i>
                                                     <div>
                                                         <span class="text-muted d-block">Local</span>
@@ -140,7 +174,9 @@
 
                                             {% if item.evento.emailContato %}
                                                 <div class="col-12 col-sm-6">
-                                                    <div class="d-flex align-items-start gap-2">
+                                                    <div class="d-flex align-items-start gap-2"
+                                                         title="E-mail de contato da organização"
+                                                         data-tooltip="E-mail de contato da organização">
                                                         <i class="bi bi-envelope text-verde-escuro mt-1"></i>
                                                         <div>
                                                             <span class="text-muted d-block">Contato</span>
@@ -157,11 +193,15 @@
 
                                 <!-- Atividades inscritas -->
                                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                                    <h3 class="h5 fw-bold mb-0 text-verde-escuro">
+                                    <h3 class="h5 fw-bold mb-0 text-verde-escuro"
+                                        title="Atividades vinculadas à sua inscrição neste evento"
+                                        data-tooltip="Atividades vinculadas à sua inscrição">
                                         <i class="bi bi-list-check me-2 text-verde-claro"></i>Atividades Inscritas
                                     </h3>
 
-                                    <span class="badge badge-verde-suave rounded-pill px-3 py-2">
+                                    <span class="badge badge-verde-suave rounded-pill px-3 py-2"
+                                          title="Total de atividades selecionadas"
+                                          data-tooltip="Total de atividades selecionadas">
                                         {{ participacoes|length }} atividade{{ participacoes|length|pluralize }}
                                     </span>
                                 </div>
@@ -184,17 +224,24 @@
                                                     <tr>
                                                         <td class="align-middle fw-medium">
                                                             <i class="bi bi-calendar2-event text-verde-escuro me-2"></i>
-                                                            <span>{{ participa.atividade.nome }}</span>
+                                                            <span title="{{ participa.atividade.nome }}"
+                                                                  data-tooltip="{{ participa.atividade.nome }}">
+                                                                {{ participa.atividade.nome }}
+                                                            </span>
                                                         </td>
 
                                                         <td class="text-center align-middle">
-                                                            <span class="badge badge-verde-suave rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                            <span class="badge badge-verde-suave rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center"
+                                                                  title="Modalidade da atividade"
+                                                                  data-tooltip="Modalidade da atividade">
                                                                 <i class="bi bi-tag-fill me-1"></i> {{ participa.atividade.get_tipoAtividade_display|default:participa.atividade.tipoAtividade }}
                                                             </span>
                                                         </td>
 
                                                         <td class="align-middle">
-                                                            <div class="small">
+                                                            <div class="small"
+                                                                 title="Data e horário de início e término"
+                                                                 data-tooltip="Horário de início e término">
                                                                 <i class="bi bi-clock me-1 text-muted"></i>
                                                                 <span>{{ participa.atividade.horaInicio|date:'d/m/Y H:i' }}</span> -
                                                                 <span class="text-muted">{{ participa.atividade.horaFim|date:'H:i' }}</span>
@@ -202,7 +249,9 @@
                                                         </td>
 
                                                         <td class="align-middle">
-                                                            <span class="text-secondary small">
+                                                            <span class="text-secondary small"
+                                                                  title="Local específico da atividade"
+                                                                  data-tooltip="Local específico da atividade">
                                                                 <i class="bi bi-geo-alt me-1 text-vermelho"></i>
                                                                 {{ participa.atividade.complementoLocal|default:item.evento.local|default:'A definir' }}
                                                             </span>
@@ -210,41 +259,58 @@
 
                                                         <td class="text-center align-middle">
                                                             {% if participa.funcao == 'Palestrante' %}
-                                                                <span class="badge bg-verde-escuro text-white rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                                <span class="badge bg-verde-escuro text-white rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center"
+                                                                      title="Sua função nesta atividade: Palestrante"
+                                                                      data-tooltip="Sua função: Palestrante">
                                                                     <i class="bi bi-mic-fill me-1"></i> Palestrante
                                                                 </span>
                                                             {% elif participa.funcao == 'Organizador' %}
-                                                                <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                                <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center"
+                                                                      title="Sua função nesta atividade: Organizador"
+                                                                      data-tooltip="Sua função: Organizador">
                                                                     <i class="bi bi-star-fill me-1"></i> Organizador
                                                                 </span>
                                                             {% else %}
-                                                                <span class="badge bg-light text-dark border rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                                <span class="badge bg-light text-dark border rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center"
+                                                                      title="Sua função nesta atividade"
+                                                                      data-tooltip="Sua função nesta atividade">
                                                                     <i class="bi bi-person-fill me-1"></i> {{ participa.get_funcao_display|default:participa.funcao|default:'Participante' }}
                                                                 </span>
                                                             {% endif %}
                                                         </td>
 
                                                         <td class="text-center align-middle">
-                                                            {% if participa.atividade.horaFim and participa.atividade.horaFim < agora %}
-                                                                <span class="badge badge-verde-suave rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+         {% if participa.atividade.horaFim and participa.atividade.horaFim < agora %}
+                                                                <span class="badge badge-verde-suave rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center"
+                                                                      title="Esta atividade já foi encerrada"
+                                                                      data-tooltip="Atividade já encerrada">
                                                                     <i class="bi bi-check-circle-fill me-1"></i> Concluída
                                                                 </span>
                                                             {% elif participa.atividade.horaInicio and participa.atividade.horaFim and participa.atividade.horaInicio <= agora and participa.atividade.horaFim >= agora %}
-                                                                <span class="badge bg-verde-claro text-dark rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center">
+                                                                <span class="badge bg-verde-claro text-dark rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center"
+                                                                      title="Esta atividade está acontecendo agora"
+                                                                      data-tooltip="Atividade em andamento">
                                                                     <i class="bi bi-broadcast me-1"></i> Participando
                                                                 </span>
                                                             {% elif not item.ativa %}
-                                                                <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2 fw-semibold">
+                                                                <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2 fw-semibold"
+                                                                      title="Sua inscrição neste evento está inativa"
+                                                                      data-tooltip="Inscrição inativa">
                                                                     Inativa
                                                                 </span>
                                                             {% elif item.evento.dataFim and item.evento.dataFim < hoje %}
-                                                                <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2 fw-semibold">
+                                                                <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2 fw-semibold"
+                                                                      title="O evento já foi encerrado"
+                                                                      data-tooltip="Evento encerrado">
                                                                     Encerrado
                                                                 </span>
                                                             {% else %}
                                                                 <form action="{% url 'app_evento:urlparticipar_atividade' participa.atividade.id %}" method="POST" class="d-inline form-cancelar-atividade">
                                                                     {% csrf_token %}
-                                                                    <button type="submit" class="btn btn-secondary-custom btn-sm rounded-pill px-3 d-inline-flex align-items-center" title="Cancelar participação">
+                                                                    <button type="submit" 
+                                                                            class="btn btn-secondary-custom btn-sm rounded-pill px-3 d-inline-flex align-items-center" 
+                                                                            title="Cancelar participação nesta atividade"
+                                                                            data-tooltip="Cancelar participação">
                                                                         <i class="bi bi-x-circle me-1"></i> Cancelar
                                                                     </button>
                                                                 </form>
@@ -266,22 +332,32 @@
                             <div class="card-footer bg-light p-4">
                                 <div class="d-flex flex-column flex-sm-row align-items-center gap-3 gap-md-4 mb-3">
                                     {% if item.qrcode_imagem %}
-                                        <div class="qrcode-container-destaque">
+                                        <div class="qrcode-container-destaque"
+                                             title="QR Code de credenciamento: {{ item.cracha }}"
+                                             data-tooltip="QR Code de credenciamento">
                                             <img src="{{ item.qrcode_imagem.url }}" alt="QR Code {{ item.cracha }}" class="qrcode-thumb">
                                         </div>
                                     {% else %}
-                                        <div class="qrcode-indisponivel">
+                                        <div class="qrcode-indisponivel"
+                                             title="QR Code ainda não gerado para esta inscrição"
+                                             data-tooltip="QR Code indisponível">
                                             <i class="bi bi-qr-code fs-1 text-muted"></i>
                                             <small class="text-muted mt-1">Sem QR Code</small>
                                         </div>
                                     {% endif %}
 
                                     <div class="text-center text-sm-start">
-                                        <span class="badge badge-verde-suave rounded-pill px-3 py-1 mb-2 d-inline-block">
+                                        <span class="badge badge-verde-suave rounded-pill px-3 py-1 mb-2 d-inline-block"
+                                              title="Dados para acesso e registro de presença"
+                                              data-tooltip="Dados para acesso ao evento">
                                             Credenciamento
                                         </span>
                                         <p class="small text-muted text-uppercase mb-1 fw-bold">Código de Acesso</p>
-                                        <p class="font-monospace fw-bold text-verde-escuro fs-4 mb-2">{{ item.cracha|default:'---' }}</p>
+                                        <p class="font-monospace fw-bold text-verde-escuro fs-4 mb-2"
+                                           title="Seu código individual de credenciamento"
+                                           data-tooltip="Seu código individual de acesso">
+                                            {{ item.cracha|default:'---' }}
+                                        </p>
                                         <p class="text-secondary small mb-0 lh-base">
                                             <i class="bi bi-info-circle me-1 text-verde-escuro"></i>Aproxime este QR Code da câmera do totem de credenciamento ou digite o código alfanumérico para registrar sua entrada no evento.
                                         </p>
@@ -289,50 +365,87 @@
                                 </div>
 
                                 <div class="d-flex gap-2 flex-wrap justify-content-end pt-3 border-top">
-                                    <a href="{% url 'app_evento:urldet_evento' item.evento.id %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                                    <a href="{% url 'app_evento:urldet_evento' item.evento.id %}" 
+                                       class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                                       title="Ver programação completa e detalhes do evento"
+                                       data-tooltip="Ver detalhes do evento"
+                                       data-tooltip-pos="bottom">
                                         <i class="bi bi-eye me-1"></i> Detalhes
                                     </a>
 
-                                    <a href="{% url 'app_evento:urlcomprovante_inscricao' item.evento.id %}" class="btn btn-outline-verde-escuro btn-sm px-3">
+                                    <a href="{% url 'app_evento:urlcomprovante_inscricao' item.evento.id %}" 
+                                       class="btn btn-outline-verde-escuro btn-sm px-3"
+                                       title="Visualizar ou baixar seu comprovante de inscrição"
+                                       data-tooltip="Acessar comprovante de inscrição"
+                                       data-tooltip-pos="bottom">
                                         <i class="bi bi-file-earmark-check me-1"></i> Comprovante
                                     </a>
 
-                                    <button type="button" class="btn btn-verde-escuro btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalCracha{{ item.id }}">
+                                    <button type="button" 
+                                            class="btn btn-verde-escuro btn-sm px-3" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalCracha{{ item.id }}"
+                                            title="Abrir crachá digital em tela ampliada"
+                                            data-tooltip="Abrir crachá digital"
+                                            data-tooltip-pos="bottom">
                                         <i class="bi bi-qr-code-scan me-1"></i> Ver Crachá
                                     </button>
                                 </div>
                             </div>
 
                         </div>
-
                         <!-- Modal do crachá -->
                         <div class="modal fade modal-cracha" id="modalCracha{{ item.id }}" tabindex="-1" aria-labelledby="modalCrachaLabel{{ item.id }}" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content text-center border-0 shadow rounded-4 overflow-hidden">
                                     <div class="modal-header bg-verde-escuro text-white">
-                                        <h5 class="modal-title fw-bold" id="modalCrachaLabel{{ item.id }}">
+                                        <h5 class="modal-title fw-bold" 
+                                            id="modalCrachaLabel{{ item.id }}"
+                                            title="Crachá digital de identificação do participante"
+                                            data-tooltip="Crachá digital de identificação"
+                                            data-tooltip-pos="bottom">
                                             <i class="bi bi-person-badge me-2"></i> Crachá de Acesso
                                         </h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                        <button type="button" 
+                                                class="btn-close btn-close-white" 
+                                                data-bs-dismiss="modal" 
+                                                title="Fechar crachá"
+                                                data-tooltip="Fechar crachá"
+                                                data-tooltip-pos="bottom"
+                                                aria-label="Fechar"></button>
                                     </div>
 
                                     <div class="modal-body p-4 cracha-printable">
-                                        <h4 class="fw-bold text-dark mb-1">
+                                        <h4 class="fw-bold text-dark mb-1"
+                                            title="Nome do participante inscrito"
+                                            data-tooltip="Nome do participante inscrito">
                                             {{ item.usuario.nome|default:request.user.get_full_name|default:request.user.username }}
                                         </h4>
 
-                                        <p class="text-verde-escuro fw-semibold mb-3">
+                                        <p class="text-verde-escuro fw-semibold mb-3"
+                                           title="Evento vinculado a este crachá"
+                                           data-tooltip="Evento vinculado a este crachá">
                                             {{ item.evento.nome }}
                                         </p>
 
                                         <div class="p-3 bg-light rounded border d-inline-block mb-3 shadow-sm w-100 cracha-box">
                                             <p class="small text-muted text-uppercase mb-1 fw-bold">Código de Acesso</p>
-                                            <p class="font-monospace fw-bold text-verde-escuro mb-2 fs-4">{{ item.cracha|default:'---' }}</p>
+                                            <p class="font-monospace fw-bold text-verde-escuro mb-2 fs-4"
+                                               title="Código alfanumérico de credenciamento"
+                                               data-tooltip="Código de credenciamento">
+                                                {{ item.cracha|default:'---' }}
+                                            </p>
 
                                             {% if item.qrcode_imagem %}
-                                                <img src="{{ item.qrcode_imagem.url }}" alt="QR Code {{ item.cracha }}" class="img-fluid rounded shadow-sm qrcode-modal">
+                                                <span class="d-inline-block"
+                                                      title="QR Code para leitura no credenciamento"
+                                                      data-tooltip="QR Code para leitura no acesso">
+                                                    <img src="{{ item.qrcode_imagem.url }}" alt="QR Code {{ item.cracha }}" class="img-fluid rounded shadow-sm qrcode-modal">
+                                                </span>
                                             {% else %}
-                                                <div class="p-3 text-muted">
+                                                <div class="p-3 text-muted"
+                                                     title="QR Code ainda não gerado"
+                                                     data-tooltip="QR Code indisponível">
                                                     <i class="bi bi-qr-code fs-1 d-block mb-1"></i>
                                                     <small>QR Code não disponível</small>
                                                 </div>
@@ -343,13 +456,25 @@
                                     </div>
 
                                     <div class="modal-footer justify-content-center bg-light">
-                                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-dismiss="modal">Fechar</button>
+                                        <button type="button" 
+                                                class="btn btn-outline-secondary btn-sm rounded-pill px-3" 
+                                                data-bs-dismiss="modal"
+                                                title="Fechar visualização do crachá"
+                                                data-tooltip="Fechar crachá">
+                                            Fechar
+                                        </button>
 
-                                        <a href="{% url 'app_evento:urlcomprovante_inscricao' item.evento.id %}" class="btn btn-outline-verde-escuro btn-sm px-3">
+                                        <a href="{% url 'app_evento:urlcomprovante_inscricao' item.evento.id %}" 
+                                           class="btn btn-outline-verde-escuro btn-sm px-3"
+                                           title="Visualizar comprovante oficial de inscrição"
+                                           data-tooltip="Visualizar comprovante">
                                             <i class="bi bi-file-earmark-text me-1"></i> Ver Comprovante
                                         </a>
 
-                                        <button type="button" class="btn btn-verde-escuro btn-sm px-3 btn-imprimir-cracha">
+                                        <button type="button" 
+                                                class="btn btn-verde-escuro btn-sm px-3 btn-imprimir-cracha"
+                                                title="Imprimir ou salvar crachá em PDF"
+                                                data-tooltip="Imprimir crachá">
                                             <i class="bi bi-printer me-1"></i> Imprimir
                                         </button>
                                     </div>
@@ -368,7 +493,10 @@
                 <h2 class="h4 text-dark fw-semibold">Você ainda não possui inscrições.</h2>
                 <p class="text-muted mb-3">Explore a lista de eventos disponíveis e garanta a sua vaga!</p>
                 <div>
-                    <a href="{% url 'app_evento:urldis_evento' %}" class="btn btn-verde-escuro px-4">
+                    <a href="{% url 'app_evento:urldis_evento' %}" 
+                       class="btn btn-verde-escuro px-4"
+                       title="Explorar catálogo de eventos abertos"
+                       data-tooltip="Explorar eventos disponíveis">
                         <i class="bi bi-search me-1"></i> Ver Eventos Disponíveis
                     </a>
                 </div>
