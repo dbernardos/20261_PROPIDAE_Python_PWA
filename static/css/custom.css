@@ -1,4 +1,4 @@
-/*cores */
+/*cores principais do sistema*/
 :root {
     --verde-escuro: #1b5e3a;
     --verde-claro: #8cc63f;
@@ -34,8 +34,9 @@
 
 .navbar-dark .navbar-nav .nav-link:hover,
 .navbar-dark .navbar-nav .nav-link.active {
-    color: var(--branco);
-    background-color: rgba(255, 255, 255, 0.14);
+    background-color: rgba(140, 198, 63, 1);
+    color: var(--verde-escuro);
+
 }
 
 /* Main */
@@ -197,7 +198,7 @@ main {
     }
 }
 
-/* Respeita usuários que preferem menos movimento */
+/* Redução de movimento */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -245,7 +246,7 @@ textarea:focus-visible {
     outline-offset: 2px;
 }
 
-/*saudação do navBar*/
+/*saudação no navBar*/
 .nav-greeting {
     color: var(--branco);
     font-weight: 500;
@@ -263,10 +264,10 @@ textarea:focus-visible {
 }
 
 /* ==========================================================================
-   PADRONIZAÇÃO DE CATÁLOGO (EVENTOS E MEUS EVENTOS)
+   PADRONIZAÇÃO DE EVENTOS E MEUS EVENTOS
    ========================================================================== */
 
-/* Botões arredondados no verde-escuro */
+/* Botões arredondados em verde-escuro */
 .btn-verde-escuro {
     background-color: var(--verde-escuro);
     border: 1px solid var(--verde-escuro);
@@ -298,14 +299,14 @@ textarea:focus-visible {
     transform: translateY(-1px);
 }
 
-/* Etiqueta (tipo do evento e contador) */
+/* Etiqueta com tipo do evento */
 .badge-verde-suave {
     background-color: #edf5ef;
     color: var(--verde-escuro);
     border: 1px solid #d5e6da;
     font-weight: 600;
 }
-/* Banner lateral dos cards de evento (imagem 4:3) */
+/* Banner na lateral dos cards de evento (com imagem 4:3) */
 .evento-banner {
     background-color: #f4f7f5;
     display: flex;

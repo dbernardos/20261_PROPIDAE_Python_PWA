@@ -5,34 +5,37 @@ import dj_database_url
 # SETTINGS do SEA.
 # -----------------------------------------------
 
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Segurança e Ambiente
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',
+    'django-insecure-9q#0(2@c0a%f%4quo!ea(d6u2u=zjt64cjq4wvvgd!qrgf^#g3',
+)
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+USE_HTTPS = os.environ.get('USE_HTTPS', str(not DEBUG)) == 'True'
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9q#0(2@c0a%f%4quo!ea(d6u2u=zjt64cjq4wvvgd!qrgf^#g3'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
-# Permite que o Django responda às requisições do ngrok e outros
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'portalseaeventos.com.br', '//portalseaeventos.com.br','*']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'portalseaeventos.com.br',
+    'www.portalseaeventos.com.br',
+    '.ngrok-free.app',
+    '.ngrok-free.dev',
+    '.ngrok.io',
+]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://*.ngrok-free.app', 
-    'https://*.ngrok.io', 
-    'https://tipping-skipping-dangle.ngrok-free.dev', 
-    'https://tipping-skipping-dangle.ngrok.io',
+    'https://*.ngrok-free.app',
+    'https://*.ngrok-free.dev',
+    'https://*.ngrok.io',
     'https://portalseaeventos.com.br',
     'https://www.portalseaeventos.com.br',
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+# Aplicações
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,15 +43,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+  
     'app_login',
     'app_evento',
     'app_quiz',
+  
     'django_bootstrap5',
-   # 'pwa',
-    'django_extensions',
     'smart_selects',
-    'django_user_agents'
+    'django_user_agents',
 ]
+
+if DEBUG:
+    INSTALLED_APPS += ['django_extensions']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -63,6 +69,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'SEA.urls'
+WSGI_APPLICATION = 'SEA.wsgi.application'
 
 TEMPLATES = [
     {
@@ -81,12 +88,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'SEA.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
+# Banco de Dados
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -100,73 +102,50 @@ if os.environ.get('DATABASE_URL'):
         conn_health_checks=True,
     )
 
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-
+# Validação de Senha
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
+# Internacionalização
 LANGUAGE_CODE = 'pt-br'
-
 TIME_ZONE = 'America/Sao_Paulo'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-# Configurações de arquivos estáticos (CSS, JS, Imagens do sistema)
+# Arquivos Estáticos e Mídia
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Configurações de arquivos de mídia (Uploads como a Foto de Perfil)
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
+
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+# Autenticação, Sessão e Cookies
+LOGIN_URL = 'app_login:urllogin'
+LOGIN_REDIRECT_URL = 'app_evento:urldis_evento'
+LOGOUT_REDIRECT_URL = 'app_login:urllogin'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'  
-
-# URL para onde o usuário será enviado se tentar acessar uma página restrita
-LOGIN_URL = "app_login:urllogin"
-
-# URL para onde o usuário vai DEPOIS de fazer o login com sucesso
-LOGIN_REDIRECT_URL = "app_evento:urldis_evento"
-LOGOUT_REDIRECT_URL = "app_login:urllogin"
 CSRF_USE_SESSIONS = True
-
-
-# Ative estas configurações se estiver navegando pela URL HTTPS do Ngrok
-CSRF_COOKIE_SECURE = True  # True se estiver usando HTTPS no Ngrok
-SESSION_COOKIE_SECURE = True  #True se estiver usando HTTPS no Ngrok
-
-# Garante que o navegador no celular aceite o cookie de origem cruzada/túnel
+CSRF_COOKIE_SECURE = USE_HTTPS
+SESSION_COOKIE_SECURE = USE_HTTPS
 CSRF_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SAMESITE = 'Lax'
 
-SESSION_COOKIE_AGE = 1800  # Expira após 1800 segundos (que são 30 min de inatividade)
-SESSION_SAVE_EVERY_REQUEST = True  # Recomeça o tempo a cada clique
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Desloga se fechar o navegador
+SESSION_COOKIE_AGE = 1800  # 30 minutos de inatividade
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

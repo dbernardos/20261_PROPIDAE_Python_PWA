@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
@@ -8,7 +7,7 @@
     <meta name="theme-color" content="#0a3a25" />
     <meta name="description" content="Portal SEA Eventos - Sistema de Eventos Acadêmicos" />
 
-    <!-- PWA Manifest -->
+    <!-- Manifesto PWA -->
     <link rel="manifest" href="{% static 'manifest.json' %}" crossorigin="use-credentials" />
 
     <meta name="mobile-web-app-capable" content="yes" />
@@ -38,7 +37,11 @@
     {% block pre_script %}{% endblock %}
   </head>
 
-  <body class="d-flex flex-column min-vh-100">
+  <body class="d-flex flex-column min-vh-100"
+      {% if request.user.is_authenticated %}
+        data-session-timeout="{{ SESSION_COOKIE_AGE|default:3600 }}"
+        data-login-url="{% url 'app_login:urllogin' %}"
+      {% endif %}>
     <!-- Cabeçalho -->
     <header class="site-header">
       <nav class="navbar navbar-expand-lg navbar-dark">
@@ -53,7 +56,7 @@
 
             {% if request.user.is_authenticated %}
               <div class="nav-greeting">
-                <p class="m-0">Olá, {{ user.first_name.split.0|default:user.username }}!</p>
+                <p class="m-0">Olá, {{ request.user.first_name.split.0|default:request.user.username }}!</p>
               </div>
             {% endif %}
           </div>
@@ -69,63 +72,71 @@
           </button>
 
           <div class="collapse navbar-collapse" id="navbarMain">
-            <ul class="navbar-nav ms-auto align-items-lg-center mb-2 mb-lg-0 gap-1 gap-lg-2 pt-2 pt-lg-0">
+            {% with url_name=request.resolver_match.url_name|default:'' %}
+              <ul class="navbar-nav ms-auto align-items-lg-center mb-2 mb-lg-0 gap-1 gap-lg-2 pt-2 pt-lg-0">
 
-              <li class="nav-item">
-                
-                <a class="nav-link rounded-pill px-3 {% if request.resolver_match.url_name == 'urldis_evento' %}active{% endif %}"
-                   aria-current="page"
-                   href="{% url 'app_evento:urldis_evento' %}">
-                  <i class="bi bi-house-door me-1"></i>Início
-                </a>
-              </li>
+                <li class="nav-item">
+                  <a class="nav-link rounded-pill px-3 {% if url_name == 'urldis_evento' %}active{% endif %}"
+                     {% if url_name == 'urldis_evento' %}aria-current="page"{% endif %}
+                     href="{% url 'app_evento:urldis_evento' %}">
+                    <i class="bi bi-house-door me-1"></i>Início
+                  </a>
+                </li>
 
-              {% if request.user.is_authenticated %}
-                {% if request.user.is_staff %}
+                {% if request.user.is_authenticated %}
+                  {% if request.user.is_staff %}
+                    <li class="nav-item">
+                      <a class="nav-link rounded-pill px-3 {% if 'myevento' in url_name %}active{% endif %}"
+                         {% if 'myevento' in url_name %}aria-current="page"{% endif %}
+                         href="{% url 'app_evento:urldis_myevento' %}">
+                        Meus Eventos
+                      </a>
+                    </li>
+                  {% endif %}
+
                   <li class="nav-item">
-                    <a class="nav-link rounded-pill px-3 {% if 'myevento' in request.resolver_match.url_name %}active{% endif %}"
-                       href="{% url 'app_evento:urldis_myevento' %}">
-                      Meus Eventos
+                    <a class="nav-link rounded-pill px-3 {% if 'inscricoes' in url_name %}active{% endif %}"
+                       {% if 'inscricoes' in url_name %}aria-current="page"{% endif %}
+                       href="{% url 'app_evento:urlminhas_inscricoes' %}">
+                      Inscrições
+                    </a>
+                  </li>
+
+                  <li class="nav-item">
+                    <a class="nav-link rounded-pill px-3 {% if 'usuario' in url_name %}active{% endif %}"
+                       {% if 'usuario' in url_name %}aria-current="page"{% endif %}
+                       href="{% url 'app_login:urlmeu_usuario' %}">
+                      Meu Perfil
+                    </a>
+                  </li>
+
+                  <li class="nav-item">
+                    <form method="POST" action="{% url 'app_login:urllogout' %}" autocomplete="off" class="m-0">
+                      {% csrf_token %}
+                      <button type="submit" class="nav-link rounded-pill px-3 btn btn-link text-decoration-none w-100 text-start">
+                        <i class="bi bi-box-arrow-right me-1"></i> Sair
+                      </button>
+                    </form>
+                  </li>
+                {% else %}
+                  <li class="nav-item">
+                    <a class="nav-link rounded-pill px-3 {% if 'login' in url_name %}active{% endif %}"
+                       {% if 'login' in url_name %}aria-current="page"{% endif %}
+                       href="{% url 'app_login:urllogin' %}">
+                      <i class="bi bi-box-arrow-in-right me-1"></i> Entrar
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link rounded-pill px-3 {% if url_name == 'urlpwa_home' %}active{% endif %}"
+                       {% if url_name == 'urlpwa_home' %}aria-current="page"{% endif %}
+                       href="{% url 'app_evento:urlpwa_home' %}">
+                      <i class="bi bi-qr-code-scan me-1"></i> Acessar Evento
                     </a>
                   </li>
                 {% endif %}
 
-                <li class="nav-item">
-                  <a class="nav-link rounded-pill px-3 {% if 'inscricoes' in request.resolver_match.url_name %}active{% endif %}"
-                     href="{% url 'app_evento:urlminhas_inscricoes' %}">
-                    Inscrições
-                  </a>
-                </li>
-
-                <li class="nav-item">
-                  <a class="nav-link rounded-pill px-3 {% if 'usuario' in request.resolver_match.url_name %}active{% endif %}"
-                     href="{% url 'app_login:urlmeu_usuario' %}">
-                    Meu Perfil
-                  </a>
-                </li>
-
-                <li class="nav-item">
-                  <form method="POST" action="{% url 'app_login:urllogout' %}" autocomplete="off" class="m-0">
-                    {% csrf_token %}
-                    <button type="submit" class="nav-link rounded-pill px-3 btn btn-link text-decoration-none w-100 text-start">
-                      <i class="bi bi-box-arrow-right me-1"></i> Sair
-                    </button>
-                  </form>
-                </li>
-              {% else %}
-                <li class="nav-item">
-                  <a class="nav-link rounded-pill px-3 {% if 'login' in request.resolver_match.url_name %}active{% endif %}"
-                     href="{% url 'app_login:urllogin' %}">
-                    <i class="bi bi-box-arrow-in-right me-1"></i> Entrar
-                  </a>
-                </li>
-                <li>
-                  <a href="{% url 'app_evento:urlpwa_home' %}" class="nav-link rounded-pill px-3">
-                    <i class="bi bi-qr-code-scan me-1"></i> Acessar Evento
-                  </a>
-                </li>
-              {% endif %}
-            </ul>
+              </ul>
+            {% endwith %}
           </div>
 
         </div>
@@ -160,7 +171,7 @@
             <p class="text-white-50 small mb-0">
               <i class="bi bi-geo-alt-fill me-1"></i>IFSC - RAU | <i class="bi bi-calendar-event me-1"></i>{% now 'Y' %}<br />
               <i class="bi bi-envelope-fill me-1"></i>contato@portalseaeventos.com.br<br />
-              <i class="bi bi-telephone-fill me-1"></i>(47) 99766-9819
+              <i class="bi bi-telephone-fill me-1"></i>(47) 99762-8922
             </p>
           </div>
 
@@ -203,7 +214,7 @@
                   <a href="{% url 'app_login:urllogin' %}" class="text-white-50 text-decoration-none link-light">Entrar</a>
                 </li>
                 <li>
-                  <a href="{% url 'app_evento:urlpwa_home' %}" class="text-white-50 text-decoration-none link-light">Encontrar Evento</a>
+                  <a href="{% url 'app_evento:urlpwa_home' %}" class="text-white-50 text-decoration-none link-light">Acessar Evento</a>
                 </li>
               {% endif %}
             </ul>
@@ -250,92 +261,7 @@
     <!-- Scripts Globais -->
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/sw-registro.js' %}"></script>
-
-    {% if user.is_authenticated %}
-      <script>
-        (function () {
-          const tempoLimite = Number("{{ SESSION_COOKIE_AGE|default:3600 }}") * 1000;
-          if (tempoLimite > 0) {
-            setTimeout(function () {
-              alert("Sua sessão expirou após inatividade. Faça login novamente.");
-              window.location.replace("{% url 'app_login:urllogin' %}?expirado=1&t=" + Date.now());
-            }, tempoLimite);
-          }
-        })();
-      </script>
-    {% endif %}
-
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        // Marca labels de campos obrigatórios
-        document.querySelectorAll('input[required], select[required], textarea[required]').forEach((input) => {
-          if (!input.id) return;
-          const label = document.querySelector(`label[for="${input.id}"]`);
-          if (label) {
-            label.classList.add('required');
-          }
-        });
-
-        // Destaca o link ativo apenas na barra de navegação
-        document.querySelectorAll('header .nav-link').forEach((link) => {
-          if (link.pathname && window.location.pathname === link.pathname) {
-            link.classList.add('active');
-          }
-        });
-
-        // Botão de mostrar/ocultar senha
-        document.querySelectorAll('input[type="password"]').forEach((input) => {
-          if (input.parentElement && input.parentElement.classList.contains('input-group')) return;
-
-          const group = document.createElement('div');
-          group.className = 'input-group';
-          input.parentNode.insertBefore(group, input);
-          group.appendChild(input);
-
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'btn btn-outline-secondary';
-          btn.setAttribute('aria-label', 'Mostrar ou ocultar senha');
-          btn.innerHTML = '<i class="bi bi-eye"></i>';
-          btn.addEventListener('click', () => {
-            const oculto = input.type === 'password';
-            input.type = oculto ? 'text' : 'password';
-            btn.innerHTML = `<i class="bi bi-eye${oculto ? '-slash' : ''}"></i>`;
-          });
-          group.appendChild(btn);
-        });
-
-        // Máscara de CPF: 000.000.000-00
-        document.querySelectorAll('input[name$="cpf"]').forEach((input) => {
-          input.maxLength = 14;
-          input.addEventListener('input', (e) => {
-            let v = e.target.value.replace(/\D/g, '').slice(0, 11);
-            v = v.replace(/(\d{3})(\d)/, '$1.$2');
-            v = v.replace(/(\d{3})(\d)/, '$1.$2');
-            v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-            e.target.value = v;
-          });
-        });
-
-        //Máscara de Telefone: (00) 00000-0000 ou (00) 0000-0000
-        document.querySelectorAll('input[name$="telefone"]').forEach((input) => {
-          input.maxLength = 15;
-          input.addEventListener('input', (e) => {
-            let v = e.target.value.replace(/\D/g, '').slice(0, 11);
-            if (v.length > 10) {
-              v = v.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
-            } else if (v.length > 6) {
-              v = v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
-            } else if (v.length > 2) {
-              v = v.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
-            } else if (v.length > 0) {
-              v = v.replace(/^(\d*)/, '($1');
-            }
-            e.target.value = v;
-          });
-        });
-      });
-    </script>
+    <script src="{% static 'js/base.js' %}"></script>
 
     {% block extra_js %}{% endblock %}
   </body>

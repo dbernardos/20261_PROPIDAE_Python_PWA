@@ -1,9 +1,9 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-pwa-home-url="{% url 'app_evento:urlpwa_home' %}">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0a3a25" />
     <meta name="description" content="Portal SEA Eventos - Sistema de Eventos Acadêmicos" />
 
@@ -35,191 +35,15 @@
     <!-- CSS PWA -->
     <link rel="stylesheet" href="{% static 'css/pwa.css' %}" />
 
+
     {% block extra_css %}{% endblock %}
     {% block pre_script %}{% endblock %}
 
-  <script>
-      (function () {
-        const urlHome = "{% url 'app_evento:urlpwa_home' %}";
-        const rotasParticipante = [
-          '/boas-vindas/',
-          '/quizzes/',
-          '/desafio/'
-        ];
-
-        // Marca que o dispositivo está dentro do ambiente PWA
-        sessionStorage.setItem('pwa_modo_ativo', '1');
-        localStorage.removeItem('pwa_quiosque_url');
-
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('inicio') === '1') {
-          sessionStorage.removeItem('pwa_quiosque_url');
-          sessionStorage.removeItem('pwa_fluxo_participante');
-          sessionStorage.removeItem('pwa_saiu_por_pin');
-          window.history.replaceState({ pwaGuard: true }, '', window.location.pathname);
-        }
-
-        function normalizarPath(urlOuPath) {
-          return new URL(urlOuPath, window.location.origin).pathname.replace(/\/$/, '');
-        }
-
-        function ehRotaParticipante(pathname) {
-          return rotasParticipante.some((rota) => pathname.includes(rota));
-        }
-
-        function foiNavegacaoVoltarAvancar(event) {
-          if (event && event.persisted) return true;
-          try {
-            const navEntries = performance.getEntriesByType('navigation');
-            if (navEntries && navEntries.length > 0) {
-              return navEntries[0].type === 'back_forward';
-            }
-            if (performance.navigation) {
-              return performance.navigation.type === 2;
-            }
-          } catch (_) {}
-          return false;
-        }
-
-        function verificarNavegacao(event) {
-          const pathAtual = window.location.pathname;
-          const pathAtualNorm = pathAtual.replace(/\/$/, '');
-          const pathHomeNorm = normalizarPath(urlHome);
-          const trava = sessionStorage.getItem('pwa_quiosque_url');
-          const naTelaParticipante = ehRotaParticipante(pathAtual);
-          const ehBackForward = foiNavegacaoVoltarAvancar(event);
-
-          if (naTelaParticipante && ehBackForward) {
-            sessionStorage.removeItem('pwa_fluxo_participante');
-            window.location.replace(trava || urlHome);
-            return;
-          }
-
-          if (pathAtual.includes('/boas-vindas/') && !ehBackForward) {
-            sessionStorage.setItem('pwa_fluxo_participante', '1');
-          }
-
-          if (!naTelaParticipante) {
-            sessionStorage.removeItem('pwa_fluxo_participante');
-          }
-
-          // 1. Modo Quiosque ativo na sessão
-          if (trava) {
-            try {
-              const pathTravaNorm = normalizarPath(trava);
-              const fluxoAtivo = sessionStorage.getItem('pwa_fluxo_participante') === '1';
-
-              if (naTelaParticipante && !fluxoAtivo) {
-                window.location.replace(trava);
-                return;
-              }
-
-              if (pathAtualNorm !== pathTravaNorm && !naTelaParticipante) {
-                window.location.replace(trava);
-                return;
-              }
-            } catch (_) {
-              sessionStorage.removeItem('pwa_quiosque_url');
-            }
-            return;
-          }
-
-          // 2. Fora do Modo Quiosque: bloqueia telas de participante
-          if (naTelaParticipante) {
-            window.location.replace(urlHome);
-            return;
-          }
-
-          // 3. Saiu pelo PIN: mantém no pwa_home
-          if (sessionStorage.getItem('pwa_saiu_por_pin') === '1' && pathAtualNorm !== pathHomeNorm) {
-            window.location.replace(urlHome);
-          }
-        }
-
-        // Camada 1: Navigation API (bloqueia o botão Voltar)
-        if ('navigation' in window && window.navigation) {
-          window.navigation.addEventListener('navigate', function (event) {
-            if (event.navigationType !== 'traverse') return;
-
-            const pathAtual = window.location.pathname;
-            const pathAtualNorm = pathAtual.replace(/\/$/, '');
-            const pathHomeNorm = normalizarPath(urlHome);
-            const trava = sessionStorage.getItem('pwa_quiosque_url');
-
-            if (event.canIntercept) {
-              event.preventDefault();
-            }
-
-            if (ehRotaParticipante(pathAtual)) {
-              sessionStorage.removeItem('pwa_fluxo_participante');
-              window.location.replace(trava || urlHome);
-            } else if (!trava && pathAtualNorm !== pathHomeNorm) {
-              window.location.replace(urlHome);
-            }
-          });
-        }
-
-        // Camada 2: Fallback popstate sem Navigation API
-        function protegerHistorico() {
-          const pathAtual = window.location.pathname;
-          const pathAtualNorm = pathAtual.replace(/\/$/, '');
-          const pathHomeNorm = normalizarPath(urlHome);
-          const trava = sessionStorage.getItem('pwa_quiosque_url');
-
-          if (trava || ehRotaParticipante(pathAtual)) return;
-
-          function fixarEstado() {
-            if (!window.history.state || !window.history.state.pwaGuard) {
-              window.history.pushState({ pwaGuard: true }, '', window.location.href);
-            }
-          }
-
-          fixarEstado();
-          ['pointerdown', 'touchstart', 'keydown'].forEach(function (ev) {
-            window.addEventListener(ev, fixarEstado, { once: true, passive: true });
-          });
-
-          window.addEventListener('popstate', function () {
-            if (pathAtualNorm === pathHomeNorm) {
-              window.history.pushState({ pwaGuard: true }, '', window.location.href);
-            } else {
-              window.location.replace(urlHome);
-            }
-          });
-        }
-
-        verificarNavegacao();
-        protegerHistorico();
-
-        window.addEventListener('pageshow', function (event) {
-          sessionStorage.setItem('pwa_modo_ativo', '1');
-          verificarNavegacao(event);
-        });
-      })();
-    </script>
   </head>
 
-  <body>
-   <!-- Barra superior e 5 toques -->
+  <body {% block body_attrs %}{% endblock %}>
+    <!-- Barra superior e 5 toques -->
     <div class="pwa-camera-safe-bar d-lg-none" id="pwaSafeBarReset" aria-hidden="true"></div>
-    <script>
-      (function () {
-        const safeBar = document.getElementById('pwaSafeBarReset');
-        if (!safeBar) return;
-        let toquesBarra = 0;
-        let timerBarra = null;
-        safeBar.addEventListener('click', function () {
-          toquesBarra++;
-          clearTimeout(timerBarra);
-          if (toquesBarra >= 5) {
-            toquesBarra = 0;
-            window.location.reload();
-            return;
-          }
-          timerBarra = setTimeout(function () { toquesBarra = 0; }, 2500);
-        });
-      })();
-    </script>
 
     <!-- Cabeçalho (Desktop) -->
     <header class="site-header d-none d-lg-block flex-shrink-0">
@@ -227,40 +51,30 @@
         <div class="container">
           <a class="navbar-brand me-3"
              href="{% url 'app_evento:urldis_evento' %}"
-             onclick="sessionStorage.removeItem('pwa_modo_ativo'); sessionStorage.removeItem('pwa_saiu_por_pin');">
+             data-pwa-exit>
             <img src="{% static 'images/images-default/logo-sea-fill-192.svg' %}"
                  alt="Portal SEA Eventos - Sistema de Eventos Acadêmicos"
                  height="52" />
           </a>
 
-          <button class="navbar-toggler border-0"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#navbarMain"
-                  aria-controls="navbarMain"
-                  aria-expanded="false"
-                  aria-label="Alternar navegação">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-
-          <div class="collapse navbar-collapse" id="navbarMain">
+          {% with url_name=request.resolver_match.url_name|default:'' %}
             <ul class="navbar-nav nav-pills ms-auto align-items-center gap-2">
               <li class="nav-item">
                 <a class="nav-link rounded-pill px-3 py-1 small"
                    href="{% url 'app_evento:urldis_evento' %}"
-                   onclick="sessionStorage.removeItem('pwa_modo_ativo'); sessionStorage.removeItem('pwa_saiu_por_pin');">
-                  <i class="bi bi-house-door me-1"></i> Inicio
+                   data-pwa-exit>
+                  <i class="bi bi-house-door me-1"></i> Início
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link rounded-pill px-3 py-1 small active"
-                   aria-current="page"
+                <a class="nav-link rounded-pill px-3 py-1 small {% if url_name == 'urlpwa_home' %}active{% endif %}"
+                   {% if url_name == 'urlpwa_home' %}aria-current="page"{% endif %}
                    href="{% url 'app_evento:urlpwa_home' %}">
                   <i class="bi bi-qr-code-scan me-1"></i> Acessar Evento
                 </a>
               </li>
             </ul>
-          </div>
+          {% endwith %}
         </div>
       </nav>
     </header>
@@ -284,7 +98,7 @@
       {% block content %}{% endblock %}
     </main>
 
-    <!-- Rodapé(Desktop)  -->
+    <!-- Rodapé (Desktop) -->
     <footer class="site-footer d-none d-lg-block py-2 text-center flex-shrink-0">
       <div class="container">
         <p class="text-white-50 small mb-0">
@@ -293,9 +107,10 @@
       </div>
     </footer>
 
-    <!-- Bootstrap 5 JS Bundle -->
+    <!-- Scripts Globais PWA -->
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/sw-registro.js' %}"></script>
+    <script src="{% static 'js/basepwa.js' %}"></script>
 
     {% block extra_js %}{% endblock %}
   </body>

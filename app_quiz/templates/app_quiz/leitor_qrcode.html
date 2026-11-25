@@ -10,12 +10,11 @@
 {% endblock %}
 
 {% block pre_script %}
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="{% static 'js/html5-qrcode.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
 
-{% csrf_token %}
   <div class="pwa-screen-container kiosk-mode">
   <div class="qr-content-wrapper">
 

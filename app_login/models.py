@@ -15,7 +15,7 @@ def validar_tamanho_usuario(imagem):
 """Model da tabela Usuario"""
 class Usuario(models.Model):
     nome = models.CharField(max_length=200)
-    cpf = models.CharField(verbose_name="CPF", max_length=14, unique=True)
+    cpf = models.CharField(verbose_name="CPF", max_length=14, unique=True, blank=True, null=True)
     dataNascimento = models.DateField(verbose_name="Data de Nascimento", blank=True, null=True)
     email = models.EmailField(max_length=200,unique=True)
     telefone = models.CharField(max_length=20, blank=True, null=True)
@@ -93,16 +93,3 @@ class Usuario(models.Model):
             .count()
         )
         
-'''
-class LogAcesso(models.Model):
-    """Model para registrar acessos dos participantes"""
-    participante = models.ForeignKey(Participante, on_delete=models.CASCADE, related_name='logs_acesso')
-    data_acesso = models.DateTimeField(auto_now_add=True)
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
-    user_agent = models.TextField(blank=True, null=True)
-    
-    class Meta:
-        verbose_name = "Log de Acesso"
-        verbose_name_plural = "Logs de Acesso"
-        ordering = ['-data_acesso']
-'''

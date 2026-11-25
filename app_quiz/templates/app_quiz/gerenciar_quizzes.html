@@ -55,7 +55,7 @@
                     {% if quiz.tipo == 'MULTIPLA' %}
                       Gabarito: <strong class="text-dark">Alternativa {{ quiz.alternativa_correta }}</strong>
                     {% else %}
-                      {% if quiz.valor_ideal %}
+                      {% if quiz.valor_ideal is not None %}
                         Ideal: <strong class="text-dark">{{ quiz.valor_ideal }} {{ quiz.unidade_medida }}</strong>
                       {% else %}
                         Faixa: <strong class="text-dark">{{ quiz.valor_minimo }} a {{ quiz.valor_maximo }} {{ quiz.unidade_medida }}</strong>

@@ -6,21 +6,16 @@
 {% endblock %}
 
 {% block extra_css %}
-  <style>
-    header.site-header,
-    footer.site-footer {
-      display: none !important;
-    }
-
-    .quiz-card-concluido {
-      border-left: 5px solid #198754 !important;
-      background-color: #f8faf8;
-    }
-  </style>
 {% endblock %}
 
 {% block pre_script %}
-  <meta http-equiv="refresh" content="60;url={% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}" />
+{% endblock %}
+
+{% block body_attrs %}
+  data-sem-chrome="true"
+  data-leitor-url="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}"
+  data-timeout-total="60"
+  data-timeout-inatividade="15"
 {% endblock %}
 
 {% block content %}
@@ -31,7 +26,7 @@
     <div class="d-flex justify-content-between align-items-start gap-3 mb-4 pb-3 border-bottom">
       <div class="d-flex align-items-start gap-3 flex-grow-1 min-w-0">
         <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}"
-           onclick="window.location.replace(this.href); return false;"
+           
            class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center pwa-back-btn flex-shrink-0 mt-1"
            title="Voltar ao leitor">
           <i class="bi bi-qr-code-scan fs-5"></i>
@@ -80,10 +75,10 @@
                   {% endif %}
                 </div>
 
-                <!-- Título e Descrição -->
+                <!-- Título e Subtitulo -->
                 <h5 class="fw-bold text-dark mb-1">{{ item.titulo }}</h5>
-                {% if item.descricao %}
-                  <p class="text-muted small flex-grow-1 mb-3">{{ item.descricao|truncatewords:16 }}</p>
+                {% if item.subtitulo %}
+                  <p class="text-muted small flex-grow-1 mb-3">{{ item.subtitulo|truncatewords:16 }}</p>
                 {% else %}
                   <div class="flex-grow-1"></div>
                 {% endif %}
@@ -98,10 +93,10 @@
                         <i class="bi bi-rulers text-verde-escuro me-1"></i>
                         Unidade: <strong class="text-dark">{{ item.unidade_medida }}</strong>
                       </span>
-                      {% if item.faixa_esperada_min is not None and item.faixa_esperada_max is not None %}
+                      {% if item.valor_minimo is not None and item.valor_maximo is not None %}
                         <span>
                           <i class="bi bi-bullseye text-verde-escuro me-1"></i>
-                          Faixa: <strong class="text-dark">{{ item.faixa_esperada_min }} a {{ item.faixa_esperada_max }}</strong>
+                          Faixa: <strong class="text-dark">{{ item.valor_minimo }} a {{ item.valor_maximo }}</strong>
                         </span>
                       {% endif %}
                     </div>
@@ -118,7 +113,6 @@
                     </button>
                   {% else %}
                     <a href="{% url 'app_quiz:urlquiz_detail' cracha item.id %}"
-                       onclick="window.location.replace(this.href); return false;"
                        class="btn-pwa-primary text-decoration-none shadow-sm gap-2"
                        style="height: 46px; font-size: 0.95rem;">
                       <span>Iniciar Desafio</span>
@@ -142,7 +136,6 @@
     <!-- Botão para retornar ao Leitor -->
     <div class="text-center pb-4">
       <a href="{% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}"
-         onclick="window.location.replace(this.href); return false;"
          class="btn btn-outline-secondary btn-sm rounded-pill px-4">
         <i class="bi bi-qr-code-scan me-1"></i> Voltar ao Leitor
       </a>
@@ -153,28 +146,4 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const urlLeitor = "{% url 'app_quiz:urlpagina_leitor' codigo_leitor=atividade.codigo_leitor %}";
-      const TEMPO_TOTAL_MS = 60000;       // 60 segundos máximos na tela
-      const TEMPO_INATIVIDADE_MS = 15000; // 15 segundos sem interação
-
-      function voltarParaLeitor() {
-        window.location.replace(urlLeitor);
-      }
-
-      // 1. Limite absoluto de 60 segundos
-      setTimeout(voltarParaLeitor, TEMPO_TOTAL_MS);
-
-      // 2. Limite de 15 segundos de inatividade (reinicia ao fazer ação)
-      let timerInatividade = setTimeout(voltarParaLeitor, TEMPO_INATIVIDADE_MS);
-
-      ['pointerdown', 'touchstart', 'scroll', 'keydown'].forEach(function (evento) {
-        document.addEventListener(evento, function () {
-          clearTimeout(timerInatividade);
-          timerInatividade = setTimeout(voltarParaLeitor, TEMPO_INATIVIDADE_MS);
-        }, { passive: true });
-      });
-    });
-  </script>
 {% endblock %}

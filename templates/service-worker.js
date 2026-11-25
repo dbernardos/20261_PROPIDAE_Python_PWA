@@ -1,139 +1,77 @@
+const CACHE_NAME = 'sea-pwa-v1';
 
-    // Based off of https://github.com/pwa-builder/PWABuilder/blob/main/docs/sw.js
+const HOSTNAME_WHITELIST = [
+  self.location.hostname,
+  'fonts.gstatic.com',
+  'fonts.googleapis.com',
+  'cdn.jsdelivr.net',
+];
 
-    /*
-      Welcome to our basic Service Worker! This Service Worker offers a basic offline experience
-      while also being easily customizeable. You can add in your own code to implement the capabilities
-      listed below, or change anything else you would like.
+const IGNORED_PREFIXES = ['/admin/', '/login/', '/logout/', '/chaining/'];
 
+self.addEventListener('install', () => {
+  self.skipWaiting();
+});
 
-      Need an introduction to Service Workers? Check our docs here: https://docs.pwabuilder.com/#/home/sw-intro
-      Want to learn more about how our Service Worker generation works? Check our docs here: https://docs.pwabuilder.com/#/studio/existing-app?id=add-a-service-worker
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys
+          .filter((key) => key !== CACHE_NAME)
+          .map((key) => caches.delete(key))
+      )
+    ).then(() => self.clients.claim())
+  );
+});
 
-      Did you know that Service Workers offer many more capabilities than just offline? 
-        - Background Sync: https://microsoft.github.io/win-student-devs/#/30DaysOfPWA/advanced-capabilities/06
-        - Periodic Background Sync: https://web.dev/periodic-background-sync/
-        - Push Notifications: https://microsoft.github.io/win-student-devs/#/30DaysOfPWA/advanced-capabilities/07?id=push-notifications-on-the-web
-        - Badges: https://microsoft.github.io/win-student-devs/#/30DaysOfPWA/advanced-capabilities/07?id=application-badges
-    */
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  if (request.method !== 'GET') return;
 
-    const HOSTNAME_WHITELIST = [
-        self.location.hostname,
-        'fonts.gstatic.com',
-        'fonts.googleapis.com',
-        'cdn.jsdelivr.net'
-    ]
+  const url = new URL(request.url);
 
-    // The Util Function to hack URLs of intercepted requests
-    const getFixedUrl = (req) => {
-        var now = Date.now()
-        var url = new URL(req.url)
+  // Ignora rotas de autenticação, admin, raiz e domínios fora da whitelist
+  const isIgnoredPath =
+    url.pathname === '/' ||
+    IGNORED_PREFIXES.some((prefix) => url.pathname.startsWith(prefix));
 
-        // 1. fixed http URL
-        // Just keep syncing with location.protocol
-        // fetch(httpURL) belongs to active mixed content.
-        // And fetch(httpRequest) is not supported yet.
-        url.protocol = self.location.protocol
+  if (isIgnoredPath || !HOSTNAME_WHITELIST.includes(url.hostname)) return;
 
-        // 2. add query for caching-busting.
-        // Github Pages served with Cache-Control: max-age=600
-        // max-age on mutable content is error-prone, with SW life of bugs can even extend.
-        // Until cache mode of Fetch API landed, we have to workaround cache-busting with query string.
-        // Cache-Control-Bug: https://bugs.chromium.org/p/chromium/issues/detail?id=453190
-        if (url.hostname === self.location.hostname) {
-            url.search += (url.search ? '&' : '?') + 'cache-bust=' + now
-        }
-        return url.href
-    }
+  const isDocument =
+    request.mode === 'navigate' || request.destination === 'document';
 
+  if (isDocument) {
+    // Páginas HTML: Network First (valida sessão/CSRF no Django)
+    event.respondWith(
+      fetch(request, { cache: 'no-store' })
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
 
-    /**
-     *  @Lifecycle Install
-     *  Força o Service Worker a se instalar imediatamente
-     */
-    self.addEventListener('install', event => {
-        self.skipWaiting();
-    });
-
-    /**
-     *  @Lifecycle Activate
-     *  New one activated when old isnt being used.
-     *
-     *  waitUntil(): activating ====> activated
-     */
-    self.addEventListener('activate', event => {
-      event.waitUntil(self.clients.claim())
-    })
-
-    /**
-     *  @Functional Fetch
-     *  All network requests are being intercepted here.
-     *
-     *  void respondWith(Promise<Response> r)
-     */
-    self.addEventListener('fetch', event => {
-        
-        if (event.request.method !== 'GET') {
-             return; 
-        }     
-
-        const url = new URL(event.request.url);
-
-        // 1. ROTAS DE AUTENTICAÇÃO E ADMIN: Ignora o Service Worker completamente
-        if(url.pathname === '/'||
-            url.pathname.startsWith('/admin/')    || 
-            url.pathname.startsWith('/login/')    || 
-            url.pathname.startsWith('/chaining/') || 
-            url.pathname.startsWith('/logout/')) {
-            return; 
-        }
-    // Skip some of cross-origin requests, like those for Google Analytics.
-        if (HOSTNAME_WHITELIST.indexOf(new URL(event.request.url).hostname) > -1) {
-            // Stale-while-revalidate
-            // similar to HTTP's stale-while-revalidate: https://www.mnot.net/blog/2007/12/12/stale
-            // Upgrade from Jake's to Surma's: https://gist.github.com/surma/eb441223daaedf880801ad80006389f1
-
-
-            const isDocument = event.request.mode === 'navigate' || event.request.destination === 'document';
-
-            if (isDocument) {
-                // 2. PARA PÁGINAS HTML: Network First (Rede Primeiro)
-                // Tenta buscar no Django primeiro para validar sessão e CSRF.
-                event.respondWith(
-                    fetch(getFixedUrl(event.request), { cache: 'no-store' })
-                        .then(response => {
-                            // Se a rede respondeu, salva uma cópia no cache caso fique offline depois
-                            const copy = response.clone();
-                            caches.open("pwa-cache").then(cache => cache.put(event.request, copy));
-                            return response;
-                        })
-                        .catch(() => {
-                            // SÓ usa o cache se o servidor estiver inacessível/offline
-                            return caches.match(event.request);
-                        })
-                );
-            } else {    
-                const cached = caches.match(event.request)
-                const fixedUrl = getFixedUrl(event.request)
-                const fetched = fetch(fixedUrl, { cache: 'no-store' })
-                const fetchedCopy = fetched.then(resp => resp.clone())
-
-                // Call respondWith() with whatever we get first.
-                // If the fetch fails (e.g disconnected), wait for the cache.
-                // If there’s nothing in cache, wait for the fetch.
-                // If neither yields a response, return offline pages.
-                event.respondWith(
-                Promise.race([fetched.catch(_ => cached), cached])
-                    .then(resp => resp || fetched)
-                    .catch(_ => { /* eat any errors */ })
-                )
-
-                // Update the cache with the version we fetched (only for ok status)
-                event.waitUntil(
-                Promise.all([fetchedCopy, caches.open("pwa-cache")])
-                    .then(([response, cache]) => response.ok && cache.put(event.request, response))
-                    .catch(_ => { /* eat any errors */ })
-                )
+  // Arquivos estáticos (CSS, JS, imagens, fontes): Stale-While-Revalidate
+  event.respondWith(
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.match(request).then((cached) => {
+        const fetched = fetch(request)
+          .then((response) => {
+            if (response.ok) {
+              cache.put(request, response.clone());
             }
-        }
-})
+            return response;
+          })
+          .catch(() => cached);
+
+        return cached || fetched;
+      })
+    )
+  );
+});
