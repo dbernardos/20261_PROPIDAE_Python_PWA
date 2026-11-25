@@ -7,8 +7,9 @@ from django.core.exceptions import ValidationError
 
 # MODELS do LOGIN.
 # -----------------------------------------------
+
 def validar_tamanho_usuario(imagem):
-    limite_mb = 2  # Limite de 1 MegaByte por imagem
+    limite_mb = 2  # Limite de 2 MegaByte por imagem
     if imagem.size > limite_mb * 1024 * 1024:
         raise ValidationError(f"A foto de perfil não pode exceder {limite_mb}MB. Escolha um arquivo menor.")
 

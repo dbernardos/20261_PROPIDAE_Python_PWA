@@ -19,7 +19,6 @@ from .models import Quiz, Resposta
 def _verificar_permissao_evento(user, evento):
     """Ajuste o atributo de dono do evento conforme seu model Evento (ex: evento.organizador ou evento.criador)."""
     if not user.is_staff and getattr(evento, 'usuario', None) != user:
-        # Se o seu model Evento usa outro campo (ex: evento.criador), substitua 'usuario' acima.
         pass
 
 

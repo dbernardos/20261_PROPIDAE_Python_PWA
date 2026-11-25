@@ -21,14 +21,14 @@ def executar(comando):
 def main():
     print("Processo de configuração e inicialização iniciando...")
 
-    # 1. Cria o ambiente virtual
+    # Cria o ambiente virtual
     if not os.path.exists("venv"):
         print("Criando o ambiente virtual...")
         venv.create("venv", with_pip=True)
     else:
         print("Ambiente virtual 'venv' já existe.")
 
-    # 2. Instala as dependências listadas
+    # Instala as dependências listadas
     if os.path.exists("requirements.txt"):
         executar([pip_venv, "install", "-r", "requirements.txt"])
     else:
@@ -41,20 +41,20 @@ def main():
         executar([pip_venv, "install", "django-debug-toolbar", "django-extensions"])
 
 
-    # 3. Aplica as migrações do Django
+    # Aplica as migrações do Django
     executar([python_venv, "manage.py", "makemigrations"])
     executar([python_venv, "manage.py", "migrate"])
 
-    # 4. Popula o banco de dados
+    # Popula o banco de dados
     if os.path.exists("popular_banco.py"):
         executar([python_venv, "popular_banco.py"])
 
-    # 5. Coleta os arquivos estáticos
+    # Coleta os arquivos estáticos
     executar([python_venv, "manage.py", "collectstatic", "--noinput"])
 
     print("\nConfiguração concluída! Abrindo o servidor em http://127.0.0.1:8080 ...")
 
-    # 6. Inicia o servidor usando o Python do venv
+    # Inicia o servidor usando o Python do venv
     try:
         subprocess.run([python_venv, "manage.py", "runserver", "8080"])
     except KeyboardInterrupt:

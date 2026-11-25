@@ -22,7 +22,3 @@ class UsuarioAdmin(admin.ModelAdmin):
         'ultimo_acesso'
     )
     list_display_links = ('id', 'nome')
-    
-    #search_fields = ('nome')
-    #list_filter = ('nome')
-    #list_editable = ('email')

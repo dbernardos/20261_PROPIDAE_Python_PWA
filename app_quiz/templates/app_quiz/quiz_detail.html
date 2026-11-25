@@ -20,7 +20,7 @@
   <div class="container fade-in">
     <div class="quiz-detail-wrapper">
 
-      <!-- Cabeçalho Superior (Voltar + Atividade) -->
+      <!-- Cabeçalho -->
       <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
         <a href="{% url 'app_quiz:urlquizzes_atividade' cracha=cracha atividade_id=atividade.id %}"
            class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center pwa-back-btn flex-shrink-0"
@@ -35,7 +35,7 @@
         </div>
       </div>
 
-      <!-- Card Principal do Desafio -->
+      <!-- Card Principal do Quiz -->
       <div class="card card-custom border-0 shadow-sm rounded-4 overflow-hidden mb-3" data-challenge="{{ quiz.numero }}">
 
         <div class="quiz-header-pwa">
@@ -245,10 +245,10 @@
         }
       }
 
-      // 1. Limite absoluto de 60 segundos
+      // Limite absoluto de 60 segundos
       setTimeout(voltarParaLeitor, TEMPO_TOTAL_MS);
 
-      // 2. Limite de 15 segundos de inatividade (reinicia ao tocar, rolar ou digitar)
+      // Limite de 15 segundos de inatividade (reinicia ao tocar, rolar ou digitar)
       let timerInatividade = setTimeout(voltarParaLeitor, TEMPO_INATIVIDADE_MS);
 
       ['pointerdown', 'touchstart', 'scroll', 'keydown', 'input'].forEach(function (evento) {
