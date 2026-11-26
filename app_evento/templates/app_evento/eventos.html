@@ -177,14 +177,9 @@
 
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
                   <div>
-                    <span class="text-verde-escuro fw-bold small text-uppercase d-block">Evento acadêmico</span>
+                    <span class="text-verde-escuro fw-bold small text-uppercase d-block"  data-tooltip="Categoria do evento">{{ item.get_tipoEvento_display|default:item.tipoEvento }}</span>
                     <h3 class="h5 fw-bold mb-0" title="{{ item.nome }}">{{ item.nome }}</h3>
                   </div>
-
-                  <span class="badge badge-verde-suave rounded-pill px-3 py-2"
-                        data-tooltip="Categoria do evento">
-                    {{ item.get_tipoEvento_display|default:item.tipoEvento }}
-                  </span>
                 </div>
 
                 <p class="text-muted small mb-3"
@@ -241,9 +236,9 @@
 
                 <div class="mt-auto pt-3 border-top d-flex justify-content-start">
                   <a href="{% url 'app_evento:urldet_evento' item.id %}"
-                     class="btn btn-verde-escuro btn-sm py-2"
+                     class="btn btn-verde-escuro btn-sm px-3 py-2"
                      data-tooltip="Abrir página do evento, programação e inscrições">
-                    Ver detalhes e atividades <i class="bi bi-arrow-right ms-1"></i>
+                    Ver detalhes<i class="bi bi-arrow-right ms-1"></i>
                   </a>
                 </div>
 

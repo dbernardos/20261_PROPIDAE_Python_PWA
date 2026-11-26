@@ -46,13 +46,9 @@
             <!-- Topo: Título e Tipo -->
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
               <div>
-                <span class="text-verde-escuro fw-bold small text-uppercase d-block">Evento acadêmico</span>
+                <span class="text-verde-escuro fw-bold small text-uppercase d-block" data-tooltip="Categoria do evento">{% firstof evento.get_tipoEvento_display evento.tipoEvento 'Evento' %}</span>
                 <h1 class="h3 fw-bold text-dark mb-0" title="{{ evento.nome }}">{{ evento.nome }}</h1>
-              </div>
-
-              <span class="badge badge-verde-suave rounded-pill px-3 py-2"
-                    data-tooltip="Categoria do evento">
-                {% firstof evento.get_tipoEvento_display evento.tipoEvento 'Evento' %}
+              </div>    
               </span>
             </div>
 
@@ -267,7 +263,7 @@
                   <div class="d-flex align-items-start gap-2">
                     <i class="bi bi-calendar-event {% if atividade.horaFim and atividade.horaFim < agora %}text-danger{% else %}text-verde-escuro{% endif %} mt-1"></i>
                     <div>
-                      <span class="text-muted d-block">Data / Hora Início</span>
+                      <span class="text-muted d-block">Data de Início</span>
                       <strong class="{% if atividade.horaFim and atividade.horaFim < agora %}text-danger{% else %}text-dark{% endif %}">
                         {{ atividade.horaInicio|date:"d/m/Y H:i" }}
                       </strong>
@@ -279,7 +275,7 @@
                   <div class="d-flex align-items-start gap-2">
                     <i class="bi bi-clock {% if atividade.horaFim and atividade.horaFim < agora %}text-danger{% else %}text-verde-escuro{% endif %} mt-1"></i>
                     <div>
-                      <span class="text-muted d-block">Término</span>
+                      <span class="text-muted d-block">Data de Término</span>
                       <strong class="{% if atividade.horaFim and atividade.horaFim < agora %}text-danger{% else %}text-dark{% endif %}">
                         {{ atividade.horaFim|date:"d/m/Y H:i" }}
                       </strong>

@@ -182,7 +182,8 @@
 
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
                   <div>
-                    <span class="text-verde-escuro fw-bold small text-uppercase d-block">Evento acadêmico</span>
+                    <span class="text-verde-escuro fw-bold small text-uppercase d-block" data-tooltip="Categoria do evento">
+                      {{ item.get_tipoEvento_display|default:item.tipoEvento }}</span>
                     <h3 class="h5 fw-bold mb-0" title="{{ item.nome }}">{{ item.nome }}</h3>
                   </div>
 
@@ -193,10 +194,6 @@
                         <i class="bi bi-key me-1"></i>{{ item.codigo_evento }}
                       </span>
                     {% endif %}
-                    <span class="badge badge-verde-suave rounded-pill px-3 py-2"
-                          data-tooltip="Categoria do evento">
-                      {{ item.get_tipoEvento_display|default:item.tipoEvento }}
-                    </span>
                   </div>
                 </div>
 
