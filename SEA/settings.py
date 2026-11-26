@@ -34,6 +34,8 @@ ALLOWED_HOSTS = [
 CSRF_TRUSTED_ORIGINS = [
     'https://portalseaeventos.com.br',
     'https://://portalseaeventos.com.br',
+    'https://*.sslip.io',
+    'http://*.sslip.io',
 ]
 
 if DEBUG:

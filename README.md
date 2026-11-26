@@ -124,12 +124,6 @@ git push origin nome-da-branch
 USUARIO: admin_eventos
 SENHA: ifsc1234
 
-USUARIO: admin_eventos2
-SENHA: ifsc1234
-
-USUARIO: admin_eventos3
-SENHA: ifsc1234
-
 ## Login para Participantes:
 USUARIO: mariana.li
 SENHA: participante1
