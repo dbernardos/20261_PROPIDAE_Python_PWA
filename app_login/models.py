@@ -22,8 +22,8 @@ class Usuario(models.Model):
     telefone = models.CharField(max_length=20, blank=True, null=True)
     
     formacao = models.CharField(max_length=200, blank=True, null=True)
-    empresa = models.CharField(max_length=45, blank=True, null=True)
-    cargo = models.CharField(max_length=45, blank=True, null=True)
+    empresa = models.CharField(max_length=100, blank=True, null=True)
+    cargo = models.CharField(max_length=100, blank=True, null=True)
     fotoPerfil = models.ImageField(verbose_name="Foto de Perfil", upload_to='perfis/', validators=[validar_tamanho_usuario], blank=True, null=True)
     biografia = models.CharField(max_length=500, blank=True, null=True)
 
@@ -55,12 +55,6 @@ class Usuario(models.Model):
         """Calcula o nível inteiro a partir da pontuação total (100 pts por nível, iniciando no 1)."""
         pontos = max(0, self.pontos_totais)
         return (pontos // 100) + 1
-
-    @property
-    def nivel_progresso(self):
-        """Percentual de progresso (0 a 100) para alcançar o próximo nível."""
-        pontos = max(0, self.pontos_totais)
-        return round(((pontos % 100) / 100) * 100)
 
     @property
     def total_eventos_participados(self):

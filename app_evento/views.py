@@ -682,7 +682,6 @@ def gerenciar_participantes(request, evento_id, atividade_id=None):
         inscricao.aproximados = aproximados
         inscricao.respostas_lista = resps
         inscricao.nivel = nivel_conta
-        inscricao.nivel_progresso = nivel_dados['progresso']
         inscricao.presenca_info = (
             status_presenca_atividade(participacoes_map.get(inscricao.id), atividade, agora)
             if atividade else None
