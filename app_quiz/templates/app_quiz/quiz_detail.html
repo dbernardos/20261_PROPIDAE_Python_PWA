@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-  {{ quiz.titulo }} | Desafio {{ quiz.numero }} | Portal SEA Eventos
+  {{ quiz.titulo }} | Quiz {{ quiz.numero }} | Portal SEA Eventos
 {% endblock %}
 
 {% block pwa_messages %}{% endblock %}
@@ -24,7 +24,7 @@
       <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
         <a href="{% url 'app_quiz:urlquizzes_atividade' cracha=cracha atividade_id=atividade.id %}"
            class="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center pwa-back-btn flex-shrink-0"
-           title="Voltar aos desafios">
+           title="Voltar aos quizs">
           <i class="bi bi-arrow-left fs-5"></i>
         </a>
 
@@ -35,11 +35,11 @@
         </div>
       </div>
 
-      <!-- Card Principal do Quiz -->
+      <!-- Card Principal -->
       <div class="card card-custom border-0 shadow-sm rounded-4 overflow-hidden mb-3" data-challenge="{{ quiz.numero }}">
 
         <div class="quiz-header-pwa">
-          <div class="quiz-badge-numero">Desafio #{{ quiz.numero }}</div>
+          <div class="quiz-badge-numero">quiz #{{ quiz.numero }}</div>
           <h1 class="quiz-titulo-pwa">{{ quiz.titulo }}</h1>
           {% if quiz.subtitulo %}
             <p class="quiz-subtitulo-pwa">{{ quiz.subtitulo }}</p>
@@ -144,12 +144,12 @@
             {% endif %}
 
           {% else %}
-            <!-- Desafio Já Concluído -->
+            <!-- Quiz já concluído -->
             <div class="bg-light border rounded-4 p-4 text-center">
               <div class="icon-circle-pwa shadow-sm mb-3" style="width: 60px; height: 60px;">
                 <i class="bi bi-check-lg fs-3"></i>
               </div>
-              <h6 class="text-dark fw-bold mb-1">Desafio Concluído</h6>
+              <h6 class="text-dark fw-bold mb-1">Quiz Concluído</h6>
               <p class="mb-3 text-muted small">
                 Sua resposta:
                 <strong class="text-dark">
@@ -171,11 +171,11 @@
         </div>
       </div>
 
-      <!-- Botão Inferior Voltar aos Desafios -->
+      <!-- Botão voltar -->
       <div class="text-center pb-3">
         <a href="{% url 'app_quiz:urlquizzes_atividade' cracha=cracha atividade_id=atividade.id %}"
            class="btn btn-outline-secondary btn-sm rounded-pill px-4">
-          <i class="bi bi-arrow-left me-1"></i> Voltar aos Desafios
+          <i class="bi bi-arrow-left me-1"></i> Voltar aos Quizzes
         </a>
       </div>
 
@@ -195,7 +195,7 @@
       </div>
       <div class="modal-body pt-2">
         <p class="text-muted small mb-0">
-          Tem certeza? Você possui apenas <strong>uma tentativa</strong> para este desafio.
+          Tem certeza? Você possui apenas <strong>uma tentativa</strong> para este quiz.
         </p>
       </div>
       <div class="modal-footer border-0 pt-0">

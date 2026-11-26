@@ -111,55 +111,59 @@
     </div>
   </div>
 </section>
+{% endblock %}
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const dataInicio = document.getElementById('id_dataInicio');
-  const dataFim = document.getElementById('id_dataFim');
+{% block extra_js %}
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const dataInicio = document.getElementById('id_dataInicio');
+    const dataFim = document.getElementById('id_dataFim');
 
-  if (!dataInicio || !dataFim) return;
+    if (!dataInicio || !dataFim) return;
 
-  const formulario = dataInicio.closest('form');
+    const formulario = dataInicio.closest('form');
 
-  function sincronizarLimites() {
-    dataFim.min = dataInicio.value || '';
-    dataInicio.max = dataFim.value || '';
-  }
-
-  function validarIntervaloDatas() {
-    dataFim.setCustomValidity('');
-
-    if (dataInicio.value && dataFim.value && dataInicio.value > dataFim.value) {
-      dataFim.setCustomValidity('A data final deve ser igual ou posterior à data inicial.');
-      dataFim.reportValidity();
-      return false;
+    function sincronizarLimites() {
+      dataFim.min = dataInicio.value || '';
+      dataInicio.max = dataFim.value || '';
     }
 
-    return true;
-  }
+    function validarIntervaloDatas() {
+      dataFim.setCustomValidity('');
 
-  dataInicio.addEventListener('change', function () {
-    sincronizarLimites();
-    validarIntervaloDatas();
-  });
-
-  dataFim.addEventListener('change', function () {
-    sincronizarLimites();
-    validarIntervaloDatas();
-  });
-
-  // Garante os limites já aplicados ao abrir na tela de edição
-  sincronizarLimites();
-
-  if (formulario) {
-    formulario.addEventListener('submit', function (evento) {
-      if (!validarIntervaloDatas()) {
-        evento.preventDefault();
-        evento.stopPropagation();
+      if (dataInicio.value && dataFim.value && dataInicio.value > dataFim.value) {
+        dataFim.setCustomValidity('A data final deve ser igual ou posterior à data inicial.');
+        dataFim.reportValidity();
         return false;
       }
+
+      return true;
+    }
+
+    dataInicio.addEventListener('change', function () {
+      sincronizarLimites();
+      validarIntervaloDatas();
     });
-  }
-});
-</script>
-{% endblock %}
+
+    dataFim.addEventListener('change', function () {
+      sincronizarLimites();
+      validarIntervaloDatas();
+    });
+
+    // Garante os limites já aplicados ao abrir na tela de edição
+    sincronizarLimites();
+
+    if (formulario) {
+      formulario.addEventListener('submit', function (evento) {
+        if (!validarIntervaloDatas()) {
+          evento.preventDefault();
+          evento.stopPropagation();
+          return false;
+        }
+      });
+    }
+  });
+  </script>
+
+  {% endblock%}
+

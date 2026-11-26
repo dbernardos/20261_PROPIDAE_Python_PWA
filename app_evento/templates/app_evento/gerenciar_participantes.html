@@ -36,9 +36,6 @@
         <p class="text-muted mb-0">
           Total {% if atividade %}nesta atividade{% else %}de inscritos{% endif %}:
           <strong class="text-dark">{{ participantes|length }}</strong>
-          {% if max_pontos_possiveis > 0 %}
-            <span class="mx-2">•</span> Pontuação máxima: <strong class="text-dark" title="Máximo de pontos alcançáveis nos desafios">{{ max_pontos_possiveis }} pts</strong>
-          {% endif %}
         </p>
       </div>
 

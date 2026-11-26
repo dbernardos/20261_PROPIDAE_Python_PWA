@@ -261,38 +261,41 @@
   </div>
 </section>
 
+{% endblock %}
+{% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const selectPeriodo = document.getElementById('periodo');
-  const containerCustom = document.getElementById('containerDatasCustom');
-  const inputInicio = document.getElementById('data_inicio');
-  const inputFim = document.getElementById('data_fim');
+  document.addEventListener('DOMContentLoaded', function () {
+    const selectPeriodo = document.getElementById('periodo');
+    const containerCustom = document.getElementById('containerDatasCustom');
+    const inputInicio = document.getElementById('data_inicio');
+    const inputFim = document.getElementById('data_fim');
 
-  if (!selectPeriodo || !containerCustom || !inputInicio || !inputFim) return;
+    if (!selectPeriodo || !containerCustom || !inputInicio || !inputFim) return;
 
-  function atualizarPeriodoCustom() {
-    const ehCustom = selectPeriodo.value === 'custom';
-    containerCustom.classList.toggle('d-none', !ehCustom);
-    inputInicio.disabled = !ehCustom;
-    inputFim.disabled = !ehCustom;
+    function atualizarPeriodoCustom() {
+      const ehCustom = selectPeriodo.value === 'custom';
+      containerCustom.classList.toggle('d-none', !ehCustom);
+      inputInicio.disabled = !ehCustom;
+      inputFim.disabled = !ehCustom;
 
-    if (!ehCustom) {
-      inputInicio.value = '';
-      inputFim.value = '';
+      if (!ehCustom) {
+        inputInicio.value = '';
+        inputFim.value = '';
+      }
     }
-  }
 
-  function sincronizarLimites() {
-    inputFim.min = inputInicio.value || '';
-    inputInicio.max = inputFim.value || '';
-  }
+    function sincronizarLimites() {
+      inputFim.min = inputInicio.value || '';
+      inputInicio.max = inputFim.value || '';
+    }
 
-  selectPeriodo.addEventListener('change', atualizarPeriodoCustom);
-  inputInicio.addEventListener('change', sincronizarLimites);
-  inputFim.addEventListener('change', sincronizarLimites);
+    selectPeriodo.addEventListener('change', atualizarPeriodoCustom);
+    inputInicio.addEventListener('change', sincronizarLimites);
+    inputFim.addEventListener('change', sincronizarLimites);
 
-  atualizarPeriodoCustom();
-  sincronizarLimites();
-});
+    atualizarPeriodoCustom();
+    sincronizarLimites();
+  });
 </script>
+ 
 {% endblock %}

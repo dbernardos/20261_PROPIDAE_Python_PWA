@@ -13,7 +13,7 @@
       <div class="col-12 col-md-9 col-lg-7 col-xl-6">
 
         <div class="card card-custom">
-          <!-- Barra de Progresso no Topo do Card -->
+          <!-- Barra de Progresso -->
           <div class="progress rounded-top rounded-0" 
                style="height: 6px;"
                title="{% if etapa == 2 %}Progresso do cadastro: 100% (Etapa final){% else %}Progresso do cadastro: 50% (Etapa 1 de 2){% endif %}"
@@ -43,7 +43,7 @@
               {% csrf_token %}
 
               {% if etapa == 1 or not etapa %}
-                <!-- ==================== ETAPA 1: OBRIGATÓRIA ==================== -->
+                <!--  ETAPA 1: OBRIGATÓRIA ==================== -->
                 <div class="text-center mb-4">
                   <span class="badge badge-verde-suave border rounded-pill px-3 py-1 mb-2"
                         title="Informações essenciais para criar seu acesso"
@@ -79,7 +79,7 @@
                 </div>
 
               {% else %}
-                <!-- ==================== ETAPA 2: OPCIONAL ==================== -->
+                <!-- ETAPA 2: OPCIONAL ==================== -->
                 <input type="hidden" name="etapa" value="2">
 
                 <div class="text-center mb-4">

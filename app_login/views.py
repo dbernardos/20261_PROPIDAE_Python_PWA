@@ -112,12 +112,3 @@ def meu_usuario(request):
         'form': form,
         'password_form': password_form,
     })
-
-
-def resolver_username_login(identificador):
-    identificador = (identificador or '').strip()
-    if not identificador:
-        return ''
-    filtro = {'email__iexact': identificador} if '@' in identificador else {'username__iexact': identificador}
-    user = User.objects.filter(**filtro).first()
-    return user.username if user else identificador

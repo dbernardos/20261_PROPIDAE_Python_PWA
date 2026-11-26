@@ -605,7 +605,7 @@ DADOS_USUARIOS = {
      "izaki_ribas": {
         "username": "Izaki_colorado",
         "senha": "participante21",
-        "nome": "Izaque RIbas",
+        "nome": "Izaki RIbas",
         "email": "izaki.ribas172006@estudante.edu.br",
         "cpf": "367.216.540-91",
         "telefone": "(47) 2651-6761",
@@ -614,7 +614,7 @@ DADOS_USUARIOS = {
         "formacao": "Analise e Desenvolvimento de Sistemas",
         "empresa": "Weg",
         "biografia": "Izaki Ribas é um torcedor fanático do Internacional e empenhado em seu trabalho e estudos.",
-        "foto": "participante21.png",
+        "foto": "participante21.jpg",
     },
      "claudius_maximus": {
         "username": "claudius.cesar",
@@ -628,7 +628,7 @@ DADOS_USUARIOS = {
         "formacao": "Estudante",
         "empresa": "IFSC",
         "biografia": "Claudius Maximus é um estudante assíduo na programação e gosta de RPG.",
-        "foto": "participante22.png",
+        "foto": "participante22.jpg",
     },
      "leon_rodri": {
         "username": "leonrodriz",
@@ -642,7 +642,7 @@ DADOS_USUARIOS = {
         "formacao": "Analise e Desenvolvimento de Sistemas",
         "empresa": "IFSC",
         "biografia": "Leon Rodri é um torcedor fanático do Grêmio e empenhado em suas tarefas.",
-        "foto": "participante23.png",
+        "foto": "participante23.webp",
     },
      "luka_kret": {
         "username": "german_luka",
@@ -656,13 +656,13 @@ DADOS_USUARIOS = {
         "formacao": "Analise e Desenvolvimento de Sistemas",
         "empresa": "Weg",
         "biografia": "Luka Kracmasherkcs é germano-brasileiro natural de Berlim, é trabalhador.",
-        "foto": "participante24.png",
+        "foto": "participante24.webp",
     },
     "higor_henry": {
-        "username": "higor_jawline",
+        "username": "higor_thegreat",
         "senha": "participante25",
         "nome": "higor henry",
-        "email": "higorjaw@gmail.com",
+        "email": "higorgreat@gmail.com",
         "cpf": "871.137.090-44",
         "telefone": "(47) 3243-6781",
         "nascimento": date(2003, 12, 18),
@@ -670,21 +670,21 @@ DADOS_USUARIOS = {
         "formacao": "Analise e Desenvolvimento de Sistemas",
         "empresa": "Weg",
         "biografia": "higor_henry é um marcelandense dedicado.",
-        "foto": "participante25.png",
+        "foto": "participante25.jpe",
     },
     "dan_alba": {
         "username": "albadan9",
         "senha": "participante26",
-        "nome": "Dan Alba",
+        "nome": "Dan Albaguiri",
         "email": "dan@gmail.com",
         "cpf": "066.309.230-22",
         "telefone": "(49) 3587-8814",
-        "nascimento": date(2006, 12, 15),
+        "nascimento": date(2007, 1, 15),
         "cargo": "Estudante",
         "formacao": "Analise e Desenvolvimento de Sistemas",
         "empresa": "IFSC",
-        "biografia": "Dan Alba é um torcedor flamengo e estudante do IF.",
-        "foto": "participante26.png",
+        "biografia": "Dan Albaguiri é um torcedor flamengo e estudante do IF.",
+        "foto": "participante26.jpg",
     },
 }
 
@@ -848,7 +848,7 @@ def popular_banco() -> None:
             "banner": "evento10.jpg",
         },
         "pi_apresentacao_dia1": {
-            "nome": "Apresentação dos Projetos Integradores 1 e 2",
+            "nome": "Apresentação dos Projetos Integradores 1 e 2 (Dia 1)",
             "administrador": usuarios["franklin_admin"],
             "descricao": "Apresentação dos Projetos Integradores das Turmas do Terceiro e Quarto Semestre do Curso Técnico de Desenvolvimento de Sistemas do Instituto Federal de Santa Catarina.",
             "emailContato": "contato@ifsc.edu.br",
@@ -861,7 +861,7 @@ def popular_banco() -> None:
         },
         
         "pi_apresentacao_dia2": {
-            "nome": "Apresentação dos Projetos Integradores 2",
+            "nome": "Apresentação dos Projetos Integradores 2 (Dia 2)",
             "administrador": usuarios["franklin_admin"],
             "descricao": "Apresentação dos Projetos Integradores das Turmas do Quarto Semestre do Curso Técnico de Desenvolvimento de Sistemas do Instituto Federal de Santa Catarina.",
             "emailContato": "contato@ifsc.edu.br",
@@ -870,7 +870,7 @@ def popular_banco() -> None:
             "dataFim": date(2026, 11, 27),
             "tipoEvento": tipoEvento.OUTRO,
             "apoiadores": ["ifsc"],
-            "banner": "evento12.jpg",
+            "banner": "evento11.jpg",
         },
     }
 

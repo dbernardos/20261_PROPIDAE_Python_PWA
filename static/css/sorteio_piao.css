@@ -1,6 +1,6 @@
-/* =========================================================
+/* ====================================
    PAINEL DE SORTEIO 
-   ========================================================= */
+   ===================================*/
 .piao-card {
   background: linear-gradient(135deg, var(--verde-escuro) 0%, #145334 100%);
   border: 3px solid var(--verde-escuro) !important;
@@ -152,9 +152,9 @@
   display: none;
 }
 
-/* =========================================================
+/* ===========================
    MODO TELA CHEIA
-   ========================================================= */
+   ==========================*/
 #piaoCard:fullscreen,
 #piaoCard:-webkit-full-screen {
   background: linear-gradient(135deg, var(--verde-escuro) 0%, #145334 100%) !important;

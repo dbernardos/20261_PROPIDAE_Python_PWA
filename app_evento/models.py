@@ -347,7 +347,8 @@ class Atividade(models.Model):
     def get_participantes_nomes(self):
         """Retorna a lista com os nomes de todos os inscritos desta atividade."""
         participacoes = self.participa_set.filter(
-            inscricao__ativa=True
+            inscricao__ativa=True,
+            presente=True,
         ).select_related('inscricao__usuario__user_django')
         nomes = []
         for p in participacoes:

@@ -18,8 +18,10 @@ from .models import Quiz, Resposta
 
 def _verificar_permissao_evento(user, evento):
     """Ajuste o atributo de dono do evento conforme seu model Evento (ex: evento.organizador ou evento.criador)."""
-    if not user.is_staff and getattr(evento, 'usuario', None) != user:
-        pass
+    if user.is_superuser:
+        return
+    if not evento.administrador_id or evento.administrador.user_django_id != user.id:
+        raise PermissionDenied('Você não tem permissão para gerenciar os quizzes deste evento.')
 
 
 @never_cache

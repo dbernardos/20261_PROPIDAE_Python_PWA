@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // =========================================================
-  // 1. TRAVA DO MODO QUIOSQUE E BOTÃO VOLTAR
+  // TRAVA DO MODO QUIOSQUE E BOTÃO VOLTAR
   // =========================================================
   if (kiosk) {
     kiosk.ativarModoQuiosque(urlAtualLimpa);
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // =========================================================
-  // 2. TOKEN CSRF
+  // TOKEN CSRF
   // =========================================================
   function obterCsrfToken() {
     if (cfg.csrfToken) return cfg.csrfToken;
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // =========================================================
-  // 3. FEEDBACK SONORO E VISUAL
+  //  FEEDBACK SONORO E VISUAL
   // =========================================================
   function tocarBipConfirmacao() {
     try {
@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // =========================================================
-  // 5. VALIDAÇÃO NO SERVIDOR (QR CODE E CÓDIGO MANUAL)
+  // VALIDAÇÃO NO SERVIDOR (QR CODE E CÓDIGO MANUAL)
   // =========================================================
   async function onScanSuccess(decodedText) {
     if (processandoLeitura || saindoPeloPin) return;
@@ -353,7 +353,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // =========================================================
-  // 6. GATILHO DOS 5 CLIQUES (#kioskSecretTrigger)
+  // GATILHO DOS 5 CLIQUES (#kioskSecretTrigger)
   // =========================================================
   const modalPinEl = document.getElementById('modalSaidaQuiosque');
   const formPinSaida = document.getElementById('formPinSaida');
@@ -407,7 +407,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // =========================================================
-  // 7. VALIDAÇÃO DO PIN (CÓDIGO DA ATIVIDADE) E SAÍDA
+  //  VALIDAÇÃO DO PIN (CÓDIGO DA ATIVIDADE) E SAÍDA
   // =========================================================
   if (formPinSaida) {
     formPinSaida.addEventListener('submit', async function (e) {
@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // =========================================================
-  // 8. CICLO DE VIDA DA PÁGINA
+  // CICLO DE VIDA DA PÁGINA
   // =========================================================
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) {

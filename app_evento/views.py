@@ -242,6 +242,8 @@ def eventos_disponiveis(request):
 @login_required
 def cadastrar_evento(request):
     """Cadastra um evento para o administrador autenticado."""
+    if not (request.user.is_staff or request.user.is_superuser):
+        raise PermissionDenied('Você não tem permissão para cadastrar eventos.')
     try:
         usuario_perfil = Usuario.objects.get(user_django=request.user)
     except Usuario.DoesNotExist:

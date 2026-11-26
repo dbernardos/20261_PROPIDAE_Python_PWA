@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-  // Gerador de inteiros aleatórios criptograficamente seguro (sem viés de módulo)
+  // Gerador de inteiros aleatórios criptograficamente seguro 
   function randomInt(max) {
     if (max <= 1) return 0;
     if (window.crypto && window.crypto.getRandomValues) {
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return `/eventos/atividade/${atividadeId}/sorteio/baixa/`;
   }
 
-  function notificarErroBaixa(ganhador, premio) {
+  /*function notificarErroBaixa(ganhador, premio) {
     if (!piaoCard) return;
     let alerta = document.getElementById('alertaErroBaixaSorteio');
     if (!alerta) {
@@ -108,9 +108,9 @@ document.addEventListener('DOMContentLoaded', function () {
       alerta.setAttribute('role', 'alert');
       piaoCard.appendChild(alerta);
     }
-    alerta.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> Atenção: não foi possível salvar no servidor a baixa de <strong>${escapeHtml(premio)}</strong> para <strong>${escapeHtml(ganhador)}</strong>. Verifique a conexão.`;
+    //alerta.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-1"></i> Atenção: não foi possível salvar no servidor a baixa de <strong>${escapeHtml(premio)}</strong> para <strong>${escapeHtml(ganhador)}</strong>. Verifique a conexão.`;
   }
-
+  */
   function getItemTotalWidth() {
     const primeiroItem = track ? track.querySelector('.item-participante') : null;
     if (primeiroItem) {
